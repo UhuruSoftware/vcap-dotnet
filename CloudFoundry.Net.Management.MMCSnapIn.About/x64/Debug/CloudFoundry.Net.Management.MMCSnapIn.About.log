@@ -1,0 +1,45 @@
+﻿Build started 11/19/2011 9:29:30 PM.
+     1>Project "H:\Work\uhuru\windea\windea\.net\cf.net\CloudFoundry.Net.Management.MMCSnapIn.About\CloudFoundry.Net.Management.MMCSnapIn.About.vcxproj" on node 4 (build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(299,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+     1>InitializeBuildStatus:
+         Creating "x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLOUDFOUNDRYNETMANAGEMENTMMCSNAPINABOUT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /analyze /errorReport:prompt stdafx.cpp
+     1>cl : Command line warning D9040: ignoring option '/analyze'; Code Analysis warnings are not available in this edition of the compiler
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLOUDFOUNDRYNETMANAGEMENTMMCSNAPINABOUT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /analyze /errorReport:prompt CloudFoundry.Net.Management.MMCSnapIn.About.cpp
+     1>cl : Command line warning D9040: ignoring option '/analyze'; Code Analysis warnings are not available in this edition of the compiler
+         CloudFoundry.Net.Management.MMCSnapIn.About.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _USRDLL /D CLOUDFOUNDRYNETMANAGEMENTMMCSNAPINABOUT_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /analyze /errorReport:prompt dllmain.cpp
+     1>cl : Command line warning D9040: ignoring option '/analyze'; Code Analysis warnings are not available in this edition of the compiler
+         dllmain.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"x64\Debug\resource.res" resource.rc 
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.embed.manifest.res" x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"H:\Work\uhuru\windea\windea\.net\cf.net\\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"H:\Work\uhuru\windea\windea\.net\cf.net\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /MACHINE:X64 /DLL x64\Debug\resource.res
+         x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.embed.manifest.res
+         x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.obj
+         x64\Debug\dllmain.obj
+         x64\Debug\stdafx.obj
+         LINK : H:\Work\uhuru\windea\windea\.net\cf.net\\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.dll not found or not built by the last incremental link; performing full link
+         CloudFoundry.Net.Management.MMCSnapIn.About.vcxproj -> H:\Work\uhuru\windea\windea\.net\cf.net\\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.dll
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.embed.manifest" /manifest x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.embed.manifest.res" x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About_manifest.rc 
+       LinkEmbedManifest:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"H:\Work\uhuru\windea\windea\.net\cf.net\\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"H:\Work\uhuru\windea\windea\.net\cf.net\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /MACHINE:X64 /DLL x64\Debug\resource.res
+         x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.dll.embed.manifest.res
+         x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.obj
+         x64\Debug\dllmain.obj
+         x64\Debug\stdafx.obj
+         CloudFoundry.Net.Management.MMCSnapIn.About.vcxproj -> H:\Work\uhuru\windea\windea\.net\cf.net\\CloudFoundry.Net.Management.MMCSnapIn\lib\CloudFoundry.Net.Management.MMCSnapIn.About.dll
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.unsuccessfulbuild".
+         Touching "x64\Debug\CloudFoundry.Net.Management.MMCSnapIn.About.lastbuildstate".
+     1>Done Building Project "H:\Work\uhuru\windea\windea\.net\cf.net\CloudFoundry.Net.Management.MMCSnapIn.About\CloudFoundry.Net.Management.MMCSnapIn.About.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.10

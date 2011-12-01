@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E4A38682-F523-494C-B043-2308F5FDDF44}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CloudFoundry.Net.Management.MMCSnapIn</RootNamespace>
+    <AssemblyName>cfsnappin</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Target\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Target\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>UhuruSoftware.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="microsoft.managementconsole, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\mmc\v3.0\microsoft.managementconsole.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\AppViewControlContainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\AppViewControlContainer.Designer.cs">
+      <DependentUpon>AppViewControlContainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AppViewControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\AppViewControl.Designer.cs">
+      <DependentUpon>AppViewControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LabelWithImage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\LabelWithImage.Designer.cs">
+      <DependentUpon>LabelWithImage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CFSnapIn.cs" />
+    <Compile Include="CFSnapInInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\CloudInfoContainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CloudInfoContainer.Designer.cs">
+      <DependentUpon>CloudInfoContainer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\PushAppForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PushAppForm.Designer.cs">
+      <DependentUpon>PushAppForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormViews\AppsFormView.cs" />
+    <Compile Include="FormViews\CloudInfoFormView.cs" />
+    <Compile Include="Lists\AppsList.cs" />
+    <Compile Include="Lists\UsersList.cs" />
+    <Compile Include="Lists\ProvisionedServicesList.cs" />
+    <Compile Include="ScopeNodes\AppScopeNode.cs" />
+    <Compile Include="ScopeNodes\AppsScopeNode.cs" />
+    <Compile Include="ScopeNodes\CloudInfoScopeNode.cs" />
+    <Compile Include="ScopeNodes\UsersScopeNode.cs" />
+    <Compile Include="ScopeNodes\ProvisionedServicesScopeNode.cs" />
+    <Compile Include="ScopeNodes\TargetScopeNode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScopeNodes\TargetsScopeNode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\AppViewControlContainer.resx">
+      <DependentUpon>AppViewControlContainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AppViewControl.resx">
+      <DependentUpon>AppViewControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\LabelWithImage.resx">
+      <DependentUpon>LabelWithImage.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\CloudInfoContainer.resx">
+      <DependentUpon>CloudInfoContainer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\PushAppForm.resx">
+      <DependentUpon>PushAppForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\smallicons.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Cloud\Uhuru.CloudFoundry.Cloud.csproj">
+      <Project>{A4CFB095-4466-4593-86C6-4A896F5977F9}</Project>
+      <Name>Uhuru.CloudFoundry.Cloud</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.UI\Uhuru.CloudFoundry.UI.csproj">
+      <Project>{78FB95BE-F27F-43D4-9A6A-F8EC7011C98D}</Project>
+      <Name>Uhuru.CloudFoundry.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UhuruSoftware.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

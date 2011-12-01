@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="85bbded3-8877-4cba-904d-19a721f3f51d" xmlns="http://schemas.microsoft.com/dsltools/VSPackageDesigner">
+  <commandTable>
+    <rootHasCommandTable Id="d1bdd416-82ba-4a7a-8546-bd4264a30b55">
+      <commandTable Id="144404b3-94f3-499e-8c59-831e99a7c7f7" packageGuid="85bbded3-8877-4cba-904d-19a721f3f51d" commandSetGuid="d1bdd416-82ba-4a7a-8546-bd4264a30b55" safeProjectName="Uhuru.CloudFoundry.UI.VS2010" counter="1" imagesGuid="144404b3-94f3-499e-8c59-831e99a7c7f7">
+        <groups>
+          <externalGroup Id="db5234a4-f7dd-4e03-9f31-665159f63fd9" name="Build Menu [Solution]" idNumeric="2" parentData="guidSHLMainMenu,IDG_VS_BUILD_SOLUTION,Group">
+            <buttons>
+              <groupBaseReferencesButtons Id="18fe35b9-50f0-4e1c-bd13-313fe2f9fbce">
+                <buttonMoniker Id="539140ea-d030-401b-bac5-695c1aeea725" />
+              </groupBaseReferencesButtons>
+            </buttons>
+          </externalGroup>
+          <externalGroup Id="a8ab3bb7-e0a8-42bc-811e-849ff2e9c8a9" name="View Menu [Toolbars]" idNumeric="5" parentData="guidSHLMainMenu,IDG_VS_VIEW_TOOLBARS,Group">
+            <buttons>
+              <groupBaseReferencesButtons Id="4bc33088-bfb4-488e-9948-e1473a34138d">
+                <buttonMoniker Id="abb6cef1-97dc-49b4-9c7f-d439fad6e3f6" />
+              </groupBaseReferencesButtons>
+              <groupBaseReferencesButtons Id="427fea9e-4534-4064-aded-6e2261cc2517">
+                <buttonMoniker Id="339f303d-3b28-475f-a573-8a1e327319f7" />
+              </groupBaseReferencesButtons>
+            </buttons>
+          </externalGroup>
+          <group Id="7ceecc69-2ddf-46cd-83d5-af59736025ac" name="GroupBuildAndPush" idNumeric="10">
+            <buttons>
+              <groupBaseReferencesButtons Id="88074a71-ba16-43e9-8333-8b42b6090a86">
+                <buttonMoniker Id="5a3734ce-e319-429d-bbde-d588686fd24b" />
+              </groupBaseReferencesButtons>
+            </buttons>
+          </group>
+          <group Id="72a05794-3993-45a3-9d8a-1e22937b0633" name="GroupBuildAndPushWebSite" idNumeric="16">
+            <buttons>
+              <groupBaseReferencesButtons Id="bcc805f9-a17d-4fdc-9f6c-130cad0402db">
+                <buttonMoniker Id="1f60a1b9-639b-435a-84e6-6a12933384c3" />
+              </groupBaseReferencesButtons>
+            </buttons>
+          </group>
+        </groups>
+        <buttons>
+          <commandTableHasButtons Id="25fee9c3-34f9-4355-8971-82e3a6f88dbd">
+            <button Id="539140ea-d030-401b-bac5-695c1aeea725" name="ButtonBuildAllAndPush" idNumeric="1" buttonText="Build All and Push" menuText="Build All and Push" commandName="cmdidButtonBuildAllAndPush" toolTipText="ButtonBuildAllAndPush" key1="q" mod1="Control, Shift" mod2="0" visibilityConstraints="SolutionHasMultipleProjects, SolutionHasSingleProject" icon="BuildPushCloud.bmp" commandFlags="0" sampleData="false" />
+          </commandTableHasButtons>
+          <commandTableHasButtons Id="6098b66e-6935-4c8b-abb7-86aac57f215b">
+            <button Id="abb6cef1-97dc-49b4-9c7f-d439fad6e3f6" name="ButtonCloudManager" idNumeric="4" buttonText="Cloud Manager" menuText="Cloud Manager" commandName="cmdidButtonCloudManager" toolTipText="ButtonCloudManager" key1="m" mod1="Control, Shift" mod2="0" visibilityConstraints="0" icon="CloudManager.bmp" commandFlags="0">
+              <toolWindows>
+                <buttonReferencesToolWindows Id="19479924-b283-4a07-bd53-18ea4116ff2d">
+                  <toolWindowMoniker Id="0a8069d4-d283-4a41-99ef-2d6a005b8cfe" />
+                </buttonReferencesToolWindows>
+              </toolWindows>
+            </button>
+          </commandTableHasButtons>
+          <commandTableHasButtons Id="926b6e38-2cf1-4bd5-b16b-449d84d88ae2">
+            <button Id="5a3734ce-e319-429d-bbde-d588686fd24b" name="ButtonBuildAndPushProject" idNumeric="12" buttonText="Build and Push" menuText="Build and Push" commandName="cmdidButtonBuildAndPushProject" toolTipText="ButtonBuildAndPushProject" mod1="0" mod2="0" visibilityConstraints="0" icon="BuildPushCloud.bmp" commandFlags="0" sampleData="false" />
+          </commandTableHasButtons>
+          <commandTableHasButtons Id="369979a9-5a08-416d-8f14-c0d1265e15a7">
+            <button Id="339f303d-3b28-475f-a573-8a1e327319f7" name="ButtonDeploymentWindow" idNumeric="14" buttonText="Cloud Foundry Deployment Window" menuText="Cloud Foundry Deployment Window" commandName="cmdidButtonDeploymentWindow" toolTipText="ButtonDeploymentWindow" mod1="0" mod2="0" visibilityConstraints="SolutionExists" priority="512" icon="CloudInfo.bmp" commandFlags="0">
+              <toolWindows>
+                <buttonReferencesToolWindows Id="6a55fb1e-75a6-46f1-b663-731d06f8dfe7">
+                  <toolWindowMoniker Id="39d6b0f9-f737-4eb4-a201-1360eaf80090" />
+                </buttonReferencesToolWindows>
+              </toolWindows>
+            </button>
+          </commandTableHasButtons>
+          <commandTableHasButtons Id="6dc41eca-7d60-418f-8dcb-0f9f28749a4f">
+            <button Id="1f60a1b9-639b-435a-84e6-6a12933384c3" name="ButtonBuildAndPushWebSite" idNumeric="19" buttonText="ButtonBuildAndPushWebSite" menuText="Build and Push" commandName="cmdidButtonBuildAndPushWebSite" toolTipText="ButtonBuildAndPushWebSite" mod1="0" mod2="0" visibilityConstraints="0" icon="BuildPushCloud.bmp" commandFlags="0" sampleData="false" />
+          </commandTableHasButtons>
+        </buttons>
+        <menuBases>
+          <commandTableHasMenuBases Id="4b0f4740-7790-4978-a9c5-981a9f2da8c7">
+            <externalMenu Id="92e3583a-786f-474e-9847-87c4308671b1" name="Context Menu | Solution Explorer | Project" idNumeric="11" parentData="guidSHLMainMenu,IDM_VS_CTXT_PROJNODE,Menu">
+              <groupBases>
+                <menuBaseReferencesGroupBases Id="687b6ac9-e774-4da6-8a25-b60b41355feb">
+                  <groupMoniker Id="7ceecc69-2ddf-46cd-83d5-af59736025ac" />
+                </menuBaseReferencesGroupBases>
+              </groupBases>
+            </externalMenu>
+          </commandTableHasMenuBases>
+          <commandTableHasMenuBases Id="3df0b227-fd5f-42e3-9600-06edd9566e39">
+            <externalMenu Id="80d77db7-cc02-4499-b212-e1c629290b4f" name="Context Menu | Solution Explorer | Web Project" idNumeric="17" parentData="guidSHLMainMenu,IDM_VS_CTXT_WEBPROJECT,Menu">
+              <groupBases>
+                <menuBaseReferencesGroupBases Id="603c24e4-4140-4a8f-ab37-96d914d49ba5">
+                  <groupMoniker Id="72a05794-3993-45a3-9d8a-1e22937b0633" />
+                </menuBaseReferencesGroupBases>
+              </groupBases>
+            </externalMenu>
+          </commandTableHasMenuBases>
+        </menuBases>
+      </commandTable>
+    </rootHasCommandTable>
+  </commandTable>
+  <userInterface>
+    <rootHasUserInterface Id="c7d06c5a-7859-4fe8-a6e4-a545d26422d8">
+      <userInterface Id="a14108a9-1aed-4eea-8d15-ed4427a17661">
+        <toolWindows>
+          <userInterfaceHasToolWindows Id="1e08191b-5243-4ad8-8f8e-a5e917d987d2">
+            <toolWindow Id="0a8069d4-d283-4a41-99ef-2d6a005b8cfe" name="ToolWindowCloudManager" idNumeric="13" type="WinForm" caption="Cloud Manager" userCodeGenerated="true" style="Tabbed" orientation="Bottom" window="Error List" transient="false" multiInstance="false" height="500" visibilityConstraints="NoSolution" guid="f3bebe36-84db-4237-b11e-9eae03bce312" />
+          </userInterfaceHasToolWindows>
+          <userInterfaceHasToolWindows Id="bcdc3f99-d923-4cb7-8e08-0ef731a0752f">
+            <toolWindow Id="39d6b0f9-f737-4eb4-a201-1360eaf80090" name="ToolWindowDeploymentStatus" idNumeric="15" type="WinForm" caption="Cloud Foundry Deployment Status" userCodeGenerated="true" style="Tabbed" orientation="Bottom" window="ToolWindowCloudManager" transient="false" multiInstance="false" height="500" visibilityConstraints="NoSolution" guid="f0816be4-4722-4c8b-af83-9dbfa8c02762" />
+          </userInterfaceHasToolWindows>
+        </toolWindows>
+      </userInterface>
+    </rootHasUserInterface>
+  </userInterface>
+</root>

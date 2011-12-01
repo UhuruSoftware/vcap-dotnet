@@ -1,0 +1,17 @@
+<Dictionary>
+  <Words>
+    <Recognized>
+      <Word>Uhuru</Word>
+      <Word>DEA</Word>
+      <Word>Unmap</Word>
+      <Word>Nats</Word>
+      <Word>Vmc</Word>
+    </Recognized>
+  </Words>
+  <Acronyms>
+    <CasingExceptions>
+      <Acronym>DEA</Acronym>
+      <Acronym>VMC</Acronym>
+    </CasingExceptions>
+  </Acronyms>
+</Dictionary>

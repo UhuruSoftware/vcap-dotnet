@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{78FB95BE-F27F-43D4-9A6A-F8EC7011C98D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Uhuru.CloudFoundry.UI</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.UI</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Target\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Target\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CloudCredentialsEncryption.cs" />
+    <Compile Include="CloudTarget.cs" />
+    <Compile Include="Controls\LightAppPushControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\LightAppPushControl.designer.cs">
+      <DependentUpon>LightAppPushControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PushInformationGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PushInformationGrid.Designer.cs">
+      <DependentUpon>PushInformationGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\AddServiceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddServiceForm.designer.cs">
+      <DependentUpon>AddServiceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AppPushControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\AppPushControl.designer.cs">
+      <DependentUpon>AppPushControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AppsDataGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\AppsDataGrid.Designer.cs">
+      <DependentUpon>AppsDataGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\AddTargetForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddTargetForm.designer.cs">
+      <DependentUpon>AddTargetForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\BulkPushForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BulkPushForm.designer.cs">
+      <DependentUpon>BulkPushForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EditServices.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EditServices.Designer.cs">
+      <DependentUpon>EditServices.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EditURLs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EditURLs.Designer.cs">
+      <DependentUpon>EditURLs.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridColumns\DataGridViewImageAndTextColumn.cs" />
+    <Compile Include="GridColumns\DataGridViewProgressColumn.cs" />
+    <Compile Include="GridColumns\DataGridViewUriList.cs" />
+    <Compile Include="Controls\ImageComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Packaging\CloudApplication.cs" />
+    <Compile Include="Packaging\PackageSchema.cs">
+      <DependentUpon>PackageSchema.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Packaging\PackagingHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CloudTargetManager.cs" />
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\LightAppPushControl.resx">
+      <DependentUpon>LightAppPushControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PushInformationGrid.resx">
+      <DependentUpon>PushInformationGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AddServiceForm.resx">
+      <DependentUpon>AddServiceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AppPushControl.resx">
+      <DependentUpon>AppPushControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AppsDataGrid.resx">
+      <DependentUpon>AppsDataGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AddTargetForm.resx">
+      <DependentUpon>AddTargetForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BulkPushForm.resx">
+      <DependentUpon>BulkPushForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\EditServices.resx">
+      <DependentUpon>EditServices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EditURLs.resx">
+      <DependentUpon>EditURLs.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\smallicons.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Cloud\Uhuru.CloudFoundry.Cloud.csproj">
+      <Project>{A4CFB095-4466-4593-86C6-4A896F5977F9}</Project>
+      <Name>Uhuru.CloudFoundry.Cloud</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="key.snk" />
+    <None Include="Packaging\PackageSchema.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Packaging\regen_cs_from_xsd.bat" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,145 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.ServiceModel.Web;
+using System.IO;
+using System.ServiceModel.Channels;
+using System.ServiceModel;
+using System.Net;
+using System.ServiceModel.Security;
+using System.IdentityModel.Selectors;
+
+namespace Uhuru.Utilities
+{
+    public class UserCustomAuthentication : UserNamePasswordValidator
+    {
+        public override void Validate(string userName, string password)
+        {
+            if (null == userName || null == password)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (!(userName == "test" && password == "test"))
+            {
+                throw new FaultException("Unknown Username or Incorrect Password");
+            }
+        }
+    }
+    
+
+    public class FileServer
+    {
+        private int serverPort;
+        private string serverPhysicalPath;
+        private string serverVirtualPath;
+        private bool stopping = false;
+        WebServiceHost host;
+
+        public FileServer(int port, string physicalPath, string virtualPath)
+        {
+            serverPort = port;
+            serverPhysicalPath = physicalPath;
+            serverVirtualPath = virtualPath;
+        }
+
+        public void Start()
+        {
+            Uri baseAddress = new Uri("http://localhost:" + serverPort);
+            Service service = new Service();
+
+            WebHttpBinding httpBinding = new WebHttpBinding();
+            httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;
+            httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+            
+
+            host = new WebServiceHost(service, baseAddress);
+            host.AddServiceEndpoint(typeof(IService),
+                httpBinding, baseAddress);
+
+            host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication();
+            host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
+
+            ((Service)host.SingletonInstance).Initialize(serverPhysicalPath, serverVirtualPath);
+            host.Open();
+        }
+
+        public void Stop()
+        {
+            host.Close();
+        }
+    }
+
+    [ServiceContract]
+    interface IService
+    {
+        [WebGet(UriTemplate = "/*")]
+        Message GetFile();
+    }
+
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+    class Service : IService
+    {
+        private string serverPhysicalPath;
+        private string serverVirtualPath;
+
+        public void Initialize(string physicalPath, string virtualPath)
+        {
+            serverPhysicalPath = physicalPath;
+            serverVirtualPath = virtualPath;
+        }
+
+        public void IssueAuthenticationChallenge()
+        {
+            string Realm = "test";
+            
+            WebOperationContext context = WebOperationContext.Current;
+
+            context.OutgoingResponse.StatusCode = HttpStatusCode.Unauthorized;
+            context.OutgoingResponse.Headers[HttpResponseHeader.WwwAuthenticate] 
+                = String.Format("Basic realm =\"{0}\"", Realm);
+        }
+
+
+        public Message GetFile()
+        {
+            string path = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.PathAndQuery;
+            try
+            {
+                return CreateStreamResponse(GetFullFilePath(path));
+            }
+            catch (Exception ex)
+            {
+                WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                WebOperationContext.Current.OutgoingResponse.StatusDescription = ex.ToString();
+                return null;
+            }
+        }
+
+        private Message CreateStreamResponse(string filePath)
+        {
+            //Stream stream = Stream.Null;
+            FileStream fileStream = File.OpenRead(filePath);
+            //using ()
+            //{
+                return WebOperationContext.Current.CreateStreamResponse(fileStream, "application/octet-stream");
+                //fileStream.CopyTo(stream);
+            //}
+        }
+
+        private string GetFullFilePath(string path)
+        {
+            string filePath = serverPhysicalPath;
+            List<string> splitPath = path.Split('/').ToList();
+            splitPath.Remove(serverVirtualPath.Trim('/'));
+
+            foreach (string str in splitPath)
+            {
+                filePath = Path.Combine(filePath, str);
+            }
+            return filePath;
+        }
+    }
+}

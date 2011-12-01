@@ -1,0 +1,9 @@
+obj
+*.exe
+TestResults
+bin
+*.suo
+*.vsmdi
+*.opensdf
+*.sdf
+bin
