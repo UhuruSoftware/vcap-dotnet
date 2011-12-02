@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using WatiN.Core;
 using System.Configuration;
 using CloudFoundry.Net;
 using System.Threading;
 using System.IO;
-using SHDocVw;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Net;
