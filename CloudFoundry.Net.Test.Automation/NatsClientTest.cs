@@ -144,7 +144,7 @@ namespace CloudFoundry.Net.Test.Automation
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Subscribe("foo");
                 natsClient.Stop();
-                Assert.Less(0, mySid);
+                Assert.IsTrue(0 < mySid);
             }
         }
 
@@ -156,7 +156,7 @@ namespace CloudFoundry.Net.Test.Automation
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Request("foo");
                 natsClient.Stop();
-                Assert.Less(0, mySid);
+                Assert.IsTrue(0 < mySid);
             }
         }
 

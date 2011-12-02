@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using System.Configuration;
 using System.Threading;
 using System.Globalization;
 using Uhuru.CloudFoundry.Cloud;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Automation
 {
@@ -17,7 +17,7 @@ namespace CloudFoundry.Net.Test.Automation
         private string password = "password1234!";
         Client cfClient;
 
-        [TestFixtureSetUp]
+        [TestInitialize]
         public void TestFixtureSetup()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -28,7 +28,7 @@ namespace CloudFoundry.Net.Test.Automation
             cfClient.Login(username, password);
         }
 
-        [TestFixtureTearDown]
+        [TestCleanup]
         public void TestFixtureTeardown()
         {
             foreach (App app in cfClient.Apps())
@@ -50,7 +50,7 @@ namespace CloudFoundry.Net.Test.Automation
             cfClient.DeleteUser(username);
         }
 
-        [Test]
+        [TestMethod]
         public void TC001_DatabaseCreate()
         {
             string serviceName = Guid.NewGuid().ToString();
@@ -75,7 +75,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.True(serviceProvisioned);
         }
 
-        [Test]
+        [TestMethod]
         public void TC002_DatabaseDelete()
         {
             string serviceName = Guid.NewGuid().ToString();
@@ -119,7 +119,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.True(serviceDeleted);
         }
 
-        [Test]
+        [TestMethod]
         public void TC003_3Secquential()
         {
             List<string> serviceNames = new List<string>();
@@ -172,7 +172,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test]
+        [TestMethod]
         public void TC004_5Parallel()
         {
             List<string> services = new List<string>();
@@ -266,7 +266,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test]
+        [TestMethod]
         public void TC005_16Parallel()
         {
             foreach (ProvisionedService srv in cfClient.ProvisionedServices())
