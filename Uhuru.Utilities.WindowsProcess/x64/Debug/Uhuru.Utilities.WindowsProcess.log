@@ -1,4 +1,4 @@
-﻿Build started 12/2/2011 10:30:57 AM.
+﻿Build started 12/2/2011 11:04:17 AM.
      1>Project "F:\Code\vcap-dotnet\Uhuru.Utilities.WindowsProcess\Uhuru.Utilities.WindowsProcess.vcxproj" on node 2 (rebuild target(s)).
      1>_PrepareForClean:
          Deleting file "x64\Debug\Uhuru.Utilities.WindowsProcess.lastbuildstate".
@@ -48,4 +48,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.30
+Time Elapsed 00:00:03.02

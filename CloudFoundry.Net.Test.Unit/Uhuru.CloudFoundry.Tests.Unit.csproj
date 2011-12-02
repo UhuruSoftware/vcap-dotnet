@@ -109,7 +109,6 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\nunit.framework.dll" />
     <Content Include="lib\TestDLLToLoad.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -123,13 +122,13 @@
       <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
       <Name>CloudFoundry.Net</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.Part2\Uhuru.CloudFoundry.Server.DEA.Part2.csproj">
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.Part2\Uhuru.CloudFoundry.DEA.Part2.csproj">
       <Project>{8F79CD18-8EEE-47D7-9171-8E8B0ABB6EAD}</Project>
-      <Name>Uhuru.CloudFoundry.Server.DEA.Part2</Name>
+      <Name>Uhuru.CloudFoundry.DEA.Part2</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.PluginBase\Uhuru.CloudFoundry.Server.DEA.PluginBase.csproj">
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.PluginBase\Uhuru.CloudFoundry.DEA.PluginBase.csproj">
       <Project>{2EFB2C3D-89A1-439E-B1CA-B75FA8217314}</Project>
-      <Name>Uhuru.CloudFoundry.Server.DEA.PluginBase</Name>
+      <Name>Uhuru.CloudFoundry.DEA.PluginBase</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
