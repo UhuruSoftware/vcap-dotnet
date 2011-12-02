@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
-    public class ApplicationService
+    public class ApplicationService : MarshalByRefObject
     {
         public string Name { get; set; }
         public string User { get; set; }
