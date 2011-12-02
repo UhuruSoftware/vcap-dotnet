@@ -2,34 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Uhuru.Utilities;
 using System.Diagnostics;
 using System.Threading;
 using System.Net;
 using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace CloudFoundry.Net.Test.Unit
 {
+    [TestClass]
     public class UtilitiesTests
     {
-        [Test]
+        [TestMethod]
         public void ProcessInformationTest()
         {
             ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, 0);
-            Assert.Less(0, entries.Length);
+            Assert.IsTrue(0 < entries.Length);
         }
 
 
-        [Test]
+        [TestMethod]
         public void ProcessInformationFilteredTest()
         {
             ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, Process.GetCurrentProcess().Id);
             Assert.AreEqual(1, entries.Length);
         }
 
-        [Test]
+        [TestMethod]
         public void MonitoringServerTest()
         {
             string username = "test";
@@ -78,7 +79,7 @@ namespace CloudFoundry.Net.Test.Unit
             monitoringServer.Stop();
         }
 
-        [Test]
+        [TestMethod]
         public void FileServerTest()
         {
             string username = "test";
@@ -99,8 +100,8 @@ namespace CloudFoundry.Net.Test.Unit
             request.AllowAutoRedirect = false;
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-            Assert.True(response.StatusCode == HttpStatusCode.OK);
-            Assert.True(response.ContentType == "application/octet-stream");
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
+            Assert.IsTrue(response.ContentType == "application/octet-stream");
 
             request = (HttpWebRequest)WebRequest.Create(url);
             request.AllowAutoRedirect = false;

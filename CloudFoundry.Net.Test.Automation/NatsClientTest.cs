@@ -9,11 +9,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Automation
 {
+    [TestClass]
     public class NatsClientTest
     {
         Uri natsEndpoint;
         
-        [TestInitialize]
+        [ClassInitialize]
         public void TestFixtureSetup()
         {
             natsEndpoint = new Uri(ConfigurationManager.AppSettings["nats"]);

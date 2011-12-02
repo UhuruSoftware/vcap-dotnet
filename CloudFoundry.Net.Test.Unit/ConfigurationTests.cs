@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using CloudFoundry.Net.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace CloudFoundry.Net.Test.Unit
 {
     public class ConfigurationTests
     {
-        [Test]
+        [TestMethod]
         public void TestConfig()
         {
             Assert.AreEqual("c:\\droplets", UhuruSection.GetSection().DEA.BaseDir);

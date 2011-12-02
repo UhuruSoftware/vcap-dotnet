@@ -13,9 +13,11 @@ using Microsoft.Win32;
 using System.Net;
 using System.Globalization;
 using Uhuru.CloudFoundry.Cloud;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Automation
 {
+    [TestClass]
     class UmbracoTest
     {
         string target;
@@ -27,7 +29,7 @@ namespace CloudFoundry.Net.Test.Automation
         Client client;
         private readonly object lck = new object();
 
-        [TestFixtureSetUp]
+        [ClassInitialize]
         public void TestFixtureSetUp()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -42,7 +44,7 @@ namespace CloudFoundry.Net.Test.Automation
             client.Login(userName, password);
         }
 
-        [TestFixtureTearDown]
+        [ClassCleanup]
         public void TestFixtureTearDown()
         {
             foreach (App app in client.Apps())
@@ -69,7 +71,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test, Timeout(300000)]
+        [TestMethod, Timeout(300000)]
         public void TC001_Create_UmbracoSimple()
         {
             string appName = "umbraco";
@@ -86,7 +88,7 @@ namespace CloudFoundry.Net.Test.Automation
             TestUmbraco(url);
         }
 
-        [Test, Timeout(300000)]
+        [TestMethod, Timeout(300000)]
         public void TC002_Delete_UmbracoSimple()
         {
             string appName = "testdelete";
@@ -106,7 +108,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsFalse(client.AppExists(appName));
         }
 
-        [Test, Timeout(900000)]
+        [TestMethod, Timeout(900000)]
         public void TC003_Create_3Secquential()
         {
             Dictionary<string, string> apps = new Dictionary<string, string>();
@@ -134,12 +136,12 @@ namespace CloudFoundry.Net.Test.Automation
 
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.False(client.AppExists(pair.Key));
-                Assert.False(client.ProvisionedServices().Exists(service => service.Name == pair.Value));
+                Assert.IsFalse(client.AppExists(pair.Key));
+                Assert.IsFalse(client.ProvisionedServices().Exists(service => service.Name == pair.Value));
             }
         }
 
-        [Test, Timeout(1000000)]
+        [TestMethod, Timeout(1000000)]
         public void TC004_Create_5Parallel()
         {
             Dictionary<string, string> apps = new Dictionary<string, string>();

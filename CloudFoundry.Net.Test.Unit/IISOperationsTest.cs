@@ -3,15 +3,16 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Web.Administration;
-using NUnit.Framework;
 using System.IO;
 using CloudFoundry.Net.IIS.Utilities;
 using CloudFoundry.Net.IIS;
 using System.Globalization;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Unit
 {
+    [TestClass]
     public class IISOperationsTest
     {
         string applicationPhysicalPath;
@@ -19,14 +20,14 @@ namespace CloudFoundry.Net.Test.Unit
         string tempAppFolder;
         List<string> foldersCreated;
 
-        [TestFixtureSetUp]
+        [ClassInitialize]
         public void BeforeClass()
         {
             applicationPhysicalPath = Path.GetFullPath(@"..\cf.net\TestApps\CloudTestApp");
             foldersCreated = new List<string>();
         }
 
-        [TestFixtureTearDown]
+        [ClassCleanup]
         public void TestFixtureTeardown()
         {
             foreach (string str in foldersCreated)
@@ -35,20 +36,20 @@ namespace CloudFoundry.Net.Test.Unit
             }
         }
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             tempAppFolder = Helper.CopyFolderToTemp(applicationPhysicalPath);
             foldersCreated.Add(tempAppFolder);
         }
 
-        [TearDown]
+        [TestCleanup]
         public void Teardown()
         {
             tempAppFolder = string.Empty;
         }
 
-        [Test]
+        [TestMethod]
         public void TC001_TestCreateDelete()
         {
             int port = Helper.GetEphemeralPort();
@@ -100,7 +101,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsNull(webSite);
         }
 
-        [Test]
+        [TestMethod]
         public void TC002_TestCleanup()
         {
             int port = Helper.GetEphemeralPort();
@@ -151,7 +152,7 @@ namespace CloudFoundry.Net.Test.Unit
             }
         }
 
-        [Test]
+        [TestMethod]
         public void TC003_TestCreateDelete10Parallel()
         {
             int port = Helper.GetEphemeralPort();

@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Automation
 {
+    [TestClass]
     class MsSqlServicesTest
     {
         private string target;
@@ -17,7 +18,7 @@ namespace CloudFoundry.Net.Test.Automation
         private string password = "password1234!";
         Client cfClient;
 
-        [TestInitialize]
+        [ClassInitialize]
         public void TestFixtureSetup()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -28,7 +29,7 @@ namespace CloudFoundry.Net.Test.Automation
             cfClient.Login(username, password);
         }
 
-        [TestCleanup]
+        [ClassCleanup]
         public void TestFixtureTeardown()
         {
             foreach (App app in cfClient.Apps())
@@ -72,7 +73,7 @@ namespace CloudFoundry.Net.Test.Automation
             {
                 Assert.Fail(ex.ToString());
             }
-            Assert.True(serviceProvisioned);
+            Assert.IsTrue(serviceProvisioned);
         }
 
         [TestMethod]
@@ -98,7 +99,7 @@ namespace CloudFoundry.Net.Test.Automation
             {
                 Assert.Fail(ex.ToString());
             }
-            Assert.True(serviceProvisioned);
+            Assert.IsTrue(serviceProvisioned);
 
             try
             {
@@ -116,7 +117,7 @@ namespace CloudFoundry.Net.Test.Automation
             {
                 Assert.Fail(ex.ToString());
             }
-            Assert.True(serviceDeleted);
+            Assert.IsTrue(serviceDeleted);
         }
 
         [TestMethod]
@@ -144,7 +145,7 @@ namespace CloudFoundry.Net.Test.Automation
                 {
                     Assert.Fail(ex.ToString());
                 }
-                Assert.True(serviceProvisioned);
+                Assert.IsTrue(serviceProvisioned);
                 serviceNames.Add(serviceName);
             }
 
@@ -168,7 +169,7 @@ namespace CloudFoundry.Net.Test.Automation
                 {
                     Assert.Fail(ex.ToString());
                 }
-                Assert.True(serviceDeleted);
+                Assert.IsTrue(serviceDeleted);
             }
         }
 
@@ -220,7 +221,7 @@ namespace CloudFoundry.Net.Test.Automation
 
             foreach(string service in services)
             {
-                Assert.True(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
+                Assert.IsTrue(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
             }
             
             threads = new List<Thread>();
@@ -262,7 +263,7 @@ namespace CloudFoundry.Net.Test.Automation
 
             foreach (string service in services)
             {
-                Assert.False(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
+                Assert.IsFalse(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
             }
         }
 
