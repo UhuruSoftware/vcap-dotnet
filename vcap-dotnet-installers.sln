@@ -43,7 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installers", "Installers", 
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Uhuru.CloudFoundry.Services.DEA.Installer", "Uhuru.CloudFoundry.Services.DEA.Installer\Uhuru.CloudFoundry.Services.DEA.Installer.vdproj", "{75FFD161-C6D5-4638-B6CD-3F4EF84372CD}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Uhuru.CloudFoundry.Services.MsSqlService.Installer", "Uhuru.CloudFoundry.Services.MsSqlService.Installer\Uhuru.CloudFoundry.Services.DEA.Installer.vdproj", "{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Uhuru.CloudFoundry.Services.MsSqlService.Installer", "Uhuru.CloudFoundry.Services.MsSqlService.Installer\Uhuru.CloudFoundry.Services.MsSqlService.Installer.vdproj", "{CD483D94-8142-4166-A74F-2EE01FE1DC15}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -200,14 +200,14 @@ Global
 		{75FFD161-C6D5-4638-B6CD-3F4EF84372CD}.Release|Any CPU.Build.0 = Release
 		{75FFD161-C6D5-4638-B6CD-3F4EF84372CD}.Release|Mixed Platforms.ActiveCfg = Release
 		{75FFD161-C6D5-4638-B6CD-3F4EF84372CD}.Release|Mixed Platforms.Build.0 = Release
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Debug|Any CPU.ActiveCfg = Debug
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Debug|Any CPU.Build.0 = Debug
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Debug|Mixed Platforms.Build.0 = Debug
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Release|Any CPU.ActiveCfg = Release
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Release|Any CPU.Build.0 = Release
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Release|Mixed Platforms.ActiveCfg = Release
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286}.Release|Mixed Platforms.Build.0 = Release
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Debug|Any CPU.ActiveCfg = Debug
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Debug|Any CPU.Build.0 = Debug
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Debug|Mixed Platforms.Build.0 = Debug
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Release|Any CPU.ActiveCfg = Release
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Release|Any CPU.Build.0 = Release
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Release|Mixed Platforms.ActiveCfg = Release
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15}.Release|Mixed Platforms.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -222,6 +222,6 @@ Global
 		{FC669600-C839-426A-B246-AC19D55F5C51} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{75FFD161-C6D5-4638-B6CD-3F4EF84372CD} = {D074894B-B525-45CF-A2B2-D3FFCB9A9F90}
-		{5C5FA11C-A614-4CC1-98A3-4F616DB4A286} = {D074894B-B525-45CF-A2B2-D3FFCB9A9F90}
+		{CD483D94-8142-4166-A74F-2EE01FE1DC15} = {D074894B-B525-45CF-A2B2-D3FFCB9A9F90}
 	EndGlobalSection
 EndGlobal
