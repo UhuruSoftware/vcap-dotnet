@@ -28,6 +28,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
     public enum HttpErrorCode
     {
+        NONE = 0,
         HTTP_BAD_REQUEST = 400,
         HTTP_NOT_AUTHORIZED = 401,
         HTTP_FORBIDDEN = 403,
