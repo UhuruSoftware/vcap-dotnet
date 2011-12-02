@@ -7,4 +7,4 @@ bin
 *.opensdf
 *.sdf
 bin
-vcap-dotnet\Uhuru.Utilities.WindowsProcess
+Uhuru.Utilities.WindowsProcess/x64
