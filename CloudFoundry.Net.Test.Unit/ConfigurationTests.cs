@@ -8,6 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Unit
 {
+    [TestClass]
+    [DeploymentItem("uhuruTest.config")]
     public class ConfigurationTests
     {
         [TestMethod]

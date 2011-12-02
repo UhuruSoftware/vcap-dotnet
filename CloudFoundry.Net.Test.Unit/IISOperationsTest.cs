@@ -15,20 +15,20 @@ namespace CloudFoundry.Net.Test.Unit
     [TestClass]
     public class IISOperationsTest
     {
-        string applicationPhysicalPath;
+        static string applicationPhysicalPath;
         string applicationName = "cloudTestApp";
         string tempAppFolder;
-        List<string> foldersCreated;
+        static List<string> foldersCreated;
 
         [ClassInitialize]
-        public void BeforeClass()
+        public static void BeforeClass(TestContext context)
         {
             applicationPhysicalPath = Path.GetFullPath(@"..\cf.net\TestApps\CloudTestApp");
             foldersCreated = new List<string>();
         }
 
         [ClassCleanup]
-        public void TestFixtureTeardown()
+        public static void TestFixtureTeardown()
         {
             foreach (string str in foldersCreated)
             {

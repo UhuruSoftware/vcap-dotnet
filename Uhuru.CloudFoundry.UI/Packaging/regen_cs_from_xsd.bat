@@ -1,1 +1,0 @@
-xsd PackageSchema.xsd /c /n:Uhuru.CloudFoundry.UI.Packaging
