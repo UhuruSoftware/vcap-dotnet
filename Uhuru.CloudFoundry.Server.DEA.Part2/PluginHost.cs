@@ -10,12 +10,21 @@ using System.Threading;
 
 namespace Uhuru.CloudFoundry.Server.DEA
 {
+    //the basic data related to a plugin
     struct PluginData
     {
+        /// <summary>
+        /// the name of the class implementing the IAgentPlugin interface
+        /// </summary>
         public string ClassName;
+
+        //the path of the library containing the class that implements the IAgentPlugin interface
         public string FilePath;
     }
 
+    /// <summary>
+    /// the class through which the plugins are consumed
+    /// </summary>
     public static class PluginHost
     {
         //offers an easier way to access a filePath/className pair later on
@@ -25,7 +34,12 @@ namespace Uhuru.CloudFoundry.Server.DEA
         private static Mutex mutexPluginData = new Mutex();
         private static Mutex mutexInstanceData = new Mutex();
 
-        //initializes a placeholder where the data will be placed after creation
+        /// <summary>
+        /// saves the plugin data for later reference
+        /// </summary>
+        /// <param name="pathToPlugin">the path to the plugin</param>
+        /// <param name="className">the name of the class implementing the IAgentPlugin interface</param>
+        /// <returns>an unique key used later to retrieve the saved data</returns>
         public static Guid LoadPlugin(string pathToPlugin, string className)
         {
             //check if the path & className have a guid already assigned
@@ -81,7 +95,11 @@ namespace Uhuru.CloudFoundry.Server.DEA
             return result;
         }
 
-
+        /// <summary>
+        /// creates a new instance of the plugin
+        /// </summary>
+        /// <param name="pluginGuid">the unique key used to retrieve previously saved plugin information</param>
+        /// <returns>a plugin object</returns>
         public static IAgentPlugin CreateInstance(Guid pluginGuid)
         {
             PluginData data = GetPluginData(pluginGuid);
@@ -89,10 +107,6 @@ namespace Uhuru.CloudFoundry.Server.DEA
                 throw new KeyNotFoundException("There is no data associated with the given unique key");
 
             AppDomain domain = AppDomain.CreateDomain(pluginGuid.ToString());
-            //domain.AssemblyResolve +=new ResolveEventHandler(delegate(object sender, ResolveEventArgs args)
-            //    {
-            //        return null;
-            //    });
             IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);//typeof(IAgentPlugin).FullName);
             
             //save data to the dictionary
@@ -103,6 +117,10 @@ namespace Uhuru.CloudFoundry.Server.DEA
             return agentPlugin;
         }
 
+        /// <summary>
+        /// stops a running application and frees the resources used by it 
+        /// </summary>
+        /// <param name="agent">the plugin running the app</param>
         public static void RemoveInstance(IAgentPlugin agent)
         {
             int hash = agent.GetHashCode();
