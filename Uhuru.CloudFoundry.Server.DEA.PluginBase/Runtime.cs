@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
-    public class Runtime
+    public class Runtime : MarshalByRefObject
     {
         public string Name { get; set; }
         public string Description { get; set; }

@@ -7,7 +7,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
     public delegate void ApplicationCrashDelegate(string instanceId, Exception exception);
     
-    public class ApplicationInfo
+    public class ApplicationInfo : MarshalByRefObject
     {
         public string InstanceId { get; set; }
         public string LocalIp { get; set; }
