@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CloudFoundry.Net.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Configuration;
 
 
 namespace CloudFoundry.Net.Test.Unit
@@ -22,6 +22,17 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.AreEqual("true", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["useCredentials"].Value);
             Assert.AreEqual("60000", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["connectionTimeout"].Value);
             
+        }
+
+        [TestMethod]
+        public void ServiceTestConfig()
+        {
+            Assert.AreEqual(".\\", UhuruSection.GetSection().Service.BaseDir);
+            Assert.AreEqual(0, UhuruSection.GetSection().Service.Index);
+            Assert.AreEqual("198.41.0.4", UhuruSection.GetSection().Service.LocalRoute);
+            Assert.AreEqual("(local)", UhuruSection.GetSection().Service.MsSql.Host);
+            Assert.AreEqual("sa", UhuruSection.GetSection().Service.MsSql.User);
+            Assert.AreEqual(1433, UhuruSection.GetSection().Service.MsSql.Port);
         }
     }
 }

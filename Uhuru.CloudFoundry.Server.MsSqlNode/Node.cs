@@ -45,13 +45,16 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         public override void Start(Options options)
         {
-            //mssql_config = options.MsSql;
+            base.Start(options);
+        }
+
+        public void Start(Options options, MsSqlOptions msSqlOptions)
+        {
+
+            mssql_config = msSqlOptions;
             max_db_size = options.MaxDbSize * 1024 * 1024;
             max_long_query = options.MaxLongQuery;
             max_long_tx = options.MaxLongTx;
-            mssqldump_bin = options.MsSqlDumpBin;
-            gzip_bin = options.GZipBin;
-            mssql_bin = options.MsSqlBin;
             local_ip = NetworkInterface.GetLocalIpAddress(options.LocalRoute);
 
             connection = mssql_connect();
@@ -108,7 +111,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             long_tx_killed = 0;
             provision_served = 0;
             binding_served = 0;
-            base.Start(options);
+            this.Start(options);
 
         }
 
@@ -138,7 +141,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         {
             get
             {
-                return String.Format("Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true", mssql_config.Host, mssql_config.Port, mssql_config.User, mssql_config.Pass);
+                return String.Format("Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true", mssql_config.Host, mssql_config.Port, mssql_config.User, mssql_config.Password);
             }
         }
 
@@ -163,7 +166,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
 
             Logger.fatal("MsSql connection unrecoverable");
-            shutdown();
+            Shutdown();
             Process.GetCurrentProcess().Kill();
             return null;
         }

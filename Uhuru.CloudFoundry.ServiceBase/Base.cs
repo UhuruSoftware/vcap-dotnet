@@ -92,7 +92,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             //VCAP::Component.healthz = Yajl::Encoder.encode(healthz_details, :pretty => true, :terminator => "\n")
         }
 
-        protected void shutdown()
+        public void Shutdown()
         {
             Logger.info(String.Format("{0}: Shutting down", service_description()));
             node_nats.Stop();
