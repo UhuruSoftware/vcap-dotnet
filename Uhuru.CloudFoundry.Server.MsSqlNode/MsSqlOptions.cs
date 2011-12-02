@@ -19,7 +19,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             set;
         }
         
-        public string Pass
+        public string Password
         {
             get;
             set;

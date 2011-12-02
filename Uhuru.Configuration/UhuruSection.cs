@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 using Uhuru.Configuration.DEA;
+using Uhuru.Configuration.Service;
 
 namespace Uhuru.Configuration
 {
@@ -16,15 +17,23 @@ namespace Uhuru.Configuration
             propertyDEA = new ConfigurationProperty(
                 "dea",
                 typeof(DEAElement),
-                null,
-                ConfigurationPropertyOptions.IsRequired);
+                null);
+
+            propertyService = new ConfigurationProperty(
+                "service",
+                typeof(ServiceElement),
+                null);
 
             properties = new ConfigurationPropertyCollection();
             properties.Add(propertyDEA);
+            properties.Add(propertyService);
+
         }
 
         #region Static Fields
         private static ConfigurationProperty propertyDEA;
+        private static ConfigurationProperty propertyService;
+
 
         private static ConfigurationPropertyCollection properties;
         #endregion
@@ -41,6 +50,14 @@ namespace Uhuru.Configuration
             }
         }
 
+        [ConfigurationProperty("service")]
+        public ServiceElement Service
+        {
+            get
+            {
+                return (ServiceElement)base[propertyService];
+            }
+        }
         #endregion
 
 

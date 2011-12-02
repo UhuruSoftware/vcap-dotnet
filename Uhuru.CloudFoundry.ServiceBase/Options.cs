@@ -70,24 +70,6 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             set;
         }
 
-        public string MsSqlDumpBin
-        {
-            get;
-            set;
-        }
-
-        public string GZipBin
-        {
-            get;
-            set;
-        }
-
-        public string MsSqlBin
-        {
-            get;
-            set;
-        }
-
         public string BaseDir
         {
             get;
