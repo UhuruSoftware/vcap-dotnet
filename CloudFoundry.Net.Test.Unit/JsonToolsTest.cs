@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.IO;
-using NUnit.Framework;
 using CloudFoundry.Net.IIS.Utilities;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Unit
 {
+    [TestClass]
     public class JsonToolsTest
     {
-        [Test]
+        [TestMethod]
         public void TestLoad()
         {
             string jsonVariable = @"{""mssql-2008"":[{""name"":""mytest"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4TA82606758d99a463f85e067a715f92997"",""hostname"":""192.168.1.162"",""host"":""192.168.1.162"",""port"":1433,""user"":""US3R6qePz8ohwhbo"",""username"":""US3R6qePz8ohwhbo"",""password"":""P4SSFItfAuFA1VZZ""}}]}";

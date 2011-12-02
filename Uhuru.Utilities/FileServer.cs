@@ -15,6 +15,16 @@ namespace Uhuru.Utilities
 {
     public class UserCustomAuthentication : UserNamePasswordValidator
     {
+
+        string validUsername;
+        string validPassword;
+
+        public UserCustomAuthentication(string username, string password)
+        {
+            validPassword = password;
+            validUsername = username;
+        }
+
         public override void Validate(string userName, string password)
         {
             if (null == userName || null == password)
@@ -22,7 +32,7 @@ namespace Uhuru.Utilities
                 throw new ArgumentNullException();
             }
 
-            if (!(userName == "test" && password == "test"))
+            if (!(userName == validUsername && password == validPassword))
             {
                 throw new FaultException("Unknown Username or Incorrect Password");
             }
@@ -35,14 +45,18 @@ namespace Uhuru.Utilities
         private int serverPort;
         private string serverPhysicalPath;
         private string serverVirtualPath;
-        private bool stopping = false;
+        private string username;
+        private string password;
+
         WebServiceHost host;
 
-        public FileServer(int port, string physicalPath, string virtualPath)
+        public FileServer(int port, string physicalPath, string virtualPath, string serverUsername, string serverPassword)
         {
             serverPort = port;
             serverPhysicalPath = physicalPath;
             serverVirtualPath = virtualPath;
+            username = serverUsername;
+            password = serverPassword;
         }
 
         public void Start()
@@ -59,7 +73,7 @@ namespace Uhuru.Utilities
             host.AddServiceEndpoint(typeof(IService),
                 httpBinding, baseAddress);
 
-            host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication();
+            host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
             host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
 
             ((Service)host.SingletonInstance).Initialize(serverPhysicalPath, serverVirtualPath);
@@ -120,13 +134,12 @@ namespace Uhuru.Utilities
 
         private Message CreateStreamResponse(string filePath)
         {
-            //Stream stream = Stream.Null;
-            FileStream fileStream = File.OpenRead(filePath);
-            //using ()
-            //{
-                return WebOperationContext.Current.CreateStreamResponse(fileStream, "application/octet-stream");
-                //fileStream.CopyTo(stream);
-            //}
+            Stream stream = Stream.Null;
+            using(FileStream fileStream = File.OpenRead(filePath))
+            {
+                fileStream.CopyTo(stream);
+            }
+            return WebOperationContext.Current.CreateStreamResponse(stream, "application/octet-stream");
         }
 
         private string GetFullFilePath(string path)

@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using System.Configuration;
 using System.Threading;
 using Nats=CloudFoundry.Net.Nats;
 using System.Diagnostics;
 using CloudFoundry.Net.Nats;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudFoundry.Net.Test.Automation
 {
+    [TestClass]
     public class NatsClientTest
     {
         Uri natsEndpoint;
         
-        [TestFixtureSetUp]
+        [ClassInitialize]
         public void TestFixtureSetup()
         {
             natsEndpoint = new Uri(ConfigurationManager.AppSettings["nats"]);
         }
 
-        [Test, Description("should perform basic block start and stop")]
+        [TestMethod, Description("should perform basic block start and stop")]
         public void Test1()
         {
             using (Nats.Client natsClient = new Nats.Client())
@@ -29,7 +30,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test, Description("should signal connected state")]
+        [TestMethod, Description("should signal connected state")]
         public void Test2()
         {
             using (Nats.Client natsClient = new Nats.Client())
@@ -40,7 +41,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test, Description("should be able to reconnect")]
+        [TestMethod, Description("should be able to reconnect")]
         public void Test3()
         {
             Nats.Client natsClient;
@@ -59,7 +60,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test, Description("should raise NATS::ServerError on error replies from NATSD")]
+        [TestMethod, Description("should raise NATS::ServerError on error replies from NATSD")]
         public void Test4() 
         {
             bool errorThrown = false;
@@ -82,7 +83,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsTrue(errorThrown);
         }
 
-        [Test, Description("should do publish without payload and with opt_reply without error")]
+        [TestMethod, Description("should do publish without payload and with opt_reply without error")]
         public void Test5() 
         {
             bool errorThrown = false;
@@ -109,7 +110,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsFalse(errorThrown);
         }
 
-        [Test, Description("should not complain when publishing to nil")]
+        [TestMethod, Description("should not complain when publishing to nil")]
         public void Test6() 
         {
             bool errorThrown = false;
@@ -136,7 +137,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsFalse(errorThrown);
         }
 
-        [Test, Description("should receive a sid when doing a subscribe")]
+        [TestMethod, Description("should receive a sid when doing a subscribe")]
         public void Test7() 
         {
             using (Nats.Client natsClient = new Nats.Client())
@@ -144,11 +145,11 @@ namespace CloudFoundry.Net.Test.Automation
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Subscribe("foo");
                 natsClient.Stop();
-                Assert.Less(0, mySid);
+                Assert.IsTrue(0 < mySid);
             }
         }
 
-        [Test, Description("should receive a sid when doing a request")]
+        [TestMethod, Description("should receive a sid when doing a request")]
         public void Test8()
         {
             using (Nats.Client natsClient = new Nats.Client())
@@ -156,11 +157,11 @@ namespace CloudFoundry.Net.Test.Automation
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Request("foo");
                 natsClient.Stop();
-                Assert.Less(0, mySid);
+                Assert.IsTrue(0 < mySid);
             }
         }
 
-        [Test, Description("should receive a message that it has a subscription to")]
+        [TestMethod, Description("should receive a message that it has a subscription to")]
         public void Test9() 
         {
             bool errorThrown = false;
@@ -191,7 +192,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedMessage, "xxx");
         }
 
-        [Test, Description("should receive empty message")]
+        [TestMethod, Description("should receive empty message")]
         public void TestEmptyMessageReceive()
         {
             bool errorThrown = false;
@@ -222,7 +223,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedMessage, "");
         }
 
-        [Test, Description("should receive a message that it has a wildcard subscription to")]
+        [TestMethod, Description("should receive a message that it has a wildcard subscription to")]
         public void Test10() 
         {
             string errorThrown = null;
@@ -254,7 +255,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedMessage, "xxx");
         }
 
-        [Test, Description("should not receive a message that it has unsubscribed from")]
+        [TestMethod, Description("should not receive a message that it has unsubscribed from")]
         public void Test11() 
         {
             bool errorThrown = false;
@@ -292,7 +293,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(2, receivedCount);
         }
 
-        [Test, Description("should receive a response from a request")]
+        [TestMethod, Description("should receive a response from a request")]
         public void Test12() 
         {
             bool errorThrown = false;
@@ -331,7 +332,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedReply, "help");
         }
 
-        [Test, Description("should return inside closure on publish when server received msg")]
+        [TestMethod, Description("should return inside closure on publish when server received msg")]
         public void Test14() 
         {
             bool errorThrown = false;
@@ -363,7 +364,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsTrue(done);
         }
 
-        [Test, Description("should return inside closure in ordered fashion when server received msg")]
+        [TestMethod, Description("should return inside closure in ordered fashion when server received msg")]
         public void Test15() 
         {
 
@@ -423,7 +424,7 @@ namespace CloudFoundry.Net.Test.Automation
             }
         }
 
-        [Test, Description("should be able to start and use a new connection inside of start block")]
+        [TestMethod, Description("should be able to start and use a new connection inside of start block")]
         public void Test16() 
         {
             bool errorThrown = false;
@@ -461,7 +462,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedMessage, "xxx");
         }
 
-        [Test, Description("should allow proper request/reply across multiple connections")]
+        [TestMethod, Description("should allow proper request/reply across multiple connections")]
         public void Test17() 
         {
             bool errorThrown = false;
@@ -507,7 +508,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(receivedReply, "help");
         }
 
-        [Test, Description("should allow proper unsubscribe from within blocks")]
+        [TestMethod, Description("should allow proper unsubscribe from within blocks")]
         public void Test22() 
         {
             bool errorThrown = false;
@@ -544,7 +545,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.AreEqual(1, receivedMessageCount);
         }
 
-        [Test, Description("should not call error handler for double unsubscribe unless in pedantic mode")]
+        [TestMethod, Description("should not call error handler for double unsubscribe unless in pedantic mode")]
         public void Test23() 
         {
             bool errorThrown = false;
@@ -569,7 +570,7 @@ namespace CloudFoundry.Net.Test.Automation
             Assert.IsFalse(errorThrown);
         }
 
-        [Test, Description("should call error handler for double unsubscribe if in pedantic mode")]
+        [TestMethod, Description("should call error handler for double unsubscribe if in pedantic mode")]
         public void Test24() 
         {
             bool errorThrown = false;

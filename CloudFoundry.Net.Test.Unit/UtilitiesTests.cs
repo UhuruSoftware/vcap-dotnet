@@ -2,45 +2,51 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using Uhuru.Utilities;
 using System.Diagnostics;
 using System.Threading;
 using System.Net;
 using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace CloudFoundry.Net.Test.Unit
 {
+    [TestClass]
     public class UtilitiesTests
     {
-        [Test]
+        [TestMethod]
         public void ProcessInformationTest()
         {
             ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, 0);
-            Assert.Less(0, entries.Length);
+            Assert.IsTrue(0 < entries.Length);
         }
 
 
-        [Test]
+        [TestMethod]
         public void ProcessInformationFilteredTest()
         {
             ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, Process.GetCurrentProcess().Id);
             Assert.AreEqual(1, entries.Length);
         }
 
-        [Test]
+        [TestMethod]
         public void MonitoringServerTest()
         {
+            string username = "test";
+            string password = "test";
             int port = Helper.GetEphemeralPort();
-            MonitoringServer monitoringServer = new MonitoringServer(port);
+            MonitoringServer monitoringServer = new MonitoringServer(port, username, password);
             
             monitoringServer.VarzRequested += new MonitoringServer.VarzRequestedHandler(monitoringServer_VarzRequested);
             monitoringServer.HealthzRequested += new MonitoringServer.HealthzRequestedHandler(monitoringServer_HealthzRequested);
             monitoringServer.Start();
 
+            string credentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(username + ":" + password));
+          
             Uri url = new Uri("http://localhost:" + port + "/heathz");
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Headers.Add("Authorization", "Basic " + credentials);
             request.AllowAutoRedirect = false;
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Assert.IsTrue(response.ContentType == "text/plaintext");
@@ -49,13 +55,70 @@ namespace CloudFoundry.Net.Test.Unit
 
             url = new Uri("http://localhost:" + port + "/varz");
             request = (HttpWebRequest)WebRequest.Create(url);
+            request.Headers.Add("Authorization", "Basic " + credentials);
             request.AllowAutoRedirect = false;
             response = (HttpWebResponse)request.GetResponse();
             Assert.IsTrue(response.ContentType == "application/json");
             body = new StreamReader(response.GetResponseStream()).ReadToEnd();
             Assert.AreEqual("varz", body);
 
+            request = (HttpWebRequest)WebRequest.Create(url);
+            request.AllowAutoRedirect = false;
+            WebException ex = null;
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (WebException e)
+            {
+                ex = e;
+            }
+
+            Assert.IsNotNull(ex);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, ((HttpWebResponse)ex.Response).StatusCode);
             monitoringServer.Stop();
+        }
+
+        [TestMethod]
+        public void FileServerTest()
+        {
+            string username = "test";
+            string password = "test";
+
+            int port = Helper.GetEphemeralPort();
+            string path = Directory.GetCurrentDirectory();
+            string filename = "CloudFoundry.Net.Test.Unit.dll.config";
+            
+            FileServer fileServer = new FileServer(port, path, "/test", username, password);
+            fileServer.Start();
+
+            Uri url = new Uri("http://localhost:" + port + "/test/" + filename);
+            string credentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(username + ":" + password));
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Headers.Add("Authorization", "Basic " + credentials);
+            request.AllowAutoRedirect = false;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+            Assert.IsTrue(response.StatusCode == HttpStatusCode.OK);
+            Assert.IsTrue(response.ContentType == "application/octet-stream");
+
+            request = (HttpWebRequest)WebRequest.Create(url);
+            request.AllowAutoRedirect = false;
+            WebException ex = null;
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (WebException e)
+            {
+                ex = e;
+            }
+
+            Assert.IsNotNull(ex);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, ((HttpWebResponse)ex.Response).StatusCode);
+
+            fileServer.Stop();
         }
 
         string monitoringServer_HealthzRequested(object sender, EventArgs e)

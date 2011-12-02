@@ -5,13 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</ProjectGuid>
+    <ProjectGuid>{84E98E4F-DCE6-4DE9-A725-2A4328DEC6DB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.Configuration</RootNamespace>
-    <AssemblyName>Uhuru.Configuration</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>Uhuru.CloudFoundry.Services.MsSqlNode</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.Services.MsSqlNode</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,8 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,7 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -42,21 +40,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DEA\DEAElement.cs" />
-    <Compile Include="DEA\DebugCollection.cs" />
-    <Compile Include="DEA\DebugElement.cs" />
-    <Compile Include="DEA\EnvironmentCollection.cs" />
-    <Compile Include="DEA\EnvironmentElement.cs" />
-    <Compile Include="DEA\RuntimeCollection.cs" />
-    <Compile Include="DEA\RuntimeElement.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UhuruSection.cs" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
-      <Link>CustomDictionary.xml</Link>
-    </CodeAnalysisDictionary>
+    <ProjectReference Include="..\CloudFoundry.Net\CloudFoundry.Net.csproj">
+      <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
+      <Name>CloudFoundry.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
+      <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
+      <Name>Uhuru.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

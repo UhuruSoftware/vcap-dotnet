@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NUnit.Framework;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using CloudFoundry.Net.IIS;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace CloudFoundry.Net.Test.Unit
 {
-    [TestFixture]
+    [TestClass]
     public class WebConfigAutoWireTest
     {
         // private string applicationPhysicalPath = Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp");
@@ -19,13 +19,13 @@ namespace CloudFoundry.Net.Test.Unit
         private bool nodeExisted;
         private string tempAppFolder;
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             tempAppFolder = Helper.CopyFolderToTemp(applicationPhysicalPath);
         }
 
-        [TearDown]
+        [TestCleanup]
         public void Teardown()
         {
             Directory.Delete(tempAppFolder, true);
@@ -33,7 +33,7 @@ namespace CloudFoundry.Net.Test.Unit
             nodeExisted = false;
         }
 
-        [Test]
+        [TestMethod]
         public void TestRewireAspEventsSection()
         {
             try

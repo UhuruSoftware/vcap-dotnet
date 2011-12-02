@@ -43,16 +43,16 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             return "MssqlaaS";
         }
 
-        public void Start(Options options)
+        public override void Start(Options options)
         {
-            mssql_config = options.MsSql;
+            //mssql_config = options.MsSql;
             max_db_size = options.MaxDbSize * 1024 * 1024;
             max_long_query = options.MaxLongQuery;
             max_long_tx = options.MaxLongTx;
             mssqldump_bin = options.MsSqlDumpBin;
             gzip_bin = options.GZipBin;
             mssql_bin = options.MsSqlBin;
-
+            local_ip = NetworkInterface.GetLocalIpAddress(options.LocalRoute);
 
             connection = mssql_connect();
 
@@ -214,8 +214,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 {
                     // mssql database name should start with alphabet character
                     provisioned_service.Name = "D4Ta" + Guid.NewGuid().ToString("N");
-                    provisioned_service.User = "US3r" + Util.generate_credential();
-                    provisioned_service.Password = "P4Ss" + Util.generate_credential();
+                    provisioned_service.User = "US3r" + Credentials.generate_credential();
+                    provisioned_service.Password = "P4Ss" + Credentials.generate_credential();
 
                 }
                 provisioned_service.Plan = plan;
@@ -308,8 +308,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 }
                 else
                 {
-                    binding["user"] = "US3R" + Util.generate_credential();
-                    binding["password"] = "P4SS" + Util.generate_credential();
+                    binding["user"] = "US3R" + Credentials.generate_credential();
+                    binding["password"] = "P4SS" + Credentials.generate_credential();
                 }
                 binding["bind_opts"] = bind_opts;
 
