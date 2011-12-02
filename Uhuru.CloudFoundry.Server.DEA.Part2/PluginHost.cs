@@ -89,12 +89,11 @@ namespace Uhuru.CloudFoundry.Server.DEA
                 throw new KeyNotFoundException("There is no data associated with the given unique key");
 
             AppDomain domain = AppDomain.CreateDomain(pluginGuid.ToString());
-            domain.AssemblyResolve +=new ResolveEventHandler(delegate(object sender, ResolveEventArgs args)
-                {
-
-                    return null;
-                });
-            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, "TheDLLToLoad.TestClass");//typeof(IAgentPlugin).FullName);
+            //domain.AssemblyResolve +=new ResolveEventHandler(delegate(object sender, ResolveEventArgs args)
+            //    {
+            //        return null;
+            //    });
+            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);//typeof(IAgentPlugin).FullName);
             
             //save data to the dictionary
             mutexInstanceData.WaitOne();
