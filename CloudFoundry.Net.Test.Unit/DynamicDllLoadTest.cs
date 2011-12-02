@@ -1,19 +1,18 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.CloudFoundry.Server.DEA;
 using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 
 namespace CloudFoundry.Net.Test.Unit
 {
-    [TestFixture]
+    [TestClass]
     [Ignore]
     public class DynamicDllLoadTest
     {
         IAgentPlugin agent;
-        string dllFolderPath = Path.GetFullPath(@"..\Target");
+        string dllFolderPath = Path.GetFullPath(@"..\Out");
         string dllFileName = "TestDLLToLoad.dll";
 
         string resultFilePath = @"D:/file.txt";
@@ -21,14 +20,14 @@ namespace CloudFoundry.Net.Test.Unit
 
         public DynamicDllLoadTest()
         { 
-            //copy the dll file in the base folder
-            string destinationFileName = Path.Combine(dllFolderPath, dllFileName);
-            if (File.Exists(destinationFileName)) File.Delete(destinationFileName);
+            ////copy the dll file in the base folder
+            //string destinationFileName = Path.Combine(dllFolderPath, dllFileName);
+            //if (File.Exists(destinationFileName)) File.Delete(destinationFileName);
 
-            File.Copy(Path.Combine(dllFolderPath, "lib", dllFileName), destinationFileName);
+            //File.Copy(Path.Combine(dllFolderPath, "lib", dllFileName), destinationFileName);
         }
 
-        [SetUp]
+        [TestInitialize]
         public void Setup()
         {
             //get an IAgentPlugin
@@ -36,14 +35,14 @@ namespace CloudFoundry.Net.Test.Unit
             agent = PluginHost.CreateInstance(guid);
         }
 
-        [TearDown]
+        [TestCleanup]
         public void Teardown()
         {
             //clear file
             if (File.Exists(resultFilePath)) File.Delete(resultFilePath); 
         }
 
-        [Test]
+        [TestMethod]
         public void T001_CallStartApplication()
         {
             agent.StartApplication();
@@ -54,7 +53,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsTrue(content.Contains("StartApplication")); //file should contain this string
         }
 
-        [Test]
+        [TestMethod]
         public void T002_CallStopApplication()
         {
             agent.StopApplication();
@@ -65,7 +64,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsTrue(content.Contains("StopApplication")); //file should contain this string
         }
 
-        [Test]
+        [TestMethod]
         public void T003_CallKillApplication()
         {
             agent.KillApplication();
@@ -76,7 +75,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsTrue(content.Contains("KillApplication")); //file should contain this string
         }
 
-        [Test]
+        [TestMethod]
         public void T004_CallRemoveInstance()
         {
             PluginHost.RemoveInstance(agent);
@@ -87,7 +86,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsTrue(content.Contains("StopApplication")); //file should contain this string, as StopApplication was called on the app
         }
 
-        [Test]
+        [TestMethod]
         public void T005_CallConfigureDebug()
         {
             string firstParameter = "param1";
