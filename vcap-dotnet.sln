@@ -47,8 +47,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.Server.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.Server", "Uhuru.CloudFoundry.Server\Uhuru.CloudFoundry.Server.csproj", "{63A5EF37-C571-4889-8021-83169E04EFDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{20A2B0C6-04AC-45ED-89E1-C15210327449}"
-EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -275,16 +273,6 @@ Global
 		{63A5EF37-C571-4889-8021-83169E04EFDA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{63A5EF37-C571-4889-8021-83169E04EFDA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{63A5EF37-C571-4889-8021-83169E04EFDA}.Release|x86.ActiveCfg = Release|Any CPU
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Debug|x86.ActiveCfg = Debug|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Debug|x86.Build.0 = Debug|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Release|Any CPU.ActiveCfg = Release|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Release|Mixed Platforms.Build.0 = Release|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Release|x86.ActiveCfg = Release|x86
-		{20A2B0C6-04AC-45ED-89E1-C15210327449}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

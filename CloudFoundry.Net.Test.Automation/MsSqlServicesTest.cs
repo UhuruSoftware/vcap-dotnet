@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System.Configuration;
 using System.Threading;
 using System.Globalization;
+using Uhuru.CloudFoundry.Cloud;
 
 namespace CloudFoundry.Net.Test.Automation
 {

@@ -55,14 +55,13 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Uhuru.CloudFoundry.Cloud, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0f4990e2a96bb020, processorArchitecture=MSIL" />
     <Reference Include="WatiN.Core, Version=2.1.0.1196, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\WatiN.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CFApiTest.cs" />
-    <Compile Include="CFVmcApiTests.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MsSqlServicesTest.cs" />
@@ -76,6 +75,7 @@
     </CodeAnalysisDictionary>
     <Content Include="lib\Interop.SHDocVw.dll" />
     <Content Include="lib\nunit.framework.dll" />
+    <Content Include="lib\Uhuru.CloudFoundry.Cloud.dll" />
     <Content Include="lib\WatiN.Core.dll" />
     <Content Include="lib\WatiN.Core.XML" />
   </ItemGroup>

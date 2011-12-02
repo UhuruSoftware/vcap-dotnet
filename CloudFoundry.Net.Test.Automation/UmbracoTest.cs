@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Net;
 using System.Globalization;
+using Uhuru.CloudFoundry.Cloud;
 
 namespace CloudFoundry.Net.Test.Automation
 {

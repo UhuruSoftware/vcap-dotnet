@@ -17,7 +17,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         protected Client node_nats;
         VcapComponent vcapComponent;
 
-        public void Start(Options options)
+        public virtual void Start(Options options)
         {
             this.options = options;
             local_ip = Utils.GetLocalIpAddress();

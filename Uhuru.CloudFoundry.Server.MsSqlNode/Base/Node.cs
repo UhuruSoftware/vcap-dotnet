@@ -16,7 +16,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         private Dictionary<string, object> orphan_ins_hash;
         private Dictionary<string, object> orphan_binding_hash;
 
-        public void Start(Options options)
+        public override void Start(Options options)
         {
             node_id = options.NodeId;
             migration_nfs = options.MigrationNfs;
@@ -510,22 +510,22 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             return true;
         }
 
-        private Announcement varz_details()
+        protected override Dictionary<string, object> varz_details()
         {
             // Service Node subclasses may want to override this method to
             // provide service specific data beyond what is returned by their
             // "announcement" method.
-            return announcement();
+            return announcement().ToDictionary();
         }
 
-        private void healthz_details()
+        protected override Dictionary<string, string> healthz_details()
         {
-            // TODO: vladi: implement this
             // Service Node subclasses may want to override this method to
             // provide service specific data
-            //healthz = {
-            //  :self => "ok"
-            //}
+            return new Dictionary<string, string>() 
+            {
+                {"self", "ok"}
+            };
         }
 
         // Helper

@@ -99,7 +99,6 @@
     <Compile Include="AutoWiringTest.cs" />
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="DynamicDllLoadTest.cs" />
-    <Compile Include="TargetManagerTests.cs" />
     <Compile Include="UtilitiesTests.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="IISOperationsTest.cs" />
