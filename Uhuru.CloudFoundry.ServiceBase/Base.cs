@@ -6,7 +6,7 @@ using CloudFoundry.Net.Nats;
 using CloudFoundry.Net.DEA;
 using Uhuru.CloudFoundry.Server;
 using Uhuru.Utilities;
-using Uhuru.CloudFoundry.ServiceBase.Properties;
+
 
 namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 {
@@ -23,7 +23,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         {
             this.options = options;
             local_ip = NetworkInterface.GetLocalIpAddress();
-            Logger.info(String.Format(Resources.INITIALIZING, service_description()));
+            Logger.info(String.Format("{0}: Initializing", service_description()));
             orphan_ins_hash = new Dictionary<string, object>();
             orphan_binding_hash = new Dictionary<string, object>();
 
@@ -95,7 +95,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         public void Shutdown()
         {
-            Logger.info(String.Format(Resources.SHUTTING_DOWN, service_description()));
+            Logger.info(String.Format("{0}: Shutting down", service_description()));
             node_nats.Stop();
         }
 
