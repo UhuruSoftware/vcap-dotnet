@@ -79,6 +79,9 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
+      <Link>CustomDictionary.xml</Link>
+    </CodeAnalysisDictionary>
     <Content Include="lib\TestDLLToLoad.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

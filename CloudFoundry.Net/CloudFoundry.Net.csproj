@@ -83,6 +83,9 @@
   <ItemGroup>
     <EmbeddedResource Include="lib\7z64.dll" />
     <EmbeddedResource Include="lib\7z86.dll" />
+    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
+      <Link>CustomDictionary.xml</Link>
+    </CodeAnalysisDictionary>
     <Content Include="uhuru.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
