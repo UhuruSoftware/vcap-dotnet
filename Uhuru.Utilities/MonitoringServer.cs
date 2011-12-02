@@ -5,12 +5,17 @@ using System.Text;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.ServiceModel.Channels;
+using System.IdentityModel.Selectors;
+using System.ServiceModel.Security;
 
 namespace Uhuru.Utilities
 {
     public class MonitoringServer
     {
         private int serverPort;
+        private string username;
+        private string password;
+
         WebServiceHost host;
         private static MonitoringServer instance = null;
 
@@ -20,9 +25,12 @@ namespace Uhuru.Utilities
         public delegate string VarzRequestedHandler(object sender, EventArgs e);
         public event VarzRequestedHandler VarzRequested;
 
-        public MonitoringServer(int port)
+        public MonitoringServer(int port, string serverUsername, string serverPassword)
         {
             serverPort = port;
+            username = serverUsername;
+            password = serverPassword;
+
             if (instance == null)
             {
                 instance = this;
@@ -32,7 +40,17 @@ namespace Uhuru.Utilities
         public void Start()
         {
             Uri baseAddress = new Uri("http://localhost:" + serverPort);
+
+            WebHttpBinding httpBinding = new WebHttpBinding();
+            httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;
+            httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+            
             host = new WebServiceHost(typeof(MonitoringService), baseAddress);
+            host.AddServiceEndpoint(typeof(IMonitoringService),
+                httpBinding, baseAddress);
+            
+            host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
+            host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
             host.Open();
         }
 
