@@ -10,6 +10,7 @@ using System.ServiceModel;
 using System.Net;
 using System.ServiceModel.Security;
 using System.IdentityModel.Selectors;
+using System.Globalization;
 
 namespace Uhuru.Utilities
 {
@@ -50,12 +51,12 @@ namespace Uhuru.Utilities
 
         WebServiceHost host;
 
-        public FileServer(int port, string physicalPath, string virtualPath, string serverUsername, string serverPassword)
+        public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
             serverPort = port;
             serverPhysicalPath = physicalPath;
             serverVirtualPath = virtualPath;
-            username = serverUsername;
+            username = serverUserName;
             password = serverPassword;
         }
 
@@ -112,8 +113,7 @@ namespace Uhuru.Utilities
             WebOperationContext context = WebOperationContext.Current;
 
             context.OutgoingResponse.StatusCode = HttpStatusCode.Unauthorized;
-            context.OutgoingResponse.Headers[HttpResponseHeader.WwwAuthenticate] 
-                = String.Format("Basic realm =\"{0}\"", Realm);
+            context.OutgoingResponse.Headers[HttpResponseHeader.WwwAuthenticate] = String.Format(CultureInfo.InvariantCulture, "Basic realm =\"{0}\"", Realm);
         }
 
 

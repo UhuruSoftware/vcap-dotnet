@@ -22,8 +22,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         public virtual void Start(Options options)
         {
             this.options = options;
-            local_ip = NetworkInterface.GetLocalIpAddress();
-            Logger.info(String.Format("{0}: Initializing", service_description()));
+            local_ip = NetworkInterface.GetLocalIPAddress();
+            Logger.Info(String.Format("{0}: Initializing", service_description()));
             orphan_ins_hash = new Dictionary<string, object>();
             orphan_binding_hash = new Dictionary<string, object>();
 
@@ -95,7 +95,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         public void Shutdown()
         {
-            Logger.info(String.Format("{0}: Shutting down", service_description()));
+            Logger.Info(String.Format("{0}: Shutting down", service_description()));
             node_nats.Stop();
         }
 

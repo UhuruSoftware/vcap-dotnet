@@ -94,10 +94,6 @@
     <None Include="UhuruSoftware.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cassini\Cassini-v35.csproj">
-      <Project>{0D9F0FEA-45F7-4CE4-9868-6FB9BBE3DD4C}</Project>
-      <Name>Cassini-v35</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
       <Name>Uhuru.Utilities</Name>

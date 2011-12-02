@@ -61,20 +61,19 @@
     <Compile Include="Credentials.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetworkInterface.cs" />
-    <Compile Include="SqlCommandExtensions.cs" />
+    <Compile Include="ProcessPerformance\ProcessCPU.cs" />
+    <Compile Include="ProcessPerformance\ProcessData.cs" />
+    <Compile Include="ProcessPerformance\ProcessEntry32.cs" />
+    <Compile Include="ProcessPerformance\ProcessInformationEntry.cs" />
+    <Compile Include="ProcessPerformance\ProcessTimes.cs" />
+    <Compile Include="ProcessPerformance\SystemTime.cs" />
     <Compile Include="DiskUsage.cs" />
     <Compile Include="FileServer.cs" />
     <Compile Include="JsonExtensions.cs" />
     <Compile Include="MonitoringServer.cs" />
-    <Compile Include="ProcessInformation.cs" />
+    <Compile Include="ProcessPerformance\ProcessInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimerHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Uhuru.Utilities.WindowsProcess\Uhuru.Utilities.WindowsProcess.vcxproj">
-      <Project>{03C8BE54-2958-45CE-98FE-BF9F4D81959C}</Project>
-      <Name>Uhuru.Utilities.WindowsProcess</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="UhuruSoftware.snk" />

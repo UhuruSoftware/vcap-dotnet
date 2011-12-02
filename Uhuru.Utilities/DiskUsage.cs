@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace Uhuru.Utilities
 {
-    public struct DiskUsageEntry
+    public class DiskUsageEntry
     {
         string readableSize;
         long size;
@@ -44,7 +45,7 @@ namespace Uhuru.Utilities
         }
     }
 
-    public class DiskUsage
+    public static class DiskUsage
     {
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Uhuru.Utilities
             return result.ToArray();
         }
 
-        public static void WriteDiskUsageToFile(string filename, bool readable, string directory, string pattern, bool summary)
+        public static void WriteDiskUsageToFile(string fileName, bool readable, string directory, string pattern, bool summary)
         {
             DiskUsageEntry[] entries = GetDiskUsage(directory, pattern, summary);
 
@@ -145,11 +146,11 @@ namespace Uhuru.Utilities
 
             foreach (DiskUsageEntry entry in entries)
             {
-                string size = readable ? entry.ReadableSize : entry.Size.ToString();
-                fileOutput.AppendFormat("{0}\t{1}", size, entry.Directory);
+                string size = readable ? entry.ReadableSize : entry.Size.ToString(CultureInfo.InvariantCulture);
+                fileOutput.AppendFormat(CultureInfo.InvariantCulture, "{0}\t{1}", size, entry.Directory);
             }
 
-            File.WriteAllText(filename, fileOutput.ToString());
+            File.WriteAllText(fileName, fileOutput.ToString());
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace Uhuru.Utilities
                 size = size / 1024;
             }
 
-            string result = String.Format("{0:0.##}{1}", size, sizes[order]);
+            string result = String.Format(CultureInfo.InvariantCulture, "{0:0.##}{1}", size, sizes[order]);
 
             return result;
         }

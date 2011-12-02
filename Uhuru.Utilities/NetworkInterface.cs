@@ -7,16 +7,22 @@ using System.Net;
 
 namespace Uhuru.Utilities
 {
-    public class NetworkInterface
+    public static class NetworkInterface
     {
-        //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that address
-        public static string GetLocalIpAddress(string RouteIPAddress = "198.41.0.4")
+        public static string GetLocalIPAddress()
         {
-            UdpClient udpClient = new UdpClient();
-            udpClient.Connect(RouteIPAddress, 1);
-            IPEndPoint ep = (IPEndPoint)udpClient.Client.LocalEndPoint;
-            udpClient.Close();
-            return ep.Address.ToString();
+            return GetLocalIPAddress("198.41.0.4");
+        }
+
+        //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that address
+        public static string GetLocalIPAddress(string routeIPAddress = "198.41.0.4")
+        {
+            using (UdpClient udpClient = new UdpClient())
+            {
+                udpClient.Connect(routeIPAddress, 1);
+                IPEndPoint ep = (IPEndPoint)udpClient.Client.LocalEndPoint;
+                return ep.Address.ToString();
+            }
         }
     }
 }

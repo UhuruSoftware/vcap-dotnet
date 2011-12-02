@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
-using Cassini;
 using System.IO;
 using Uhuru.Utilities;
 using CFNet=CloudFoundry.Net;
@@ -89,10 +88,7 @@ namespace Uhuru.CloudFoundry.Server.DEA
         private void start_http_server(string host, int port, string[] auth)
         {
             //TODO: vladi: port this again, this will most likely not work
-             Cassini.Server http_server = new Cassini.Server(port, host, "");
-
-            File.WriteAllText("healthz", healthz);
-            File.WriteAllText("varz", varz.ToJson());
+            MonitoringServer http_server = new MonitoringServer(port, auth[0], auth[1]);
 
             http_server.Start();
         }

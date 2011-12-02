@@ -11,10 +11,10 @@ using System.Net.Sockets;
 using System.Net;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Cassini;
 using Uhuru.Utilities;
 using System.Collections.Concurrent;
 using CloudFoundry.Net.Configuration;
+using Uhuru.Utilities.ProcessPerformance;
 
 namespace CloudFoundry.Net.DEA
 {
@@ -132,7 +132,7 @@ namespace CloudFoundry.Net.DEA
         private int evacuation_delay;
         private System.Timers.Timer evacuation_delay_timer;
 
-        private Server file_viewer_server;
+        private FileServer file_viewer_server;
         private bool secure;
         private string apps_dump_dir;
         private string[] file_auth;
@@ -1787,7 +1787,7 @@ namespace CloudFoundry.Net.DEA
             }
 
             //todo: vladi:make sure this is ok`ps -o rss= -p #{instance[:pid]}`.length > 0
-            return ProcessInformation.GetProcessInformation(true, false, false, false, false, false, instance.Pid).Length == 1;
+            return ProcessInformation.GetProcessInformation(instance.Pid).Length == 1;
         }
             
 
@@ -2195,7 +2195,7 @@ namespace CloudFoundry.Net.DEA
             // BSD style ps invocation
             DateTime ps_start = DateTime.Now;
 
-            ProcessInformationEntry[] processStatuses = ProcessInformation.GetProcessInformation(true, false, true, true, true, true, 0);
+            ProcessInformationEntry[] processStatuses = ProcessInformation.GetProcessInformation(0);
 
             TimeSpan ps_elapsed = DateTime.Now - ps_start;
             if (ps_elapsed.TotalMilliseconds > 800)
@@ -2283,7 +2283,7 @@ namespace CloudFoundry.Net.DEA
                         }
                         else
                         {
-                            mem = Convert.ToInt32(pid_info[pid].Workset);
+                            mem = Convert.ToInt32(pid_info[pid].WorkingSet);
                             cpu = Convert.ToInt32(pid_info[pid].Cpu);
                         }
 
@@ -2419,7 +2419,7 @@ namespace CloudFoundry.Net.DEA
                 file_auth = new string[] { Guid.NewGuid().ToString("N"), Guid.NewGuid().ToString("N") };
                 string[] auth = file_auth;
 
-                file_viewer_server = new Server(file_viewer_port, "/droplets", apps_dir);
+                file_viewer_server = new FileServer(file_viewer_port, apps_dir, "/droplets", file_auth[0], file_auth[1]);
                 file_viewer_server.Start();
 
                 Logger.info(String.Format("File service started on port: {0}", file_viewer_port));

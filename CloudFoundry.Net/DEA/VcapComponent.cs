@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Cassini;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
@@ -92,12 +91,9 @@ namespace CloudFoundry.Net.DEA
         private void start_http_server(string host, int port, string[] auth)
         {
             //TODO: vladi: port this again, this will most likely not work
-            Server http_server = new Server(port, host, "");
+            MonitoringServer httpMonitoringServer = new MonitoringServer(port, auth[0], auth[1]);
 
-            File.WriteAllText("healthz", healthz);
-            File.WriteAllText("varz", varz.ToJson());
-
-            http_server.Start();
+            httpMonitoringServer.Start();
         }
 
         //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that address

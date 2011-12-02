@@ -8,6 +8,7 @@ using System.Threading;
 using System.Net;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Utilities.ProcessPerformance;
 
 
 namespace CloudFoundry.Net.Test.Unit
@@ -18,7 +19,8 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod]
         public void ProcessInformationTest()
         {
-            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, 0);
+            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(0);
+            Assert.IsTrue(0 < entries.Sum(entry => entry.Cpu));
             Assert.IsTrue(0 < entries.Length);
         }
 
@@ -26,7 +28,7 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod]
         public void ProcessInformationFilteredTest()
         {
-            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(true, true, true, true, true, true, Process.GetCurrentProcess().Id);
+            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(Process.GetCurrentProcess().Id);
             Assert.AreEqual(1, entries.Length);
         }
 

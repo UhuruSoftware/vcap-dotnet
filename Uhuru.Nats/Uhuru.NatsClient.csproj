@@ -74,9 +74,7 @@
       <LastGenOutput>Language.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="lib\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>

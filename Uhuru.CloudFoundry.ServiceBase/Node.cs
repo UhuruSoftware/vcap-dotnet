@@ -30,7 +30,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         protected override void on_connect_node()
         {
-            Logger.debug(String.Format("{0}: Connected to node mbus", service_description()));
+            Logger.Debug(String.Format("{0}: Connected to node mbus", service_description()));
 
             node_nats.Subscribe(String.Format("{0}.provision.{1}", service_name(), node_id), new SubscribeCallback(on_provision));
             node_nats.Subscribe(String.Format("{0}.unprovision.{1}", service_name(), node_id), new SubscribeCallback(on_unprovision));
@@ -58,7 +58,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         private void on_provision(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Provision request: {1} from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: Provision request: {1} from {2}", service_description(), msg, reply));
             ProvisionResponse response = new ProvisionResponse();
             try
             {
@@ -72,21 +72,21 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
                 response.Credentials = credential;
 
-                Logger.debug(String.Format("{0}: Successfully provisioned service for request {1}: {2}",
+                Logger.Debug(String.Format("{0}: Successfully provisioned service for request {1}: {2}",
                     service_description(), msg, response.ToJson()));
 
                 node_nats.Publish(reply, msg: encode_success(response));
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
                 node_nats.Publish(reply, msg: encode_failure(response));
             }
         }
 
         private void on_unprovision(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Unprovision request: {1}.", service_description(), msg));
+            Logger.Debug(String.Format("{0}: Unprovision request: {1}.", service_description(), msg));
            
             SimpleResponse response = new SimpleResponse();
             try
@@ -111,14 +111,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
                 node_nats.Publish(reply, msg: encode_failure(response, ex));
             }
         }
 
         private void on_bind(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Bind request: {1} from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: Bind request: {1} from {2}", service_description(), msg, reply));
             BindResponse response = new BindResponse();
             try
             {
@@ -132,14 +132,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
                 node_nats.Publish(reply, msg: encode_failure(response, ex));
             }
         }
 
         private void on_unbind(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Unbind request: {1} from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: Unbind request: {1} from {2}", service_description(), msg, reply));
             SimpleResponse response = new SimpleResponse();
             try
             {
@@ -159,14 +159,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
                 node_nats.Publish(reply, msg: encode_failure(response, ex));
             }
         }
 
         private void on_restore(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Restore request: {1} from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: Restore request: {1} from {2}", service_description(), msg, reply));
             SimpleResponse response = new SimpleResponse();
             try
             {
@@ -187,7 +187,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
                 node_nats.Publish(reply, msg: encode_failure(response, ex));
             }
         }
@@ -195,7 +195,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         // disable and dump instance
         private void on_disable_instance(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Disable instance {1} request from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: Disable instance {1} request from {2}", service_description(), msg, reply));
             try
             {
                 object[] credentials = new object[0];
@@ -223,14 +223,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
             }
         }
 
         // enable instance and send updated credentials back
         private void on_enable_instance(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: enable instance {1} request from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: enable instance {1} request from {2}", service_description(), msg, reply));
             try
             {
                 object[] credentials = new object[0];
@@ -252,14 +252,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
             }
         }
 
         // Cleanup nfs folder which contains migration data
         private void on_cleanup_nfs(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: cleanup nfs request {1} from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: cleanup nfs request {1} from {2}", service_description(), msg, reply));
             try
             {
                 object[] request = new object[0];
@@ -276,13 +276,13 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
             }
         }
 
         private void on_check_orphan(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: handles for checking orphan ", service_description()));
+            Logger.Debug(String.Format("{0}: handles for checking orphan ", service_description()));
 
             CheckOrphanResponse response = new CheckOrphanResponse();
             try
@@ -297,7 +297,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(String.Format("Exception at on_check_orphan {0}", ex.ToString()));
+                Logger.Warning(String.Format("Exception at on_check_orphan {0}", ex.ToString()));
                 response.Success = false;
                 response.Error = new Dictionary<string, object>() 
                 {
@@ -345,7 +345,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
                 }
             }
 
-            Logger.debug(String.Format("Orphan Instances: {0};  Orphan Bindings: {1}", oi_list.Count, ob_list.Count));
+            Logger.Debug(String.Format("Orphan Instances: {0};  Orphan Bindings: {1}", oi_list.Count, ob_list.Count));
             orphan_ins_hash[node_id.ToString()] = oi_list;
             orphan_binding_hash[node_id.ToString()] = ob_list;
             this.orphan_ins_hash = orphan_ins_hash;
@@ -354,7 +354,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         private void on_purge_orphan(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: Message for purging orphan ", service_description()));
+            Logger.Debug(String.Format("{0}: Message for purging orphan ", service_description()));
             SimpleResponse response = new SimpleResponse();
             try
             {
@@ -373,7 +373,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.Message);
+                Logger.Warning(ex.Message);
                 node_nats.Publish(reply, msg: encode_failure(response, ex));
             }
         }
@@ -388,7 +388,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
                 try
                 {
                     ServiceCredentials[] bindings = ab_list.Where(b => b.Name == ins).ToArray();
-                    Logger.debug(String.Format("Unprovision orphan instance {0} and its bindings {1}", ins, String.Join(", ", bindings.Select(binding => binding.ToJson()).ToArray())));
+                    Logger.Debug(String.Format("Unprovision orphan instance {0} and its bindings {1}", ins, String.Join(", ", bindings.Select(binding => binding.ToJson()).ToArray())));
 
                     ret = ret && unprovision(ins, bindings);
 
@@ -399,7 +399,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
                 }
                 catch (Exception ex)
                 {
-                    Logger.debug(String.Format("Error on purge orphan instance {0}: {1}", ins, ex.Message));
+                    Logger.Debug(String.Format("Error on purge orphan instance {0}: {1}", ins, ex.Message));
                 }
             }
 
@@ -407,12 +407,12 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             {
                 try
                 {
-                    Logger.debug(String.Format("Unbind orphan binding {0}", credential.ToJson()));
+                    Logger.Debug(String.Format("Unbind orphan binding {0}", credential.ToJson()));
                     ret = ret && unbind(credential);
                 }
                 catch (Exception ex)
                 {
-                    Logger.debug(String.Format("Error on purge orphan binding {0}: {1}", credential.ToJson(), ex.ToString()));
+                    Logger.Debug(String.Format("Error on purge orphan binding {0}: {1}", credential.ToJson(), ex.ToString()));
                 }
             }
             return ret;
@@ -445,7 +445,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         private void on_import_instance(string msg, string reply, string subject)
         {
-            Logger.debug(String.Format("{0}: import instance {1} request from {2}", service_description(), msg, reply));
+            Logger.Debug(String.Format("{0}: import instance {1} request from {2}", service_description(), msg, reply));
             try
             {
                 object[] credentials = new object[0];
@@ -467,7 +467,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
             }
         }
 
@@ -486,11 +486,11 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             {
                 if (!node_ready())
                 {
-                    Logger.debug(String.Format("{0}: Not ready to send announcement", service_description()));
+                    Logger.Debug(String.Format("{0}: Not ready to send announcement", service_description()));
                     return;
                 }
 
-                Logger.debug(String.Format("{0}: Sending announcement for {1}", service_description(), reply != null ? reply : "everyone"));
+                Logger.Debug(String.Format("{0}: Sending announcement for {1}", service_description(), reply != null ? reply : "everyone"));
 
                 Announcement a = announcement();
                 a.Id = node_id;
@@ -498,7 +498,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.warn(ex.ToString());
+                Logger.Warning(ex.ToString());
             }
         }
 

@@ -55,7 +55,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             max_db_size = options.MaxDbSize * 1024 * 1024;
             max_long_query = options.MaxLongQuery;
             max_long_tx = options.MaxLongTx;
-            local_ip = NetworkInterface.GetLocalIpAddress(options.LocalRoute);
+            local_ip = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
             connection = mssql_connect();
 
@@ -165,7 +165,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 Thread.Sleep(5000);
             }
 
-            Logger.fatal("MsSql connection unrecoverable");
+            Logger.Fatal("MsSql connection unrecoverable");
             Shutdown();
             Process.GetCurrentProcess().Kill();
             return null;
@@ -182,7 +182,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
             catch (Exception ex)
             {
-                Logger.warn(String.Format("MsSql connection lost: {0}", ex.ToString()));
+                Logger.Warning(String.Format("MsSql connection lost: {0}", ex.ToString()));
                 connection = mssql_connect();
             }
         }
@@ -217,8 +217,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 {
                     // mssql database name should start with alphabet character
                     provisioned_service.Name = "D4Ta" + Guid.NewGuid().ToString("N");
-                    provisioned_service.User = "US3r" + Credentials.generate_credential();
-                    provisioned_service.Password = "P4Ss" + Credentials.generate_credential();
+                    provisioned_service.User = "US3r" + Credentials.GenerateCredential();
+                    provisioned_service.Password = "P4Ss" + Credentials.GenerateCredential();
 
                 }
                 provisioned_service.Plan = plan;
@@ -227,7 +227,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
                 if (!provisioned_service.Save())
                 {
-                    Logger.error(String.Format("Could not save entry: {0}", provisioned_service.ToJson()));
+                    Logger.Error(String.Format("Could not save entry: {0}", provisioned_service.ToJson()));
                     throw new MsSqlError(MsSqlError.MSSQL_LOCAL_DB_ERROR);
                 }
 
@@ -249,7 +249,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 return false;
             }
 
-            Logger.debug(String.Format("Unprovision database:{0}, bindings: {1}", name, credentials.ToJson()));
+            Logger.Debug(String.Format("Unprovision database:{0}, bindings: {1}", name, credentials.ToJson()));
 
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
@@ -282,17 +282,17 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
             if (!provisioned_service.Destroy())
             {
-                Logger.error(String.Format("Could not delete service: {0}", provisioned_service.Name));
+                Logger.Error(String.Format("Could not delete service: {0}", provisioned_service.Name));
                 throw new MsSqlError(MsSqlError.MSSQL_LOCAL_DB_ERROR);
             }
 
-            Logger.debug(String.Format("Successfully fulfilled unprovision request: {0}", name));
+            Logger.Debug(String.Format("Successfully fulfilled unprovision request: {0}", name));
             return true;
         }
 
         protected override ServiceCredentials bind(string name, Dictionary<string, object> bind_opts, ServiceCredentials credential = null)
         {
-            Logger.debug(String.Format("Bind service for db:{0}, bind_opts = {1}", name, bind_opts.ToJson()));
+            Logger.Debug(String.Format("Bind service for db:{0}, bind_opts = {1}", name, bind_opts.ToJson()));
             Dictionary<string, object> binding = null;
             try
             {
@@ -311,15 +311,15 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 }
                 else
                 {
-                    binding["user"] = "US3R" + Credentials.generate_credential();
-                    binding["password"] = "P4SS" + Credentials.generate_credential();
+                    binding["user"] = "US3R" + Credentials.GenerateCredential();
+                    binding["password"] = "P4SS" + Credentials.GenerateCredential();
                 }
                 binding["bind_opts"] = bind_opts;
 
                 create_database_user(name, binding["user"] as string, binding["password"] as string);
                 ServiceCredentials response = gen_credential(name, binding["user"] as string, binding["password"] as string);
 
-                Logger.debug(String.Format("Bind response: {0}", response.ToJson()));
+                Logger.Debug(String.Format("Bind response: {0}", response.ToJson()));
                 binding_served += 1;
                 return response;
             }
@@ -340,7 +340,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 return false;
             }
 
-            Logger.debug(String.Format("Unbind service: {0}", credential.ToJson()));
+            Logger.Debug(String.Format("Unbind service: {0}", credential.ToJson()));
 
             string name = credential.Name;
             string user = credential.User;
@@ -369,7 +369,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             try
             {
                 DateTime start = DateTime.Now;
-                Logger.debug(String.Format("Creating: {0}", provisioned_service.ToJson()));
+                Logger.Debug(String.Format("Creating: {0}", provisioned_service.ToJson()));
 
                 new SqlCommand(String.Format("CREATE DATABASE {0}", name), connection).ExecuteNonQuery();
 
@@ -380,17 +380,17 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                     throw new MsSqlError(MsSqlError.MSSQL_DISK_FULL);
                 }
                 available_storage -= storage;
-                Logger.debug(String.Format("Done creating {0}. Took {1} s.", provisioned_service.ToJson(), (start-DateTime.Now).TotalSeconds));
+                Logger.Debug(String.Format("Done creating {0}. Took {1} s.", provisioned_service.ToJson(), (start-DateTime.Now).TotalSeconds));
             }
             catch (Exception ex)
             {
-                Logger.warn(String.Format("Could not create database: [{0}]", ex.Message));
+                Logger.Warning(String.Format("Could not create database: [{0}]", ex.Message));
             }
         }
 
         private void create_database_user(string name, string user, string password)
         {
-            Logger.info(String.Format("Creating credentials: {0}/{1} for database {2}", user, password, name));
+            Logger.Info(String.Format("Creating credentials: {0}/{1} for database {2}", user, password, name));
             
 
             using (TransactionScope ts = new TransactionScope())
@@ -424,7 +424,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             try
             {
                 delete_database_user(user);
-                Logger.info(String.Format("Deleting database: {0}", name));
+                Logger.Info(String.Format("Deleting database: {0}", name));
 
                 using (TransactionScope ts = new TransactionScope())
                 {
@@ -435,13 +435,13 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
             catch (Exception ex)
             {
-                Logger.fatal(String.Format("Could not delete database: [{0}]", ex.Message));
+                Logger.Fatal(String.Format("Could not delete database: [{0}]", ex.Message));
             }
         }
 
         private void delete_database_user(string user)
         {
-            Logger.info(String.Format("Delete user {0}", user));
+            Logger.Info(String.Format("Delete user {0}", user));
             try
             {
                 kill_user_session(user);
@@ -456,7 +456,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
             catch (Exception ex)
             {
-                Logger.fatal(String.Format("Could not delete user '{0}': [{1}]", user, ex.Message));
+                Logger.Fatal(String.Format("Could not delete user '{0}': [{1}]", user, ex.Message));
             }
         }
 
@@ -522,7 +522,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         protected override Dictionary<string, object> varz_details()
         {
-            Logger.debug("Generate varz.");
+            Logger.Debug("Generate varz.");
             Dictionary<string, object> varz = new Dictionary<string, object>();
             try
             {
@@ -546,7 +546,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
             catch (Exception ex)
             {
-                Logger.error(String.Format("Error during generate varz: {0}", ex.Message));
+                Logger.Error(String.Format("Error during generate varz: {0}", ex.Message));
                 return new Dictionary<string, object>();
             }
         }
@@ -577,7 +577,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         private double get_qps()
         {
-            Logger.debug("Calculate queries per seconds.");
+            Logger.Debug("Calculate queries per seconds.");
             int queries = get_queries_status();
             DateTime ts = DateTime.Now;
 

@@ -6,9 +6,14 @@ using System.Web.Security;
 
 namespace Uhuru.Utilities
 {
-    public class Credentials
+    public static class Credentials
     {
-        public static string generate_credential(int length = 12)
+        public static string GenerateCredential()
+        {
+            return GenerateCredential(12);
+        }
+
+        public static string GenerateCredential(int length)
         {
             // as per msdn (http://msdn.microsoft.com/en-us/library/system.web.security.membership.generatepassword.aspx)
             // the characters that are non-alphanumeric will be replaced with letters/numbers

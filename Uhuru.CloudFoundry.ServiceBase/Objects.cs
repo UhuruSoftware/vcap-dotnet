@@ -282,7 +282,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.error(String.Format("Could not save ProvisionedService list {0}", ex.ToString()));
+                Logger.Error(String.Format("Could not save ProvisionedService list {0}", ex.ToString()));
                 return false;
             }
         }

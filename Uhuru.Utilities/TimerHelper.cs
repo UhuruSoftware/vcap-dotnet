@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 
-namespace Uhuru.CloudFoundry.Server
+namespace Uhuru.Utilities
 {
-    public class TimerHelper
-    {
-        public delegate void TimerCallbackDelegate();
+    public delegate void TimerCallback();
 
-        public static void DelayedCall(double delay, TimerCallbackDelegate callback)
+    public static class TimerHelper
+    {
+        public static Timer DelayedCall(double delay, TimerCallback callback)
         {
             Timer newTimer = new Timer(delay);
             newTimer.AutoReset = false;
@@ -19,9 +19,11 @@ namespace Uhuru.CloudFoundry.Server
                     callback();
                 });
             newTimer.Enabled = true;
+
+            return newTimer;
         }
 
-        public static Timer RecurringCall(double delay, TimerCallbackDelegate callback)
+        public static Timer RecurringCall(double delay, TimerCallback callback)
         {
             Timer newTimer = new Timer(delay);
             newTimer.AutoReset = true;
@@ -33,7 +35,7 @@ namespace Uhuru.CloudFoundry.Server
             return newTimer;
         }
 
-        public static Timer RecurringLongCall(double delay, TimerCallbackDelegate callback)
+        public static Timer RecurringLongCall(double delay, TimerCallback callback)
         {
             Timer newTimer = new Timer(delay);
             newTimer.AutoReset = false;
