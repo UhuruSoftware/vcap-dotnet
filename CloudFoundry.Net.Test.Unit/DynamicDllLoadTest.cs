@@ -45,7 +45,7 @@ namespace CloudFoundry.Net.Test.Unit
         }
 
         [TestMethod]
-        public void T001_CallStartApplication()
+        public void T001CallStartApplication()
         {
             agent.StartApplication();
 
@@ -56,7 +56,7 @@ namespace CloudFoundry.Net.Test.Unit
         }
 
         [TestMethod]
-        public void T002_CallStopApplication()
+        public void T002CallStopApplication()
         {
             agent.StopApplication();
 
@@ -67,7 +67,7 @@ namespace CloudFoundry.Net.Test.Unit
         }
 
         [TestMethod]
-        public void T003_CallKillApplication()
+        public void T003CallKillApplication()
         {
             agent.KillApplication();
 
@@ -78,7 +78,7 @@ namespace CloudFoundry.Net.Test.Unit
         }
 
         [TestMethod]
-        public void T004_CallRemoveInstance()
+        public void T004CallRemoveInstance()
         {
             PluginHost.RemoveInstance(agent);
 
@@ -89,7 +89,7 @@ namespace CloudFoundry.Net.Test.Unit
         }
 
         [TestMethod]
-        public void T005_CallConfigureDebug()
+        public void T005CallConfigureDebug()
         {
             string firstParameter = "param1";
             string secondParameter = "param2";
@@ -99,7 +99,7 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.IsTrue(File.Exists(resultFilePath)); //the file should have been created
             string[] content = File.ReadAllLines(resultFilePath);
 
-            string row = content.Where(r => r.StartsWith("ConfigureDebug")).FirstOrDefault();
+            string row = content.Where(r => r.StartsWith("ConfigureDebug", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
             Assert.AreNotEqual(row, default(string)); //a row fulfilling the condition should be found
 
