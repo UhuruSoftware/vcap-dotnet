@@ -118,43 +118,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4DAE1520347CEF99DD3EA6E4FC6510E4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D5CB4F6A2A83AE642B72A9F4AE8333B6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_89AAEEBB941CF4073B00A1733CA470D4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A6AA3A071A348B4887284C154CE9D892"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6C1FED6A7A1968788F9FFF17508C7628"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_89C88ED912F7BE0901333FDAFF6836C1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C550ACECB4D7744242521323B9CFD16F"
+        "OwnerKey" = "8:_68082427CD9F4377977450BC30D8372C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -166,7 +130,43 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_68082427CD9F4377977450BC30D8372C"
+        "OwnerKey" = "8:_C550ACECB4D7744242521323B9CFD16F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_89C88ED912F7BE0901333FDAFF6836C1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6C1FED6A7A1968788F9FFF17508C7628"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A6AA3A071A348B4887284C154CE9D892"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_89AAEEBB941CF4073B00A1733CA470D4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D5CB4F6A2A83AE642B72A9F4AE8333B6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4DAE1520347CEF99DD3EA6E4FC6510E4"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -177,7 +177,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\Target\\Installers\\WinDEASetup.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.DEA.Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -214,7 +214,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\WinDEASetup.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.DEA.Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1116,7 +1116,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_380F58F5EAD541A4906004A950CBC645"
             {
-            "SourcePath" = "8:..\\CloudFoundry.Net.Services.DEA\\obj\\Release\\CloudFoundry.Net.Services.DEA.exe"
+            "SourcePath" = "8:..\\CloudFoundry.Net.Services.DEA\\obj\\Debug\\CloudFoundry.Net.Services.DEA.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
