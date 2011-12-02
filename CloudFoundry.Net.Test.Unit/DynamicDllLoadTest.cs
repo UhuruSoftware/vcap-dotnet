@@ -4,11 +4,13 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.CloudFoundry.Server.DEA;
 using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+using System.Windows.Forms;
+
 
 namespace CloudFoundry.Net.Test.Unit
 {
     [TestClass]
-    [Ignore]
+    [DeploymentItem("TestDLLToLoad.dll")]
     public class DynamicDllLoadTest
     {
         IAgentPlugin agent;
@@ -31,7 +33,7 @@ namespace CloudFoundry.Net.Test.Unit
         public void Setup()
         {
             //get an IAgentPlugin
-            Guid guid = PluginHost.LoadPlugin(Path.Combine(dllFolderPath, dllFileName), "TestClass");
+            Guid guid = PluginHost.LoadPlugin(Path.Combine(dllFolderPath, dllFileName), "TheDLLToLoad.TestClass");
             agent = PluginHost.CreateInstance(guid);
         }
 
@@ -92,21 +94,23 @@ namespace CloudFoundry.Net.Test.Unit
             string firstParameter = "param1";
             string secondParameter = "param2";
 
-            agent.ConfigureDebug(firstParameter, secondParameter, new ApplicationVariable[0]);
+            agent.ConfigureDebug(firstParameter, secondParameter, null);//new ApplicationVariable[0]);
 
             Assert.IsTrue(File.Exists(resultFilePath)); //the file should have been created
             string[] content = File.ReadAllLines(resultFilePath);
 
             string row = content.Where(r => r.StartsWith("ConfigureDebug")).FirstOrDefault();
 
-            Assert.AreNotEqual(row, default(string)); //a row fulfilling the condition should have been found
+            Assert.AreNotEqual(row, default(string)); //a row fulfilling the condition should be found
 
             string[] parts = row.Split(' ');
 
             Assert.AreEqual(parts.Length, 3);
             Assert.AreEqual(parts[1], firstParameter);
             Assert.AreEqual(parts[2], secondParameter);
+            
         }
+
 
     }
 }
