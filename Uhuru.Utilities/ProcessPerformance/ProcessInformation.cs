@@ -22,7 +22,7 @@ namespace Uhuru.Utilities.ProcessPerformance
 
         }
 
-        [SecurityCritical]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands"), SecurityCritical]
         public static ProcessInformationEntry[] GetProcessInformation(int processId)
         {
             List<ProcessInformationEntry> result = new List<ProcessInformationEntry>();

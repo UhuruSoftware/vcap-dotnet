@@ -12,27 +12,55 @@ namespace Uhuru.Utilities
     {
         public static Timer DelayedCall(double delay, TimerCallback callback)
         {
-            Timer newTimer = new Timer(delay);
-            newTimer.AutoReset = false;
-            newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
+            Timer newTimer = null;
+            Timer returnTimer = null;
+            try
+            {
+                newTimer = new Timer(delay);
+                newTimer.AutoReset = false;
+                newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
+                    {
+                        callback();
+                    });
+                newTimer.Enabled = true;
+                returnTimer = newTimer;
+                newTimer = null;
+            }
+            finally
+            {
+                if (newTimer != null)
                 {
-                    callback();
-                });
-            newTimer.Enabled = true;
-
-            return newTimer;
+                    newTimer.Close();
+                }
+            }
+            return returnTimer;
         }
 
         public static Timer RecurringCall(double delay, TimerCallback callback)
         {
-            Timer newTimer = new Timer(delay);
-            newTimer.AutoReset = true;
-            newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
+            Timer newTimer = null;
+            Timer returnTimer = null;
+
+            try
             {
-                callback();
-            });
-            newTimer.Enabled = true;
-            return newTimer;
+                newTimer = new Timer(delay);
+                newTimer.AutoReset = true;
+                newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
+                {
+                    callback();
+                });
+                newTimer.Enabled = true;
+                returnTimer = newTimer;
+                newTimer = null;
+            }
+            finally
+            {
+                if (newTimer != null)
+                {
+                    newTimer.Close();
+                }
+            }
+            return returnTimer;
         }
 
         public static Timer RecurringLongCall(double delay, TimerCallback callback)

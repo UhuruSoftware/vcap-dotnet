@@ -15,7 +15,7 @@ namespace Uhuru.Utilities
         }
 
         //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that address
-        public static string GetLocalIPAddress(string routeIPAddress = "198.41.0.4")
+        public static string GetLocalIPAddress(string routeIPAddress)
         {
             using (UdpClient udpClient = new UdpClient())
             {

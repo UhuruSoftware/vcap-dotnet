@@ -25,10 +25,10 @@ namespace Uhuru.Utilities
         public delegate string VarzRequestedHandler(object sender, EventArgs e);
         public event VarzRequestedHandler VarzRequested;
 
-        public MonitoringServer(int port, string serverUsername, string serverPassword)
+        public MonitoringServer(int port, string serverUserName, string serverPassword)
         {
             serverPort = port;
-            username = serverUsername;
+            username = serverUserName;
             password = serverPassword;
 
             if (instance == null)

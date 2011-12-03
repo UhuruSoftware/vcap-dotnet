@@ -20,17 +20,22 @@ namespace Uhuru.Utilities
         string validUsername;
         string validPassword;
 
-        public UserCustomAuthentication(string username, string password)
+        public UserCustomAuthentication(string userName, string password)
         {
             validPassword = password;
-            validUsername = username;
+            validUsername = userName;
         }
 
         public override void Validate(string userName, string password)
         {
-            if (null == userName || null == password)
+            if (null == userName)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("userName");
+            }
+
+            if (null == password)
+            {
+                throw new ArgumentNullException("password");
             }
 
             if (!(userName == validUsername && password == validPassword))
