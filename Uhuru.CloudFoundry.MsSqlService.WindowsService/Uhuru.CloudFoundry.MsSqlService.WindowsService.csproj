@@ -8,8 +8,8 @@
     <ProjectGuid>{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.CloudFoundry.MsSqlService.WindowsService</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.MsSqlService.WindowsService</AssemblyName>
+    <RootNamespace>Uhuru.CloudFoundry.MSSqlService.WindowsService</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.MSSqlService.WindowsService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -69,9 +69,9 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.MsSqlNode\Uhuru.CloudFoundry.MsSqlService.csproj">
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.MsSqlNode\Uhuru.CloudFoundry.MSSqlService.csproj">
       <Project>{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}</Project>
-      <Name>Uhuru.CloudFoundry.MsSqlService</Name>
+      <Name>Uhuru.CloudFoundry.MSSqlService</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.CloudFoundry.ServiceBase\Uhuru.CloudFoundry.ServiceBase.csproj">
       <Project>{FC669600-C839-426A-B246-AC19D55F5C51}</Project>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Uhuru.Utilities;
+using System.Globalization;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
@@ -35,15 +36,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"plan", Plan.ToString().ToLower()},
-                  {"credentials", Credentials.ToDictionary()}
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -87,26 +79,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                   {"error", Error}
               }.ToJson();
         }
-
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            Success = jsonObject["success"].ToValue<bool>();
-
-            if (jsonObject.ContainsKey("credentials"))
-            {
-                Credentials = new ServiceCredentials();
-                Credentials.FromJson(jsonObject["credentials"].ToString());
-            }
-            if (jsonObject.ContainsKey("error"))
-            {
-                Error = new Dictionary<string, object>();
-                Error = jsonObject["error"].ToValue<Dictionary<string, object>>();
-            }
-        }
     }
+
 
     class UnprovisionRequest
     {
@@ -119,15 +93,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"name", Name},
-                  {"bindings", Bindings.Select(binding => binding.ToDictionary()).ToArray()}
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -164,16 +129,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"name", Name},
-                  {"bind_opts", BindOptions},
-                  {"credentials", Credentials.ToDictionary()}
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -224,24 +179,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                   {"error", Error}
               }.ToJson();
         }
-
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            Success = jsonObject["success"].ToValue<bool>();
-            if (jsonObject.ContainsKey("credentials"))
-            {
-                Credentials = new ServiceCredentials();
-                Credentials.FromJson(jsonObject["credentials"].ToJson());
-            }
-            if (jsonObject.ContainsKey("error"))
-            {
-                Error = new Dictionary<string, object>();
-                Error = jsonObject["error"].ToValue<Dictionary<string, object>>();
-            }
-        }
     }
 
     class UnbindRequest
@@ -250,14 +187,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"credentials", Credentials.ToDictionary()},
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -290,20 +219,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                   {"error", Error}
               }.ToJson();
         }
-
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            Success = jsonObject["success"].ToValue<bool>();
-
-            if (jsonObject.ContainsKey("error"))
-            {
-                Error = new Dictionary<string, object>();
-                Error = jsonObject["error"].ToValue<Dictionary<string, object>>();
-            }
-        }
     }
 
     class RestoreRequest
@@ -317,15 +232,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"instance_id", InstanceId},
-                  {"backup_path", BackupPath}
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -344,14 +250,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"handles", Handles.Select(handle => handle.ToDictionary()).ToArray() }
-              }.ToJson();
         }
 
         public void FromJson(string json)
@@ -410,27 +308,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                   {"orphan_instances", OrphanBindings}
               }.ToJson();
         }
-
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            Success = jsonObject["success"].ToValue<bool>();
-            if (jsonObject.ContainsKey("error"))
-            {
-                Error = new Dictionary<string, object>();
-                Error = jsonObject["error"].ToValue<Dictionary<string, object>>();
-            }
-            if (jsonObject.ContainsKey("orphan_instances"))
-            {
-                OrphanInstances = jsonObject["orphan_instances"].ToObject<Dictionary<string, object>>();
-            }
-            if (jsonObject.ContainsKey("orphan_bindings"))
-            {
-                OrphanBindings = jsonObject["orphan_bindings"].ToObject<Dictionary<string, object>>();
-            }
-        }
     }
 
     class PurgeOrphanRequest
@@ -446,15 +323,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get;
             set;
-        }
-
-        public string ToJson()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"orphan_ins_list", OrphanInsList},
-                  {"orphan_binding_list", OrphanBindingList}
-              }.ToJson();
         }
 
         public void FromJson(string json)

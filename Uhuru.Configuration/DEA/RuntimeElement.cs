@@ -6,6 +6,9 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.DEA
 {
+    /// <summary>
+    /// This is a configuration class that defines the possible runtimes.
+    /// </summary>
     public class RuntimeElement : ConfigurationElement
     {
 
@@ -86,7 +89,9 @@ namespace Uhuru.Configuration.DEA
 
         #region Properties
 
-
+        /// <summary>
+        /// Gets the name of the runtime.
+        /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name
         {
@@ -96,6 +101,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets the executable for the runtime, used to get the version.
+        /// </summary>
         [ConfigurationProperty("executable", IsRequired = true, DefaultValue = null)]
         public string Executable
         {
@@ -105,6 +113,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets the expected runtime version.
+        /// </summary>
         [ConfigurationProperty("version", IsRequired = true, DefaultValue = null)]
         public string Version
         {
@@ -114,6 +125,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets the flag that is passed to the runtime executable, to get the version.
+        /// </summary>
         [ConfigurationProperty("versionFlag", IsRequired = false, DefaultValue = "-v")]
         public string VersionFlag
         {
@@ -123,6 +137,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets any additional checks to be done for the runtime.
+        /// </summary>
         [ConfigurationProperty("additionalChecks", IsRequired = false, DefaultValue = null)]
         public string AdditionalChecks
         {
@@ -132,6 +149,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets a collection of environment variables for this runtime.
+        /// </summary>
         [ConfigurationProperty("environment", IsRequired = false, DefaultValue = null)]
         public EnvironmentCollection Environment
         {
@@ -141,6 +161,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets a collection of debug configurations for this runtime.
+        /// </summary>
         [ConfigurationProperty("debug", IsRequired = false, DefaultValue = null)]
         public DebugCollection Debug
         {

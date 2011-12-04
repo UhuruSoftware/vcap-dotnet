@@ -6,10 +6,14 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.Service
 {
+    /// <summary>
+    /// This configuration class contains settings for a service component.
+    /// </summary>
     public class ServiceElement : ConfigurationElement
     {
         #region Constructors
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static ServiceElement()
         {
             propertyNodeId = new ConfigurationProperty(
@@ -98,7 +102,7 @@ namespace Uhuru.Configuration.Service
 
             propertyMsSql = new ConfigurationProperty(
               "mssql",
-              typeof(MsSqlElement),
+              typeof(MSSqlElement),
               null,
               ConfigurationPropertyOptions.None
               );
@@ -152,6 +156,9 @@ namespace Uhuru.Configuration.Service
             get { return properties; }
         }
 
+        /// <summary>
+        /// Node id for the service.
+        /// </summary>
         [ConfigurationProperty("nodeId", IsRequired = true, DefaultValue = null)]
         public string NodeId
         {
@@ -161,8 +168,11 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Network file system used for migration.
+        /// </summary>
         [ConfigurationProperty("migrationNfs", IsRequired = true, DefaultValue = null)]
-        public string MigrationNfs
+        public string MigrationNFS
         {
             get
             {
@@ -170,6 +180,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// NATS message bus URI
+        /// </summary>
         [ConfigurationProperty("mbus", IsRequired = true, DefaultValue = null)]
         public string MBus
         {
@@ -179,6 +192,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Index of the service node.
+        /// </summary>
         [ConfigurationProperty("index", IsRequired = true, DefaultValue = 0)]
         public int Index
         {
@@ -188,6 +204,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the interval at which to update the Healthz and Varz
+        /// </summary>
         [ConfigurationProperty("zInterval", IsRequired = true, DefaultValue = 30000)]
         public int ZInterval
         {
@@ -197,8 +216,11 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the maximum database size.
+        /// </summary>
         [ConfigurationProperty("maxDbSize", IsRequired = true, DefaultValue = 20)]
-        public int MaxDbSize
+        public int MaxDBSize
         {
             get
             {
@@ -206,8 +228,11 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the maximum duration for a query in seconds.
+        /// </summary>
         [ConfigurationProperty("maxLongQuery", IsRequired = true, DefaultValue = 3)]
-        public int MaxLongQuery
+        public int MaxLengthyQuery
         {
             get
             {
@@ -215,8 +240,11 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the maximum duration for a query in seconds.
+        /// </summary>
         [ConfigurationProperty("maxLongTx", IsRequired = true, DefaultValue = 30)]
-        public int MaxLongTx
+        public int MaxLengthyTX
         {
             get
             {
@@ -224,6 +252,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the base directory for the service.
+        /// </summary>
         [ConfigurationProperty("baseDir", IsRequired = true, DefaultValue = ".\\")]
         public string BaseDir
         {
@@ -233,6 +264,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the amount of available storage for this service, in megabytes.
+        /// </summary>
         [ConfigurationProperty("availableStorage", IsRequired = true, DefaultValue = 1024)]
         public int AvailableStorage
         {
@@ -242,8 +276,11 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the local database file in which to save the list of provisioned services.
+        /// </summary>
         [ConfigurationProperty("localDb", IsRequired = true, DefaultValue = "localServiceDb.xml")]
-        public string LocalDb
+        public string LocalDB
         {
             get
             {
@@ -251,6 +288,12 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// This is the IP address of a well known server on your network, it
+        /// is used to choose the right ip address (think of hosts that have multiple nics
+        /// and IP addresses assigned to them) of the host running the DEA. Default
+        /// value of null, should work in most cases.
+        /// </summary>
         [ConfigurationProperty("localRoute", IsRequired = true, DefaultValue = "198.41.0.4")]
         public string LocalRoute
         {
@@ -260,12 +303,15 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets configuration settings for an MS Sql Server system service.
+        /// </summary>
         [ConfigurationProperty("mssql", IsRequired = false, DefaultValue = null)]
-        public MsSqlElement MsSql
+        public MSSqlElement MSSql
         {
             get
             {
-                return (MsSqlElement)base[propertyMsSql];
+                return (MSSqlElement)base[propertyMsSql];
             }
         }
 

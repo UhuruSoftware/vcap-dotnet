@@ -54,6 +54,7 @@ namespace Uhuru.Utilities
     public sealed class MonitoringServer : IDisposable
     {
         private int serverPort;
+        private string hostName;
         private string username;
         private string password;
         private WebServiceHost host;
@@ -72,10 +73,12 @@ namespace Uhuru.Utilities
         /// Public constructor.
         /// </summary>
         /// <param name="port">The port used by the server to listen.</param>
+        /// <param name="host">The host used to publish the service.</param>
         /// <param name="serverUserName">A username for basic authentication.</param>
         /// <param name="serverPassword">A password for basic authentication.</param>
-        public MonitoringServer(int port, string serverUserName, string serverPassword)
+        public MonitoringServer(int port, string host, string serverUserName, string serverPassword)
         {
+            hostName = host;
             serverPort = port;
             username = serverUserName;
             password = serverPassword;
@@ -91,7 +94,7 @@ namespace Uhuru.Utilities
         /// </summary>
         public void Start()
         {
-            Uri baseAddress = new Uri("http://localhost:" + serverPort);
+            Uri baseAddress = new Uri("http://" + hostName + ":" + serverPort);
 
             WebHttpBinding httpBinding = new WebHttpBinding();
             httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;

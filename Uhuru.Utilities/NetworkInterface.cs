@@ -36,5 +36,18 @@ namespace Uhuru.Utilities
                 return ep.Address.ToString();
             }
         }
+
+        /// <summary>
+        /// This method returns a free port.
+        /// </summary>
+        /// <returns>An int that is the free port.</returns>
+        public static int GrabEphemeralPort()
+        {
+            TcpListener socket = new TcpListener(IPAddress.Any, 0);
+            socket.Start();
+            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
+            socket.Stop();
+            return port;
+        }
     }
 }

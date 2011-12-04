@@ -11,20 +11,22 @@ using Uhuru.Utilities;
 using System.Transactions;
 using System.Data;
 using Uhuru.CloudFoundry.ServiceBase;
+using System.Globalization;
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode
+namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
+    /// <summary>
+    /// This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.
+    /// </summary>
     public partial class Node : NodeBase
     {
         const int KEEP_ALIVE_INTERVAL = 15000;
         const int LONG_QUERY_INTERVAL = 1;
         const int STORAGE_QUOTA_INTERVAL = 1;
-        private MsSqlOptions mssql_config;
+        private MSSqlOptions mssql_config;
         private int max_db_size;
         private int max_long_query;
         private int max_long_tx;
-        private string mssqldump_bin;
-        private string mssql_bin;
         SqlConnection connection;
         private string base_dir;
         private int available_storage;
@@ -38,18 +40,41 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         private string local_ip;
 
 
+        /// <summary>
+        /// Gets the service name.
+        /// </summary>
+        /// <returns>
+        /// "MssqlaaS"
+        /// </returns>
         protected override string ServiceName()
         {
             return "MssqlaaS";
         }
 
+        /// <summary>
+        /// Starts the node.
+        /// </summary>
+        /// <param name="options">The configuration options for the node.</param>
         public override void Start(Options options)
         {
             base.Start(options);
         }
 
-        public void Start(Options options, MsSqlOptions msSqlOptions)
+        /// <summary>
+        /// Starts the node.
+        /// </summary>
+        /// <param name="options">The configuration options for the node.</param>
+        /// <param name="msSqlOptions">The MS SQL Server options.</param>
+        public void Start(Options options, MSSqlOptions msSqlOptions)
         {
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+            if (msSqlOptions == null)
+            {
+                throw new ArgumentNullException("msSqlOptions");
+            }
 
             mssql_config = msSqlOptions;
             max_db_size = options.MaxDBSize * 1024 * 1024;
@@ -98,7 +123,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             available_storage = options.AvailableStorage * 1024 * 1024;
             node_capacity = available_storage;
 
-            foreach (ProvisionedService provisioned_service in ProvisionedService.Instances)
+            foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
             {
                 available_storage -= storage_for_service(provisioned_service);
             }
@@ -115,6 +140,9 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         }
 
+        /// <summary>
+        /// Gets any service-specific announcement details.
+        /// </summary>
         protected override Announcement AnnouncementDetails
         {
             get
@@ -125,6 +153,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         private void check_db_consistency()
         {
             // method present in mysql and postgresql
@@ -135,8 +164,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         {
             switch (provisioned_service.Plan)
             {
-                case ProvisionedServicePlanType.FREE: return max_db_size;
-                default: throw new MsSqlError(MsSqlError.MSSQL_INVALID_PLAN, provisioned_service.Plan.ToString());
+                case ProvisionedServicePlanType.Free: return max_db_size;
+                default: throw new MSSqlError(MSSqlError.MSSqlInvalidPlan, provisioned_service.Plan.ToString());
             }
         }
 
@@ -144,7 +173,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         {
             get
             {
-                return String.Format("Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true", mssql_config.Host, mssql_config.Port, mssql_config.User, mssql_config.Password);
+                return String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeConnectionString, 
+                    mssql_config.Host, mssql_config.Port, mssql_config.User, mssql_config.Password);
             }
         }
 
@@ -168,50 +198,75 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 Thread.Sleep(5000);
             }
 
-            Logger.Fatal("MsSql connection unrecoverable");
+            Logger.Fatal(Strings.SqlNodeConnectionUnrecoverableFatalMessage);
             Shutdown();
             Process.GetCurrentProcess().Kill();
             return null;
         }
 
         //keep connection alive, and check db liveness
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void mssql_keep_alive()
         {
             // present in both mysql and postgresql
             try
             {
-                SqlCommand cmd = new SqlCommand("select CURRENT_TIMESTAMP", connection);
-                cmd.ExecuteScalar();
+                using (SqlCommand cmd = new SqlCommand(Strings.SqlNodeKeepAliveSQL, connection))
+                {
+                    cmd.ExecuteScalar();
+                }
             }
             catch (Exception ex)
             {
-                Logger.Warning(String.Format("MsSql connection lost: {0}", ex.ToString()));
+                Logger.Warning(Strings.SqlNodeConnectionLostWarningMessage, ex.ToString());
                 connection = mssql_connect();
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         private void kill_long_queries()
         {
             //present in both mysql and postgresql
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private void kill_long_transaction()
         {
             //present in both mysql and postgresql
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
         }
 
-        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credential = null)
+        /// <summary>
+        /// Provisions an MS Sql Server database.
+        /// </summary>
+        /// <param name="plan">The payment plan for the service.</param>
+        /// <returns>
+        /// Credentials for the provisioned service.
+        /// </returns>
+        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan)
+        {
+            return Provision(plan, null);
+        }
+
+        /// <summary>
+        /// Provisions an MS Sql Server database.
+        /// </summary>
+        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="credentials">Existing credentials for the service.</param>
+        /// <returns>
+        /// Credentials for the provisioned service.
+        /// </returns>
+        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credentials)
         {
             ProvisionedService provisioned_service = new ProvisionedService();
             try
             {
-                if (credential != null)
+                if (credentials != null)
                 {
-                    string name = credential.Name;
-                    string user = credential.User;
-                    string password = credential.Password;
+                    string name = credentials.Name;
+                    string user = credentials.User;
+                    string password = credentials.Password;
                     provisioned_service.Name = name;
                     provisioned_service.User = user;
                     provisioned_service.Password = password;
@@ -228,47 +283,55 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
                 create_database(provisioned_service);
 
-                if (!provisioned_service.Save())
+                if (!ProvisionedService.Save())
                 {
-                    Logger.Error(String.Format("Could not save entry: {0}", provisioned_service.ToJson()));
-                    throw new MsSqlError(MsSqlError.MSSQL_LOCAL_DB_ERROR);
+                    Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, provisioned_service.ToJson());
+                    throw new MSSqlError(MSSqlError.MSSqlLocalDBError);
                 }
 
                 ServiceCredentials response = gen_credential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password);
                 provision_served += 1;
                 return response;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 delete_database(provisioned_service);
-                throw ex;
+                throw;
             }
         }
 
-        protected override bool Unprovision(string name, ServiceCredentials[] credentials)
+        /// <summary>
+        /// Unprovisions a SQL Server database.
+        /// </summary>
+        /// <param name="name">The name of the service to unprovision.</param>
+        /// <param name="bindings">Array of bindings for the service that have to be unprovisioned.</param>
+        /// <returns>
+        /// A boolean specifying whether the unprovision request was successful.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        protected override bool Unprovision(string name, ServiceCredentials[] bindings)
         {
             if (String.IsNullOrEmpty(name))
             {
                 return false;
             }
 
-            Logger.Debug(String.Format("Unprovision database:{0}, bindings: {1}", name, credentials.ToJson()));
-
+            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, bindings.ToJson());
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
 
             if (provisioned_service == null)
             {
-                throw new MsSqlError(MsSqlError.MSSQL_CONFIG_NOT_FOUND, name);
+                throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
             }
 
             // TODO: validate that database files are not lingering
             // Delete all bindings, ignore not_found error since we are unprovision
             try
             {
-                if (credentials != null)
+                if (bindings != null)
                 {
-                    foreach (ServiceCredentials credential in credentials)
+                    foreach (ServiceCredentials credential in bindings)
                     {
                         Unbind(credential);
                     }
@@ -285,75 +348,105 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
             if (!provisioned_service.Destroy())
             {
-                Logger.Error(String.Format("Could not delete service: {0}", provisioned_service.Name));
-                throw new MsSqlError(MsSqlError.MSSQL_LOCAL_DB_ERROR);
+                Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
+                throw new MSSqlError(MSSqlError.MSSqlLocalDBError);
             }
 
-            Logger.Debug(String.Format("Successfully fulfilled unprovision request: {0}", name));
+            Logger.Debug(Strings.SqlNodeUnprovisionSuccessDebugMessage, name);
             return true;
         }
 
-        protected override ServiceCredentials Bind(string name, Dictionary<string, object> bind_opts, ServiceCredentials credential = null)
+        /// <summary>
+        /// Binds a SQL Server database to an app.
+        /// </summary>
+        /// <param name="name">The name of the service.</param>
+        /// <param name="bindOptions">Binding options.</param>
+        /// <returns>
+        /// A new set of credentials used for binding.
+        /// </returns>
+        protected override ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions)
         {
-            Logger.Debug(String.Format("Bind service for db:{0}, bind_opts = {1}", name, bind_opts.ToJson()));
+            return Bind(name, bindOptions, null);
+        }
+
+        /// <summary>
+        /// Binds a SQL Server database to an app.
+        /// </summary>
+        /// <param name="name">The name of the service.</param>
+        /// <param name="bindOptions">Binding options.</param>
+        /// <param name="credentials">Already existing credentials.</param>
+        /// <returns>
+        /// A new set of credentials used for binding.
+        /// </returns>
+        protected override ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions, ServiceCredentials credentials)
+        {
+            Logger.Debug(Strings.SqlNodeBindServiceDebugMessage, name, bindOptions.ToJson());
             Dictionary<string, object> binding = null;
             try
             {
                 ProvisionedService service = ProvisionedService.GetService(name);
                 if (service == null)
                 {
-                    throw new MsSqlError(MsSqlError.MSSQL_CONFIG_NOT_FOUND, name);
+                    throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
                 }
                 // create new credential for binding
                 binding = new Dictionary<string, object>();
 
-                if (credential != null)
+                if (credentials != null)
                 {
-                    binding["user"] = credential.User;
-                    binding["password"] = credential.Password;
+                    binding["user"] = credentials.User;
+                    binding["password"] = credentials.Password;
                 }
                 else
                 {
                     binding["user"] = "US3R" + Credentials.GenerateCredential();
                     binding["password"] = "P4SS" + Credentials.GenerateCredential();
                 }
-                binding["bind_opts"] = bind_opts;
+                binding["bind_opts"] = bindOptions;
 
                 create_database_user(name, binding["user"] as string, binding["password"] as string);
                 ServiceCredentials response = gen_credential(name, binding["user"] as string, binding["password"] as string);
 
-                Logger.Debug(String.Format("Bind response: {0}", response.ToJson()));
+                Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.ToJson());
                 binding_served += 1;
                 return response;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (binding != null)
                 {
                     delete_database_user(binding["user"] as string);
                 }
-                throw ex;
+                throw;
             }
         }
 
-        protected override bool Unbind(ServiceCredentials credential)
+        /// <summary>
+        /// Unbinds a SQL Server database from an app.
+        /// </summary>
+        /// <param name="credentials">The credentials that have to be unprovisioned.</param>
+        /// <returns>
+        /// A bool indicating whether the unbind request was successful.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "password"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "bind_opts")]
+        protected override bool Unbind(ServiceCredentials credentials)
         {
-            if (credential == null)
+            if (credentials == null)
             {
                 return false;
             }
 
-            Logger.Debug(String.Format("Unbind service: {0}", credential.ToJson()));
+            Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.ToJson());
 
-            string name = credential.Name;
-            string user = credential.User;
-            Dictionary<string, object> bind_opts = credential.BindOptions;
-            string password = credential.Password;
+            string name = credentials.Name;
+            string user = credentials.User;
+            Dictionary<string, object> bind_opts = credentials.BindOptions;
+            string password = credentials.Password;
 
             ProvisionedService service = ProvisionedService.GetService(name);
             if (service == null)
             {
-                throw new MsSqlError(MsSqlError.MSSQL_CONFIG_NOT_FOUND, name);
+                throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
             }
             //todo: vladi: implement this on windows
             // validate the existence of credential, in case we delete a normal account because of a malformed credential
@@ -363,6 +456,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             return true;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void create_database(ProvisionedService provisioned_service)
         {
             string name = provisioned_service.Name;
@@ -372,53 +466,64 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             try
             {
                 DateTime start = DateTime.Now;
-                Logger.Debug(String.Format("Creating: {0}", provisioned_service.ToJson()));
+                Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisioned_service.ToJson());
 
-                new SqlCommand(String.Format("CREATE DATABASE {0}", name), connection).ExecuteNonQuery();
+                using (SqlCommand createDBCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), connection))
+                {
+                    createDBCommand.ExecuteNonQuery();
+                }
 
                 create_database_user(name, user, password);
                 int storage = storage_for_service(provisioned_service);
                 if (available_storage < storage)
                 {
-                    throw new MsSqlError(MsSqlError.MSSQL_DISK_FULL);
+                    throw new MSSqlError(MSSqlError.MSSqlDiskFull);
                 }
                 available_storage -= storage;
-                Logger.Debug(String.Format("Done creating {0}. Took {1} s.", provisioned_service.ToJson(), (start-DateTime.Now).TotalSeconds));
+                Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisioned_service.ToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
             {
-                Logger.Warning(String.Format("Could not create database: [{0}]", ex.Message));
+                Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.Message);
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void create_database_user(string name, string user, string password)
         {
-            Logger.Info(String.Format("Creating credentials: {0}/{1} for database {2}", user, password, name));
+            Logger.Info(Strings.SqlNodeCreatingCredentialsInfoMessage, user, password, name);
             
 
             using (TransactionScope ts = new TransactionScope())
             {
-                SqlCommand cmdCreateLogin = new SqlCommand(String.Format(@"CREATE LOGIN {0} WITH PASSWORD = '{1}'", user, password), connection);
-                cmdCreateLogin.ExecuteNonQuery();
-                
-                SqlConnection dbConnection = new SqlConnection(ConnectionString);
-                dbConnection.Open();
-                dbConnection.ChangeDatabase(name);
+                using (SqlCommand cmdCreateLogin = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateLoginSQL, user, password), connection))
+                {
+                    cmdCreateLogin.ExecuteNonQuery();
+                }
 
-                SqlCommand cmdCreateUser = new SqlCommand(String.Format("CREATE USER {0} FOR LOGIN {0}", user), dbConnection);
-                cmdCreateUser.ExecuteNonQuery();
+                using (SqlConnection dbConnection = new SqlConnection(ConnectionString))
+                {
+                    dbConnection.Open();
+                    dbConnection.ChangeDatabase(name);
 
-                SqlCommand cmdAddRoleMember = new SqlCommand("sp_addrolemember", dbConnection);
-                cmdAddRoleMember.CommandType = CommandType.StoredProcedure;
-                cmdAddRoleMember.Parameters.Add("@rolename", SqlDbType.NVarChar).Value = "db_owner";
-                cmdAddRoleMember.Parameters.Add("@membername", SqlDbType.NVarChar).Value = user;
-                cmdAddRoleMember.ExecuteNonQuery();
+                    using (SqlCommand cmdCreateUser = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateUserSQL, user), dbConnection))
+                    {
+                        cmdCreateUser.ExecuteNonQuery();
+                    }
 
-                dbConnection.Close();
+                    using (SqlCommand cmdAddRoleMember = new SqlCommand("sp_addrolemember", dbConnection))
+                    {
+                        cmdAddRoleMember.CommandType = CommandType.StoredProcedure;
+                        cmdAddRoleMember.Parameters.Add("@rolename", SqlDbType.NVarChar).Value = "db_owner";
+                        cmdAddRoleMember.Parameters.Add("@membername", SqlDbType.NVarChar).Value = user;
+                        cmdAddRoleMember.ExecuteNonQuery();
+                    }
+                }
                 ts.Complete();
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void delete_database(ProvisionedService provisioned_service)
         {
             string name = provisioned_service.Name;
@@ -427,105 +532,165 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             try
             {
                 delete_database_user(user);
-                Logger.Info(String.Format("Deleting database: {0}", name));
+                Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
                 using (TransactionScope ts = new TransactionScope())
                 {
-                    new SqlCommand(String.Format("ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE", name), connection).ExecuteNonQuery();
-                    new SqlCommand(String.Format("DROP DATABASE {0}", name), connection).ExecuteNonQuery();
+                    using (SqlCommand takeOfflineCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeTakeDBOfflineSQL, name), connection))
+                    {
+                        takeOfflineCommand.ExecuteNonQuery();
+                    }
+                    using (SqlCommand dropDatabaseCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropDatabaseSQL, name), connection))
+                    {
+                        dropDatabaseCommand.ExecuteNonQuery();
+                    }
                     ts.Complete();
                 }
             }
             catch (Exception ex)
             {
-                Logger.Fatal(String.Format("Could not delete database: [{0}]", ex.Message));
+                Logger.Fatal(Strings.SqlNodeCannotDeleteDBFatalMessage, ex.Message);
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void delete_database_user(string user)
         {
-            Logger.Info(String.Format("Delete user {0}", user));
+            Logger.Info(Strings.SqlNodeDeleteUserInfoMessage, user);
             try
             {
                 kill_user_session(user);
 
                 using (TransactionScope ts = new TransactionScope())
                 {
-                    //new SqlCommand(String.Format(@"DROP USER {0}", user), connection).ExecuteNonQuery();
-                    new SqlCommand(String.Format(@"DROP LOGIN {0}", user), connection).ExecuteNonQuery();
+                    using (SqlCommand dropLoginCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), connection))
+                    {
+                        dropLoginCommand.ExecuteNonQuery();
+                    }
 
                     ts.Complete();
                 }
             }
             catch (Exception ex)
             {
-                Logger.Fatal(String.Format("Could not delete user '{0}': [{1}]", user, ex.Message));
+                Logger.Fatal(Strings.SqlNodeCannotDeleteUserFatalMessage, user, ex.Message);
             }
         }
 
         // end active sesions for USER, to be able to drop the table
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void kill_user_session(string user)
         {
             using (TransactionScope ts = new TransactionScope())
             {
-                SqlDataReader sessionsToKill = new SqlCommand(String.Format("SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = '{0}'", user), connection).ExecuteReader();
-
-                while (sessionsToKill.Read())
+                using (SqlCommand sessionsToKillCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeGetUserSessionsSQL, user), connection))
                 {
-                    int sessionId = sessionsToKill.GetInt32(0);
-                    new SqlCommand(String.Format("KILL {0}", sessionsToKill), connection).ExecuteNonQuery();
-                }
+                    SqlDataReader sessionsToKill = sessionsToKillCommand.ExecuteReader();
 
-                sessionsToKill.Close();
+                    while (sessionsToKill.Read())
+                    {
+                        int sessionId = sessionsToKill.GetInt32(0);
+                        using (SqlCommand killSessionCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, sessionId), connection))
+                        {
+                            killSessionCommand.ExecuteNonQuery();
+                        }
+                    }
+
+                    sessionsToKill.Close();
+                }
                 ts.Complete();
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "database"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private void kill_database_session(string database)
         {
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
         }
 
-        // restore a given instance using backup file.
-        protected override bool Restore(string name, string backup_path)
+        /// <summary>
+        /// Restore a given instance using backup file.
+        /// </summary>
+        /// <param name="instanceId">The instance id.</param>
+        /// <param name="backupPath">The backup path.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool Restore(string instanceId, string backupPath)
+        {
+            //todo: vladi: implement this
+            return false;
+        }
+
+        /// <summary>
+        /// This methos disables all credentials and kills user sessions.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credentials.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
-        // Disable all credentials and kill user sessions
-        protected override bool DisableInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds)
+        /// <summary>
+        /// Dumps database content into a given path.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path where to dump the service.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
-        // Dump db content into given path
-        protected override bool DumpInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path)
+        /// <summary>
+        /// Imports an instance from a path.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path from which to import the service.</param>
+        /// <param name="plan">The payment plan.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
-        // Provision and import dump files
-        // Refer to #dump_instance
-        protected override bool ImportInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path, ProvisionedServicePlanType plan)
+        /// <summary>
+        /// Re-enables the instance, re-binds credentials.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentialsHash">The binding credentials hash.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
-        // Re-bind credentials
-        // Refer to #disable_instance
-        protected override bool EnableInstance(ref ServiceCredentials prov_cred, ref Dictionary<string, object> binding_creds_hash)
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
-        }
-
+        /// <summary>
+        /// Gets varz details about the SQL Server Node.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing varz details.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         protected override Dictionary<string, object> VarzDetails()
         {
-            Logger.Debug("Generate varz.");
+            Logger.Debug(Strings.SqlNodeGenerateVarzDebugMessage);
             Dictionary<string, object> varz = new Dictionary<string, object>();
             try
             {
@@ -549,11 +714,17 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
             catch (Exception ex)
             {
-                Logger.Error(String.Format("Error during generate varz: {0}", ex.Message));
+                Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.Message);
                 return new Dictionary<string, object>();
             }
         }
 
+        /// <summary>
+        /// Gets healthz details about the SQL Server Node.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing healthz details.
+        /// </returns>
         protected override Dictionary<string, string> HealthzDetails()
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
@@ -565,22 +736,24 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             return healthz;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "instance"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private string get_instance_healthz(ServiceCredentials instance)
         {
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
             string res = "ok";
             return res;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         private int get_queries_status()
         {
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
             return 0;
         }
 
         private double get_qps()
         {
-            Logger.Debug("Calculate queries per seconds.");
+            Logger.Debug(Strings.SqlNodeCalculatingQPSDebugMessage);
             int queries = get_queries_status();
             DateTime ts = DateTime.Now;
 
@@ -593,9 +766,10 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             return qps;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         private object[] get_instance_status()
         {
-            //todo: vladi: Replace with code for odbc object for SQL Server
+            //todo: vladi: implement this
             return new object[0];
         }
 
@@ -613,7 +787,5 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
             return response;
         }
-
-        public string gzip_bin { get; set; }
     }
 }
