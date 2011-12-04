@@ -10,18 +10,40 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Uhuru.NatsClient.Resources;
 using System.Threading;
+using System.IO;
 
 [assembly: CLSCompliant(true)]
 namespace Uhuru.NatsClient
 {
+    /// <summary>
+    /// Delegate definition for a method to be called by the Reactor when a pong is received.
+    /// </summary>
     public delegate void SimpleCallback();
+    /// <summary>
+    /// Delegate definition for a method to be called by the reactor when a subscription receives a message.
+    /// </summary>
+    /// <param name="msg">Message that was received.</param>
+    /// <param name="reply">Reply string.</param>
+    /// <param name="subject">Subject of the message.</param>
     public delegate void SubscribeCallback(string msg, string reply, string subject);
+    /// <summary>
+    /// Delegate definition for a method to be called when an unsubscription is complete.
+    /// </summary>
+    /// <param name="sid">Subscription id.</param>
     public delegate void UnsubscribeCallback(int sid);
 
+    /// <summary>
+    /// This class is the NATS client, it is used to communicate to the NATS server.
+    /// The reactor enables pub/sub style communication.
+    /// </summary>
     public sealed class Reactor : IDisposable
     {
-        event EventHandler<ReactorEventArgs> OnConnect;
-        public event EventHandler<ReactorEventArgs> OnError;
+        event EventHandler<ReactorErrorEventArgs> OnConnect;
+
+        /// <summary>
+        /// This event is raised when an error message is received from the NATS server.
+        /// </summary>
+        public event EventHandler<ReactorErrorEventArgs> OnError;
 
         private Dictionary<int, Subscription> subscriptions = new Dictionary<int, Subscription>();
         private ParseState parseState;
@@ -142,7 +164,7 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Create a client connection to the server
         /// </summary>
-        /// <param name="serverUri">the uri of the NAT server</param>
+        /// <param name="uri">the uri of the NATS server</param>
         public void Start(string uri)
         {
             Start(new Uri(uri));  
@@ -151,7 +173,7 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Create a client connection to the serve
         /// </summary>
-        /// <param name="serverUri">the uri of the NAT server</param>
+        /// <param name="uri">the uri of the NATS server</param>
         public void Start(Uri uri)
         {
             if (uri == null)
@@ -397,7 +419,7 @@ namespace Uhuru.NatsClient
 
             if (OnError == null)
             {
-                OnError = new EventHandler<ReactorEventArgs>(delegate(object sender, ReactorEventArgs args)
+                OnError = new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                     {
                         throw new ReactorException(serverUri, args.Message);
                     });
@@ -461,6 +483,7 @@ namespace Uhuru.NatsClient
             pendingCommands.Clear();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void ReadTCPData(IAsyncResult result)
         {
             try
@@ -483,6 +506,31 @@ namespace Uhuru.NatsClient
                     ((NetworkStream)result.AsyncState).BeginRead(readBuffer, 0, readBuffer.Length, ReadTCPData, ((NetworkStream)result.AsyncState));
                 }
             }
+            catch (ArgumentNullException argumentNullException)
+            {
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource,  Language.ExceptionMessageBufferParameterNull +
+                    argumentNullException.ToString(), EventLogEntryType.Error);
+            }
+            catch (ArgumentOutOfRangeException argumentOutOfRangeException)
+            {
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionBufferOffsetOrSizeIncorrect +
+                    argumentOutOfRangeException.ToString(), EventLogEntryType.Error);
+            }
+            catch (ArgumentException argumentException)
+            {
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionAsyncResultParameterNull +
+                    argumentException.ToString(), EventLogEntryType.Error);
+            }
+            catch (IOException ioException)
+            {
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionSocketReadProblem +
+                    ioException.ToString(), EventLogEntryType.Error);
+            }
+            catch (ObjectDisposedException objectDisposedException)
+            {
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionNetworkStreamClosed +
+                    objectDisposedException.ToString(), EventLogEntryType.Error);
+            }
             catch (Exception ex)
             {
                 EventLog.WriteEntry(Resources.ClientConnection.EventSource, ex.ToString(), EventLogEntryType.Error);
@@ -500,11 +548,14 @@ namespace Uhuru.NatsClient
             catch (System.IO.IOException ioException)
             {
                 EventLog.WriteEntry(Resources.ClientConnection.EventSource, ioException.ToString(), EventLogEntryType.Error);
-                status = ConnectionStatus.REConecting;
+                status = ConnectionStatus.Reconnecting;
                 AttemptReconnect();
             }
         }
 
+        /// <summary>
+        /// Call this method to attempt to reconnect the client to the NATS server.
+        /// </summary>
         public void AttemptReconnect()
         {
             int reconnectAttempt = 0;
@@ -524,7 +575,7 @@ namespace Uhuru.NatsClient
                 reconnectAttempt++;
                 Thread.Sleep(reconnectTime);
             }
-            if (status == ConnectionStatus.REConecting)
+            if (status == ConnectionStatus.Reconnecting)
             {
                 status = ConnectionStatus.Closed;
                 throw new ReactorException(serverUri, Resources.Language.ERRCanNotConnect);
@@ -579,7 +630,7 @@ namespace Uhuru.NatsClient
                             {
                                 if (OnError != null)
                                 {
-                                   OnError(this, new ReactorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
+                                   OnError(this, new ReactorErrorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
                                 }
                                 strBuffer = resource.ERR.Replace(strBuffer, "");
                             }
@@ -606,7 +657,7 @@ namespace Uhuru.NatsClient
                             {
                                 if (OnError != null)
                                 {
-                                    OnError(this,new ReactorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
+                                    OnError(this,new ReactorErrorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
                                 }
                                 strBuffer =  resource.UNKNOWN.Replace(strBuffer, "");
                             }

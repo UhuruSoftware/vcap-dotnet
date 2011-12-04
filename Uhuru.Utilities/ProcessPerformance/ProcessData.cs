@@ -7,43 +7,56 @@ using System.Threading;
 namespace Uhuru.Utilities.ProcessPerformance
 {
 
-    // holds the process data
+    /// <summary>
+    /// This class contains process data.
+    /// </summary>
     public class ProcessData
     {
-        private uint processId;
+        private int processId;
         private string name;
         private int cpu;
-        private int index;
+        long oldUserTime;
+        long oldKernelTime;
+        DateTime oldUpdate;
+        int workingSet;
 
-        public uint ProcessId
+        /// <summary>
+        /// The process id.
+        /// </summary>
+        public int ProcessId
         {
             get { return processId; }
             set { processId = value; }
         }
 
+        /// <summary>
+        /// The name of the process.
+        /// </summary>
         public string Name
         {
             get { return name; }
             set { name = value; }
         }
 
+        /// <summary>
+        /// Cpu usage of the process, as a procent.
+        /// </summary>
         public int Cpu
         {
             get { return cpu; }
             set { cpu = value; }
         }
 
-        public int Index
+        /// <summary>
+        /// Memory used by the process.
+        /// </summary>
+        public int WorkingSet
         {
-            get { return index; }
-            set { index = value; }
+            get { return workingSet; }
+            set { workingSet = value; }
         }
 
-        long oldUserTime;
-        long oldKernelTime;
-        DateTime oldUpdate;
-
-        public ProcessData(uint id, string name, long oldUserTime, long oldKernelTime)
+        internal ProcessData(int id, string name, long oldUserTime, long oldKernelTime)
         {
             this.ProcessId = id;
             this.Name = name;
@@ -52,7 +65,7 @@ namespace Uhuru.Utilities.ProcessPerformance
             oldUpdate = DateTime.Now;
         }
 
-        public int UpdateCpuUsage(long newUserTime, long newKernelTime)
+        internal int UpdateCpuUsage(long newUserTime, long newKernelTime)
         {
             // updates the cpu usage (cpu usgae = UserTime + KernelTime)
             long updateDelay;
@@ -66,7 +79,6 @@ namespace Uhuru.Utilities.ProcessPerformance
             updateDelay = DateTime.Now.Ticks - oldUpdate.Ticks;
 
             rawUsage = (int)(((userTime + kernelTime) * 100) / updateDelay);
-            //CpuUsage = ((UserTime + KernelTime) * 100) / UpdateDelay + "%";
             Cpu = rawUsage;
 
             oldUserTime = newUserTime;

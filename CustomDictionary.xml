@@ -6,6 +6,8 @@
       <Word>Unmap</Word>
       <Word>Nats</Word>
       <Word>Vmc</Word>
+      <Word>Healthz</Word>
+      <Word>Varz</Word>
     </Recognized>
   </Words>
   <Acronyms>

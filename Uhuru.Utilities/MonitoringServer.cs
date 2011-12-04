@@ -10,21 +10,70 @@ using System.ServiceModel.Security;
 
 namespace Uhuru.Utilities
 {
-    public class MonitoringServer
+    /// <summary>
+    /// This is an EventArgs class used by the Healthz and Varz server.
+    /// When the server needs healthz information, it raises an event.
+    /// The subscriber to that event sets the message of these args.
+    /// </summary>
+    public class HealthzRequestEventArgs : EventArgs
+    {
+        private string healthzMessage;
+
+        /// <summary>
+        /// Gets or sets the healthz message that will be served by the server.
+        /// </summary>
+        public string HealthzMessage
+        {
+            get { return healthzMessage; }
+            set { healthzMessage = value; }
+        }
+    }
+
+    /// <summary>
+    /// This is an EventArgs class used by the Healthz and Varz server.
+    /// When the server needs varz information, it raises an event.
+    /// The subscriber to that event sets the message of these args.
+    /// </summary>
+    public class VarzRequestEventArgs : EventArgs
+    {
+        private string varzMessage;
+
+        /// <summary>
+        /// Gets or sets the varz message that will be served by the server.
+        /// </summary>
+        public string VarzMessage
+        {
+            get { return varzMessage; }
+            set { varzMessage = value; }
+        }
+    }
+
+    /// <summary>
+    /// This class implements an http server that is used to get healthz and varz information about a Cloud Foundry component.
+    /// </summary>
+    public sealed class MonitoringServer : IDisposable
     {
         private int serverPort;
         private string username;
         private string password;
-
-        WebServiceHost host;
+        private WebServiceHost host;
         private static MonitoringServer instance = null;
 
-        public delegate string HealthzRequestedHandler(object sender, EventArgs e);
-        public event HealthzRequestedHandler HealthzRequested;
+        /// <summary>
+        /// Event that is raised when the server receives a healthz request (http://[ip]:[port]/healthz).
+        /// </summary>
+        public event EventHandler<HealthzRequestEventArgs> HealthzRequested;
+        /// <summary>
+        /// Event that is raised when the server receives a varz request (http://[ip]:[port]/varz).
+        /// </summary>
+        public event EventHandler<VarzRequestEventArgs> VarzRequested;
 
-        public delegate string VarzRequestedHandler(object sender, EventArgs e);
-        public event VarzRequestedHandler VarzRequested;
-
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="port">The port used by the server to listen.</param>
+        /// <param name="serverUserName">A username for basic authentication.</param>
+        /// <param name="serverPassword">A password for basic authentication.</param>
         public MonitoringServer(int port, string serverUserName, string serverPassword)
         {
             serverPort = port;
@@ -37,6 +86,9 @@ namespace Uhuru.Utilities
             }
         }
 
+        /// <summary>
+        /// Starts the server.
+        /// </summary>
         public void Start()
         {
             Uri baseAddress = new Uri("http://localhost:" + serverPort);
@@ -54,85 +106,99 @@ namespace Uhuru.Utilities
             host.Open();
         }
 
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
         public void Stop()
         {
             host.Close();
         }
 
-        public string TriggerHealthz(object sender, EventArgs e)
+        private string TriggerHealthz(object sender, HealthzRequestEventArgs e)
         {
-            string message = string.Empty;
             if (HealthzRequested != null)
             {
-                 message = HealthzRequested(sender, e);
+                 HealthzRequested(sender, e);
             }
-            return message;
+            if (e != null)
+            {
+                return e.HealthzMessage;
+            }
+            else
+            {
+                return String.Empty;
+            }
         }
 
-        public string TriggerVarz(object sender, EventArgs e)
+        private string TriggerVarz(object sender, VarzRequestEventArgs e)
         {
-            string message = string.Empty;
             if (VarzRequested != null)
             {
-                message = VarzRequested(sender, e);
+                VarzRequested(sender, e);
             }
-            return message;
+            if (e != null)
+            {
+                return e.VarzMessage;
+            }
+            else
+            {
+                return String.Empty;
+            }
         }
 
-        public static MonitoringServer Instance
+        private static MonitoringServer Instance
         {
             get
             {
                 return instance;
             }
-        }        
-    }
+        }
 
-    [ServiceContract]
-    interface IMonitoringService
-    {
-        [WebGet(UriTemplate = "/heathz")]
-        Message GetHealthz();
+        #region IDisposable Members
 
-        [WebGet(UriTemplate = "/varz")]
-        Message GetVarz();
-    }
-
-    public class MonitoringService : IMonitoringService
-    {
-        public Message GetHealthz()
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        public void Dispose()
         {
-            string message = MonitoringServer.Instance.TriggerHealthz(this, EventArgs.Empty);
-            try
+            if (host != null)
             {
+                host.Close();
+            }
+        }
+
+        #endregion
+
+
+
+        [ServiceContract]
+        interface IMonitoringService
+        {
+            [WebGet(UriTemplate = "/heathz")]
+            Message GetHealthz();
+
+            [WebGet(UriTemplate = "/varz")]
+            Message GetVarz();
+        }
+
+        private class MonitoringService : IMonitoringService
+        {
+            public Message GetHealthz()
+            {
+                string message = MonitoringServer.Instance.TriggerHealthz(this, new HealthzRequestEventArgs());
                 return CreateTextresponse(message, "text/plaintext");
             }
-            catch (Exception ex)
-            {
-                WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                WebOperationContext.Current.OutgoingResponse.StatusDescription = ex.ToString();
-                return null;
-            }
-        }
 
-        public Message GetVarz()
-        {
-            string message = MonitoringServer.Instance.TriggerVarz(this, EventArgs.Empty);
-            try
+            public Message GetVarz()
             {
+                string message = MonitoringServer.Instance.TriggerVarz(this, new VarzRequestEventArgs());
                 return CreateTextresponse(message, "application/json");
             }
-            catch (Exception ex)
-            {
-                WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                WebOperationContext.Current.OutgoingResponse.StatusDescription = ex.ToString();
-                return null;
-            }
-        }
 
-        private Message CreateTextresponse(string message, string contentType)
-        {
-            return WebOperationContext.Current.CreateTextResponse(message, contentType);
+            private static Message CreateTextresponse(string message, string contentType)
+            {
+                return WebOperationContext.Current.CreateTextResponse(message, contentType);
+            }
         }
     }
 }

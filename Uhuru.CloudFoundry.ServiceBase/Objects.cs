@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Runtime.Serialization;
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
+namespace Uhuru.CloudFoundry.ServiceBase
 {
     public class ServiceCredentials
     {
@@ -282,7 +282,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             }
             catch (Exception ex)
             {
-                Logger.Error(String.Format("Could not save ProvisionedService list {0}", ex.ToString()));
+               Logger.Error("Could not save ProvisionedService list {0}", ex.ToString());
                 return false;
             }
         }

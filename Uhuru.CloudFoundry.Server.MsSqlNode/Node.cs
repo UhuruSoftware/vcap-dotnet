@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Uhuru.CloudFoundry.Server.MsSqlNode.Base;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Diagnostics;
@@ -11,10 +10,11 @@ using System.IO;
 using Uhuru.Utilities;
 using System.Transactions;
 using System.Data;
+using Uhuru.CloudFoundry.ServiceBase;
 
 namespace Uhuru.CloudFoundry.Server.MsSqlNode
 {
-    public partial class Node : Base.Node
+    public partial class Node : NodeBase
     {
         const int KEEP_ALIVE_INTERVAL = 15000;
         const int LONG_QUERY_INTERVAL = 1;
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         private string local_ip;
 
 
-        protected override string service_name()
+        protected override string ServiceName()
         {
             return "MssqlaaS";
         }
@@ -115,7 +115,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         }
 
-        protected override Announcement announcement()
+        protected override Announcement GetAnnouncement()
         {
             Announcement a = new Announcement();
             a.AvailableStorage = available_storage;
@@ -199,7 +199,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             //todo: vladi: Replace with code for odbc object for SQL Server
         }
 
-        protected override ServiceCredentials provision(ProvisionedServicePlanType plan, ServiceCredentials credential = null)
+        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credential = null)
         {
             ProvisionedService provisioned_service = new ProvisionedService();
             try
@@ -242,7 +242,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
         }
 
-        protected override bool unprovision(string name, ServiceCredentials[] credentials)
+        protected override bool Unprovision(string name, ServiceCredentials[] credentials)
         {
             if (String.IsNullOrEmpty(name))
             {
@@ -267,7 +267,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 {
                     foreach (ServiceCredentials credential in credentials)
                     {
-                        unbind(credential);
+                        Unbind(credential);
                     }
                 }
             }
@@ -290,7 +290,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             return true;
         }
 
-        protected override ServiceCredentials bind(string name, Dictionary<string, object> bind_opts, ServiceCredentials credential = null)
+        protected override ServiceCredentials Bind(string name, Dictionary<string, object> bind_opts, ServiceCredentials credential = null)
         {
             Logger.Debug(String.Format("Bind service for db:{0}, bind_opts = {1}", name, bind_opts.ToJson()));
             Dictionary<string, object> binding = null;
@@ -333,7 +333,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
         }
 
-        protected override bool unbind(ServiceCredentials credential)
+        protected override bool Unbind(ServiceCredentials credential)
         {
             if (credential == null)
             {
@@ -484,21 +484,21 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         }
 
         // restore a given instance using backup file.
-        protected override bool restore(string name, string backup_path)
+        protected override bool Restore(string name, string backup_path)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
         // Disable all credentials and kill user sessions
-        protected override bool disable_instance(ServiceCredentials prov_cred, ServiceCredentials binding_creds)
+        protected override bool DisableInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
         // Dump db content into given path
-        protected override bool dump_instance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path)
+        protected override bool DumpInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -506,7 +506,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         // Provision and import dump files
         // Refer to #dump_instance
-        protected override bool import_instance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path, ProvisionedServicePlanType plan)
+        protected override bool ImportInstance(ServiceCredentials prov_cred, ServiceCredentials binding_creds, string dump_file_path, ProvisionedServicePlanType plan)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -514,13 +514,13 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         // Re-bind credentials
         // Refer to #disable_instance
-        protected override bool enable_instance(ref ServiceCredentials prov_cred, ref Dictionary<string, object> binding_creds_hash)
+        protected override bool EnableInstance(ref ServiceCredentials prov_cred, ref Dictionary<string, object> binding_creds_hash)
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             return false;
         }
 
-        protected override Dictionary<string, object> varz_details()
+        protected override Dictionary<string, object> VarzDetails()
         {
             Logger.Debug("Generate varz.");
             Dictionary<string, object> varz = new Dictionary<string, object>();
@@ -551,7 +551,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             }
         }
 
-        protected override Dictionary<string, string> healthz_details()
+        protected override Dictionary<string, string> HealthzDetails()
         {
             //todo: vladi: Replace with code for odbc object for SQL Server
             Dictionary<string, string> healthz = new Dictionary<string, string>()

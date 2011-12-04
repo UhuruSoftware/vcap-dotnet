@@ -4,42 +4,56 @@ using System.Linq;
 using System.Text;
 using CloudFoundry.Net.Nats;
 using CloudFoundry.Net.DEA;
-using Uhuru.CloudFoundry.Server;
 using Uhuru.Utilities;
+using System.Globalization;
 
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
+namespace Uhuru.CloudFoundry.ServiceBase
 {
-    public abstract class Base : IDisposable
+    public abstract class ServiceBase : IDisposable
     {
-        Options options;
-        private string local_ip;
+        private Client nodeNats;
+
+        Options configurationOptions;
+        private string localIP;
         Dictionary<string, object> orphan_ins_hash;
         Dictionary<string, object> orphan_binding_hash;
-        protected Client node_nats;
         VcapComponent vcapComponent;
+
+        public Client NodeNats
+        {
+            get
+            {
+            return nodeNats;
+            }
+            }
 
         public virtual void Start(Options options)
         {
-            this.options = options;
-            local_ip = NetworkInterface.GetLocalIPAddress();
-            Logger.Info(String.Format("{0}: Initializing", service_description()));
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
+            this.configurationOptions = options;
+            localIP = NetworkInterface.GetLocalIPAddress();
+            Logger.Info(Strings.InitializingLogMessage, ServiceDescription());
             orphan_ins_hash = new Dictionary<string, object>();
             orphan_binding_hash = new Dictionary<string, object>();
 
-            node_nats = new Client();
-            node_nats.Start(options.Uri);
+            nodeNats = new Client();
+            NodeNats.Start(new Uri(options.Uri));
             
-            on_connect_node();
+            OnConnectNode();
 
             vcapComponent = new VcapComponent();
 
             vcapComponent.Register(
                 new Dictionary<string, object>
                 {
-                    {"nats", node_nats},
-                    {"type", service_description()},
-                    {"host", local_ip},
+                    {"nats", NodeNats},
+                    {"type", ServiceDescription()},
+                    {"host", localIP},
                     {"index", options.Index},
                     {"config", options}
                 });
@@ -50,32 +64,32 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
             // give service a chance to wake up
             TimerHelper.DelayedCall(5000, delegate()
             {
-                update_varz();
+                UpdateVarz();
             });
 
             TimerHelper.RecurringCall(z_interval, delegate()
             {
-                update_varz();
+                UpdateVarz();
             });
 
             // give service a chance to wake up
             TimerHelper.DelayedCall(5000, delegate()
             {
-                update_healthz();
+                UpdateHealthz();
             });
 
             TimerHelper.RecurringCall(z_interval, delegate()
             {
-                update_healthz();
+                UpdateHealthz();
             });
         }
 
-        public string service_description()
+        public string ServiceDescription()
         {
-            return String.Format("{0}-{1}", service_name(), flavor());
+            return String.Format(CultureInfo.InvariantCulture, "{0}-{1}", ServiceName(), Flavor());
         }
 
-        private void update_varz()
+        private void UpdateVarz()
         {
             //TODO: vladi: implement this
             //vz = varz_details
@@ -87,7 +101,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         }
 
 
-        private void update_healthz()
+        private void UpdateHealthz()
         {
             //TODO: vladi: implement this
             //VCAP::Component.healthz = Yajl::Encoder.encode(healthz_details, :pretty => true, :terminator => "\n")
@@ -95,8 +109,8 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
         public void Shutdown()
         {
-            Logger.Info(String.Format("{0}: Shutting down", service_description()));
-            node_nats.Stop();
+           Logger.Info(Strings.ShuttingDownLogMessage, ServiceDescription());
+            NodeNats.Stop();
         }
 
         // Subclasses VCAP::Services::Base::{Node,Provisioner} implement the
@@ -104,18 +118,17 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         // implementations should NOT need to touch these!)
 
         // TODO on_connect_node should be on_connect_nats
-        protected abstract void on_connect_node();
-        protected abstract string flavor(); // "Provisioner" or "Node"
-        protected abstract Dictionary<string, object> varz_details();
-        protected abstract Dictionary<string, string> healthz_details();
+        protected abstract void OnConnectNode();
+        protected abstract string Flavor(); // "Provisioner" or "Node"
+        protected abstract Dictionary<string, object> VarzDetails();
+        protected abstract Dictionary<string, string> HealthzDetails();
 
-        // Service Provisioner and Node classes must implement the following
-        // method
-        protected abstract string service_name();
+        // Service Provisioner and Node classes must implement the following method
+        protected abstract string ServiceName();
 
         public void Dispose()
         {
-            node_nats.Dispose();
+            NodeNats.Dispose();
             //Dispose(true);
 
             GC.SuppressFinalize(this);

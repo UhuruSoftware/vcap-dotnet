@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.IO;
-using CloudFoundry.Net.Nats;
-using System.Net.Sockets;
-using System.Net;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using Uhuru.Utilities;
-using System.Collections.Concurrent;
+using System.Threading;
 using CloudFoundry.Net.Configuration;
+using CloudFoundry.Net.Nats;
+using Uhuru.Utilities;
 using Uhuru.Utilities.ProcessPerformance;
 
 namespace CloudFoundry.Net.DEA
@@ -1787,7 +1783,7 @@ namespace CloudFoundry.Net.DEA
             }
 
             //todo: vladi:make sure this is ok`ps -o rss= -p #{instance[:pid]}`.length > 0
-            return ProcessInformation.GetProcessInformation(instance.Pid).Length == 1;
+            return ProcessInformation.GetProcessUsage(instance.Pid) != null;
         }
             
 
@@ -2187,7 +2183,7 @@ namespace CloudFoundry.Net.DEA
                 return;
             }
 
-            Dictionary<int, ProcessInformationEntry> pid_info = new Dictionary<int, ProcessInformationEntry>();
+            Dictionary<int, ProcessData> pid_info = new Dictionary<int, ProcessData>();
             Dictionary<object, object> user_info = new Dictionary<object, object>();
 
             DateTime start = DateTime.Now;
@@ -2195,7 +2191,7 @@ namespace CloudFoundry.Net.DEA
             // BSD style ps invocation
             DateTime ps_start = DateTime.Now;
 
-            ProcessInformationEntry[] processStatuses = ProcessInformation.GetProcessInformation(0);
+            ProcessData[] processStatuses = ProcessInformation.GetProcessUsage();
 
             TimeSpan ps_elapsed = DateTime.Now - ps_start;
             if (ps_elapsed.TotalMilliseconds > 800)
@@ -2203,7 +2199,7 @@ namespace CloudFoundry.Net.DEA
                 Logger.warn(String.Format("Took {0}s to execute ps. ({1} entries returned)", ps_elapsed.TotalSeconds, processStatuses.Length));
             }
 
-            foreach (ProcessInformationEntry processStatus in processStatuses)
+            foreach (ProcessData processStatus in processStatuses)
             {
                 int pid = processStatus.ProcessId;
                 pid_info[pid] = processStatus;
@@ -2228,7 +2224,7 @@ namespace CloudFoundry.Net.DEA
             }
         }
 
-        private void monitor_apps_helper(bool startup_check, DateTime ma_start, DateTime du_start, DiskUsageEntry[] du_all_out, Dictionary<int, ProcessInformationEntry> pid_info, Dictionary<object, object> user_info)
+        private void monitor_apps_helper(bool startup_check, DateTime ma_start, DateTime du_start, DiskUsageEntry[] du_all_out, Dictionary<int, ProcessData> pid_info, Dictionary<object, object> user_info)
         {
             List<DropletInstance> running_apps = new List<DropletInstance>();
 

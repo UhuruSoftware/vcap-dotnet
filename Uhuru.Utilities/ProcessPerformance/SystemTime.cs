@@ -8,7 +8,7 @@ namespace Uhuru.Utilities.ProcessPerformance
 {
     //holds the time data
     [StructLayout(LayoutKind.Sequential)]
-    public struct SystemTime
+    internal struct SystemTime
     {
         [MarshalAs(UnmanagedType.U2)]
         short year;
@@ -26,54 +26,6 @@ namespace Uhuru.Utilities.ProcessPerformance
         short second;
         [MarshalAs(UnmanagedType.U2)]
         short milliseconds;
-
-        public short Year
-        {
-            get { return year; }
-            set { year = value; }
-        }
-
-        public short Month
-        {
-            get { return month; }
-            set { month = value; }
-        }
-
-        public short DayOfWeek
-        {
-            get { return dayOfWeek; }
-            set { dayOfWeek = value; }
-        }
-
-        public short Day
-        {
-            get { return day; }
-            set { day = value; }
-        }
-
-        public short Hour
-        {
-            get { return hour; }
-            set { hour = value; }
-        }
-
-        public short Minute
-        {
-            get { return minute; }
-            set { minute = value; }
-        }
-
-        public short Second
-        {
-            get { return second; }
-            set { second = value; }
-        }
-
-        public short Milliseconds
-        {
-            get { return milliseconds; }
-            set { milliseconds = value; }
-        }
 
         public override bool Equals(object obj)
         {

@@ -9,10 +9,11 @@ using System.Text;
 using Uhuru.CloudFoundry.Server.MsSqlNode;
 using Uhuru.Configuration.Service;
 using Uhuru.Configuration;
+using Uhuru.CloudFoundry.ServiceBase;
 
 namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 {
-    public partial class MsSqlWindowsService : ServiceBase
+    public partial class MsSqlWindowsService : System.ServiceProcess.ServiceBase
     {
         Node node;
 
@@ -36,7 +37,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
-            Uhuru.CloudFoundry.Server.MsSqlNode.Base.Options options = new Uhuru.CloudFoundry.Server.MsSqlNode.Base.Options();
+            Options options = new Options();
             options.AvailableStorage = serviceConfig.AvailableStorage;
             options.BaseDir = serviceConfig.BaseDir;
             options.Index = serviceConfig.Index;

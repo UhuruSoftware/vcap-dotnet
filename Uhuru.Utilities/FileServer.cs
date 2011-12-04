@@ -14,39 +14,10 @@ using System.Globalization;
 
 namespace Uhuru.Utilities
 {
-    public class UserCustomAuthentication : UserNamePasswordValidator
-    {
-
-        string validUsername;
-        string validPassword;
-
-        public UserCustomAuthentication(string userName, string password)
-        {
-            validPassword = password;
-            validUsername = userName;
-        }
-
-        public override void Validate(string userName, string password)
-        {
-            if (null == userName)
-            {
-                throw new ArgumentNullException("userName");
-            }
-
-            if (null == password)
-            {
-                throw new ArgumentNullException("password");
-            }
-
-            if (!(userName == validUsername && password == validPassword))
-            {
-                throw new FaultException("Unknown Username or Incorrect Password");
-            }
-        }
-    }
-    
-
-    public class FileServer
+    /// <summary>
+    /// This class implements an http server that serves files from local storage.
+    /// </summary>
+    public sealed class FileServer : IDisposable
     {
         private int serverPort;
         private string serverPhysicalPath;
@@ -56,6 +27,14 @@ namespace Uhuru.Utilities
 
         WebServiceHost host;
 
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="port">Port used by the server to listen on.</param>
+        /// <param name="physicalPath">Root of the path served by the server.</param>
+        /// <param name="virtualPath">To get to the files, a caller needs to get http://[ip]:[port]/[virtualPath]/[file]</param>
+        /// <param name="serverUserName">Username that is allowed access to the server.</param>
+        /// <param name="serverPassword">Password that is allowed access to the server.</param>
         public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
             serverPort = port;
@@ -65,10 +44,13 @@ namespace Uhuru.Utilities
             password = serverPassword;
         }
 
+        /// <summary>
+        /// Starts the server.
+        /// </summary>
         public void Start()
         {
             Uri baseAddress = new Uri("http://localhost:" + serverPort);
-            Service service = new Service();
+            FileServerService service = new FileServerService();
 
             WebHttpBinding httpBinding = new WebHttpBinding();
             httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;
@@ -76,88 +58,95 @@ namespace Uhuru.Utilities
             
 
             host = new WebServiceHost(service, baseAddress);
-            host.AddServiceEndpoint(typeof(IService),
+            host.AddServiceEndpoint(typeof(IFileServerService),
                 httpBinding, baseAddress);
 
             host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
             host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
 
-            ((Service)host.SingletonInstance).Initialize(serverPhysicalPath, serverVirtualPath);
+            ((FileServerService)host.SingletonInstance).Initialize(serverPhysicalPath, serverVirtualPath);
             host.Open();
         }
 
+        /// <summary>
+        /// Stops the server.
+        /// </summary>
         public void Stop()
         {
             host.Close();
         }
-    }
 
-    [ServiceContract]
-    interface IService
-    {
-        [WebGet(UriTemplate = "/*")]
-        Message GetFile();
-    }
+        #region IDisposable Members
 
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-    class Service : IService
-    {
-        private string serverPhysicalPath;
-        private string serverVirtualPath;
-
-        public void Initialize(string physicalPath, string virtualPath)
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        public void Dispose()
         {
-            serverPhysicalPath = physicalPath;
-            serverVirtualPath = virtualPath;
-        }
-
-        public void IssueAuthenticationChallenge()
-        {
-            string Realm = "test";
-            
-            WebOperationContext context = WebOperationContext.Current;
-
-            context.OutgoingResponse.StatusCode = HttpStatusCode.Unauthorized;
-            context.OutgoingResponse.Headers[HttpResponseHeader.WwwAuthenticate] = String.Format(CultureInfo.InvariantCulture, "Basic realm =\"{0}\"", Realm);
-        }
-
-
-        public Message GetFile()
-        {
-            string path = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.PathAndQuery;
-            try
+            if (host != null)
             {
-                return CreateStreamResponse(GetFullFilePath(path));
-            }
-            catch (Exception ex)
-            {
-                WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                WebOperationContext.Current.OutgoingResponse.StatusDescription = ex.ToString();
-                return null;
+                host.Close();
             }
         }
 
-        private Message CreateStreamResponse(string filePath)
+        #endregion
+
+        [ServiceContract]
+        interface IFileServerService
         {
-            Stream stream = Stream.Null;
-            using(FileStream fileStream = File.OpenRead(filePath))
-            {
-                fileStream.CopyTo(stream);
-            }
-            return WebOperationContext.Current.CreateStreamResponse(stream, "application/octet-stream");
+            [WebGet(UriTemplate = "/*")]
+            Message GetFile();
         }
 
-        private string GetFullFilePath(string path)
+        [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
+        class FileServerService : IFileServerService
         {
-            string filePath = serverPhysicalPath;
-            List<string> splitPath = path.Split('/').ToList();
-            splitPath.Remove(serverVirtualPath.Trim('/'));
+            private string serverPhysicalPath;
+            private string serverVirtualPath;
 
-            foreach (string str in splitPath)
+            public void Initialize(string physicalPath, string virtualPath)
             {
-                filePath = Path.Combine(filePath, str);
+                this.serverPhysicalPath = physicalPath;
+                this.serverVirtualPath = virtualPath;
             }
-            return filePath;
+
+            public Message GetFile()
+            {
+                string path = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.PathAndQuery;
+                try
+                {
+                    return CreateStreamResponse(GetFullFilePath(path));
+                }
+                catch (IOException ioException)
+                {
+                    WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    WebOperationContext.Current.OutgoingResponse.StatusDescription = ioException.ToString();
+                    return null;
+                }
+            }
+
+            private static Message CreateStreamResponse(string filePath)
+            {
+                Stream stream = Stream.Null;
+                using (FileStream fileStream = File.OpenRead(filePath))
+                {
+                    fileStream.CopyTo(stream);
+                }
+                return WebOperationContext.Current.CreateStreamResponse(stream, "application/octet-stream");
+            }
+
+            private string GetFullFilePath(string path)
+            {
+                string filePath = serverPhysicalPath;
+                List<string> splitPath = path.Split('/').ToList();
+                splitPath.Remove(serverVirtualPath.Trim('/'));
+
+                foreach (string str in splitPath)
+                {
+                    filePath = Path.Combine(filePath, str);
+                }
+                return filePath;
+            }
         }
     }
 }

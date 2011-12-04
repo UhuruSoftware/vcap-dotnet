@@ -7,12 +7,21 @@ using System.Globalization;
 
 namespace Uhuru.Utilities
 {
+    /// <summary>
+    /// This class contains disk usage information.
+    /// </summary>
     public class DiskUsageEntry
     {
         string readableSize;
         long size;
         string directory;
 
+        /// <summary>
+        /// Public constructor used to initialize the fields of this class.
+        /// </summary>
+        /// <param name="readableSize">Directory size as a human readable string.</param>
+        /// <param name="size">Directory size in kilobytes.</param>
+        /// <param name="directory">The directory path.</param>
         public DiskUsageEntry(string readableSize, long size, string directory)
         {
             this.readableSize = readableSize;
@@ -20,6 +29,9 @@ namespace Uhuru.Utilities
             this.directory = directory;
         }
 
+        /// <summary>
+        /// Directory size as a human readable string.
+        /// </summary>
         public string ReadableSize
         {
             get
@@ -28,6 +40,9 @@ namespace Uhuru.Utilities
             }
         }
 
+        /// <summary>
+        /// Directory size in kilobytes.
+        /// </summary>
         public long Size
         {
             get
@@ -36,6 +51,9 @@ namespace Uhuru.Utilities
             }
         }
 
+        /// <summary>
+        /// The directory path.
+        /// </summary>
         public string Directory
         {
             get
@@ -45,6 +63,9 @@ namespace Uhuru.Utilities
         }
     }
 
+    /// <summary>
+    /// This class is used to get disk usage information for a directory.
+    /// </summary>
     public static class DiskUsage
     {
 
@@ -54,7 +75,7 @@ namespace Uhuru.Utilities
         /// <param name="directory">Specifies directory to in which to look for objects</param>
         /// <param name="pattern">Pattern used to filter objects</param>
         /// <param name="summary">Only return summary of directory, no recursion</param>
-        /// <returns></returns>
+        /// <returns>An array of DiskUsageEntry objects.</returns>
         public static DiskUsageEntry[] GetDiskUsage(string directory, string pattern, bool summary)
         {
             SortedList<string, long> allObjects = new SortedList<string, long>();
@@ -138,6 +159,14 @@ namespace Uhuru.Utilities
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Writes disk usage information to a file.
+        /// </summary>
+        /// <param name="fileName">The file in which to write th data.</param>
+        /// <param name="readable">Boolean value specifying whether to include the human readable size.</param>
+        /// <param name="directory">The directory for which to retrieve disk usage.</param>
+        /// <param name="pattern">The pattern of the directories to include.</param>
+        /// <param name="summary">Boolean value specifying whether to include information about child directories.</param>
         public static void WriteDiskUsageToFile(string fileName, bool readable, string directory, string pattern, bool summary)
         {
             DiskUsageEntry[] entries = GetDiskUsage(directory, pattern, summary);

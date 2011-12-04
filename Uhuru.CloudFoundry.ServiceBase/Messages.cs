@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Uhuru.Utilities;
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
+namespace Uhuru.CloudFoundry.ServiceBase
 {
     interface IWithSuccessStatus
     {

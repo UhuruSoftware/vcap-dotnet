@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>..\..\bin-vcap-dotnet\Uhuru.Utilities.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,10 +37,10 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>UhuruSoftware.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -59,12 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Credentials.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetworkInterface.cs" />
     <Compile Include="ProcessPerformance\ProcessCPU.cs" />
     <Compile Include="ProcessPerformance\ProcessData.cs" />
     <Compile Include="ProcessPerformance\ProcessEntry32.cs" />
-    <Compile Include="ProcessPerformance\ProcessInformationEntry.cs" />
     <Compile Include="ProcessPerformance\ProcessTimes.cs" />
     <Compile Include="ProcessPerformance\SystemTime.cs" />
     <Compile Include="DiskUsage.cs" />
@@ -74,15 +75,16 @@
     <Compile Include="ProcessPerformance\ProcessInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimerHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="UhuruSoftware.snk" />
+    <Compile Include="UserCustomAuthentication.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
     <Content Include="lib\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="key.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

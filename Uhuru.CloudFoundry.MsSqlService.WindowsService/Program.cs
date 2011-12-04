@@ -22,12 +22,12 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!debug)
             {
-                ServiceBase[] ServicesToRun;
-                ServicesToRun = new ServiceBase[] 
+                System.ServiceProcess.ServiceBase[] ServicesToRun;
+                ServicesToRun = new System.ServiceProcess.ServiceBase[] 
 			    { 
 				    new MsSqlWindowsService() 
 			    };
-                ServiceBase.Run(ServicesToRun);
+                System.ServiceProcess.ServiceBase.Run(ServicesToRun);
             }
             else
             {

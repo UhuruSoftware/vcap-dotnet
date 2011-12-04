@@ -117,25 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ERRCanNotConnect" xml:space="preserve">
-    <value>Cannot connect to server</value>
+  <data name="BindRequestLogMessage" xml:space="preserve">
+    <value>{0}: Bind request: {1} from {2}</value>
   </data>
-  <data name="ERRUnknownProtocol" xml:space="preserve">
-    <value>Unknown protocol</value>
+  <data name="CheckOrphanExceptionLogMessage" xml:space="preserve">
+    <value>Exception at OnCheckOrphan {0}</value>
   </data>
-  <data name="ExceptionAsyncResultParameterNull" xml:space="preserve">
-    <value>The asyncResult parameter is null.\r\n</value>
+  <data name="CheckOrphanLogMessage" xml:space="preserve">
+    <value>{0}: handles for checking orphan</value>
   </data>
-  <data name="ExceptionBufferOffsetOrSizeIncorrect" xml:space="preserve">
-    <value>Buffer offset or size is incorrect.\r\n</value>
+  <data name="CleanupNfsLogMessage" xml:space="preserve">
+    <value>{0}: cleanup nfs request {1} from {2}</value>
   </data>
-  <data name="ExceptionMessageBufferParameterNull" xml:space="preserve">
-    <value>The buffer parameter is null.\r\n</value>
+  <data name="ConnectedLogMessage" xml:space="preserve">
+    <value>{0}: Connected to node mbus</value>
   </data>
-  <data name="ExceptionNetworkStreamClosed" xml:space="preserve">
-    <value>The network stream is closed.\r\n</value>
+  <data name="InitializingLogMessage" xml:space="preserve">
+    <value>{0}: Initializing</value>
   </data>
-  <data name="ExceptionSocketReadProblem" xml:space="preserve">
-    <value>There was a problem reading from the socket.\r\n</value>
+  <data name="NatsSubjectBind" xml:space="preserve">
+    <value>{0}.bind.{1}</value>
+  </data>
+  <data name="NatsSubjectCheckOrphan" xml:space="preserve">
+    <value>{0}.check_orphan</value>
+  </data>
+  <data name="NatsSubjectCleanupNfs" xml:space="preserve">
+    <value>{0}.cleanup_nfs.{1}</value>
+  </data>
+  <data name="NatsSubjectDisableInstance" xml:space="preserve">
+    <value>{0}.disable_instance.{1}</value>
+  </data>
+  <data name="NatsSubjectDiscover" xml:space="preserve">
+    <value>{0}.discover</value>
+  </data>
+  <data name="NatsSubjectEnableInstance" xml:space="preserve">
+    <value>{0}.enable_instance.{1}</value>
+  </data>
+  <data name="NatsSubjectImportInstance" xml:space="preserve">
+    <value>{0}.import_instance.{1}</value>
+  </data>
+  <data name="NatsSubjectOrphanResult" xml:space="preserve">
+    <value>{0}.orphan_result</value>
+  </data>
+  <data name="NatsSubjectProvision" xml:space="preserve">
+    <value>{0}.provision.{1}</value>
+  </data>
+  <data name="NatsSubjectPurgeOrphan" xml:space="preserve">
+    <value>{0}.purge_orphan.{1}</value>
+  </data>
+  <data name="NatsSubjectRestore" xml:space="preserve">
+    <value>{0}.restore.{1}</value>
+  </data>
+  <data name="NatsSubjectUnprovision" xml:space="preserve">
+    <value>{0}.unprovision.{1}</value>
+  </data>
+  <data name="ShuttingDownLogMessage" xml:space="preserve">
+    <value>{0}: Shutting down</value>
   </data>
 </root>

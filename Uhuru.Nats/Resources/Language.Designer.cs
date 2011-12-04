@@ -77,5 +77,50 @@ namespace Uhuru.NatsClient.Resources {
                 return ResourceManager.GetString("ERRUnknownProtocol", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The asyncResult parameter is null.\r\n.
+        /// </summary>
+        internal static string ExceptionAsyncResultParameterNull {
+            get {
+                return ResourceManager.GetString("ExceptionAsyncResultParameterNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Buffer offset or size is incorrect.\r\n.
+        /// </summary>
+        internal static string ExceptionBufferOffsetOrSizeIncorrect {
+            get {
+                return ResourceManager.GetString("ExceptionBufferOffsetOrSizeIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The buffer parameter is null.\r\n.
+        /// </summary>
+        internal static string ExceptionMessageBufferParameterNull {
+            get {
+                return ResourceManager.GetString("ExceptionMessageBufferParameterNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The network stream is closed.\r\n.
+        /// </summary>
+        internal static string ExceptionNetworkStreamClosed {
+            get {
+                return ResourceManager.GetString("ExceptionNetworkStreamClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was a problem reading from the socket.\r\n.
+        /// </summary>
+        internal static string ExceptionSocketReadProblem {
+            get {
+                return ResourceManager.GetString("ExceptionSocketReadProblem", resourceCulture);
+            }
+        }
     }
 }

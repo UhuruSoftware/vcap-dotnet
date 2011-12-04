@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
+namespace Uhuru.CloudFoundry.ServiceBase
 {
     public struct ServiceErrorCode
     {
@@ -28,14 +28,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
 
     public enum HttpErrorCode
     {
-        NONE = 0,
-        HTTP_BAD_REQUEST = 400,
-        HTTP_NOT_AUTHORIZED = 401,
-        HTTP_FORBIDDEN = 403,
-        HTTP_NOT_FOUND = 404,
-        HTTP_INTERNAL = 500,
-        HTTP_SERVICE_UNAVAIL = 503,
-        HTTP_GATEWAY_TIMEOUT = 504
+        None = 0,
+        HttpBadRequest = 400,
+        HttpNotAuthorized = 401,
+        HttpForbidden = 403,
+        HttpNotFound = 404,
+        HttpInternal = 500,
+        HttpServiceUnavailable = 503,
+        HttpGatewayTimeout = 504
     }
 
 
@@ -48,26 +48,26 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode.Base
         // NOT_FOUND = [30300,    HTTP_NOT_FOUND,  '%s not found!'    ]
 
         // 30000 - 30099  400 Bad Request
-        public static readonly ServiceErrorCode INVALID_CONTENT = new ServiceErrorCode() { ErrorCode = 30000, HttpError = HttpErrorCode.HTTP_BAD_REQUEST, Message = "Invalid Content-Type" };
-        public static readonly ServiceErrorCode MALFORMATTED_REQ = new ServiceErrorCode() { ErrorCode = 30001, HttpError = HttpErrorCode.HTTP_BAD_REQUEST, Message = "Malformatted request" };
-        public static readonly ServiceErrorCode UNKNOWN_LABEL = new ServiceErrorCode() { ErrorCode = 30002, HttpError = HttpErrorCode.HTTP_BAD_REQUEST, Message = "Unknown label" };
+        public static readonly ServiceErrorCode INVALID_CONTENT = new ServiceErrorCode() { ErrorCode = 30000, HttpError = HttpErrorCode.HttpBadRequest, Message = "Invalid Content-Type" };
+        public static readonly ServiceErrorCode MALFORMATTED_REQ = new ServiceErrorCode() { ErrorCode = 30001, HttpError = HttpErrorCode.HttpBadRequest, Message = "Malformatted request" };
+        public static readonly ServiceErrorCode UNKNOWN_LABEL = new ServiceErrorCode() { ErrorCode = 30002, HttpError = HttpErrorCode.HttpBadRequest, Message = "Unknown label" };
 
         // 30100 - 30199  401 Unauthorized
-        public readonly ServiceErrorCode NOT_AUTHORIZED = new ServiceErrorCode() { ErrorCode = 30100, HttpError = HttpErrorCode.HTTP_NOT_AUTHORIZED, Message = "Not authorized" };
+        public readonly ServiceErrorCode NOT_AUTHORIZED = new ServiceErrorCode() { ErrorCode = 30100, HttpError = HttpErrorCode.HttpNotAuthorized, Message = "Not authorized" };
 
         // 30200 - 30299  403 Forbidden
 
         // 30300 - 30399  404 Not Found
-        public static readonly ServiceErrorCode NOT_FOUND = new ServiceErrorCode() { ErrorCode = 30300, HttpError = HttpErrorCode.HTTP_NOT_FOUND, Message = "{0} not found" };
+        public static readonly ServiceErrorCode NOT_FOUND = new ServiceErrorCode() { ErrorCode = 30300, HttpError = HttpErrorCode.HttpNotFound, Message = "{0} not found" };
 
         // 30500 - 30599  500 Internal Error
-        public static readonly ServiceErrorCode INTERNAL_ERROR = new ServiceErrorCode() { ErrorCode = 30500, HttpError = HttpErrorCode.HTTP_INTERNAL, Message = "Internal Error" };
+        public static readonly ServiceErrorCode INTERNAL_ERROR = new ServiceErrorCode() { ErrorCode = 30500, HttpError = HttpErrorCode.HttpInternal, Message = "Internal Error" };
 
         // 30600 - 30699  503 Service Unavailable
-        public static readonly ServiceErrorCode SERVICE_UNAVAILABLE = new ServiceErrorCode() { ErrorCode = 30600, HttpError = HttpErrorCode.HTTP_SERVICE_UNAVAIL, Message = "Service unavailable" };
+        public static readonly ServiceErrorCode SERVICE_UNAVAILABLE = new ServiceErrorCode() { ErrorCode = 30600, HttpError = HttpErrorCode.HttpServiceUnavailable, Message = "Service unavailable" };
 
         // 30700 - 30799  500 Gateway Timeout
-        public static readonly ServiceErrorCode GATEWAY_TIMEOUT = new ServiceErrorCode() { ErrorCode = 30700, HttpError = HttpErrorCode.HTTP_GATEWAY_TIMEOUT, Message = "Gateway timeout" };
+        public static readonly ServiceErrorCode GATEWAY_TIMEOUT = new ServiceErrorCode() { ErrorCode = 30700, HttpError = HttpErrorCode.HttpGatewayTimeout, Message = "Gateway timeout" };
 
         ServiceErrorCode errorCode;
 

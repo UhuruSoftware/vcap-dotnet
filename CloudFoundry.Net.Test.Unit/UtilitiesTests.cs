@@ -19,7 +19,7 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod]
         public void ProcessInformationTest()
         {
-            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(0);
+            ProcessData[] entries = ProcessInformation.GetProcessUsage();
             Assert.IsTrue(0 < entries.Sum(entry => entry.Cpu));
             Assert.IsTrue(0 < entries.Length);
         }
@@ -28,8 +28,8 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod]
         public void ProcessInformationFilteredTest()
         {
-            ProcessInformationEntry[] entries = ProcessInformation.GetProcessInformation(Process.GetCurrentProcess().Id);
-            Assert.AreEqual(1, entries.Length);
+            ProcessData entry = ProcessInformation.GetProcessUsage(Process.GetCurrentProcess().Id);
+            Assert.AreNotEqual(null, entry);
         }
 
         [TestMethod]
@@ -40,8 +40,8 @@ namespace CloudFoundry.Net.Test.Unit
             int port = Helper.GetEphemeralPort();
             MonitoringServer monitoringServer = new MonitoringServer(port, username, password);
             
-            monitoringServer.VarzRequested += new MonitoringServer.VarzRequestedHandler(monitoringServer_VarzRequested);
-            monitoringServer.HealthzRequested += new MonitoringServer.HealthzRequestedHandler(monitoringServer_HealthzRequested);
+            monitoringServer.VarzRequested += new EventHandler<VarzRequestEventArgs>(monitoringServer_VarzRequested);
+            monitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(monitoringServer_HealthzRequested);
             monitoringServer.Start();
 
             string credentials = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(username + ":" + password));
@@ -123,14 +123,14 @@ namespace CloudFoundry.Net.Test.Unit
             fileServer.Stop();
         }
 
-        string monitoringServer_HealthzRequested(object sender, EventArgs e)
+        void monitoringServer_HealthzRequested(object sender, HealthzRequestEventArgs e)
         {
-            return "healthz";
+            e.HealthzMessage = "healthz";
         }
 
-        string monitoringServer_VarzRequested(object sender, EventArgs e)
+        void monitoringServer_VarzRequested(object sender, VarzRequestEventArgs e)
         {
-            return "varz";
+            e.VarzMessage = "varz";
         }
     }
 }

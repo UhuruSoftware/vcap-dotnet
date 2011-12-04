@@ -8,6 +8,9 @@ using System.Globalization;
 
 namespace Uhuru.NatsClient
 {
+    /// <summary>
+    /// This is a helper class for getting parsing regex resources.
+    /// </summary>
     public class Resource
     {
         //private ResourceManager resourceManager = new ResourceManager("Uhuru.NatsClient.Resources.ClientConnection",);
@@ -82,14 +85,24 @@ namespace Uhuru.NatsClient
         internal const string EMPTY_MSG = "";
 
         private static Resource instance;
+        private static readonly object resourceInstanceLock = new object();
 
+        /// <summary>
+        /// Gets the singleton instance of the Resource class.
+        /// </summary>
         public static Resource Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new Resource();
+                    lock (resourceInstanceLock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new Resource();
+                        }
+                    }
                 }
                 return instance;
             }
