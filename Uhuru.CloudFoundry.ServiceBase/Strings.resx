@@ -120,6 +120,9 @@
   <data name="BindRequestLogMessage" xml:space="preserve">
     <value>{0}: Bind request: {1} from {2}</value>
   </data>
+  <data name="CheckOrphanDebugLogMessage" xml:space="preserve">
+    <value>Orphan Instances: {0};  Orphan Bindings: {1}</value>
+  </data>
   <data name="CheckOrphanExceptionLogMessage" xml:space="preserve">
     <value>Exception at OnCheckOrphan {0}</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="InitializingLogMessage" xml:space="preserve">
     <value>{0}: Initializing</value>
+  </data>
+  <data name="NatsSubjectAnnounce" xml:space="preserve">
+    <value>{0}.announce</value>
   </data>
   <data name="NatsSubjectBind" xml:space="preserve">
     <value>{0}.bind.{1}</value>
@@ -168,10 +174,85 @@
   <data name="NatsSubjectRestore" xml:space="preserve">
     <value>{0}.restore.{1}</value>
   </data>
+  <data name="NatsSubjectUnbind" xml:space="preserve">
+    <value>{0}.unbind.{1}</value>
+  </data>
   <data name="NatsSubjectUnprovision" xml:space="preserve">
     <value>{0}.unprovision.{1}</value>
   </data>
+  <data name="OnDisableInstanceDebugLogMessage" xml:space="preserve">
+    <value>{0}: Disable instance {1} request from {2}</value>
+  </data>
+  <data name="OnEnableInstanceDebugMessage" xml:space="preserve">
+    <value>{0}: enable instance {1} request from {2}</value>
+  </data>
+  <data name="OnImportInstanceDebugLogMessage" xml:space="preserve">
+    <value>{0}: import instance {1} request from {2}</value>
+  </data>
+  <data name="OnProvisionRequestDebugLogMessage" xml:space="preserve">
+    <value>{0}: Provision request: {1} from {2}</value>
+  </data>
+  <data name="OnProvisionSuccessDebugLogMessage" xml:space="preserve">
+    <value>{0}: Successfully provisioned service for request {1}: {2}</value>
+  </data>
+  <data name="OnPurgeOrphanDebugLogMessage" xml:space="preserve">
+    <value>{0}: Message for purging orphan</value>
+  </data>
+  <data name="OnRestoreDebugLogMessage" xml:space="preserve">
+    <value>{0}: Restore request: {1} from {2}</value>
+  </data>
+  <data name="PurgeOrphanDebugLogMessage" xml:space="preserve">
+    <value>Unprovision orphan instance {0} and its bindings {1}</value>
+  </data>
+  <data name="PurgeOrphanErrorLogMessage" xml:space="preserve">
+    <value>Error on purge orphan instance {0}: {1}</value>
+  </data>
+  <data name="PurgeOrphanUnbindBindingDebugLogMessage" xml:space="preserve">
+    <value>Unbind orphan binding {0}</value>
+  </data>
+  <data name="PurgeOrphanUnbindBindingErrorLogMessage" xml:space="preserve">
+    <value>Error on purge orphan binding {0}: {1}</value>
+  </data>
+  <data name="SendNodeAnnouncementDebugLogMessage" xml:space="preserve">
+    <value>{0}: Sending announcement for {1}</value>
+  </data>
+  <data name="SendNodeAnnouncementNotReadyDebugLogMessage" xml:space="preserve">
+    <value>{0}: Not ready to send announcement</value>
+  </data>
+  <data name="ServiceExceptionAsString" xml:space="preserve">
+    <value>Error Code: {0}, Error Message: {1}</value>
+  </data>
+  <data name="ServiceExceptionGatewayTimeout" xml:space="preserve">
+    <value>Gateway timeout</value>
+  </data>
+  <data name="ServiceExceptionInternalError" xml:space="preserve">
+    <value>Internal Error</value>
+  </data>
+  <data name="ServiceExceptionInvalidContentType" xml:space="preserve">
+    <value>Invalid Content-Type</value>
+  </data>
+  <data name="ServiceExceptionMalformedContent" xml:space="preserve">
+    <value>Malformatted request</value>
+  </data>
+  <data name="ServiceExceptionNotAuthorized" xml:space="preserve">
+    <value>Not authorized</value>
+  </data>
+  <data name="ServiceExceptionNotFound" xml:space="preserve">
+    <value>{0} not found</value>
+  </data>
+  <data name="ServiceExceptionServiceUnavailable" xml:space="preserve">
+    <value>Service unavailable</value>
+  </data>
+  <data name="ServiceExceptionUnknownLabel" xml:space="preserve">
+    <value>Unknown label</value>
+  </data>
   <data name="ShuttingDownLogMessage" xml:space="preserve">
     <value>{0}: Shutting down</value>
+  </data>
+  <data name="UnbindRequestDebugLogMessage" xml:space="preserve">
+    <value>{0}: Unbind request: {1} from {2}</value>
+  </data>
+  <data name="UnprovisionRequestDebugLogMessage" xml:space="preserve">
+    <value>{0}: Unprovision request: {1}.</value>
   </data>
 </root>

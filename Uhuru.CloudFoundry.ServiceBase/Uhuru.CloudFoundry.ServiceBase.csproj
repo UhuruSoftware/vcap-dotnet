@@ -34,6 +34,12 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,11 +62,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="VcapComponent.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CloudFoundry.Net\CloudFoundry.Net.csproj">
-      <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
-      <Name>CloudFoundry.Net</Name>
+    <ProjectReference Include="..\Uhuru.Nats\Uhuru.NatsClient.csproj">
+      <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
+      <Name>Uhuru.NatsClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
@@ -78,6 +85,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="key.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

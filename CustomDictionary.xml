@@ -8,12 +8,14 @@
       <Word>Vmc</Word>
       <Word>Healthz</Word>
       <Word>Varz</Word>
+      <word>Unprovision</word>
     </Recognized>
   </Words>
   <Acronyms>
     <CasingExceptions>
       <Acronym>DEA</Acronym>
       <Acronym>VMC</Acronym>
+      <Acronym>NFS</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

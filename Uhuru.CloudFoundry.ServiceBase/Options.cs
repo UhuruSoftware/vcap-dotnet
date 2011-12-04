@@ -16,7 +16,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        public string MigrationNfs
+        public string MigrationNFS
         {
             get;
             set;
@@ -52,19 +52,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        public int MaxDbSize
+        public int MaxDBSize
         {
             get;
             set;
         }
 
-        public int MaxLongQuery
+        public int MaxLengthyQuery
         {
             get;
             set;
         }
 
-        public int MaxLongTx
+        public int MaxLengthyTX
         {
             get;
             set;
@@ -82,7 +82,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        public string LocalDb { get; set; }
+        public string LocalDB { get; set; }
 
         public string LocalRoute { get; set; }
     }

@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CloudFoundry.Net.Nats;
-using CloudFoundry.Net.DEA;
 using Uhuru.Utilities;
 using System.Globalization;
+using Uhuru.NatsClient;
 
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
-    public abstract class ServiceBase : IDisposable
+    public abstract class SystemServiceBase : IDisposable
     {
-        private Client nodeNats;
+        private Reactor nodeNats;
 
-        Options configurationOptions;
         private string localIP;
-        Dictionary<string, object> orphan_ins_hash;
-        Dictionary<string, object> orphan_binding_hash;
         VcapComponent vcapComponent;
 
-        public Client NodeNats
+        public Reactor NodeNats
         {
             get
             {
@@ -35,13 +31,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 throw new ArgumentNullException("options");
             }
 
-            this.configurationOptions = options;
             localIP = NetworkInterface.GetLocalIPAddress();
             Logger.Info(Strings.InitializingLogMessage, ServiceDescription());
-            orphan_ins_hash = new Dictionary<string, object>();
-            orphan_binding_hash = new Dictionary<string, object>();
-
-            nodeNats = new Client();
+      
+            nodeNats = new Reactor();
             NodeNats.Start(new Uri(options.Uri));
             
             OnConnectNode();

@@ -6,7 +6,7 @@ using Uhuru.CloudFoundry.ServiceBase;
 
 namespace Uhuru.CloudFoundry.Server.MsSqlNode
 {
-    class MsSqlError : ServiceError
+    class MsSqlError : ServiceException
     {
         public static readonly ServiceErrorCode MSSQL_DISK_FULL = new ServiceErrorCode() { ErrorCode = 31001, HttpError = HttpErrorCode.HttpInternal, Message = "Node disk is full." };
         public static readonly ServiceErrorCode MSSQL_CONFIG_NOT_FOUND = new ServiceErrorCode() { ErrorCode = 31002, HttpError = HttpErrorCode.HttpNotFound, Message = "MsSql configuration {0} not found." };

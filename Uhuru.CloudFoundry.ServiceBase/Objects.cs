@@ -11,6 +11,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
 {
     public class ServiceCredentials
     {
+        private Dictionary<string, object> bindOptions = new Dictionary<string, object>();
+
         public string NodeId
         {
             get;
@@ -23,7 +25,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        public string Username
+        public string UserName
         {
             get;
             set;
@@ -53,7 +55,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set; 
         }
 
-        public Dictionary<string, object> BindOptions { get; set; }
+        public Dictionary<string, object> BindOptions
+        { 
+            get
+            {
+                return bindOptions;
+            }
+        }
 
         public string ToJson()
         {
@@ -67,12 +75,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             NodeId = jsonObject["node_id"].ToValue<string>();
             Name = jsonObject["name"].ToValue<string>();
-            Username = jsonObject["username"].ToValue<string>();
+            UserName = jsonObject["username"].ToValue<string>();
             User = jsonObject["user"].ToValue<string>();
             Password = jsonObject["password"].ToValue<string>();
             HostName = jsonObject["hostname"].ToValue<string>();
             Port = jsonObject["hostname"].ToValue<int>();
-            BindOptions = jsonObject["bind_opts"].ToObject<Dictionary<string, object>>();
+            bindOptions = jsonObject["bind_opts"].ToObject<Dictionary<string, object>>();
         }
 
         public Dictionary<string, object> ToDictionary()
@@ -81,7 +89,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
               {
                   {"node_id", NodeId},
                   {"name", Name},
-                  {"username", Username},
+                  {"username", UserName},
                   {"user", User},
                   {"password", Password},
                   {"hostname", HostName},

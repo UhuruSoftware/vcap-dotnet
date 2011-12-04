@@ -52,9 +52,9 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
         {
 
             mssql_config = msSqlOptions;
-            max_db_size = options.MaxDbSize * 1024 * 1024;
-            max_long_query = options.MaxLongQuery;
-            max_long_tx = options.MaxLongTx;
+            max_db_size = options.MaxDBSize * 1024 * 1024;
+            max_long_query = options.MaxLengthyQuery;
+            max_long_tx = options.MaxLengthyTX;
             local_ip = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
             connection = mssql_connect();
@@ -91,7 +91,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
                 Directory.CreateDirectory(base_dir);
             }
 
-            ProvisionedService.Initialize(options.LocalDb);
+            ProvisionedService.Initialize(options.LocalDB);
 
             check_db_consistency();
 
@@ -115,11 +115,14 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
 
         }
 
-        protected override Announcement GetAnnouncement()
+        protected override Announcement AnnouncementDetails
         {
-            Announcement a = new Announcement();
-            a.AvailableStorage = available_storage;
-            return a;
+            get
+            {
+                Announcement a = new Announcement();
+                a.AvailableStorage = available_storage;
+                return a;
+            }
         }
 
         private void check_db_consistency()
@@ -605,7 +608,7 @@ namespace Uhuru.CloudFoundry.Server.MsSqlNode
             response.HostName = local_ip;
             response.Port = mssql_config.Port;
             response.User = user;
-            response.Username = user;
+            response.UserName = user;
             response.Password = passwd;
 
             return response;

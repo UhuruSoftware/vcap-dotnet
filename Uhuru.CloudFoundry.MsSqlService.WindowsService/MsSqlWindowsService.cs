@@ -41,11 +41,11 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
             options.AvailableStorage = serviceConfig.AvailableStorage;
             options.BaseDir = serviceConfig.BaseDir;
             options.Index = serviceConfig.Index;
-            options.LocalDb = serviceConfig.LocalDb;
-            options.MaxDbSize = serviceConfig.MaxDbSize;
-            options.MaxLongQuery = serviceConfig.MaxLongQuery;
-            options.MaxLongTx = serviceConfig.MaxLongTx;
-            options.MigrationNfs = serviceConfig.MigrationNfs;
+            options.LocalDB = serviceConfig.LocalDb;
+            options.MaxDBSize = serviceConfig.MaxDbSize;
+            options.MaxLengthyQuery = serviceConfig.MaxLongQuery;
+            options.MaxLengthyTX = serviceConfig.MaxLongTx;
+            options.MigrationNFS = serviceConfig.MigrationNfs;
             options.NodeId = serviceConfig.NodeId;
             options.Uri = serviceConfig.MBus;
             options.ZInterval = serviceConfig.ZInterval;
