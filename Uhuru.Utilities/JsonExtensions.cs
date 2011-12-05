@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.IO;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="JsonExtensions.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    
     /// <summary>
     /// This class is used to extend all objects with Json serialization methods.
     /// </summary>

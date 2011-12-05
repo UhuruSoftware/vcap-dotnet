@@ -4,93 +4,132 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
+//using Cassini;
 using System.IO;
 using Uhuru.Utilities;
 using CFNet=CloudFoundry.Net;
+using Uhuru.CloudFoundry.DEA.Configuration;
+using System.Threading;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
-    class VcapComponent
+    public class VcapComponent
     {
-        Dictionary<string, object> discover = new Dictionary<string, object>();
-        public Dictionary<string, object> varz = new Dictionary<string, object>();
-        private string healthz;
+        
 
-        public string Uuid
+        protected DateTime StartedAt;
+
+        protected string Uuid;
+        protected string Type;
+        protected string Index;
+        protected Uri NatsUri;
+
+        protected Dictionary<string, object> discover = new Dictionary<string, object>();
+
+
+        protected string Host;
+        protected int Port;
+        protected string[] Authentication;
+
+
+        public ReaderWriterLockSlim VarzLock = new ReaderWriterLockSlim();
+        public Dictionary<string, object> Varz = new Dictionary<string, object>();
+        public string Healthz;
+
+
+        protected VcapReactor vcapReactor;
+
+        public VcapComponent()
         {
-            get
+            ConstructReactor();
+
+            Uuid = Guid.NewGuid().ToString("N");
+
+            //Initialize Index from config file
+
+            if (Index != null)
             {
-                return discover["uuid"].ToString();
+                Uuid = String.Format("{0}-{1}", Index, Uuid);
+            }
+
+            Host = Utils.GetLocalIpAddress(UhuruSection.GetSection().DEA.LocalRoute);
+            vcapReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
+
+            //http server port
+            Port = Utils.GetEphemeralPort();
+
+            Authentication = new string[]{ "", "" };
+
+
+            
+
+        }
+
+        protected virtual void ConstructReactor()
+        {
+            if (vcapReactor == null)
+            {
+                vcapReactor = new VcapReactor();
             }
         }
 
-        public void Register(Dictionary<string, object> opts, CFNet.Nats.Client nats)
+
+
+        public virtual void Run()
         {
-            string uuid = Guid.NewGuid().ToString("N");
-            object type = opts["type"];
-            object index = opts.ContainsKey("index") ? opts["index"] : null;
+            vcapReactor.Start();
 
-            if (index != null)
-            {
-                uuid = String.Format("{0}-{1}", index, uuid);
-            }
-
-            string host = opts["host"].ToString();
-            int port = opts.ContainsKey("port") ? Convert.ToInt32(opts["port"]) : 0;
-
-            //Nats.Client nats = (Nats.Client)opts["nats"];
-
-            string[] auth = new string[] { opts["user"].ToString(), opts["password"].ToString() };
-
-            // Discover message limited
             discover = new Dictionary<string, object>() {
-              {"type", type},
-              {"index", index},
-              {"uuid", uuid},
-              {"host", String.Format("{0}:{1}", host, port)},
-              {"credentials", auth},
-              {"start", Utils.DateTimeToRubyString(DateTime.Now)}
+              {"type", Type},
+              {"index", Index},
+              {"uuid", Uuid},
+              {"host", String.Format("{0}:{1}", Host, Port)},
+              {"credentials", Authentication},
+              {"start", Utils.DateTimeToRubyString(StartedAt = DateTime.Now)}
             };
 
+
             // Varz is customizable
-            varz = new Dictionary<string, object>();
+            Varz = new Dictionary<string, object>();
             foreach (string key in discover.Keys)
             {
-                varz[key] = discover[key];
+                Varz[key] = discover[key];
             }
 
-            varz["num_cores"] = Environment.ProcessorCount;
+            Varz["num_cores"] = Environment.ProcessorCount;
 
-            //TODO: vladi: make sure this is not required by anyone else
-            //@varz[:config] = sanitize_config(opts[:config]) if opts[:config]
+            Healthz = "ok\n";
 
-            healthz = "ok\n";
-
-            start_http_server(host, port, auth);
 
             // Listen for discovery requests
-            nats.Subscribe("vcap.component.discover", delegate(string msg, string reply, string subject)
+            vcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
             {
-                update_discover_uptime();
-                nats.Publish(reply, msg: discover.ToJson());
-            });
+                UpdateDiscoverUptime();
+                vcapReactor.SendReply(reply, discover.ToJson());
+            };
+
+            StartHttpServer();
 
             // Also announce ourselves on startup..
-            nats.Publish("vcap.component.announce", msg: discover.ToJson());
+            vcapReactor.SendVcapComponentAnnounce(discover.ToJson()); 
         }
 
-        private void update_discover_uptime()
+
+        private void UpdateDiscoverUptime()
         {
-            TimeSpan span = DateTime.Now - (DateTime)discover["start"];
+            TimeSpan span = DateTime.Now - StartedAt;
             discover["uptime"] = String.Format("{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
-        private void start_http_server(string host, int port, string[] auth)
+        private void StartHttpServer()
         {
             //TODO: vladi: port this again, this will most likely not work
-            MonitoringServer http_server = new MonitoringServer(port, host, auth[0], auth[1]);
+            //Cassini.Server http_server = new Cassini.Server(Port, Host, "");
 
-            http_server.Start();
+            File.WriteAllText("healthz", Healthz);
+            File.WriteAllText("varz", Varz.ToJson());
+
+            //http_server.Start();
         }
 
 

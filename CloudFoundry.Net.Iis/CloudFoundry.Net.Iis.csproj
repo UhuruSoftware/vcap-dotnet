@@ -58,13 +58,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Operations.cs" />
-    <Compile Include="Utilities\CmdArguments.cs" />
-    <Compile Include="Utilities\ConsoleTools.cs" />
-    <Compile Include="Utilities\FirewallTools.cs" />
-    <Compile Include="Utilities\JsonTools.cs" />
     <Compile Include="AutoWiring\LogFileWebEventProvider.cs" />
-    <Compile Include="Utilities\NetFrameworkVersion.cs" />
-    <Compile Include="Utilities\ProcessTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AutoWiring\WebConfigRewiring.cs" />
   </ItemGroup>
@@ -89,6 +83,15 @@
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utilities\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
+      <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
+      <Name>Uhuru.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

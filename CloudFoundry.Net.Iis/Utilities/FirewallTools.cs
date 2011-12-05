@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NetFwTypeLib;
 
-namespace CloudFoundry.Net.IIS.Utilities
+namespace Uhuru.Utilities
 {
     static class FirewallTools
     {

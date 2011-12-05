@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.ServiceModel.Web;
-using System.IO;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
-using System.Net;
-using System.ServiceModel.Security;
-using System.IdentityModel.Selectors;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileServer.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel.Security;
+    using System.ServiceModel.Web;
+    
     /// <summary>
     /// This class implements an http server that serves files from local storage.
     /// </summary>
@@ -25,10 +25,10 @@ namespace Uhuru.Utilities
         private string username;
         private string password;
 
-        WebServiceHost host;
+        private WebServiceHost host;
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the FileServer class
         /// </summary>
         /// <param name="port">Port used by the server to listen on.</param>
         /// <param name="physicalPath">Root of the path served by the server.</param>
@@ -37,11 +37,25 @@ namespace Uhuru.Utilities
         /// <param name="serverPassword">Password that is allowed access to the server.</param>
         public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
-            serverPort = port;
-            serverPhysicalPath = physicalPath;
-            serverVirtualPath = virtualPath;
-            username = serverUserName;
-            password = serverPassword;
+            this.serverPort = port;
+            this.serverPhysicalPath = physicalPath;
+            this.serverVirtualPath = virtualPath;
+            this.username = serverUserName;
+            this.password = serverPassword;
+        }
+
+        /// <summary>
+        /// interface / contract for an endpoint
+        /// </summary>
+        [ServiceContract]
+        private interface IFileServerService
+        {
+            /// <summary>
+            /// gets a file from another endpoint
+            /// </summary>
+            /// <returns></returns>
+            [WebGet(UriTemplate = "/*")]
+            Message GetFile();
         }
 
         /// <summary>
@@ -49,23 +63,21 @@ namespace Uhuru.Utilities
         /// </summary>
         public void Start()
         {
-            Uri baseAddress = new Uri("http://localhost:" + serverPort);
+            Uri baseAddress = new Uri("http://localhost:" + this.serverPort);
             FileServerService service = new FileServerService();
 
             WebHttpBinding httpBinding = new WebHttpBinding();
             httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;
             httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
             
+            this.host = new WebServiceHost(service, baseAddress);
+            this.host.AddServiceEndpoint(typeof(IFileServerService), httpBinding, baseAddress);
 
-            host = new WebServiceHost(service, baseAddress);
-            host.AddServiceEndpoint(typeof(IFileServerService),
-                httpBinding, baseAddress);
+            this.host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
+            this.host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
 
-            host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
-            host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
-
-            ((FileServerService)host.SingletonInstance).Initialize(serverPhysicalPath, serverVirtualPath);
-            host.Open();
+            ((FileServerService)this.host.SingletonInstance).Initialize(this.serverPhysicalPath, this.serverVirtualPath);
+            this.host.Open();
         }
 
         /// <summary>
@@ -73,7 +85,7 @@ namespace Uhuru.Utilities
         /// </summary>
         public void Stop()
         {
-            host.Close();
+            this.host.Close();
         }
 
         #region IDisposable Members
@@ -91,15 +103,8 @@ namespace Uhuru.Utilities
 
         #endregion
 
-        [ServiceContract]
-        interface IFileServerService
-        {
-            [WebGet(UriTemplate = "/*")]
-            Message GetFile();
-        }
-
         [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
-        class FileServerService : IFileServerService
+        private class FileServerService : IFileServerService
         {
             private string serverPhysicalPath;
             private string serverVirtualPath;
@@ -115,12 +120,12 @@ namespace Uhuru.Utilities
                 string path = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.PathAndQuery;
                 try
                 {
-                    return CreateStreamResponse(GetFullFilePath(path));
+                    return CreateStreamResponse(this.GetFullFilePath(path));
                 }
-                catch (IOException ioException)
+                catch (IOException exception)
                 {
                     WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                    WebOperationContext.Current.OutgoingResponse.StatusDescription = ioException.ToString();
+                    WebOperationContext.Current.OutgoingResponse.StatusDescription = exception.ToString();
                     return null;
                 }
             }
@@ -132,19 +137,21 @@ namespace Uhuru.Utilities
                 {
                     fileStream.CopyTo(stream);
                 }
+
                 return WebOperationContext.Current.CreateStreamResponse(stream, "application/octet-stream");
             }
 
             private string GetFullFilePath(string path)
             {
-                string filePath = serverPhysicalPath;
+                string filePath = this.serverPhysicalPath;
                 List<string> splitPath = path.Split('/').ToList();
-                splitPath.Remove(serverVirtualPath.Trim('/'));
+                splitPath.Remove(this.serverVirtualPath.Trim('/'));
 
                 foreach (string str in splitPath)
                 {
                     filePath = Path.Combine(filePath, str);
                 }
+
                 return filePath;
             }
         }
