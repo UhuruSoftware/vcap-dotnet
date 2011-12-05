@@ -5,7 +5,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace CloudFoundry.Net.IIS.Utilities
+
+namespace Uhuru.Utilities
 {
     static public class JsonTools
     {

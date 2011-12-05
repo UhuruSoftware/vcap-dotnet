@@ -8,7 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Diagnostics;
 
-namespace CloudFoundry.Net.IIS.Utilities
+namespace Uhuru.Utilities
 {
     public enum DotNetVersion
     {

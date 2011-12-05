@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ReactorEventArgs.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.NatsClient
 {
+    using System;
+
     /// <summary>
     /// EventArgs class used when the NATS client raises an error event.
     /// </summary>

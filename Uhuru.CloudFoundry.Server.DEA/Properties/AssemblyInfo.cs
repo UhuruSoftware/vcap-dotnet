@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Uhuru.CloudFoundry.Server.DEA")]
+[assembly: AssemblyTitle("Uhuru.CloudFoundry.DEA")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Uhuru.CloudFoundry.Server.DEA")]
+[assembly: AssemblyProduct("Uhuru.CloudFoundry.DEA")]
 [assembly: AssemblyCopyright("Copyright ©  2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

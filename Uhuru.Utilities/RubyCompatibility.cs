@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
-
-namespace Uhuru.Utilities
+﻿namespace Uhuru.Utilities
 {
+    using System;
+    using System.Globalization;
+    
     /// <summary>
     /// This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
     /// </summary>

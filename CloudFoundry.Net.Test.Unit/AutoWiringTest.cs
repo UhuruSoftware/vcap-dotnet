@@ -5,8 +5,8 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
-using CloudFoundry.Net.IIS;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Autowiring;
 
 
 namespace CloudFoundry.Net.Test.Unit
