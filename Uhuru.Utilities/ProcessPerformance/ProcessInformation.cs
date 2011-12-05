@@ -1,22 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Diagnostics;
-using System.Security.Permissions;
-using System.Security;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProcessInformation.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities.ProcessPerformance
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Security;
+    using System.Threading;
+    
     /// <summary>
     /// This is a helper class used to get CPU and memory usage information for processes.
     /// </summary>
     public static class ProcessInformation
     {
-        const int SNAPSHOT_COUNT = 2;
+        private const int SnapshotCount = 2;
 
         /// <summary>
         /// Gets process usage information for a process.
@@ -36,12 +37,12 @@ namespace Uhuru.Utilities.ProcessPerformance
         public static ProcessData[] GetProcessUsage()
         {
             Dictionary<int, ProcessData> processes = new Dictionary<int, ProcessData>();
-            ProcessTimes ProcessTimes = new ProcessTimes();
-            IntPtr ProcessHandle = NativeMethods.PROCESS_HANDLE_ERROR;
-            ProcessData CurrentProcessData;
-            int Total = 0;
+            ProcessTimes processTimes = new ProcessTimes();
+            IntPtr processHandle = NativeMethods.ProcessHandleError;
+            ProcessData currentProcessData;
+            int total = 0;
 
-            for (int snapshotIndex = 0; snapshotIndex < SNAPSHOT_COUNT; snapshotIndex++)
+            for (int snapshotIndex = 0; snapshotIndex < SnapshotCount; snapshotIndex++)
             {
                 Process[] currentProcesses = Process.GetProcesses();
 
@@ -49,33 +50,29 @@ namespace Uhuru.Utilities.ProcessPerformance
                 {
                     try
                     {
-                        ProcessHandle = NativeMethods.OpenProcess(NativeMethods.PROCESS_ALL_ACCESS, false, (uint)process.Id);
-                        NativeMethods.GetProcessTimes(ProcessHandle, out ProcessTimes.RawCreationTime, out ProcessTimes.RawExitTime,
-                            out ProcessTimes.RawKernelTime, out ProcessTimes.RawUserTime);
+                        processHandle = NativeMethods.OpenProcess(NativeMethods.ProcessAllAccess, false, (uint)process.Id);
+                        NativeMethods.GetProcessTimes(processHandle, out processTimes.RawCreationTime, out processTimes.RawExitTime, out processTimes.RawKernelTime, out processTimes.RawUserTime);
 
-                        ProcessTimes.ConvertTime();
+                        processTimes.ConvertTime();
 
-                        if (processes.TryGetValue(process.Id, out CurrentProcessData))
+                        if (processes.TryGetValue(process.Id, out currentProcessData))
                         {
-                            Total += CurrentProcessData.UpdateCpuUsage(ProcessTimes.UserTime.Ticks, ProcessTimes.KernelTime.Ticks);
+                            total += currentProcessData.UpdateCpuUsage(processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
                         }
                         else
                         {
-                            processes[process.Id] = new ProcessData(process.Id, process.ProcessName,
-                                ProcessTimes.UserTime.Ticks, ProcessTimes.KernelTime.Ticks);
+                            processes[process.Id] = new ProcessData(process.Id, process.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
                         }
                     }
                     finally
                     {
-                        if (ProcessHandle != NativeMethods.PROCESS_HANDLE_ERROR)
+                        if (processHandle != NativeMethods.ProcessHandleError)
                         {
-                            NativeMethods.CloseHandle(ProcessHandle);
+                            NativeMethods.CloseHandle(processHandle);
                         }
-
                     }
                 }
-
-
+                
                 for (int i = 0; i < processes.Count; i++)
                 {
                     if (!currentProcesses.Any(p => p.Id == processes.Keys.ElementAt(i)))
@@ -86,6 +83,7 @@ namespace Uhuru.Utilities.ProcessPerformance
 
                 Thread.Sleep(250);
             }
+
             return processes.Values.ToArray();
         }
     }
