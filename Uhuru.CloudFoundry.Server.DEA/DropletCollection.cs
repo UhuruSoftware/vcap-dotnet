@@ -70,18 +70,16 @@ namespace Uhuru.CloudFoundry.DEA
                         }
                     }
 
-                    foreach (DropletInstance instance in ephemeralInstances)
-                    {
-                        doThat(instance);
-                    }
-
                 }
                 finally
                 {
                     Lock.ExitUpgradeableReadLock();
                 }
 
-                
+                foreach (DropletInstance instance in ephemeralInstances)
+                {
+                    doThat(instance);
+                }
 
             }
             else
