@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Timers;
-
-namespace Uhuru.Utilities
+﻿namespace Uhuru.Utilities
 {
+    using System.Timers;
+    
     /// <summary>
     /// Delegate definition that refers to a method to be called when a timer tick occurs.
     /// </summary>

@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProcessData.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities.ProcessPerformance
 {
+    using System;
+    using System.Threading;
 
     /// <summary>
     /// This class contains process data.

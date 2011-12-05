@@ -1,74 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Globalization;
-
-namespace Uhuru.Utilities
+﻿namespace Uhuru.Utilities
 {
-    /// <summary>
-    /// This class contains disk usage information.
-    /// </summary>
-    public class DiskUsageEntry
-    {
-        string readableSize;
-        long size;
-        string directory;
-
-        /// <summary>
-        /// Public constructor used to initialize the fields of this class.
-        /// </summary>
-        /// <param name="readableSize">Directory size as a human readable string.</param>
-        /// <param name="size">Directory size in kilobytes.</param>
-        /// <param name="directory">The directory path.</param>
-        public DiskUsageEntry(string readableSize, long size, string directory)
-        {
-            this.readableSize = readableSize;
-            this.size = size;
-            this.directory = directory;
-        }
-
-        /// <summary>
-        /// Directory size as a human readable string.
-        /// </summary>
-        public string ReadableSize
-        {
-            get
-            {
-                return readableSize;
-            }
-        }
-
-        /// <summary>
-        /// Directory size in kilobytes.
-        /// </summary>
-        public long Size
-        {
-            get
-            {
-                return size;
-            }
-        }
-
-        /// <summary>
-        /// The directory path.
-        /// </summary>
-        public string Directory
-        {
-            get
-            {
-                return directory;
-            }
-        }
-    }
-
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Text;
+    
     /// <summary>
     /// This class is used to get disk usage information for a directory.
     /// </summary>
     public static class DiskUsage
     {
-
         /// <summary>
         /// Gets disk usage information for a directory.
         /// </summary>
@@ -186,7 +128,7 @@ namespace Uhuru.Utilities
         /// Gets a directory size, in kilobytes.
         /// </summary>
         /// <param name="directory">A string specifying the path of the directory.</param>
-        /// <param name="recurse">A boolean vallue specifying whether to include child directories.</param>
+        /// <param name="recurse">A boolean value specifying whether to include child directories.</param>
         /// <returns>The size of the directory in bytes.</returns>
         private static long GetDirectorySize(string directory, bool recurse)
         {
@@ -199,9 +141,15 @@ namespace Uhuru.Utilities
                 FileInfo info = new FileInfo(name);
                 b += info.Length;
             }
+
             return (long)Math.Ceiling(b / 1024.0f);
         }
 
+        /// <summary>
+        /// gets the size, in bytes, of a file
+        /// </summary>
+        /// <param name="file">the name of the file</param>
+        /// <returns>the size of the file, in bytes</returns>
         private static long GetFileSize(string file)
         {
             FileInfo info = new FileInfo(file);
@@ -224,4 +172,6 @@ namespace Uhuru.Utilities
             return result;
         }
     }
+
+    
 }

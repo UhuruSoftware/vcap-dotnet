@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ComType = System.Runtime.InteropServices.ComTypes;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProcessData.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 namespace Uhuru.Utilities.ProcessPerformance
 {
+    using System;
+    using ComType = System.Runtime.InteropServices.ComTypes;
+    
     // holds the process time data.
     struct ProcessTimes
     {

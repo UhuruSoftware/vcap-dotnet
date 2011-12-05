@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Net;
+﻿// -----------------------------------------------------------------------
+// <copyright file="NetworkInterface.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System.Net;
+    using System.Net.Sockets;
+    
     /// <summary>
     /// Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
     /// </summary>

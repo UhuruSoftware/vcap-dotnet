@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web.Security;
-
-namespace Uhuru.Utilities
+﻿namespace Uhuru.Utilities
 {
+    using System.Collections.Generic;
+    using System.Web.Security;
+    
     /// <summary>
     /// This is a helper class that generates credential strings, such as usernames and passwords.
     /// </summary>
@@ -39,7 +36,7 @@ namespace Uhuru.Utilities
                 {'/', 'o'}, {'?', 'p'}};
 
             string credential = Membership.GeneratePassword(length, 0);
-            string result = "";
+            string result = string.Empty;
             for (int i = 0; i < credential.Length; i++)
             {
                 if (unwantedCharacterMap.ContainsKey(credential[i]))
@@ -51,6 +48,7 @@ namespace Uhuru.Utilities
                     result += credential[i];
                 }
             }
+
             return result;
         }
     }
