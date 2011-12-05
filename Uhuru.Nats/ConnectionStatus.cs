@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ConnectionStatus.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.NatsClient
 {
@@ -14,18 +14,22 @@ namespace Uhuru.NatsClient
         /// Connections is open.
         /// </summary>
         Open,
+
         /// <summary>
         /// Connection is closed.
         /// </summary>
         Closed,
+
         /// <summary>
         /// The connection is in an error state.
         /// </summary>
         Error,
+
         /// <summary>
         /// Connection is being rebuilt.
         /// </summary>
         Reconnecting,
+
         /// <summary>
         /// Connection is being rebuilt.
         /// </summary>

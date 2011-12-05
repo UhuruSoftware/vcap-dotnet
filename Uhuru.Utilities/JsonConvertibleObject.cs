@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+﻿// -----------------------------------------------------------------------
+// <copyright file="JsonConvertibleObject.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
-    public class JsonNameAttribute : Attribute
+    public sealed class JsonNameAttribute : Attribute
     {
         public string Name
         {
@@ -25,7 +28,6 @@ namespace Uhuru.Utilities
 
     public class JsonConvertibleObject
     {
-
         public static List<object> DeserializeFromJsonArray(string json)
         {
             return ((JArray)DeserializeFromJson(json)).ToObject<List<object>>();
@@ -52,13 +54,11 @@ namespace Uhuru.Utilities
             T result;
             Type toType = typeof(T);
 
-
             if (typeof(List<>) == toType.GetGenericTypeDefinition())
             {
                 MethodInfo method = typeof(JsonConvertibleObject).GetMethod("TransformIntermediateList");
                 MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { toType.GetGenericArguments()[0] });
                 result = (T)genericMethod.Invoke(null, new object[] { obj });
-
             }
             else
             {
@@ -66,11 +66,8 @@ namespace Uhuru.Utilities
                 //throw new Exception("Unsuported Intermediate Format");
             }
 
-
             return result;
-
         }
-
 
         //todo: use in the future for deap trandormation
         private static List<T> TransformIntermediateList<T>(object obj)
@@ -87,7 +84,6 @@ namespace Uhuru.Utilities
             return result;
         }
 
-
         public Dictionary<string, object> ToJsonIntermediateObject(params string[] elementsToInclude)
         {
             HashSet<string> elementsToIncludeSet = null;
@@ -103,7 +99,6 @@ namespace Uhuru.Utilities
 
             foreach (PropertyInfo property in properties)
             {
-
                 object[] allAtributes = property.GetCustomAttributes(true);
                 if (allAtributes != null)
                 {
@@ -123,19 +118,14 @@ namespace Uhuru.Utilities
                         {
                             if (property.GetValue(this, null) != null) result.Add(jsonPropertyName, property.GetValue(this, null));
                         }
-
                     }
-
                 }
-
-
             }
 
             FieldInfo[] fields = type.GetFields();
 
             foreach (FieldInfo field in fields)
             {
-
                 object[] allAtributes = field.GetCustomAttributes(true);
                 if (allAtributes != null)
                 {
@@ -155,26 +145,28 @@ namespace Uhuru.Utilities
                         {
                             if (field.GetValue(this) != null) result.Add(jsonPropertyName, field.GetValue(this));
                         }
-
                     }
-
                 }
-
-
             }
-
 
             return result;
         }
 
-
-
-        public void FromJsonImtermediateObject(object obj)
+        public void FromJsonIntermediateObject(object value)
         {
             Type type = this.GetType();
-
-
+            
             PropertyInfo[] propertyInfos = type.GetProperties();
+
+            if (value == null)
+            { 
+                //TODO: what should the method do then?
+                return;
+            }
+
+            // we do this here so there's no need to repeatedly cast the object within each pass of each for loop
+            JObject valueAsJObject = value as JObject;
+            Dictionary<string, object> valueAsDictionary = value as Dictionary<string, object>;
 
             foreach (PropertyInfo property in propertyInfos)
             {
@@ -192,56 +184,49 @@ namespace Uhuru.Utilities
 
                             Type propertyType = property.PropertyType;
 
-
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (obj is JObject)
-                                {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                    finalValue.FromJsonImtermediateObject(((JObject)obj)[jsonPropertyName]);
-                                    property.SetValue(this, finalValue, null);
+                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                }
-                                else if (obj is Dictionary<string, object>)
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                    finalValue.FromJsonImtermediateObject(((Dictionary<string, object>)obj)[jsonPropertyName]);
-                                    property.SetValue(this, finalValue, null);
+                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                                }
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
+                                {
+                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsuported Intermediate Format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
 
+                                property.SetValue(this, finalValue, null);
                             }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
-                                if (obj is JObject)
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
+                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
                                     MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    property.SetValue(this, genericMethod.Invoke(((JObject)obj)[jsonPropertyName], null), null);
+                                    property.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null), null);
                                 }
-                                else if (obj is Dictionary<string, object>)
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    property.SetValue(this, ((Dictionary<string, object>)obj)[jsonPropertyName], null);
+                                    property.SetValue(this, valueAsDictionary[jsonPropertyName], null);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsuported Intermediate Format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
-
                             }
-
-
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                 }
             }
-
 
             FieldInfo[] fields = type.GetFields();
 
@@ -260,57 +245,50 @@ namespace Uhuru.Utilities
                             string jsonPropertyName = nameAttribute.Name;
 
                             Type propertyType = field.FieldType;
-
-
+                            
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (obj is JObject)
+                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
+                                
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                    finalValue.FromJsonImtermediateObject(((JObject)obj)[jsonPropertyName]);
-                                    field.SetValue(this, finalValue);
-
+                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
                                 }
-                                else if (obj is Dictionary<string, object>)
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                    finalValue.FromJsonImtermediateObject(((Dictionary<string, object>)obj)[jsonPropertyName]);
-                                    field.SetValue(this, finalValue);
+                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsuported Intermediate Format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
 
+                                field.SetValue(this, finalValue);
                             }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
-                                if (obj is JObject)
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
+                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
                                     MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    field.SetValue(this, genericMethod.Invoke(((JObject)obj)[jsonPropertyName], null));
+                                    field.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null));
                                 }
-                                else if (obj is Dictionary<string, object>)
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    field.SetValue(this, ((Dictionary<string, object>)obj)[jsonPropertyName]);
+                                    field.SetValue(this, valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsuported Intermediate Format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
-
                             }
-
-
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                 }
             }
-
         }
     }
 }

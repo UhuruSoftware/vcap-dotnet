@@ -5,6 +5,8 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using System.Globalization;
+using log4net;
+using System.Reflection;
 
 namespace Uhuru.Utilities
 {
@@ -13,6 +15,27 @@ namespace Uhuru.Utilities
     /// </summary>
     public static class Logger
     {
+        private static readonly ILog log = LogManager.GetLogger(System.AppDomain.CurrentDomain.FriendlyName);
+        private static bool isSourceConfigured = false;
+        private static readonly object configureEventLogSourceLock = new object();
+
+        private static void SetEventLogSource()
+        {
+            if (!isSourceConfigured)
+            {
+                lock (configureEventLogSourceLock)
+                {
+                    if (!isSourceConfigured)
+                    {
+                        isSourceConfigured = true;
+                        EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
+                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
+                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Logs a fatal message.
         /// This indicates a really severe error, that will probably make the application crash.
@@ -20,7 +43,8 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Fatal(string message)
         {
-            EventLog.WriteEntry("WinDEA", message, EventLogEntryType.Error);
+            SetEventLogSource();
+            log.Fatal(message);
         }
 
         /// <summary>
@@ -30,8 +54,8 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Error(string message)
         {
-            EventLog.WriteEntry("WinDEA", message, EventLogEntryType.Error);
-
+            SetEventLogSource();
+            log.Error(message);
         }
 
         /// <summary>
@@ -41,7 +65,8 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Warning(string message)
         {
-            EventLog.WriteEntry("WinDEA", message, EventLogEntryType.Warning);
+            SetEventLogSource();
+            log.Warn(message);
         }
 
         /// <summary>
@@ -51,7 +76,8 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Info(string message)
         {
-            EventLog.WriteEntry("WinDEA", message, EventLogEntryType.Information);
+            SetEventLogSource();
+            log.Info(message);
         }
 
         /// <summary>
@@ -61,7 +87,8 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Debug(string message)
         {
-            EventLog.WriteEntry("WinDEA", message, EventLogEntryType.Information);
+            SetEventLogSource();
+            log.Debug(message);
         }
 
         /// <summary>
@@ -72,7 +99,8 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Fatal(string message, params object[] args)
         {
-            EventLog.WriteEntry("WinDEA", String.Format(CultureInfo.InvariantCulture, message, args), EventLogEntryType.Error);
+            SetEventLogSource();
+            log.FatalFormat(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -83,8 +111,8 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Error(string message, params object[] args)
         {
-            EventLog.WriteEntry("WinDEA", String.Format(CultureInfo.InvariantCulture, message, args), EventLogEntryType.Error);
-
+            SetEventLogSource();
+            log.ErrorFormat(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -95,7 +123,8 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Warning(string message, params object[] args)
         {
-            EventLog.WriteEntry("WinDEA", String.Format(CultureInfo.InvariantCulture, message, args), EventLogEntryType.Warning);
+            SetEventLogSource();
+            log.WarnFormat(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -106,7 +135,8 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Info(string message, params object[] args)
         {
-            EventLog.WriteEntry("WinDEA", String.Format(CultureInfo.InvariantCulture, message, args), EventLogEntryType.Information);
+            SetEventLogSource();
+            log.InfoFormat(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -117,7 +147,8 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Debug(string message, params object[] args)
         {
-            EventLog.WriteEntry("WinDEA", String.Format(CultureInfo.InvariantCulture, message, args), EventLogEntryType.Information);
+            SetEventLogSource();
+            log.DebugFormat(CultureInfo.InvariantCulture, message, args);
         }
     }
 }
