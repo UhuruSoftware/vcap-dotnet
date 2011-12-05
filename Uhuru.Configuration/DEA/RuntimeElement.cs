@@ -99,6 +99,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyName];
             }
+            set
+            {
+                base[propertyName] = value;
+            }
         }
 
         /// <summary>
@@ -110,6 +114,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (string)base[propertyExecutable];
+            }
+            set
+            {
+                base[propertyExecutable] = value;
             }
         }
 
@@ -123,6 +131,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyVersion];
             }
+            set
+            {
+                base[propertyVersion] = value;
+            }
         }
 
         /// <summary>
@@ -135,6 +147,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyVersionFlag];
             }
+            set
+            {
+                base[propertyVersionFlag] = value;
+            }
         }
 
         /// <summary>
@@ -146,6 +162,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (string)base[propertyAdditionalChecks];
+            }
+            set
+            {
+                base[propertyAdditionalChecks] = value;
             }
         }
 
@@ -179,6 +199,21 @@ namespace Uhuru.Configuration.DEA
         protected override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
+        }
+
+        #endregion
+
+        #region Overrides
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+        /// </summary>
+        /// <returns>
+        /// true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+        /// </returns>
+        public override bool IsReadOnly()
+        {
+            return false;
         }
 
         #endregion
