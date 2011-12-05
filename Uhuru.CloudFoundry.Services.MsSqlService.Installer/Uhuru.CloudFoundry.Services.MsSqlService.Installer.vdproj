@@ -51,6 +51,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_576AA5C8643F35355BC1440F9354317D"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_576AA5C8643F35355BC1440F9354317D"
+        "OwnerKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -95,6 +107,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_576AA5C8643F35355BC1440F9354317D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -356,6 +374,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_576AA5C8643F35355BC1440F9354317D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_576AA5C8643F35355BC1440F9354317D"
+                    {
+                    "Name" = "8:log4net.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:log4net.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8E5DCFD6EC2966D35661BCD9FEFD4956"
             {
             "AssemblyRegister" = "3:1"
@@ -537,7 +586,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MssqlNode"
         "ProductCode" = "8:{D5D20AC8-7139-4578-AD0F-779C6B301138}"
-        "PackageCode" = "8:{F1BCF644-D402-41BA-AEDA-110F052DB20A}"
+        "PackageCode" = "8:{CDFD685E-8A97-4A47-87A3-9B044D78CA5E}"
         "UpgradeCode" = "8:{FAD694E9-85A4-4C98-A70F-E6612138330B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1163,6 +1212,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B104C0D471F6429D93B2301B759147F9"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:ContentFiles"
+            "OutputProjectGuid" = "8:{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {
