@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 
-namespace Uhuru.CloudFoundry.Server.DEA.Configuration.DEA
+namespace Uhuru.CloudFoundry.DEA.Configuration.DEA
 {
     [ConfigurationCollection(typeof(DebugElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class DebugCollection : ConfigurationElementCollection

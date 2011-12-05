@@ -8,8 +8,8 @@
     <ProjectGuid>{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.CloudFoundry.Server.DEA</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.Server.DEA</AssemblyName>
+    <RootNamespace>Uhuru.CloudFoundry.DEA</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.DEA</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -67,6 +67,16 @@
     <Compile Include="DropletInstanceUsage.cs" />
     <Compile Include="FileViewer.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Messages\DeaDiscoverMessageRequest.cs" />
+    <Compile Include="Messages\DeaFindDropletMessageRequest.cs" />
+    <Compile Include="Messages\DeaFindDropletMessageResponse.cs" />
+    <Compile Include="Messages\DeaStartMessageRequest.cs" />
+    <Compile Include="Messages\DeaStatusResponse.cs" />
+    <Compile Include="Messages\DropletExitedMessage.cs" />
+    <Compile Include="Messages\DropletStatusMessageResponse.cs" />
+    <Compile Include="Messages\HearbeatMessage.cs" />
+    <Compile Include="Messages\HelloMessageResponse.cs" />
+    <Compile Include="Messages\RouterRegisterResponse.cs" />
     <Compile Include="Monitoring.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RubyJsonStructure.cs" />
@@ -74,9 +84,11 @@
     <Compile Include="ServiceCollection.cs" />
     <Compile Include="ServiceCredentials.cs" />
     <Compile Include="Stager.cs" />
+    <Compile Include="TimerHelper.cs" />
     <Compile Include="TimerUtilities.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VcapComponent.cs" />
+    <Compile Include="VcapReactor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

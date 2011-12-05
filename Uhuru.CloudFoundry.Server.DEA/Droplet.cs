@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     public class Droplet
     {
-        public ServiceCollection Services
-        {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-            }
-        }
+        //InstanceId -> DropletInstance
+        
+        public Dictionary<string, DropletInstance> DropletInstances = new Dictionary<string,DropletInstance>();
+
+
+        
+        
     }
 }

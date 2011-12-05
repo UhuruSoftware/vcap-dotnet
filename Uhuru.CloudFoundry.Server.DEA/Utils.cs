@@ -13,7 +13,7 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     public delegate void StreamWriterDelegate(StreamWriter stream);
     public delegate void ProcessDoneDelegate(string output, int statuscode);
@@ -86,13 +86,28 @@ namespace Uhuru.CloudFoundry.Server.DEA
             start.UseShellExecute = false;
             start.CreateNoWindow = true;
             start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
             using (Process process = Process.Start(start))
             {
-                using (StreamReader reader = process.StandardOutput)
-                {
-                    string result = reader.ReadToEnd();
-                    return result;
-                }
+                string result = process.StandardOutput.ReadToEnd();
+                return result;
+            }
+        }
+
+        public static string RunCommandAndGetOutputAndErrors(string command, string arguments)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = command;
+            start.Arguments = arguments;
+            start.UseShellExecute = false;
+            start.CreateNoWindow = true;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            using (Process process = Process.Start(start))
+            {
+                string result = process.StandardOutput.ReadToEnd();
+                result += process.StandardError.ReadToEnd();
+                return result;
             }
         }
 
@@ -235,6 +250,29 @@ namespace Uhuru.CloudFoundry.Server.DEA
             int port = ((IPEndPoint)socket.LocalEndpoint).Port;
             socket.Stop();
             return port;
+        }
+
+        public static T Clone<T>(T source)
+        {
+            if (!typeof(T).IsSerializable)
+            {
+                throw new ArgumentException("The type must be serializable.", "source");
+            }
+
+            // Don't serialize a null object, simply return the default for that object
+            if (Object.ReferenceEquals(source, null))
+            {
+                return default(T);
+            }
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+                formatter.Serialize(stream, source);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(stream);
+            }
         }
 
 
