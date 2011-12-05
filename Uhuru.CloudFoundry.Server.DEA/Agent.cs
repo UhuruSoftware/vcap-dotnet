@@ -542,51 +542,51 @@ namespace Uhuru.CloudFoundry.DEA
 
             Droplets.ForEach(delegate(DropletInstance instance)
             {
-                if(instance.Properties.DropletId == pmessage.DropletId)
+
+                try
                 {
-                    try
+                    instance.Lock.EnterReadLock();
+
+                    bool droplet_match = instance.Properties.DropletId == pmessage.DropletId;
+                    bool version_match = pmessage.Version == null || pmessage.Version == instance.Properties.Version;
+                    bool instace_match = pmessage.InstanceIds == null || pmessage.InstanceIds.Contains(instance.Properties.InstanceId);
+                    bool index_match = pmessage.Indices == null || pmessage.Indices.Contains(instance.Properties.InstanceIndex);
+                    bool state_match = pmessage.States == null || pmessage.States.Contains(instance.Properties.State);
+
+                    DeaFindDropletMessageResponse response = new DeaFindDropletMessageResponse();
+
+                    if (droplet_match && version_match && instace_match && index_match && state_match)
                     {
-                        instance.Lock.EnterReadLock();
+                        response.DeaId = Uuid;
+                        response.Version = instance.Properties.Version;
+                        response.DropletId = instance.Properties.DropletId;
+                        response.InstanceId = instance.Properties.InstanceId;
+                        response.Index = instance.Properties.InstanceIndex;
+                        response.State = instance.Properties.State;
+                        response.StateTimestamp = instance.Properties.StateTimestamp;
+                        response.FileUri = String.Format(@"http://{0}:{1}/droplets/", Host, AgentFileViewer.Port);
+                        response.FileAuth = AgentFileViewer.Credentials;
+                        response.Staged = instance.Properties.Staged;
+                        response.DebugIp = instance.Properties.DebugIp;
+                        response.DebugPort = instance.Properties.DebugPort;
 
-                        bool version_match = pmessage.Version == null || pmessage.Version == instance.Properties.Version;
-                        bool instace_match = pmessage.InstanceIds == null || pmessage.InstanceIds.Contains(instance.Properties.InstanceId);
-                        bool index_match = pmessage.Indices == null || pmessage.Indices.Contains(instance.Properties.InstanceIndex);
-                        bool state_match = pmessage.States == null || pmessage.States.Contains(instance.Properties.State);
 
-                        DeaFindDropletMessageResponse response = new DeaFindDropletMessageResponse();
-
-                        if (version_match && instace_match && index_match && state_match)
+                        if (pmessage.IncludeStates && instance.Properties.State == DropletInstanceState.RUNNING)
                         {
-                            response.DeaId = Uuid;
-                            response.Version = instance.Properties.Version;
-                            response.DropletId = instance.Properties.DropletId;
-                            response.InstanceId = instance.Properties.InstanceId;
-                            response.Index = instance.Properties.InstanceIndex;
-                            response.State = instance.Properties.State;
-                            response.StateTimestamp = instance.Properties.StateTimestamp;
-                            response.FileUri = String.Format(@"http://{0}:{1}/droplets/", Host, AgentFileViewer.Port);
-                            response.FileAuth = AgentFileViewer.Credentials;
-                            response.Staged = instance.Properties.Staged;
-                            response.DebugIp = instance.Properties.DebugIp;
-                            response.DebugPort = instance.Properties.DebugPort;
-
-
-                            if (pmessage.IncludeStates && instance.Properties.State == DropletInstanceState.RUNNING)
-                            {
-                                response.Stats = instance.GenerateDropletStatusMessage();
-                                response.Stats.Host = Host;
-                                response.Stats.Cores = Utils.NumberOfCores();
-                            }
+                            response.Stats = instance.GenerateDropletStatusMessage();
+                            response.Stats.Host = Host;
+                            response.Stats.Cores = Utils.NumberOfCores();
                         }
 
                         deaReactor.SendReply(reply, response.SerializeToJson());
+                    }
 
-                    }
-                    finally
-                    {
-                        instance.Lock.ExitReadLock();
-                    }
                 }
+                finally
+                {
+                    instance.Lock.ExitReadLock();
+                }
+                
             });
 
             
@@ -595,14 +595,99 @@ namespace Uhuru.CloudFoundry.DEA
 
         void DeaUpdateHandler(string message, string replay, string subject)
         {
-            throw new System.NotImplementedException();
+            if (ShuttingDown)
+                return;
+
+
+            DeaUpdateMessageRequest pmessage = new DeaUpdateMessageRequest();
+            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+            Logger.debug(String.Format("DEA received update message: {0}", message));
+
+            Droplets.ForEach(delegate(DropletInstance instance)
+            {
+                if (instance.Properties.DropletId == pmessage.DropletId)
+                {
+                    try
+                    {
+                        instance.Lock.EnterWriteLock();
+
+                        Logger.debug(String.Format("Mapping new URIs"));
+                        Logger.debug(String.Format("New: {0} Current: {1}", JsonConvertibleObject.SerializeToJson(pmessage.Uris), JsonConvertibleObject.SerializeToJson(instance.Properties.Uris)));
+
+                        List<string> toUnregister = new List<string>(instance.Properties.Uris.Except(pmessage.Uris));
+                        List<string> toRegister = new List<string>(pmessage.Uris.Except(instance.Properties.Uris));
+
+                        instance.Properties.Uris = toUnregister;
+                        UnregisterInstanceFromRouter(instance);
+
+                        instance.Properties.Uris = toRegister;
+                        RegisterInstanceWithRouter(instance);
+
+                        instance.Properties.Uris = pmessage.Uris;
+
+                    }
+                    finally
+                    {
+                        instance.Lock.ExitWriteLock();
+                    }
+                }
+            });
+
         }
 
 
 
         void DeaStopHandler(string message, string replay, string subject)
         {
-            throw new System.NotImplementedException();
+
+            if (ShuttingDown)
+                return;
+
+            DeaStopMessageRequest pmessage = new DeaStopMessageRequest();
+            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+
+            Logger.debug(String.Format("DEA received stop message: {0}", message));
+
+
+            Droplets.ForEach(true, delegate(DropletInstance instance)
+            {
+
+                try
+                {
+                    instance.Lock.EnterWriteLock();
+
+                    bool droplet_match = instance.Properties.DropletId == pmessage.DropletId;
+                    bool version_match = pmessage.Version == null || pmessage.Version == instance.Properties.Version;
+                    bool instace_match = pmessage.InstanceIds == null || pmessage.InstanceIds.Contains(instance.Properties.InstanceId);
+                    bool index_match = pmessage.Indices == null || pmessage.Indices.Contains(instance.Properties.InstanceIndex);
+                    bool state_match = pmessage.States == null || pmessage.States.Contains(instance.Properties.State);
+
+
+                    if (droplet_match && version_match && instace_match && index_match && state_match)
+                    {
+                        if (instance.Properties.State == DropletInstanceState.STARTING || instance.Properties.State == DropletInstanceState.RUNNING)
+                        {
+                            instance.Properties.ExitReason = DropletExitReason.STOPPED;
+                        }
+                        if (instance.Properties.State == DropletInstanceState.CRASHED)
+                        {
+                            instance.Properties.State = DropletInstanceState.DELETED;
+                            instance.Properties.StopProcessed = false;
+                        }
+
+                        StopDroplet(instance);
+                    }
+
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
+                }
+
+            });
+
         }
 
         //onply stops the droplet instance from running, no cleanup or resource untracking
@@ -846,26 +931,6 @@ namespace Uhuru.CloudFoundry.DEA
 
 
 
-                int pid = DetectAppPid(instance);
-
-                try
-                {
-                    instance.Lock.EnterWriteLock();
-
-                    if (pid != 0 && !instance.Properties.StopProcessed)
-                    {
-                        Logger.info(String.Format("PID:{0} assigned to droplet instance: {1}", pid, instance.Properties.LoggingId));
-                        instance.Properties.Pid = pid;
-                        Droplets.ScheduleSnapshotAppState();
-                    }
-                }
-                finally
-                {
-                    instance.Lock.ExitWriteLock();
-                }
-
-
-
                 DetectAppReady(instance,
                     delegate(bool detected)
                     {
@@ -897,9 +962,23 @@ namespace Uhuru.CloudFoundry.DEA
                 );
 
 
+                int pid = DetectAppPid(instance);
 
-                
-                    
+                try
+                {
+                    instance.Lock.EnterWriteLock();
+
+                    if (pid != 0 && !instance.Properties.StopProcessed)
+                    {
+                        Logger.info(String.Format("PID:{0} assigned to droplet instance: {1}", pid, instance.Properties.LoggingId));
+                        instance.Properties.Pid = pid;
+                        Droplets.ScheduleSnapshotAppState();
+                    }
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
+                }
 
 
 
@@ -1001,7 +1080,7 @@ namespace Uhuru.CloudFoundry.DEA
                     else
                     {
                         detect_attempts++;
-                        if (detect_attempts > 300 || instance.Properties.StopProcessed)
+                        if (detect_attempts > 300 || !(instance.Properties.State == DropletInstanceState.STARTING || instance.Properties.State == DropletInstanceState.RUNNING))
                         {
                             Logger.warn("Giving up detecting stop file");
                             break;
@@ -1031,12 +1110,13 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(String.Format("VCAP_DEBUG_IP='{0}'", instance.Properties.DebugIp));
             env.Add(String.Format("VCAP_DEBUG_PORT='{0}'", instance.Properties.DebugPort));
 
-            //List<string> vars;
-            //if ((vars = debug_env(instance)).Count > 0)
-            //{
-            //    Logger.info(String.Format("Debugger environment variables: {0}", String.Join("\r\n", vars.ToArray())));
-            //    env.AddRange(vars);
-            //}
+
+            if (instance.Properties.DebugPort != 0 && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
+            {
+                env.AddRange( AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] );
+            }
+
+
 
             // LEGACY STUFF
             env.Add(String.Format("VMC_WARNING_WARNING='All VMC_* environment variables are deprecated, please use VCAP_* versions.'"));
@@ -1072,11 +1152,11 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // Do the runtime environment settings
-            
-            //foreach (string runtimeEnv in runtime_env(instance.Runtime))
-            //{
-            //    env.Add(runtimeEnv);
-            //}
+
+            foreach (KeyValuePair<string, string> runtimeEnv in AgentStager.Runtimes[instance.Properties.Runtime].Environment)
+            {
+                env.Add(runtimeEnv.Key + "=" + runtimeEnv.Value);
+            }
 
             // User's environment settings
             // Make sure user's env variables are in double quotes.

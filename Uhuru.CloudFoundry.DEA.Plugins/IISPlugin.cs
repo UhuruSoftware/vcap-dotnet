@@ -23,15 +23,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         #endregion
 
         #region Public Interface Methods
-        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services)
+        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath)
         {
             DotNetVersion version = getAppVersion(appInfo);
-
-
-
         }
 
-        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, int[] processIds)
+        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, int[] processIds)
         {
             throw new NotImplementedException();
         }
