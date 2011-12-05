@@ -30,9 +30,9 @@ namespace CloudFoundry.Net.Test.Unit
             Assert.AreEqual(".\\", UhuruSection.GetSection().Service.BaseDir);
             Assert.AreEqual(0, UhuruSection.GetSection().Service.Index);
             Assert.AreEqual("198.41.0.4", UhuruSection.GetSection().Service.LocalRoute);
-            Assert.AreEqual("(local)", UhuruSection.GetSection().Service.MsSql.Host);
-            Assert.AreEqual("sa", UhuruSection.GetSection().Service.MsSql.User);
-            Assert.AreEqual(1433, UhuruSection.GetSection().Service.MsSql.Port);
+            Assert.AreEqual("(local)", UhuruSection.GetSection().Service.MSSql.Host);
+            Assert.AreEqual("sa", UhuruSection.GetSection().Service.MSSql.User);
+            Assert.AreEqual(1433, UhuruSection.GetSection().Service.MSSql.Port);
         }
     }
 }

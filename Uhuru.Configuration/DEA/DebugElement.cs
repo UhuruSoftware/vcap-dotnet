@@ -6,6 +6,9 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.DEA
 {
+    /// <summary>
+    /// This configuration class contains debug settings for a DEA runtime.
+    /// </summary>
     public class DebugElement : ConfigurationElement
     {
            #region Constructors
@@ -44,7 +47,9 @@ namespace Uhuru.Configuration.DEA
 
         #region Properties
 
-
+        /// <summary>
+        /// Gets the name of a debug configuration for a runtime.
+        /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name
         {
@@ -54,6 +59,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets a collection of environment variables for a debug configuration.
+        /// </summary>
         [ConfigurationProperty("environment", IsRequired = true, DefaultValue = null)]
         public EnvironmentCollection Environment
         {

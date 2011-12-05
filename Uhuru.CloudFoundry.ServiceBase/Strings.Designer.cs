@@ -313,6 +313,15 @@ namespace Uhuru.CloudFoundry.ServiceBase {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not save ProvisionedService list {0}.
+        /// </summary>
+        internal static string ProvisionedServiceListSaveErrorLogMessage {
+            get {
+                return ResourceManager.GetString("ProvisionedServiceListSaveErrorLogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unprovision orphan instance {0} and its bindings {1}.
         /// </summary>
         internal static string PurgeOrphanDebugLogMessage {

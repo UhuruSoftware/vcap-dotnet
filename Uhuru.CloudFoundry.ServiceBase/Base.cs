@@ -9,21 +9,68 @@ using Uhuru.NatsClient;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    /// <summary>
+    /// This is the service base for all Cloud Foundry system services.
+    /// </summary>
     public abstract class SystemServiceBase : IDisposable
     {
         private Reactor nodeNats;
 
+        private Options configurationOptions;
         private string localIP;
-        VcapComponent vcapComponent;
+        private Dictionary<string, object> orphanInsHash;
+        private Dictionary<string, object> orphanBindingHash;
+        private VcapComponent vcapComponent;
 
+        /// <summary>
+        /// Gets or sets the orphan instances hash.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        protected Dictionary<string, object> OrphanInstancesHash
+        {
+            get
+            {
+                return orphanInsHash;
+            }
+            set
+            {
+                orphanInsHash = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the orphan binding hash.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        protected Dictionary<string, object> OrphanBindingHash
+        {
+            get
+            {
+                return orphanBindingHash;
+            }
+            set
+            {
+                orphanBindingHash = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets the nats reactor used for communicating with the cloud controller.
+        /// </summary>
         public Reactor NodeNats
         {
             get
             {
-            return nodeNats;
+                return nodeNats;
             }
-            }
+        }
 
+
+        /// <summary>
+        /// Starts the service using the specified options.
+        /// </summary>
+        /// <param name="options">The configuration options.</param>
         public virtual void Start(Options options)
         {
             if (options == null)
@@ -31,9 +78,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 throw new ArgumentNullException("options");
             }
 
+            this.configurationOptions = options;
             localIP = NetworkInterface.GetLocalIPAddress();
             Logger.Info(Strings.InitializingLogMessage, ServiceDescription());
-      
+            OrphanInstancesHash = new Dictionary<string, object>();
+            OrphanBindingHash = new Dictionary<string, object>();
+
             nodeNats = new Reactor();
             NodeNats.Start(new Uri(options.Uri));
             
@@ -77,6 +127,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
             });
         }
 
+        /// <summary>
+        /// Gets the service description.
+        /// </summary>
+        /// <returns>A string containing the service description.</returns>
         public string ServiceDescription()
         {
             return String.Format(CultureInfo.InvariantCulture, "{0}-{1}", ServiceName(), Flavor());
@@ -84,46 +138,63 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
         private void UpdateVarz()
         {
-            //TODO: vladi: implement this
-            //vz = varz_details
-            //vz[:orphan_instances] = @orphan_ins_hash
-            //vz[:orphan_bindings] = @orphan_binding_hash
-            //vz.each { |k,v|
-            //  VCAP::Component.varz[k] = v
-            //}
+            Dictionary<string, object> details = VarzDetails();
+
+            details["orphan_instances"] = OrphanInstancesHash;
+            details["orphan_bindings"] = OrphanBindingHash;
+
+            vcapComponent.Varz = details;
         }
 
 
         private void UpdateHealthz()
         {
-            //TODO: vladi: implement this
-            //VCAP::Component.healthz = Yajl::Encoder.encode(healthz_details, :pretty => true, :terminator => "\n")
+            vcapComponent.Healthz = HealthzDetails().ToJson();
         }
 
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
         public void Shutdown()
         {
            Logger.Info(Strings.ShuttingDownLogMessage, ServiceDescription());
             NodeNats.Stop();
         }
 
-        // Subclasses VCAP::Services::Base::{Node,Provisioner} implement the
-        // following methods. (Note that actual service Provisioner or Node
-        // implementations should NOT need to touch these!)
 
-        // TODO on_connect_node should be on_connect_nats
+        
+        /// <summary>
+        /// Called after the node is connected to NATS.
+        /// </summary>
         protected abstract void OnConnectNode();
-        protected abstract string Flavor(); // "Provisioner" or "Node"
+        /// <summary>
+        /// Gets the flavor of the service. Only "Node" for the .net world.
+        /// </summary>
+        /// <returns>"Node"</returns>
+        protected abstract string Flavor();
+        /// <summary>
+        /// Gets the varz details for this service.
+        /// </summary>
+        /// <returns>A dictionary containing varz variables.</returns>
         protected abstract Dictionary<string, object> VarzDetails();
+        /// <summary>
+        /// Gets the healthz details for this service.
+        /// </summary>
+        /// <returns>A dictionary containing healthz details.</returns>
         protected abstract Dictionary<string, string> HealthzDetails();
-
-        // Service Provisioner and Node classes must implement the following method
+        /// <summary>
+        /// Gets the service name.
+        /// </summary>
+        /// <returns>A tring containing the service name.</returns>
         protected abstract string ServiceName();
 
+        /// <summary>
+        /// Implementation of IDisposable.
+        /// </summary>
         public void Dispose()
         {
             NodeNats.Dispose();
             //Dispose(true);
-
             GC.SuppressFinalize(this);
         }
     }

@@ -6,6 +6,9 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.DEA
 {
+    /// <summary>
+    /// This configuration class contains environment variable settings for a runtime.
+    /// </summary>
     public class EnvironmentElement : ConfigurationElement
     {
         #region Constructors
@@ -44,7 +47,9 @@ namespace Uhuru.Configuration.DEA
 
         #region Properties
 
-
+        /// <summary>
+        /// Gets the name of a Environment variable.
+        /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name
         {
@@ -54,6 +59,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
+        /// <summary>
+        /// Gets the value of a Environment variable.
+        /// </summary>
         [ConfigurationProperty("value", IsRequired = true, DefaultValue = null)]
         public string Value
         {

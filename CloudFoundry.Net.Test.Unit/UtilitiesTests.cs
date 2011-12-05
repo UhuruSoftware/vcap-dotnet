@@ -38,7 +38,7 @@ namespace CloudFoundry.Net.Test.Unit
             string username = "test";
             string password = "test";
             int port = Helper.GetEphemeralPort();
-            MonitoringServer monitoringServer = new MonitoringServer(port, username, password);
+            MonitoringServer monitoringServer = new MonitoringServer(port, "localhost", username, password);
             
             monitoringServer.VarzRequested += new EventHandler<VarzRequestEventArgs>(monitoringServer_VarzRequested);
             monitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(monitoringServer_HealthzRequested);

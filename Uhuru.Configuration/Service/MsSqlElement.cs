@@ -6,11 +6,15 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.Service
 {
-    public class MsSqlElement : ConfigurationElement
+    /// <summary>
+    /// This configuration class defines settings for the MS Sql Server Node component.
+    /// </summary>
+    public class MSSqlElement : ConfigurationElement
     {
         #region Constructors
 
-        static MsSqlElement()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
+        static MSSqlElement()
         {
             propertyHost = new ConfigurationProperty(
                 "host",
@@ -66,6 +70,9 @@ namespace Uhuru.Configuration.Service
             get { return properties; }
         }
 
+        /// <summary>
+        /// Gets the host of the target SQL Server.
+        /// </summary>
         [ConfigurationProperty("host", IsRequired = true, DefaultValue = "(local)")]
         public string Host
         {
@@ -75,6 +82,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the user for connecting to the target SQL Server.
+        /// </summary>
         [ConfigurationProperty("user", IsRequired = true, DefaultValue = "sa")]
         public string User
         {
@@ -84,6 +94,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the password for connecting to the target SQL Server.
+        /// </summary>
         [ConfigurationProperty("password", IsRequired = true, DefaultValue = "sa")]
         public string Password
         {
@@ -93,6 +106,9 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the port for connecting to the target SQL Server.
+        /// </summary>
         [ConfigurationProperty("port", IsRequired = true, DefaultValue = 1433)]
         public int Port
         {

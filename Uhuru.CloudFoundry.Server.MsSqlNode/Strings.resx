@@ -117,145 +117,112 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BindRequestLogMessage" xml:space="preserve">
-    <value>{0}: Bind request: {1} from {2}</value>
+  <data name="SqlNodeBindResponseDebugMessage" xml:space="preserve">
+    <value>Bind response: {0}</value>
   </data>
-  <data name="CheckOrphanDebugLogMessage" xml:space="preserve">
-    <value>Orphan Instances: {0};  Orphan Bindings: {1}</value>
+  <data name="SqlNodeBindServiceDebugMessage" xml:space="preserve">
+    <value>Bind service for db:{0}, bind_opts = {1}</value>
   </data>
-  <data name="CheckOrphanExceptionLogMessage" xml:space="preserve">
-    <value>Exception at OnCheckOrphan {0}</value>
+  <data name="SqlNodeCalculatingQPSDebugMessage" xml:space="preserve">
+    <value>Calculate queries per seconds.</value>
   </data>
-  <data name="CheckOrphanLogMessage" xml:space="preserve">
-    <value>{0}: handles for checking orphan</value>
+  <data name="SqlNodeCannotDeleteDBFatalMessage" xml:space="preserve">
+    <value>Could not delete database: [{0}]</value>
   </data>
-  <data name="CleanupNfsLogMessage" xml:space="preserve">
-    <value>{0}: cleanup nfs request {1} from {2}</value>
+  <data name="SqlNodeCannotDeleteUserFatalMessage" xml:space="preserve">
+    <value>Could not delete user '{0}': [{1}]</value>
   </data>
-  <data name="ConnectedLogMessage" xml:space="preserve">
-    <value>{0}: Connected to node mbus</value>
+  <data name="SqlNodeCannotSaveProvisionedServicesErrorMessage" xml:space="preserve">
+    <value>Could not save entry: {0}</value>
   </data>
-  <data name="InitializingLogMessage" xml:space="preserve">
-    <value>{0}: Initializing</value>
+  <data name="SqlNodeConnectionLostWarningMessage" xml:space="preserve">
+    <value>MsSql connection lost: {0}</value>
   </data>
-  <data name="NatsSubjectAnnounce" xml:space="preserve">
-    <value>{0}.announce</value>
+  <data name="SqlNodeConnectionString" xml:space="preserve">
+    <value>Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true</value>
   </data>
-  <data name="NatsSubjectBind" xml:space="preserve">
-    <value>{0}.bind.{1}</value>
+  <data name="SqlNodeConnectionUnrecoverableFatalMessage" xml:space="preserve">
+    <value>MsSql connection unrecoverable</value>
   </data>
-  <data name="NatsSubjectCheckOrphan" xml:space="preserve">
-    <value>{0}.check_orphan</value>
+  <data name="SqlNodeCouldNotCreateDBWarningMessage" xml:space="preserve">
+    <value>Could not create database: [{0}]</value>
   </data>
-  <data name="NatsSubjectCleanupNfs" xml:space="preserve">
-    <value>{0}.cleanup_nfs.{1}</value>
+  <data name="SqlNodeCreateDatabaseDebugMessage" xml:space="preserve">
+    <value>Creating: {0}</value>
   </data>
-  <data name="NatsSubjectDisableInstance" xml:space="preserve">
-    <value>{0}.disable_instance.{1}</value>
+  <data name="SqlNodeCreateDatabaseSQL" xml:space="preserve">
+    <value>CREATE DATABASE {0}</value>
   </data>
-  <data name="NatsSubjectDiscover" xml:space="preserve">
-    <value>{0}.discover</value>
+  <data name="SqlNodeCreateLoginSQL" xml:space="preserve">
+    <value>CREATE LOGIN {0} WITH PASSWORD = '{1}'</value>
   </data>
-  <data name="NatsSubjectEnableInstance" xml:space="preserve">
-    <value>{0}.enable_instance.{1}</value>
+  <data name="SqlNodeCreateUserSQL" xml:space="preserve">
+    <value>CREATE USER {0} FOR LOGIN {0}</value>
   </data>
-  <data name="NatsSubjectImportInstance" xml:space="preserve">
-    <value>{0}.import_instance.{1}</value>
+  <data name="SqlNodeCreatingCredentialsInfoMessage" xml:space="preserve">
+    <value>Creating credentials: {0}/{1} for database {2}</value>
   </data>
-  <data name="NatsSubjectOrphanResult" xml:space="preserve">
-    <value>{0}.orphan_result</value>
+  <data name="SqlNodeDeleteServiceErrorMessage" xml:space="preserve">
+    <value>Could not delete service: {0}</value>
   </data>
-  <data name="NatsSubjectProvision" xml:space="preserve">
-    <value>{0}.provision.{1}</value>
+  <data name="SqlNodeDeleteUserInfoMessage" xml:space="preserve">
+    <value>Delete user {0}</value>
   </data>
-  <data name="NatsSubjectPurgeOrphan" xml:space="preserve">
-    <value>{0}.purge_orphan.{1}</value>
+  <data name="SqlNodeDeletingDatabaseInfoMessage" xml:space="preserve">
+    <value>Deleting database: {0}</value>
   </data>
-  <data name="NatsSubjectRestore" xml:space="preserve">
-    <value>{0}.restore.{1}</value>
+  <data name="SqlNodeDoneCreatingDBDebugMessage" xml:space="preserve">
+    <value>Done creating {0}. Took {1} s.</value>
   </data>
-  <data name="NatsSubjectUnbind" xml:space="preserve">
-    <value>{0}.unbind.{1}</value>
+  <data name="SqlNodeDropDatabaseSQL" xml:space="preserve">
+    <value>DROP DATABASE {0}</value>
   </data>
-  <data name="NatsSubjectUnprovision" xml:space="preserve">
-    <value>{0}.unprovision.{1}</value>
+  <data name="SqlNodeDropLoginSQL" xml:space="preserve">
+    <value>DROP LOGIN {0}</value>
   </data>
-  <data name="OnDisableInstanceDebugLogMessage" xml:space="preserve">
-    <value>{0}: Disable instance {1} request from {2}</value>
+  <data name="SqlNodeGenerateVarzDebugMessage" xml:space="preserve">
+    <value>Generate varz.</value>
   </data>
-  <data name="OnEnableInstanceDebugMessage" xml:space="preserve">
-    <value>{0}: enable instance {1} request from {2}</value>
+  <data name="SqlNodeGenerateVarzErrorMessage" xml:space="preserve">
+    <value>Error during generate varz: {0}</value>
   </data>
-  <data name="OnImportInstanceDebugLogMessage" xml:space="preserve">
-    <value>{0}: import instance {1} request from {2}</value>
+  <data name="SqlNodeGetUserSessionsSQL" xml:space="preserve">
+    <value>SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = '{0}'</value>
   </data>
-  <data name="OnProvisionRequestDebugLogMessage" xml:space="preserve">
-    <value>{0}: Provision request: {1} from {2}</value>
+  <data name="SqlNodeKeepAliveSQL" xml:space="preserve">
+    <value>select CURRENT_TIMESTAMP</value>
   </data>
-  <data name="OnProvisionSuccessDebugLogMessage" xml:space="preserve">
-    <value>{0}: Successfully provisioned service for request {1}: {2}</value>
+  <data name="SqlNodeKillSessionSQL" xml:space="preserve">
+    <value>KILL {0}</value>
   </data>
-  <data name="OnPurgeOrphanDebugLogMessage" xml:space="preserve">
-    <value>{0}: Message for purging orphan</value>
+  <data name="SqlNodeTakeDBOfflineSQL" xml:space="preserve">
+    <value>ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE</value>
   </data>
-  <data name="OnRestoreDebugLogMessage" xml:space="preserve">
-    <value>{0}: Restore request: {1} from {2}</value>
+  <data name="SqlNodeUnbindServiceDebugMessage" xml:space="preserve">
+    <value>Unbind service: {0}</value>
   </data>
-  <data name="ProvisionedServiceListSaveErrorLogMessage" xml:space="preserve">
-    <value>Could not save ProvisionedService list {0}</value>
+  <data name="SqlNodeUnprovisionDatabaseDebugMessage" xml:space="preserve">
+    <value>Unprovision database:{0}, bindings: {1}</value>
   </data>
-  <data name="PurgeOrphanDebugLogMessage" xml:space="preserve">
-    <value>Unprovision orphan instance {0} and its bindings {1}</value>
+  <data name="SqlNodeUnprovisionSuccessDebugMessage" xml:space="preserve">
+    <value>Successfully fulfilled unprovision request: {0}</value>
   </data>
-  <data name="PurgeOrphanErrorLogMessage" xml:space="preserve">
-    <value>Error on purge orphan instance {0}: {1}</value>
+  <data name="SqlServerErrorMessageConfigurationNotFound" xml:space="preserve">
+    <value>MsSql configuration {0} not found.</value>
   </data>
-  <data name="PurgeOrphanUnbindBindingDebugLogMessage" xml:space="preserve">
-    <value>Unbind orphan binding {0}</value>
+  <data name="SqlServerErrorMessageCredentialNotFound" xml:space="preserve">
+    <value>MsSql credential {0} not found.</value>
   </data>
-  <data name="PurgeOrphanUnbindBindingErrorLogMessage" xml:space="preserve">
-    <value>Error on purge orphan binding {0}: {1}</value>
+  <data name="SqlServerErrorMessageDiskFull" xml:space="preserve">
+    <value>Node disk is full.</value>
   </data>
-  <data name="SendNodeAnnouncementDebugLogMessage" xml:space="preserve">
-    <value>{0}: Sending announcement for {1}</value>
+  <data name="SqlServerErrorMessageInvalidPlan" xml:space="preserve">
+    <value>Invalid plan {0}.</value>
   </data>
-  <data name="SendNodeAnnouncementNotReadyDebugLogMessage" xml:space="preserve">
-    <value>{0}: Not ready to send announcement</value>
+  <data name="SqlServerErrorMessageLocalDBError" xml:space="preserve">
+    <value>MsSql node local db error.</value>
   </data>
-  <data name="ServiceExceptionAsString" xml:space="preserve">
-    <value>Error Code: {0}, Error Message: {1}</value>
-  </data>
-  <data name="ServiceExceptionGatewayTimeout" xml:space="preserve">
-    <value>Gateway timeout</value>
-  </data>
-  <data name="ServiceExceptionInternalError" xml:space="preserve">
-    <value>Internal Error</value>
-  </data>
-  <data name="ServiceExceptionInvalidContentType" xml:space="preserve">
-    <value>Invalid Content-Type</value>
-  </data>
-  <data name="ServiceExceptionMalformedContent" xml:space="preserve">
-    <value>Malformatted request</value>
-  </data>
-  <data name="ServiceExceptionNotAuthorized" xml:space="preserve">
-    <value>Not authorized</value>
-  </data>
-  <data name="ServiceExceptionNotFound" xml:space="preserve">
-    <value>{0} not found</value>
-  </data>
-  <data name="ServiceExceptionServiceUnavailable" xml:space="preserve">
-    <value>Service unavailable</value>
-  </data>
-  <data name="ServiceExceptionUnknownLabel" xml:space="preserve">
-    <value>Unknown label</value>
-  </data>
-  <data name="ShuttingDownLogMessage" xml:space="preserve">
-    <value>{0}: Shutting down</value>
-  </data>
-  <data name="UnbindRequestDebugLogMessage" xml:space="preserve">
-    <value>{0}: Unbind request: {1} from {2}</value>
-  </data>
-  <data name="UnprovisionRequestDebugLogMessage" xml:space="preserve">
-    <value>{0}: Unprovision request: {1}.</value>
+  <data name="StorageQuotaDbListingFormatString" xml:space="preserve">
+    <value>&lt;user: '{0}' name: '{1}' size: {2}&gt;</value>
   </data>
 </root>

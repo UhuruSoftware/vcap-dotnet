@@ -8,6 +8,9 @@ using Uhuru.Configuration.Service;
 
 namespace Uhuru.Configuration
 {
+    /// <summary>
+    /// This class defines an Uhuru section in an application configuration file.
+    /// </summary>
     public class UhuruSection : ConfigurationSection
     {
 
@@ -41,6 +44,9 @@ namespace Uhuru.Configuration
 
         #region Properties
 
+        /// <summary>
+        /// Contains configuration settings for a DEA.
+        /// </summary>
         [ConfigurationProperty("dea")]
         public DEAElement DEA
         {
@@ -50,6 +56,9 @@ namespace Uhuru.Configuration
             }
         }
 
+        /// <summary>
+        /// Contains configuration settings for a System Service
+        /// </summary>
         [ConfigurationProperty("service")]
         public ServiceElement Service
         {

@@ -6,6 +6,9 @@ using System.Configuration;
 
 namespace Uhuru.Configuration.DEA
 {
+    /// <summary>
+    /// This is a configuration class that defines settings for the DEA component.
+    /// </summary>
     public class DEAElement : ConfigurationElement
     {
         #region Constructors
@@ -128,7 +131,9 @@ namespace Uhuru.Configuration.DEA
         #region Properties
 
 
-        // Base directory where all applications are staged and hosted
+        /// <summary>
+        /// Base directory where all applications are staged and hosted
+        /// </summary>
         [ConfigurationProperty("baseDir", IsRequired=true, DefaultValue = null)]
         public string BaseDir
         {
@@ -138,11 +143,14 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Local_route is the IP address of a well known server on your network, it
-        // is used to choose the right ip address (think of hosts that have multiple nics
-        // and IP addresses assigned to them) of the host running the DEA. Default
-        // value of nil, should work in most cases.
-        [ConfigurationProperty("localRoute", IsRequired = false, DefaultValue = "198.41.0.4")]
+
+        /// <summary>
+        /// Local_route is the IP address of a well known server on your network, it
+        /// is used to choose the right ip address (think of hosts that have multiple nics
+        /// and IP addresses assigned to them) of the host running the DEA. Default
+        /// value of null, should work in most cases.
+        /// </summary>
+        [ConfigurationProperty("localRoute", IsRequired = false, DefaultValue = null)]
         public string LocalRoute
         {
             get
@@ -151,7 +159,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Port for accessing the files of running applications
+        /// <summary>
+        /// Port for accessing the files of running applications
+        /// </summary>
         [ConfigurationProperty("filerPort", IsRequired = false, DefaultValue = 12345)]
         public int FilerPort
         {
@@ -162,7 +172,9 @@ namespace Uhuru.Configuration.DEA
         }
 
         
-        //Time interval to send heartbeat messages to the message bus in milliseconds
+        /// <summary>
+        /// Time interval to send heartbeat messages to the message bus in milliseconds
+        /// </summary>
         [ConfigurationProperty("heartBeatInterval", IsRequired = false, DefaultValue = 10000)]
         public int HeartBeatInterval
         {
@@ -172,8 +184,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
          
-
-        // NATS message bus URI
+        /// <summary>
+        /// NATS message bus URI
+        /// </summary>
         [ConfigurationProperty("messageBus", IsRequired = true, DefaultValue = null)]
         public string MessageBus
         {
@@ -183,7 +196,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Allow more than one application to run per DEA
+        /// <summary>
+        /// Allow more than one application to run per DEA
+        /// </summary>
         [ConfigurationProperty("multiTenant", IsRequired = false, DefaultValue = true)]
         public bool MultiTenant
         {
@@ -193,8 +208,10 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Maximum memory allocated to this DEA. In a multi tenant setup, this
-        // memory is divided amongst all applications managed by this DEA.
+        /// <summary>
+        /// Maximum memory allocated to this DEA. In a multi tenant setup, this
+        /// memory is divided amongst all applications managed by this DEA.
+        /// </summary>
         [ConfigurationProperty("maxMemory", IsRequired = true, DefaultValue = 2048)]
         public int MaxMemory
         {
@@ -204,7 +221,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Secure environment for running applications in a multi tenant setup.
+        /// <summary>
+        /// Secure environment for running applications in a multi tenant setup.
+        /// </summary>
         [ConfigurationProperty("secure", IsRequired = false, DefaultValue = true)]
         public bool Secure
         {
@@ -214,8 +233,10 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Provide ulimit based resource isolation in a multi tenant setup.
-        [ConfigurationProperty("enforceUlimit", IsRequired = false, DefaultValue = true)]
+        /// <summary>
+        /// Provide ulimit based resource isolation in a multi tenant setup.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Ulimit"), ConfigurationProperty("enforceUlimit", IsRequired = false, DefaultValue = true)]
         public bool EnforceUlimit
         {
             get
@@ -224,7 +245,9 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        // Option to disable the cleanup of droplet instances after stopping them
+        /// <summary>
+        /// Option to disable the cleanup of droplet instances after stopping them
+        /// </summary>
         [ConfigurationProperty("disableDirCleanup", IsRequired = false, DefaultValue = false)]
         public bool DisableDirCleanup
         {
@@ -234,8 +257,10 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        //Force droplets to be downloaded over http even when
-        //there is a shared directory containing the droplet.
+        /// <summary>
+        /// Force droplets to be downloaded over http even when
+        /// there is a shared directory containing the droplet.
+        /// </summary>
         [ConfigurationProperty("forceHttpSharing", IsRequired = false, DefaultValue = false)]
         public bool ForceHttpSharing
         {
@@ -245,8 +270,10 @@ namespace Uhuru.Configuration.DEA
             }
         }
 
-        //Force droplets to be downloaded over http even when
-        //there is a shared directory containing the droplet.
+        /// <summary>
+        /// Force droplets to be downloaded over http even when
+        /// there is a shared directory containing the droplet.
+        /// </summary>
         [ConfigurationProperty("runtimes", IsRequired = false, DefaultValue = null)]
         public RuntimeCollection Runtimes
         {

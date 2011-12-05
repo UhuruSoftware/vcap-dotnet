@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Net;
+﻿// -----------------------------------------------------------------------
+// <copyright file="NetworkInterface.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System.Net;
+    using System.Net.Sockets;
+    
     /// <summary>
     /// Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
     /// </summary>
@@ -35,6 +36,19 @@ namespace Uhuru.Utilities
                 IPEndPoint ep = (IPEndPoint)udpClient.Client.LocalEndPoint;
                 return ep.Address.ToString();
             }
+        }
+
+        /// <summary>
+        /// This method returns a free port.
+        /// </summary>
+        /// <returns>An int that is the free port.</returns>
+        public static int GrabEphemeralPort()
+        {
+            TcpListener socket = new TcpListener(IPAddress.Any, 0);
+            socket.Start();
+            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
+            socket.Stop();
+            return port;
         }
     }
 }

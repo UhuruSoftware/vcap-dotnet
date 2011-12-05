@@ -91,7 +91,7 @@ namespace CloudFoundry.Net.DEA
         private void start_http_server(string host, int port, string[] auth)
         {
             //TODO: vladi: port this again, this will most likely not work
-            MonitoringServer httpMonitoringServer = new MonitoringServer(port, auth[0], auth[1]);
+            MonitoringServer httpMonitoringServer = new MonitoringServer(port, host, auth[0], auth[1]);
 
             httpMonitoringServer.Start();
         }

@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudFoundry.Net", "CloudFo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA", "Uhuru.CloudFoundry.Server.DEA\Uhuru.CloudFoundry.DEA.csproj", "{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MsSqlService", "Uhuru.CloudFoundry.Server.MsSqlNode\Uhuru.CloudFoundry.MsSqlService.csproj", "{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MSSqlService", "Uhuru.CloudFoundry.Server.MsSqlNode\Uhuru.CloudFoundry.MSSqlService.csproj", "{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.NatsClient", "Uhuru.Nats\Uhuru.NatsClient.csproj", "{BF174398-E394-4730-A6E0-B07A27C6CEF4}"
 EndProject
@@ -33,7 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DEA", "DEA", "{9AF8C03A-168
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{CA7CAF28-F122-4AFD-84B8-EF034DE03C40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MsSqlService.WindowsService", "Uhuru.CloudFoundry.MsSqlService.WindowsService\Uhuru.CloudFoundry.MsSqlService.WindowsService.csproj", "{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MSSqlService.WindowsService", "Uhuru.CloudFoundry.MsSqlService.WindowsService\Uhuru.CloudFoundry.MSSqlService.WindowsService.csproj", "{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Plugins", "Uhuru.CloudFoundry.DEA.Plugins\Uhuru.CloudFoundry.DEA.Plugins.csproj", "{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}"
 EndProject

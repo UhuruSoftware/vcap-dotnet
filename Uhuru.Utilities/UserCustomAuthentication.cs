@@ -1,31 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IdentityModel.Selectors;
-using System.ServiceModel;
+﻿// -----------------------------------------------------------------------
+// <copyright file="UserCustomAuthentication.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.IdentityModel.Selectors;
+    using System.ServiceModel;
+
     /// <summary>
     /// Class used for custom user/password authentication.
     /// This is used in the file server and the healthz/varz server.
     /// </summary>
     public class UserCustomAuthentication : UserNamePasswordValidator
     {
-
-        string validUsername;
-        string validPassword;
+        private string validUsername;
+        private string validPassword;
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the UserCustomAuthentication class
         /// </summary>
         /// <param name="userName">Username that is allowed access.</param>
         /// <param name="password">Password that is allowed access.</param>
         public UserCustomAuthentication(string userName, string password)
         {
-            validPassword = password;
-            validUsername = userName;
+            this.validPassword = password;
+            this.validUsername = userName;
         }
 
         /// <summary>
@@ -45,9 +46,9 @@ namespace Uhuru.Utilities
                 throw new ArgumentNullException("password");
             }
 
-            if (!(userName == validUsername && password == validPassword))
+            if (!(userName == this.validUsername && password == this.validPassword))
             {
-                throw new FaultException("Unknown Username or Incorrect Password");
+                throw new FaultException("Unknown username or incorrect password");
             }
         }
     }

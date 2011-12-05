@@ -88,7 +88,7 @@ namespace Uhuru.CloudFoundry.Server.DEA
         private void start_http_server(string host, int port, string[] auth)
         {
             //TODO: vladi: port this again, this will most likely not work
-            MonitoringServer http_server = new MonitoringServer(port, auth[0], auth[1]);
+            MonitoringServer http_server = new MonitoringServer(port, host, auth[0], auth[1]);
 
             http_server.Start();
         }

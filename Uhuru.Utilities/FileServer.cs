@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.ServiceModel.Web;
-using System.IO;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
-using System.Net;
-using System.ServiceModel.Security;
-using System.IdentityModel.Selectors;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileServer.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel.Security;
+    using System.ServiceModel.Web;
+    
     /// <summary>
     /// This class implements an http server that serves files from local storage.
     /// </summary>
@@ -25,10 +25,17 @@ namespace Uhuru.Utilities
         private string username;
         private string password;
 
-        WebServiceHost host;
+        private WebServiceHost host;
+
+        [ServiceContract]
+        interface IFileServerService
+        {
+            [WebGet(UriTemplate = "/*")]
+            Message GetFile();
+        }
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the FileServer class
         /// </summary>
         /// <param name="port">Port used by the server to listen on.</param>
         /// <param name="physicalPath">Root of the path served by the server.</param>
@@ -37,11 +44,11 @@ namespace Uhuru.Utilities
         /// <param name="serverPassword">Password that is allowed access to the server.</param>
         public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
-            serverPort = port;
-            serverPhysicalPath = physicalPath;
-            serverVirtualPath = virtualPath;
-            username = serverUserName;
-            password = serverPassword;
+            this.serverPort = port;
+            this.serverPhysicalPath = physicalPath;
+            this.serverVirtualPath = virtualPath;
+            this.username = serverUserName;
+            this.password = serverPassword;
         }
 
         /// <summary>
@@ -56,7 +63,6 @@ namespace Uhuru.Utilities
             httpBinding.Security.Mode = WebHttpSecurityMode.TransportCredentialOnly;
             httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
             
-
             host = new WebServiceHost(service, baseAddress);
             host.AddServiceEndpoint(typeof(IFileServerService),
                 httpBinding, baseAddress);
@@ -90,13 +96,6 @@ namespace Uhuru.Utilities
         }
 
         #endregion
-
-        [ServiceContract]
-        interface IFileServerService
-        {
-            [WebGet(UriTemplate = "/*")]
-            Message GetFile();
-        }
 
         [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single)]
         class FileServerService : IFileServerService

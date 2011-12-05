@@ -9,6 +9,8 @@
       <Word>Healthz</Word>
       <Word>Varz</Word>
       <word>Unprovision</word>
+      <word>Vcap</word>
+      <word>Uuid</word>
     </Recognized>
   </Words>
   <Acronyms>

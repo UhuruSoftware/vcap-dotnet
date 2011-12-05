@@ -70,6 +70,7 @@
     <Compile Include="AutoWiring\WebConfigRewiring.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="FirewallTools.cs" />
+    <Compile Include="DiskUsageEntry.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="JsonTools.cs" />
     <Compile Include="Logger.cs" />

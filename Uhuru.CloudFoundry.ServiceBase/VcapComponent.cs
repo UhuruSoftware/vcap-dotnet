@@ -7,15 +7,42 @@ using System.Net.Sockets;
 using System.Net;
 using Uhuru.Utilities;
 using Uhuru.NatsClient;
+using System.Globalization;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    /// <summary>
+    /// This is a class used to register vcap components to the Cloud Foundry controller.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Vcap")]
     public class VcapComponent
     {
         Dictionary<string, object> discover = new Dictionary<string, object>();
-        public Dictionary<string, object> varz = new Dictionary<string, object>();
-        private string healthz;
+        private MonitoringServer httpMonitoringServer;
 
+        /// <summary>
+        /// Gets or sets the varz information for the component.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public Dictionary<string, object> Varz
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the healthz information for the component.
+        /// </summary>
+        public string Healthz
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets the UUID of the component.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Uuid")]
         public string Uuid
         {
             get
@@ -24,26 +51,35 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        public void Register(Dictionary<string, object> opts)
+        /// <summary>
+        /// Registers a component using the specified options.
+        /// </summary>
+        /// <param name="options">The options for the component.</param>
+        public void Register(Dictionary<string, object> options)
         {
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+            Varz = new Dictionary<string, object>();
             string uuid = Guid.NewGuid().ToString("N");
-            object type = opts["type"];
-            object index = opts.ContainsKey("index") ? opts["index"] : null;
+            object type = options["type"];
+            object index = options.ContainsKey("index") ? options["index"] : null;
 
             if (index != null)
             {
-                uuid = String.Format("{0}-{1}", index, uuid);
+                uuid = String.Format(CultureInfo.InvariantCulture, "{0}-{1}", index, uuid);
             }
 
-            string host = opts["host"].ToString();
-            int port = opts.ContainsKey("port") ? Convert.ToInt32(opts["port"]) : 0;
+            string host = options["host"].ToString();
+            int port = options.ContainsKey("port") ? Convert.ToInt32(options["port"], CultureInfo.InvariantCulture) : 0;
 
-            Reactor nats = (Reactor)opts["nats"];
+            Reactor nats = (Reactor)options["nats"];
 
             string[] auth = new string[] 
             { 
-                opts.ContainsKey("user") ? opts["user"].ToString() :String.Empty, 
-                opts.ContainsKey("password") ? opts["password"].ToString() : String.Empty
+                options.ContainsKey("user") ? options["user"].ToString() :String.Empty, 
+                options.ContainsKey("password") ? options["password"].ToString() : String.Empty
             };
 
             // Discover message limited
@@ -51,24 +87,24 @@ namespace Uhuru.CloudFoundry.ServiceBase
               {"type", type},
               {"index", index},
               {"uuid", uuid},
-              {"host", String.Format("{0}:{1}", host, port)},
+              {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", host, port)},
               {"credentials", auth},
               {"start", RubyCompatibility.DateTimeToRubyString(DateTime.Now)}
             };
 
             // Varz is customizable
-            varz = new Dictionary<string, object>();
+            Varz = new Dictionary<string, object>();
             foreach (string key in discover.Keys)
             {
-                varz[key] = discover[key];
+                Varz[key] = discover[key];
             }
 
-            varz["num_cores"] = Environment.ProcessorCount;
+            Varz["num_cores"] = Environment.ProcessorCount;
 
             //TODO: vladi: make sure this is not required by anyone else
             //@varz[:config] = sanitize_config(opts[:config]) if opts[:config]
 
-            healthz = "ok\n";
+            Healthz = "ok\n";
 
             start_http_server(host, port, auth);
 
@@ -86,40 +122,20 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void update_discover_uptime()
         {
             TimeSpan span = DateTime.Now - (DateTime)discover["start"];
-            discover["uptime"] = String.Format("{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
+            discover["uptime"] = String.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
         private void start_http_server(string host, int port, string[] auth)
         {
             //TODO: vladi: port this again, this will most likely not work
-            MonitoringServer httpMonitoringServer = new MonitoringServer(port, auth[0], auth[1]);
+            httpMonitoringServer = new MonitoringServer(port, host, auth[0], auth[1]);
             httpMonitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(httpMonitoringServer_HealthzRequested);
             httpMonitoringServer.Start();
         }
 
         void httpMonitoringServer_HealthzRequested(object sender, HealthzRequestEventArgs e)
         {
-            e.HealthzMessage = healthz;
+            e.HealthzMessage = Healthz;
         }
-
-        //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that address
-        public static string GetLocalIpAddress(string RouteIPAddress = "198.41.0.4")
-        {
-            UdpClient udpClient = new UdpClient();
-            udpClient.Connect(RouteIPAddress, 1);
-            IPEndPoint ep = (IPEndPoint)udpClient.Client.LocalEndPoint;
-            udpClient.Close();
-            return ep.Address.ToString();
-        }
-
-        public static int GetEphemeralPort()
-        {
-            TcpListener socket = new TcpListener(IPAddress.Any, 0);
-            socket.Start();
-            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
-            socket.Stop();
-            return port;
-        }
-
     }
 }

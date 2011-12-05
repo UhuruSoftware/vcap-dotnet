@@ -9,13 +9,19 @@ using Uhuru.NatsClient;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    /// <summary>
+    /// This is the base class for all Cloud Foundry system services nodes.
+    /// </summary>
     public abstract class NodeBase : SystemServiceBase
     {
         string node_id;
         string migration_nfs;
-        private Dictionary<string, object> orphanInsHash;
-        private Dictionary<string, object> orphanBindingHash;
 
+
+        /// <summary>
+        /// Starts the node.
+        /// </summary>
+        /// <param name="options">The configuration options for the node.</param>
         public override void Start(Options options)
         {
             if (options == null)
@@ -28,11 +34,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
             base.Start(options);
         }
 
+        /// <summary>
+        /// Gets the flavor of this service (only node for .Net)
+        /// </summary>
+        /// <returns>"Node"</returns>
         protected override string Flavor()
         {
             return "Node";
         }
 
+        /// <summary>
+        /// This is called after the node is connected to NATS.
+        /// </summary>
         protected override void OnConnectNode()
         {
            Logger.Debug(Strings.ConnectedLogMessage, ServiceDescription());
@@ -61,6 +74,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             });
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnProvision(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnProvisionRequestDebugLogMessage, ServiceDescription(), msg, reply);
@@ -89,6 +103,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnUnprovision(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.UnprovisionRequestDebugLogMessage, ServiceDescription(), msg);
@@ -121,6 +136,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnBind(string msg, string reply, string subject)
         {
            Logger.Debug(Strings.BindRequestLogMessage, ServiceDescription(), msg, reply);
@@ -142,6 +158,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnUnbind(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.UnbindRequestDebugLogMessage, ServiceDescription(), msg, reply);
@@ -169,6 +186,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnRestore(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnRestoreDebugLogMessage, ServiceDescription(), msg, reply);
@@ -198,6 +216,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         // disable and dump instance
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnDisableInstance(string msg, string reply, string subject)
         {
            Logger.Debug(Strings.OnDisableInstanceDebugLogMessage, ServiceDescription(), msg, reply);
@@ -233,6 +252,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         // enable instance and send updated credentials back
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnEnableInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnEnableInstanceDebugMessage, ServiceDescription(), msg, reply);
@@ -262,6 +282,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         // Cleanup nfs folder which contains migration data
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnCleanupNfs(string msg, string reply, string subject)
         {
            Logger.Debug(Strings.CleanupNfsLogMessage, ServiceDescription(), msg, reply);
@@ -285,6 +306,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnCheckOrphan(string msg, string reply, string subject)
         {
            Logger.Debug(Strings.CheckOrphanLogMessage, ServiceDescription());
@@ -296,8 +318,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 request.FromJson(msg);
                 CheckOrphan(request.Handles);
 
-                response.OrphanInstances = orphanInsHash;
-                response.OrphanBindings = orphanBindingHash;
+                response.OrphanInstances = OrphanInstancesHash;
+                response.OrphanBindings = OrphanBindingHash;
                 response.Success = true;
             }
             catch (Exception ex)
@@ -353,10 +375,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             Logger.Debug(Strings.CheckOrphanDebugLogMessage, oi_list.Count, ob_list.Count);
             orphan_ins_hash[node_id.ToString()] = oi_list;
             orphan_binding_hash[node_id.ToString()] = ob_list;
-            this.orphanInsHash = orphan_ins_hash;
-            this.orphanBindingHash = orphan_binding_hash;
+            this.OrphanInstancesHash = orphan_ins_hash;
+            this.OrphanBindingHash = orphan_binding_hash;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnPurgeOrphan(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnPurgeOrphanDebugLogMessage, ServiceDescription());
@@ -383,6 +406,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private bool PurgeOrphan(string[] oi_list, ServiceCredentials[] ob_list)
         {
             bool ret = true;
@@ -423,31 +447,37 @@ namespace Uhuru.CloudFoundry.ServiceBase
             return ret;
         }
 
-        // Subclass must overwrite this method to enable check orphan instance feature.
-        // Otherwise it will not check orphan instance
-        // The return value should be a list of instance name(handle["service_id"]).
+        /// <summary>
+        /// Subclass must overwrite this method to enable check orphan instance feature.
+        /// Otherwise it will not check orphan instance
+        /// </summary>
+        /// <returns>The return value should be a list of instance names.</returns>
         protected virtual string[] AllInstancesList()
         {
             return new string[0];
         }
 
-        // Subclass must overwrite this method to enable check orphan binding feature.
-        // Otherwise it will not check orphan bindings
-        // The return value should be a list of binding credentials
-        // Binding credential will be the argument for unbind method
-        // And it should have at least username & name property for base code
-        // to find the orphans
+        /// <summary>
+        /// Subclass must overwrite this method to enable check orphan binding feature.
+        /// Otherwise it will not check orphan bindings
+        /// </summary>
+        /// <returns>The return value should be a list of binding credentials</returns>
         protected virtual ServiceCredentials[] AllBindingsList()
         {
             return new ServiceCredentials[0];
         }
 
-        // Get the tmp folder for migration
+        /// <summary>
+        /// Get the tmp folder for migration
+        /// </summary>
+        /// <param name="instance">Instance name.</param>
+        /// <returns>A string containing the temp folder.</returns>
         private string GetMigrationFolder(string instance)
         {
             return Path.Combine(migration_nfs, "migration", ServiceName(), instance);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void OnImportInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnImportInstanceDebugLogMessage, ServiceDescription(), msg, reply);
@@ -481,6 +511,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             SendNodeAnnouncement(reply);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void SendNodeAnnouncement(string reply = null)
         {
             try
@@ -495,7 +526,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 Announcement a = AnnouncementDetails;
                 a.Id = node_id;
-                NodeNats.Publish(reply != null ? reply : String.Format(Strings.NatsSubjectAnnounce, ServiceName()), null, a.ToJson());
+                NodeNats.Publish(reply != null ? reply : String.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.ToJson());
             }
             catch (Exception ex)
             {
@@ -503,27 +534,36 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        /// <summary>
+        /// Service Node subclasses can override this method if they depend
+        /// on some external service in order to operate; for example, MySQL
+        /// and Postgresql require a connection to the underlying server.
+        /// </summary>
+        /// <returns>True if node is ready.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         protected bool NodeReady()
         {
-            // Service Node subclasses can override this method if they depend
-            // on some external service in order to operate; for example, MySQL
-            // and Postgresql require a connection to the underlying server.
             return true;
         }
 
+        /// <summary>
+        /// Service Node subclasses may want to override this method to
+        /// provide service specific data beyond what is returned by their
+        /// "announcement" method.
+        /// </summary>
+        /// <returns>A dictionary containing varz details.</returns>
         protected override Dictionary<string, object> VarzDetails()
         {
-            // Service Node subclasses may want to override this method to
-            // provide service specific data beyond what is returned by their
-            // "announcement" method.
             return AnnouncementDetails.ToDictionary();
         }
 
+        /// <summary>
+        /// Service Node subclasses may want to override this method to
+        /// provide service specific data
+        /// </summary>
+        /// <returns>A dictionary containing healthz details.</returns>
         protected override Dictionary<string, string> HealthzDetails()
         {
-            // Service Node subclasses may want to override this method to
-            // provide service specific data
             return new Dictionary<string, string>() 
             {
                 {"self", "ok"}
@@ -547,32 +587,99 @@ namespace Uhuru.CloudFoundry.ServiceBase
             return response.ToJson();
         }
 
-        // Service Node subclasses must implement the following methods
-
-        // provision(plan) --> {name, host, port, user, password}
+        /// <summary>
+        /// Subclasses have to implement this in order to provision services.
+        /// </summary>
+        /// <param name="plan">The payment plan for the service.</param>
+        /// <returns>Credentials for the provisioned service.</returns>
+        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType plan);
+        /// <summary>
+        /// Subclasses have to implement this in order to provision services.
+        /// </summary>
+        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="credentials">Existing credentials for the service.</param>
+        /// <returns>Credentials for the provisioned service.</returns>
         protected abstract ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credentials);
 
-        // unprovision(name) --> void
+        /// <summary>
+        /// Subclasses have to implement this in order to unprovision services.
+        /// </summary>
+        /// <param name="name">The name of the service to unprovision.</param>
+        /// <param name="bindings">Array of bindings for the service that have to be unprovisioned.</param>
+        /// <returns>A boolean specifying whether the unprovision request was successful.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unprovision")]
         protected abstract bool Unprovision(string name, ServiceCredentials[] bindings);
 
-        // bind(name, bind_opts) --> {host, port, login, secret}
+        /// <summary>
+        /// Subclasses have to implement this in order to bind a provisioned service to an app.
+        /// </summary>
+        /// <param name="name">The name of the service.</param>
+        /// <param name="bindOptions">Binding options.</param>
+        /// <param name="credentials">Already existing credentials.</param>
+        /// <returns>A new set of credentials used for binding.</returns>
         protected abstract ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions, ServiceCredentials credentials);
 
-        // unbind(credentials)  --> void
+        /// <summary>
+        /// Subclasses have to implement this in order to bind a provisioned service to an app.
+        /// </summary>
+        /// <param name="name">The name of the service.</param>
+        /// <param name="bindOptions">Binding options.</param>
+        /// <returns>A new set of credentials used for binding.</returns>
+        protected abstract ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions);
+
+        /// <summary>
+        /// Subclasses have to implement this in order to unbind a service from an app.
+        /// </summary>
+        /// <param name="credentials">The credentials that have to be unprovisioned.</param>
+        /// <returns>A bool indicating whether the unbind request was successful.</returns>
         protected abstract bool Unbind(ServiceCredentials credentials);
 
-        // announcement() --> { any service-specific announcement details }
+        /// <summary>
+        /// Gets any service-specific announcement details.
+        /// </summary>
         protected abstract Announcement AnnouncementDetails
         {
             get;
         }
 
-        // <action>_instance(prov_credential, binding_credentials)  -->  true for success and nil for fail
+        /// <summary>
+        /// Subclasses have to implement this in order to disable an instance.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credentials.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials);
+        /// <summary>
+        /// Subclasses have to implement this in order to dump an instance.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path where to dump the service.</param>
+        /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath);
+        /// <summary>
+        /// Subclasses have to implement this in order to import an instance.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path from which to import the service.</param>
+        /// <param name="plan">The payment plan.</param>
+        /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan);
+        /// <summary>
+        /// Enables the instance.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentialsHash">The binding credentials hash.</param>
+        /// <returns>A bool indicating whether the request was successful.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference")]
         protected abstract bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash);
+        /// <summary>
+        /// Restores the specified instance id.
+        /// </summary>
+        /// <param name="instanceId">The instance id.</param>
+        /// <param name="backupPath">The backup path.</param>
+        /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool Restore(string instanceId, string backupPath);
 
     }

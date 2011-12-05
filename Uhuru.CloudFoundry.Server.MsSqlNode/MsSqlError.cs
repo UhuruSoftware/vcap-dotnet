@@ -4,28 +4,31 @@ using System.Linq;
 using System.Text;
 using Uhuru.CloudFoundry.ServiceBase;
 
-namespace Uhuru.CloudFoundry.Server.MsSqlNode
+namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
-    class MsSqlError : ServiceException
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors"), Serializable]
+    class MSSqlError : ServiceException
     {
-        public static readonly ServiceErrorCode MSSQL_DISK_FULL = new ServiceErrorCode() { ErrorCode = 31001, HttpError = HttpErrorCode.HttpInternal, Message = "Node disk is full." };
-        public static readonly ServiceErrorCode MSSQL_CONFIG_NOT_FOUND = new ServiceErrorCode() { ErrorCode = 31002, HttpError = HttpErrorCode.HttpNotFound, Message = "MsSql configuration {0} not found." };
-        public static readonly ServiceErrorCode MSSQL_CRED_NOT_FOUND = new ServiceErrorCode() { ErrorCode = 31003, HttpError = HttpErrorCode.HttpNotFound, Message = "MsSql credential {0} not found." };
-        public static readonly ServiceErrorCode MSSQL_LOCAL_DB_ERROR = new ServiceErrorCode() { ErrorCode = 31004, HttpError = HttpErrorCode.HttpInternal, Message = "MsSql node local db error." };
-        public static readonly ServiceErrorCode MSSQL_INVALID_PLAN = new ServiceErrorCode() { ErrorCode = 31005, HttpError = HttpErrorCode.HttpInternal, Message = "Invalid plan {0}." };
+        public static readonly ServiceErrorCode MSSqlDiskFull = new ServiceErrorCode() { ErrorCode = 31001, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageDiskFull };
+        public static readonly ServiceErrorCode MSSqlConfigNotFound = new ServiceErrorCode() { ErrorCode = 31002, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.SqlServerErrorMessageConfigurationNotFound };
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
+        public static readonly ServiceErrorCode MSSqlCredentialsNotFound = new ServiceErrorCode() { ErrorCode = 31003, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.SqlServerErrorMessageCredentialNotFound };
+        public static readonly ServiceErrorCode MSSqlLocalDBError = new ServiceErrorCode() { ErrorCode = 31004, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageLocalDBError };
+        public static readonly ServiceErrorCode MSSqlInvalidPlan = new ServiceErrorCode() { ErrorCode = 31005, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageInvalidPlan };
 
-        public MsSqlError(int serviceErrorCode, HttpErrorCode httpError, string message, params string[] formattingParameters) :
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public MSSqlError(int serviceErrorCode, HttpErrorCode httpError, string message, params string[] formattingParameters) :
             base(serviceErrorCode, httpError, message, formattingParameters)
         {
 
         }
 
-        public MsSqlError(ServiceErrorCode errorCode)
+        public MSSqlError(ServiceErrorCode errorCode)
             : base(errorCode)
         {
         }
 
-        public MsSqlError(ServiceErrorCode errorCode, params string[] arguments)
+        public MSSqlError(ServiceErrorCode errorCode, params string[] arguments)
             : base(errorCode, arguments)
         {
         }
