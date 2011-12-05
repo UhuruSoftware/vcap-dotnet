@@ -2,81 +2,119 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Uhuru.Utilities;
+using Uhuru.Utilities.ProcessPerformance;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     public class DropletInstance
     {
-        public DropletInstanceProperties Properties
+
+
+
+        public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        public DropletInstanceProperties Properties = new DropletInstanceProperties();
+        public List<DropletInstanceUsage> Usage = new List<DropletInstanceUsage>();
+
+        
+        public const int MaxUsageSamples = 30;
+
+        public bool IsRunning
         {
             get
             {
-                throw new System.NotImplementedException();
+                if (Properties.Pid == 0)
+                    return false;
+
+                return ProcessInformation.GetProcessUsage(Properties.Pid) != null;
             }
-            set
+        }
+
+        
+        public HearbeatMessage.InstanceHeartbeat GenerateInstanceHearbeat()
+        {
+            HearbeatMessage.InstanceHeartbeat beat = new HearbeatMessage.InstanceHeartbeat();
+            try
             {
-            }
-        }
+                Lock.EnterReadLock();
+                
+                beat.DropletId = Properties.DropletId;
+                beat.Version = Properties.Version;
+                beat.InstanceId = Properties.InstanceId;
+                beat.InstanceIndex = Properties.InstanceIndex;
+                beat.State = Properties.State;
 
-        public DropletInstanceUsage Usage
-        {
-            get
+            }
+            finally
             {
-                throw new System.NotImplementedException();
+                Lock.ExitReadLock();
             }
-            set
-            {
-            }
+            return beat;
         }
 
-        public int IsRunning
+        public HearbeatMessage GenerateHeartbeat()
         {
-            get
-            {
-                throw new System.NotImplementedException();
-            }
-            set
-            {
-            }
-        }
-
-        public void Stage()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Run()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        /// <summary>
-        /// returns the instances heartbeat json message
-        /// </summary>
-        public object GenerateHearbeatMessage()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        /// <summary>
-        /// returns the instances unregister json message
-        /// </summary>
-        public object GenerateRouterUnregisterMessage()
-        {
-            throw new System.NotImplementedException();
+            HearbeatMessage response = new HearbeatMessage();
+            response.Droplets.Add(GenerateInstanceHearbeat().ToJsonIntermediateObject());
+            return response;
         }
 
         /// <summary>
         /// returns the instances exited message
         /// </summary>
-        public object GenerateDropletExitedMessage()
+        public DropletExitedMessage GenerateDropletExitedMessage()
         {
-            throw new System.NotImplementedException();
+            DropletExitedMessage response = new DropletExitedMessage();
+
+            try
+            {
+                Lock.EnterReadLock();
+                response.DropletId = Properties.DropletId;
+                response.Version = Properties.Version;
+                response.InstanceId = Properties.InstanceId;
+                response.Index = Properties.InstanceIndex;
+                response.ExitReason = Properties.ExitReason;
+
+                if (Properties.State == DropletInstanceState.CRASHED)
+                    response.CrashedTimestamp = Properties.StateTimestamp;
+
+            }
+            finally
+            {
+                Lock.ExitReadLock();
+            }
+
+            return response;
+
         }
 
-        public void GenerateDropletStatusResponse()
+        public DropletStatusMessageResponse GenerateDropletStatusMessage()
         {
-            throw new System.NotImplementedException();
+            DropletStatusMessageResponse response = new DropletStatusMessageResponse();
+
+            try
+            {
+                Lock.EnterReadLock();
+                response.Name = Properties.Name;
+                response.Port = Properties.Port;
+                response.Uris = Properties.Uris;
+                response.Uptime = (DateTime.Now - Properties.Start).TotalSeconds;
+                response.MemoryQuotaBytes = Properties.MemoryQuotaBytes;
+                response.DiskQuotaBytes = Properties.DiskQuotaBytes;
+                response.FdsQuota = Properties.FdsQuota;
+                if (Usage.Count > 0)
+                {
+                    response.Usage = Usage[Usage.Count - 1];
+                }
+            }
+            finally
+            {
+                Lock.ExitReadLock();
+            }
+
+            return response;
         }
 
         public void GenerateDeaFindDropletResponse()
@@ -84,40 +122,6 @@ namespace Uhuru.CloudFoundry.Server.DEA
             throw new System.NotImplementedException();
         }
 
-        public void GenerateRouterRegisterMessage()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void StopDroplet()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void SetupInstanceEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void CreateDebugForEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void CreateInstanceForEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void CreateLegacyServicesForEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void CreateServicesForEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
 
         public void DetectAppPid()
         {

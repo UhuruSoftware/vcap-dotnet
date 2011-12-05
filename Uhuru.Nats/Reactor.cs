@@ -1,24 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Globalization;
-using Uhuru.NatsClient;
-using Uhuru.Utilities;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Uhuru.NatsClient.Resources;
-using System.Threading;
-using System.IO;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Reactor.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 
 [assembly: CLSCompliant(true)]
 namespace Uhuru.NatsClient
 {
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading;
+    using Uhuru.NatsClient.Resources;
+    using Uhuru.Utilities;
+    
     /// <summary>
     /// Delegate definition for a method to be called by the Reactor when a pong is received.
     /// </summary>
     public delegate void SimpleCallback();
+
     /// <summary>
     /// Delegate definition for a method to be called by the reactor when a subscription receives a message.
     /// </summary>
@@ -26,6 +32,7 @@ namespace Uhuru.NatsClient
     /// <param name="reply">Reply string.</param>
     /// <param name="subject">Subject of the message.</param>
     public delegate void SubscribeCallback(string msg, string reply, string subject);
+    
     /// <summary>
     /// Delegate definition for a method to be called when an unsubscription is complete.
     /// </summary>
@@ -38,13 +45,6 @@ namespace Uhuru.NatsClient
     /// </summary>
     public sealed class Reactor : IDisposable
     {
-        event EventHandler<ReactorErrorEventArgs> OnConnect;
-
-        /// <summary>
-        /// This event is raised when an error message is received from the NATS server.
-        /// </summary>
-        public event EventHandler<ReactorErrorEventArgs> OnError;
-
         private Dictionary<int, Subscription> subscriptions = new Dictionary<int, Subscription>();
         private ParseState parseState;
         private bool pedantic;
@@ -60,67 +60,78 @@ namespace Uhuru.NatsClient
         private int ssid = 0;
         private int reconnectAttempts = 10;
         private int reconnectTime = 10000;
-
+        
+        /// <summary>
+        /// an event raised on connection
+        /// </summary>
+        public event EventHandler<ReactorErrorEventArgs> OnConnect;
 
         /// <summary>
-        /// Sets the reconnect attempts if the tcp connection is lost
+        /// This event is raised when an error message is received from the NATS server.
+        /// </summary>
+        public event EventHandler<ReactorErrorEventArgs> OnError;
+        
+        /// <summary>
+        /// Gets or sets the reconnect attempts if the tcp connection is lost
         /// </summary>
         public int ReconnectAttempts
         {
             get
             {
-                return reconnectAttempts;
+                return this.reconnectAttempts;
             }
+
             set
             {
-                reconnectAttempts = value;
+                this.reconnectAttempts = value;
             }
-            
         }
 
         /// <summary>
-        /// Sets the time between reconnect attempts
+        /// Gets or sets the time between reconnect attempts
         /// </summary>
         public int ReconnectTime
         {
             get
             {
-                return reconnectTime;
+                return this.reconnectTime;
             }
+
             set
             {
-                reconnectTime = value;
+                this.reconnectTime = value;
             }
         }
 
-
         /// <summary>
-        /// Gets or sets the connection to pedantic
+        /// Gets or sets a value indicating whether the connection is pedantic
         /// </summary>
         public bool Pedantic
         {
             get
             {
-                return pedantic;
+                return this.pedantic;
             }
+
             set
             {
-                pedantic = value;
+                this.pedantic = value;
             }
         }
 
         /// <summary>
-        /// Gets or sets the connection to verbose
+        /// Gets or sets a value indicating whether the connection is verbose
         /// </summary>
         public bool Verbose
         {
             get
             {
-                return verbose;
+                return this.verbose;
             }
+
             set
             {
-                verbose = value;
+                this.verbose = value;
                 throw new NotImplementedException();
             }
         }
@@ -130,9 +141,8 @@ namespace Uhuru.NatsClient
         /// </summary>
         public Dictionary<string, object> ServerInfo
         {
-            get { return serverInfo; }
+            get { return this.serverInfo; }
         }
-
 
         /// <summary>
         /// Gets the connection status
@@ -141,25 +151,25 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return status;
+                return this.status;
             }
+
             private set
             {
-                status = value;
+                this.status = value;
             }
         }
 
         /// <summary>
-        /// Uri of the NAT Server
+        /// Gets the uri of the NAT Server
         /// </summary>
         public Uri ServerUri
         {
             get
             {
-                return serverUri;
+                return this.serverUri;
             }
         }
-
 
         /// <summary>
         /// Create a client connection to the server
@@ -180,13 +190,13 @@ namespace Uhuru.NatsClient
             {
                 throw new ArgumentNullException("uri");
             }
+
             this.serverUri = uri;
 
-            tcpClient = new TcpClient();
-            tcpClient.Connect(serverUri.Host, serverUri.Port);
+            this.tcpClient = new TcpClient();
+            this.tcpClient.Connect(serverUri.Host, serverUri.Port);
 
             Connect();
-           
         }
 
         /// <summary>
@@ -203,14 +213,15 @@ namespace Uhuru.NatsClient
                 throw new ArgumentNullException("msg");
             }
 
-            if (String.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject))
             {
                 return;
             }
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CR_LF, msg, Resource.CR_LF));
+
+            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CR_LF, msg, Resource.CR_LF));
             if (callback != null)
             {
-                QueueServer(callback);
+                this.QueueServer(callback);
             }
         }
 
@@ -265,18 +276,19 @@ namespace Uhuru.NatsClient
         /// </summary>
         public int Subscribe(string subject, SubscribeCallback callback, Dictionary<string, object> opts)
         {
-            if (String.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject))
             {
                 return 0;
             }
-            int sid = (ssid += 1);
+
+            int sid = (this.ssid += 1);
 
             if (opts == null)
             {
                 opts = new Dictionary<string, object>();
             }
 
-            Subscription sub = subscriptions[sid] = new Subscription()
+            Subscription sub = this.subscriptions[sid] = new Subscription()
             {
                 Subject = subject,
                 Callback = callback,
@@ -285,12 +297,13 @@ namespace Uhuru.NatsClient
                 Max = opts.ContainsKey("max") ? Convert.ToInt32(opts["max"], CultureInfo.InvariantCulture) : 0
             };
 
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "SUB {0} {1} {2}{3}", subject, sub.Queue == 0 ? "" : sub.Queue.ToString(CultureInfo.InvariantCulture), sid, Resource.CR_LF));
+            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "SUB {0} {1} {2}{3}", subject, sub.Queue == 0 ? "" : sub.Queue.ToString(CultureInfo.InvariantCulture), sid, Resource.CR_LF));
 
             if (sub.Max > 0)
             {
                 Unsubscribe(sid, sub.Max);
             }
+
             return sid;
         }
 
@@ -299,8 +312,8 @@ namespace Uhuru.NatsClient
         /// </summary>
         public void Unsubscribe(int sid, int optMax)
         {
-            string str_opt_max = optMax > 0 ? String.Format(CultureInfo.InvariantCulture, " {0}", optMax) : "";
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "UNSUB {0}{1}{2}", sid, str_opt_max, Resource.CR_LF));
+            string str_opt_max = optMax > 0 ? string.Format(CultureInfo.InvariantCulture, " {0}", optMax) : "";
+            SendCommand(string.Format(CultureInfo.InvariantCulture, "UNSUB {0}{1}{2}", sid, str_opt_max, Resource.CR_LF));
             if (!subscriptions.ContainsKey(sid))
             {
                 return;
@@ -332,7 +345,6 @@ namespace Uhuru.NatsClient
             Status = ConnectionStatus.Closing;
             CloseConnection();
             Status = ConnectionStatus.Closed;
-
         }
 
         /// <summary>
@@ -355,17 +367,21 @@ namespace Uhuru.NatsClient
         /// <returns></returns>
         public int Request(string subject, Dictionary<string, object> opts, SubscribeCallback callback, string data)
         {
-
-            if (String.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject))
             {
                 return 0;
             }
 
             Random rand = new Random();
 
-            string inbox = String.Format(CultureInfo.InvariantCulture, "_INBOX.{0:x4}{1:x4}{2:x4}{3:x4}{4:x4}{5:x6}",
-                rand.Next(0x0010000), rand.Next(0x0010000), rand.Next(0x0010000),
-                rand.Next(0x0010000), rand.Next(0x0010000), rand.Next(0x1000000));
+            string inbox = string.Format(CultureInfo.InvariantCulture, 
+                                            "_INBOX.{0:x4}{1:x4}{2:x4}{3:x4}{4:x4}{5:x6}",
+                                            rand.Next(0x0010000), 
+                                            rand.Next(0x0010000), 
+                                            rand.Next(0x0010000),
+                                            rand.Next(0x0010000), 
+                                            rand.Next(0x0010000), 
+                                            rand.Next(0x1000000));
 
             int s = Subscribe(inbox, callback, opts);
 
@@ -375,28 +391,64 @@ namespace Uhuru.NatsClient
         }
 
         /// <summary>
-        /// 
+        /// Call this method to attempt to reconnect the client to the NATS server.
+        /// </summary>
+        public void AttemptReconnect()
+        {
+            int reconnectAttempt = 0;
+            while (reconnectAttempt < reconnectAttempts)
+            {
+                try
+                {
+                    tcpClient = new TcpClient();
+                    tcpClient.Connect(serverUri.Host, serverUri.Port);
+                    status = ConnectionStatus.Open;
+                    break;
+                }
+                catch (SocketException soketException)
+                {
+                    EventLog.WriteEntry(Resources.ClientConnection.EventSource, soketException.ToString(), EventLogEntryType.Error);
+                }
+
+                reconnectAttempt++;
+                Thread.Sleep(reconnectTime);
+            }
+            if (status == ConnectionStatus.Reconnecting)
+            {
+                status = ConnectionStatus.Closed;
+                throw new ReactorException(serverUri, Resources.Language.ERRCanNotConnect);
+            }
+            else
+            {
+                Connect();
+            }
+        }
+
+        /// <summary>
+        /// disposes the current object
         /// </summary>
         public void Dispose()
         {
-           
-            if (tcpClient != null)
-                if (tcpClient.Connected)
+            if (this.tcpClient != null)
+            {
+                if (this.tcpClient.Connected)
+                {
                     CloseConnection();
+                }
+            }
+
             GC.SuppressFinalize(this);
         }
-
- 
-        
+       
         private void Connect()
         {
-            
-            readBuffer = new byte[tcpClient.ReceiveBufferSize];
-            tcpClient.GetStream().BeginRead(readBuffer, 0, readBuffer.Length, ReadTCPData, tcpClient.GetStream());
+            this.readBuffer = new byte[this.tcpClient.ReceiveBufferSize];
+            this.tcpClient.GetStream().BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, this.tcpClient.GetStream());
 
-            Dictionary<string, object> cs = new Dictionary<string, object>(){
-               {"verbose", verbose},
-               {"pedantic", pedantic}
+            Dictionary<string, object> cs = new Dictionary<string, object>()
+            {
+               {"verbose", this.verbose},
+               {"pedantic", this.pedantic}
             };
 
             if (!String.IsNullOrEmpty(serverUri.UserInfo))
@@ -409,13 +461,12 @@ namespace Uhuru.NatsClient
             Status = ConnectionStatus.Open;
             parseState = ParseState.AwaitingControlLine;
 
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", cs.ToJson(), Resource.CR_LF));
+            SendCommand(String.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", JsonConvertibleObject.SerializeToJson(cs), Resource.CR_LF));
 
             if (pendingCommands.Count > 0)
             {
                 FlushPendingCommands();
             }
-
 
             if (OnError == null)
             {
@@ -425,7 +476,7 @@ namespace Uhuru.NatsClient
                     });
             }
 
-           // if (OnConnect != null && Status != ConnectionStatus.REConecting)
+            // if (OnConnect != null && Status != ConnectionStatus.REConecting)
             if (OnConnect != null)
             {
                 // We will round trip the server here to make sure all state from any pending commands
@@ -434,12 +485,8 @@ namespace Uhuru.NatsClient
                 {
                     OnConnect(this, null);
                 });
-               
             }
-           
-          
         }
-
 
         private void QueueServer(SimpleCallback callback)
         {
@@ -450,17 +497,17 @@ namespace Uhuru.NatsClient
             pongs.Enqueue(callback);
             SendCommand(resource.PING_REQUEST);
         }
-        
 
         private void SendCommand(string command)
         {
             if (status != ConnectionStatus.Open)
             {
                 if (pendingCommands == null)
+                {
                     pendingCommands = new List<object>();
+                }
 
                 pendingCommands.Add(command);
-                
             }
             else
             {
@@ -508,28 +555,33 @@ namespace Uhuru.NatsClient
             }
             catch (ArgumentNullException argumentNullException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource,  Language.ExceptionMessageBufferParameterNull +
-                    argumentNullException.ToString(), EventLogEntryType.Error);
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource,  
+                                    Language.ExceptionMessageBufferParameterNull + argumentNullException.ToString(), 
+                                    EventLogEntryType.Error);
             }
             catch (ArgumentOutOfRangeException argumentOutOfRangeException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionBufferOffsetOrSizeIncorrect +
-                    argumentOutOfRangeException.ToString(), EventLogEntryType.Error);
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
+                                    Language.ExceptionBufferOffsetOrSizeIncorrect + argumentOutOfRangeException.ToString(), 
+                                    EventLogEntryType.Error);
             }
             catch (ArgumentException argumentException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionAsyncResultParameterNull +
-                    argumentException.ToString(), EventLogEntryType.Error);
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
+                                    Language.ExceptionAsyncResultParameterNull + argumentException.ToString(), 
+                                    EventLogEntryType.Error);
             }
-            catch (IOException ioException)
+            catch (IOException exception)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionSocketReadProblem +
-                    ioException.ToString(), EventLogEntryType.Error);
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
+                                    Language.ExceptionSocketReadProblem + exception.ToString(), 
+                                    EventLogEntryType.Error);
             }
             catch (ObjectDisposedException objectDisposedException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, Language.ExceptionNetworkStreamClosed +
-                    objectDisposedException.ToString(), EventLogEntryType.Error);
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
+                                    Language.ExceptionNetworkStreamClosed + objectDisposedException.ToString(), 
+                                    EventLogEntryType.Error);
             }
             catch (Exception ex)
             {
@@ -545,52 +597,17 @@ namespace Uhuru.NatsClient
             {
                 tcpClient.GetStream().Write(objdata, 0, objdata.Length);
             }
-            catch (System.IO.IOException ioException)
+            catch (System.IO.IOException exception)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, ioException.ToString(), EventLogEntryType.Error);
-                status = ConnectionStatus.Reconnecting;
-                AttemptReconnect();
+                EventLog.WriteEntry(Resources.ClientConnection.EventSource, exception.ToString(), EventLogEntryType.Error);
+                this.status = ConnectionStatus.Reconnecting;
+                this.AttemptReconnect();
             }
         }
-
-        /// <summary>
-        /// Call this method to attempt to reconnect the client to the NATS server.
-        /// </summary>
-        public void AttemptReconnect()
-        {
-            int reconnectAttempt = 0;
-            while (reconnectAttempt < reconnectAttempts)
-            {
-                try
-                {
-                    tcpClient = new TcpClient();
-                    tcpClient.Connect(serverUri.Host, serverUri.Port);
-                    status = ConnectionStatus.Open;
-                    break;
-                }
-                catch (SocketException soketException)
-                {
-                    EventLog.WriteEntry(Resources.ClientConnection.EventSource, soketException.ToString(), EventLogEntryType.Error);
-                }
-                reconnectAttempt++;
-                Thread.Sleep(reconnectTime);
-            }
-            if (status == ConnectionStatus.Reconnecting)
-            {
-                status = ConnectionStatus.Closed;
-                throw new ReactorException(serverUri, Resources.Language.ERRCanNotConnect);
-
-            }
-            else
-            {
-                Connect();
-            }
-        }
-
+        
         private void ReceiveData(byte[] data, int bytesRead)
         {
             List<byte> buf = new List<byte>();
-           // string subscription=string.Empty;
             int subscriptionId=0;
             int needed =0;
             string reply=string.Empty;
@@ -599,6 +616,7 @@ namespace Uhuru.NatsClient
             {
                 buf = new List<byte>();
             }
+
             byte[] localBuf = new byte[bytesRead];
             Array.Copy(data, localBuf, bytesRead);
             buf.AddRange(localBuf);
@@ -616,7 +634,6 @@ namespace Uhuru.NatsClient
                             {
                                 Match match = resource.MSG.Match(strBuffer);
                                 strBuffer = resource.MSG.Replace(strBuffer, "");
-                                //subscription = match.Groups[1].Value;
                                 subscriptionId = Convert.ToInt32(match.Groups[2].Value, CultureInfo.InvariantCulture);
                                 reply = match.Groups[4].Value;
                                 needed = Convert.ToInt32(match.Groups[5].Value, CultureInfo.InvariantCulture);
@@ -632,6 +649,7 @@ namespace Uhuru.NatsClient
                                 {
                                    OnError(this, new ReactorErrorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
                                 }
+
                                 strBuffer = resource.ERR.Replace(strBuffer, "");
                             }
                             else if (resource.PING.IsMatch(strBuffer))
@@ -646,11 +664,12 @@ namespace Uhuru.NatsClient
                                     SimpleCallback callback = pongs.Dequeue();
                                     callback();
                                 }
+
                                 strBuffer = resource.PONG.Replace(strBuffer, "");
                             }
                             else if (resource.INFO.IsMatch(strBuffer))
                             {
-                                serverInfo = serverInfo.FromJson(resource.INFO.Match(strBuffer).Groups[1].Value);
+                                serverInfo = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(JsonConvertibleObject.DeserializeFromJson(resource.INFO.Match(strBuffer).Groups[1].Value));
                                 strBuffer = resource.INFO.Replace(strBuffer, "");
                             }
                             else if (resource.UNKNOWN.IsMatch(strBuffer))
@@ -659,6 +678,7 @@ namespace Uhuru.NatsClient
                                 {
                                     OnError(this,new ReactorErrorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
                                 }
+
                                 strBuffer =  resource.UNKNOWN.Replace(strBuffer, "");
                             }
                             else
@@ -688,7 +708,7 @@ namespace Uhuru.NatsClient
 
                             strBuffer = strBuffer.Substring(needed + Resource.CR_LF.Length);
 
-                            reply = String.Empty;
+                            reply = string.Empty;
                             subscriptionId = needed = 0;
 
                             parseState = ParseState.AwaitingControlLine;
@@ -706,16 +726,16 @@ namespace Uhuru.NatsClient
 
         private void OnMessage(int sid, string replyMessage, string msg)
         {
-            if (!subscriptions.ContainsKey(sid))
+            if (!this.subscriptions.ContainsKey(sid))
             {
                 return;
             }
+
             Subscription nantsSubscription = subscriptions[sid];
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
             
-
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
                 Unsubscribe(sid,0);
@@ -737,8 +757,8 @@ namespace Uhuru.NatsClient
 
         private void CloseConnection()
         {
-            tcpClient.GetStream().Close();
-            tcpClient.Close();
+            this.tcpClient.GetStream().Close();
+            this.tcpClient.Close();
         }
     }
 }

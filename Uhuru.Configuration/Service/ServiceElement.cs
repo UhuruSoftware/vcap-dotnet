@@ -166,6 +166,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyNodeId];
             }
+            set
+            {
+                base[propertyNodeId] = value;
+            }
         }
 
         /// <summary>
@@ -177,6 +181,10 @@ namespace Uhuru.Configuration.Service
             get
             {
                 return (string)base[propertyMigrationNfs];
+            }
+            set
+            {
+                base[propertyMigrationNfs] = value;
             }
         }
 
@@ -190,6 +198,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyMBus];
             }
+            set
+            {
+                base[propertyMBus] = value;
+            }
         }
 
         /// <summary>
@@ -201,6 +213,10 @@ namespace Uhuru.Configuration.Service
             get
             {
                 return (int)base[propertyIndex];
+            }
+            set
+            {
+                base[propertyIndex] = value;
             }
         }
 
@@ -214,6 +230,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyZInterval];
             }
+            set
+            {
+                base[propertyZInterval] = value;
+            }
         }
 
         /// <summary>
@@ -225,6 +245,10 @@ namespace Uhuru.Configuration.Service
             get
             {
                 return (int)base[propertyMaxDbSize];
+            }
+            set
+            {
+                base[propertyMaxDbSize] = value;
             }
         }
 
@@ -238,6 +262,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyMaxLongQuery];
             }
+            set
+            {
+                base[propertyMaxLongQuery] = value;
+            }
         }
 
         /// <summary>
@@ -249,6 +277,10 @@ namespace Uhuru.Configuration.Service
             get
             {
                 return (int)base[propertyMaxLongTx];
+            }
+            set
+            {
+                base[propertyMaxLongTx] = value;
             }
         }
 
@@ -262,6 +294,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyBaseDir];
             }
+            set
+            {
+                base[propertyBaseDir] = value;
+            }
         }
 
         /// <summary>
@@ -274,6 +310,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyAvailableStorage];
             }
+            set
+            {
+                base[propertyAvailableStorage] = value;
+            }
         }
 
         /// <summary>
@@ -285,6 +325,10 @@ namespace Uhuru.Configuration.Service
             get
             {
                 return (string)base[propertyLocalDb];
+            }
+            set
+            {
+                base[propertyLocalDb] = value;
             }
         }
 
@@ -301,6 +345,10 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyLocalRoute];
             }
+            set
+            {
+                base[propertyLocalRoute] = value;
+            }
         }
 
         /// <summary>
@@ -313,6 +361,25 @@ namespace Uhuru.Configuration.Service
             {
                 return (MSSqlElement)base[propertyMsSql];
             }
+            set
+            {
+                base[propertyMsSql] = value;
+            }
+        }
+
+        #endregion
+
+        #region Overrides
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+        /// </summary>
+        /// <returns>
+        /// true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+        /// </returns>
+        public override bool IsReadOnly()
+        {
+            return false;
         }
 
         #endregion

@@ -115,12 +115,6 @@
       <DependentUpon>ProjectInstaller.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CloudFoundry.Net\CloudFoundry.Net.csproj">
-      <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
-      <Name>CloudFoundry.Net</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

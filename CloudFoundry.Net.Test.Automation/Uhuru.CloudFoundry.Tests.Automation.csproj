@@ -69,9 +69,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CloudFoundry.Net\CloudFoundry.Net.csproj">
-      <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
-      <Name>CloudFoundry.Net</Name>
+    <ProjectReference Include="..\Uhuru.Nats\Uhuru.NatsClient.csproj">
+      <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
+      <Name>Uhuru.NatsClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

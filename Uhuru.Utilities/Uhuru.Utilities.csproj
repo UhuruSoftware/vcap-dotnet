@@ -43,6 +43,7 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Windows\System32\inetsrv\Microsoft.Web.Administration.dll</HintPath>
@@ -72,6 +73,7 @@
     <Compile Include="FirewallTools.cs" />
     <Compile Include="DiskUsageEntry.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="JsonConvertibleObject.cs" />
     <Compile Include="JsonTools.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetFrameworkVersion.cs" />
@@ -83,7 +85,6 @@
     <Compile Include="ProcessPerformance\SystemTime.cs" />
     <Compile Include="DiskUsage.cs" />
     <Compile Include="FileServer.cs" />
-    <Compile Include="JsonExtensions.cs" />
     <Compile Include="MonitoringServer.cs" />
     <Compile Include="ProcessPerformance\ProcessInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -95,10 +96,13 @@
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
+    <Content Include="lib\log4net.dll" />
+    <Content Include="lib\log4net.xml" />
     <Content Include="lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
+    <Content Include="log4net.config" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">

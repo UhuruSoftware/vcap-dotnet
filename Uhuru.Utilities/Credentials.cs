@@ -1,4 +1,9 @@
-﻿namespace Uhuru.Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="Credentials.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.Utilities
 {
     using System.Collections.Generic;
     using System.Web.Security;
@@ -26,14 +31,16 @@
         {
             // as per msdn (http://msdn.microsoft.com/en-us/library/system.web.security.membership.generatepassword.aspx)
             // the characters that are non-alphanumeric will be replaced with letters/numbers
-            Dictionary<char, char> unwantedCharacterMap = new Dictionary<char, char>() {
-                {'!', '0'}, {'@', '1'}, {'#', '2'}, {'$', '3'},
-                {'%', '4'}, {'^', '5'}, {'&', '6'}, {'*', '7'},
-                {'(', '8'}, {')', '9'}, {'_', 'a'}, {'-', 'b'},
-                {'+', 'c'}, {'=', 'd'}, {'[', 'e'}, {'{', 'f'},
-                {']', 'g'}, {'}', 'h'}, {';', 'i'}, {':', 'j'},
-                {'<', 'k'}, {'>', 'l'}, {'|', 'm'}, {'.', 'n'},
-                {'/', 'o'}, {'?', 'p'}};
+            Dictionary<char, char> unwantedCharacterMap = new Dictionary<char, char>() 
+                                                                    {
+                                                                        {'!', '0'}, {'@', '1'}, {'#', '2'}, {'$', '3'},
+                                                                        {'%', '4'}, {'^', '5'}, {'&', '6'}, {'*', '7'},
+                                                                        {'(', '8'}, {')', '9'}, {'_', 'a'}, {'-', 'b'},
+                                                                        {'+', 'c'}, {'=', 'd'}, {'[', 'e'}, {'{', 'f'},
+                                                                        {']', 'g'}, {'}', 'h'}, {';', 'i'}, {':', 'j'},
+                                                                        {'<', 'k'}, {'>', 'l'}, {'|', 'm'}, {'.', 'n'},
+                                                                        {'/', 'o'}, {'?', 'p'}
+                                                                    };
 
             string credential = Membership.GeneratePassword(length, 0);
             string result = string.Empty;

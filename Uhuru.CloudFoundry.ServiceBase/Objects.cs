@@ -12,13 +12,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This class contains information about service credentials.
     /// </summary>
-    public class ServiceCredentials
+    public class ServiceCredentials : JsonConvertibleObject
     {
         private Dictionary<string, object> bindOptions = new Dictionary<string, object>();
 
         /// <summary>
         /// Gets or sets the Node ID.
         /// </summary>
+        [JsonName("node_id")]
         public string NodeId
         {
             get;
@@ -28,6 +29,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the provisioned service name.
         /// </summary>
+        [JsonName("name")]
         public string Name
         {
             get;
@@ -37,6 +39,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the username.
         /// </summary>
+        [JsonName("username")]
         public string UserName
         {
             get;
@@ -46,6 +49,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the username.
         /// </summary>
+        [JsonName("user")]
         public string User
         { 
             get; 
@@ -55,6 +59,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the password.
         /// </summary>
+        [JsonName("password")]
         public string Password
         { 
             get; 
@@ -64,6 +69,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the hostname of the provisioned service.
         /// </summary>
+        [JsonName("hostname")]
         public string HostName
         {
             get;
@@ -73,6 +79,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the port of the provisioned service.
         /// </summary>
+        [JsonName("port")]
         public int Port
         { 
             get; 
@@ -82,6 +89,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets the bind options for the provisioned service.
         /// </summary>
+        [JsonName("bind_opts")]
         public Dictionary<string, object> BindOptions
         { 
             get
@@ -89,54 +97,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 return bindOptions;
             }
         }
-
-        /// <summary>
-        /// Converts this object to a JSON-serialized string.
-        /// </summary>
-        /// <returns>A string containing the JSON object.</returns>
-        public string ToJson()
-        {
-            return ToDictionary().ToJson();
-        }
-
-        /// <summary>
-        /// Deserializes a JSON string and updates the members of this instance.
-        /// </summary>
-        /// <param name="json">The JSON string.</param>
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            NodeId = jsonObject["node_id"].ToValue<string>();
-            Name = jsonObject["name"].ToValue<string>();
-            UserName = jsonObject["username"].ToValue<string>();
-            User = jsonObject["user"].ToValue<string>();
-            Password = jsonObject["password"].ToValue<string>();
-            HostName = jsonObject["hostname"].ToValue<string>();
-            Port = jsonObject["hostname"].ToValue<int>();
-            bindOptions = jsonObject["bind_opts"].ToObject<Dictionary<string, object>>();
-        }
-
-        /// <summary>
-        /// Converts this object to a JSON serializable object.
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<string, object> ToDictionary()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"node_id", NodeId},
-                  {"name", Name},
-                  {"username", UserName},
-                  {"user", User},
-                  {"password", Password},
-                  {"hostname", HostName},
-                  {"port", Port},
-                  {"bind_opts", BindOptions}
-              };
-        }
-
     }
 
     /// <summary>
@@ -147,6 +107,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the service ID.
         /// </summary>
+        [JsonName("service_id")]
         public string ServiceId
         {
             get;
@@ -156,31 +117,23 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the service credentials.
         /// </summary>
+        [JsonName("credentials")]
         public ServiceCredentials Credentials
         {
             get;
             set;
-        }
-
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            ServiceId = jsonObject["service_id"].ToValue<string>();
-            Credentials = new ServiceCredentials();
-            Credentials.FromJson(jsonObject["credentials"].ToJson());
         }
     }
 
     /// <summary>
     /// This class contains announcement information for a service.
     /// </summary>
-    public class Announcement
+    public class Announcement : JsonConvertibleObject
     {
         /// <summary>
         /// Gets or sets the id of the service.
         /// </summary>
+        [JsonName("id")]
         public string Id
         {
             get;
@@ -190,47 +143,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the available storage for the service.
         /// </summary>
+        [JsonName("available_storage")]
         public int AvailableStorage
         {
             get;
             set;
         }
-
-        /// <summary>
-        /// Serializes the Announcement object to JSON.
-        /// </summary>
-        /// <returns>A string containing the JSON object.</returns>
-        public string ToJson()
-        {
-            return ToDictionary().ToJson();
-        }
-
-        /// <summary>
-        /// Deserializes a JSON string and updates the instance members.
-        /// </summary>
-        /// <param name="json">The JSON string.</param>
-        public void FromJson(string json)
-        {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject = jsonObject.FromJson(json);
-
-            Id = jsonObject["id"].ToValue<string>();
-            AvailableStorage = jsonObject["available_storage"].ToValue<int>();
-        }
-
-        /// <summary>
-        /// Converts the Announcement to a JSON serializable dictionary.
-        /// </summary>
-        /// <returns>A dictionary ready to be serialized to JSON.</returns>
-        public Dictionary<string, object> ToDictionary()
-        {
-            return new Dictionary<string, object>()
-              {
-                  {"id", Id},
-                  {"available_storage", AvailableStorage}
-              };
-        }
-
     }
 
     /// <summary>
@@ -248,7 +166,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// Class containing information about a provisioned service.
     /// </summary>
     [Serializable]
-    public class ProvisionedService
+    public class ProvisionedService : JsonConvertibleObject
     {
         private static readonly object collectionLock = new object();
         private static List<ProvisionedService> services;
@@ -302,6 +220,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the name of the provisioned service.
         /// </summary>
+        [JsonName("name")]
         public string Name
         {
             get
@@ -317,6 +236,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the user of the provisioned service.
         /// </summary>
+        [JsonName("user")]
         public string User
         {
             get
@@ -332,6 +252,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the password for the provisioned service.
         /// </summary>
+        [JsonName("password")]
         public string Password
         {
             get
@@ -347,6 +268,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the payment plan for the provisioned service.
         /// </summary>
+        [JsonName("plan")]
         public ProvisionedServicePlanType Plan
         {
             get
@@ -362,6 +284,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets a value indicating whether quota was exceeded for the provsioned service.
         /// </summary>
+        [JsonName("quota_exceeded")]
         public bool QuotaExceeded
         {
             get

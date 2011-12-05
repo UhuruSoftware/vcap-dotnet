@@ -285,7 +285,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
 
                 if (!ProvisionedService.Save())
                 {
-                    Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, provisioned_service.ToJson());
+                    Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, provisioned_service.SerializeToJson());
                     throw new MSSqlError(MSSqlError.MSSqlLocalDBError);
                 }
 
@@ -316,7 +316,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 return false;
             }
 
-            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, bindings.ToJson());
+            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson((bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray())));
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
 
@@ -380,7 +380,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
         /// </returns>
         protected override ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions, ServiceCredentials credentials)
         {
-            Logger.Debug(Strings.SqlNodeBindServiceDebugMessage, name, bindOptions.ToJson());
+            Logger.Debug(Strings.SqlNodeBindServiceDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindOptions));
             Dictionary<string, object> binding = null;
             try
             {
@@ -407,7 +407,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 create_database_user(name, binding["user"] as string, binding["password"] as string);
                 ServiceCredentials response = gen_credential(name, binding["user"] as string, binding["password"] as string);
 
-                Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.ToJson());
+                Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
                 binding_served += 1;
                 return response;
             }
@@ -436,7 +436,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 return false;
             }
 
-            Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.ToJson());
+            Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.SerializeToJson());
 
             string name = credentials.Name;
             string user = credentials.User;
@@ -466,7 +466,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             try
             {
                 DateTime start = DateTime.Now;
-                Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisioned_service.ToJson());
+                Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisioned_service.SerializeToJson());
 
                 using (SqlCommand createDBCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), connection))
                 {
@@ -480,7 +480,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                     throw new MSSqlError(MSSqlError.MSSqlDiskFull);
                 }
                 available_storage -= storage;
-                Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisioned_service.ToJson(), (start - DateTime.Now).TotalSeconds);
+                Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisioned_service.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
             {

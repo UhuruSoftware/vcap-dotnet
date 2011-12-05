@@ -9,8 +9,18 @@ namespace Uhuru.Utilities.ProcessPerformance
     using System.Runtime.InteropServices;
     using ComType = System.Runtime.InteropServices.ComTypes;
     
-    static class NativeMethods
+    /// <summary>
+    /// exposes a few WinAPI methods for working with processes
+    /// </summary>
+    public static class NativeMethods
     {
+        // some consts we'll need later
+        public const int ProcessEntry32Size = 296;
+        public const uint TH32CSSnapProcess = 0x00000002;
+        public const uint ProcessAllAccess = 0x1F0FFF;
+
+        public static readonly IntPtr ProcessHandleError = new IntPtr(-1);
+        
         /// <summary>
         /// closes handles
         /// </summary>
@@ -23,31 +33,24 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <summary>
         /// gets the process handle
         /// </summary>
-        /// <param name="DesiredAccess"></param>
+        /// <param name="DesiredAccess">the access level we want to obtain</param>
         /// <param name="InheritHandle"></param>
-        /// <param name="ProcessId"></param>
-        /// <returns></returns>
+        /// <param name="ProcessId">the process ID</param>
+        /// <returns>a process handle</returns>
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(uint DesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool InheritHandle, uint ProcessId);
 
         /// <summary>
         /// gets the process creation, exit, kernel and user time 
         /// </summary>
-        /// <param name="ProcessHandle"></param>
-        /// <param name="CreationTime"></param>
-        /// <param name="ExitTime"></param>
-        /// <param name="KernelTime"></param>
-        /// <param name="UserTime"></param>
+        /// <param name="ProcessHandle">the handle of the process</param>
+        /// <param name="CreationTime">the creation time</param>
+        /// <param name="ExitTime">the exit time</param>
+        /// <param name="KernelTime">the kernel time</param>
+        /// <param name="UserTime">the user time</param>
         /// <returns></returns>
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetProcessTimes(IntPtr ProcessHandle, out ComType.FILETIME CreationTime, out ComType.FILETIME ExitTime, out ComType.FILETIME KernelTime, out ComType.FILETIME UserTime);
-
-        // some consts we'll need later
-        public const int PROCESS_ENTRY_32_SIZE = 296;
-        public const uint TH32CS_SNAPPROCESS = 0x00000002;
-        public const uint PROCESS_ALL_ACCESS = 0x1F0FFF;
-
-        public static readonly IntPtr PROCESS_HANDLE_ERROR = new IntPtr(-1);
     }
 }

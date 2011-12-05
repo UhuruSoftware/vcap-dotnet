@@ -54,6 +54,10 @@ namespace Uhuru.Configuration
             {
                 return (DEAElement)base[propertyDEA];
             }
+            set
+            {
+                base[propertyDEA] = value;
+            }
         }
 
         /// <summary>
@@ -65,6 +69,10 @@ namespace Uhuru.Configuration
             get
             {
                 return (ServiceElement)base[propertyService];
+            }
+            set
+            {
+                base[propertyService] = value;
             }
         }
         #endregion

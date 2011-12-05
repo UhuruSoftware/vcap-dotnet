@@ -1,15 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.XPath;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="JsonTools.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
-    static public class JsonTools
+    using System.Xml;
+    using System.Xml.XPath;
+    
+    /// <summary>
+    /// a class offering json-related functionalities
+    /// </summary>
+    public static class JsonTools
     {
+        /// <summary>
+        /// converts a json object to an xmlPath
+        /// </summary>
+        /// <param name="json">the json object to convert</param>
+        /// <returns>the conversion result</returns>
         public static IXPathNavigable JsonToXml(string json)    
         {
             System.Text.UTF8Encoding str = new System.Text.UTF8Encoding();
@@ -24,6 +32,7 @@ namespace Uhuru.Utilities
                 xml = new XmlDocument();
                 xml.Load(jsonReader);
             }
+
             return xml;
         }
     }

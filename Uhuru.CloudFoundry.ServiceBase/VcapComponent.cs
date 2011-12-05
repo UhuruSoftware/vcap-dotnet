@@ -72,7 +72,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
 
             string host = options["host"].ToString();
-            int port = options.ContainsKey("port") ? Convert.ToInt32(options["port"], CultureInfo.InvariantCulture) : 0;
+            int port = NetworkInterface.GrabEphemeralPort();
 
             Reactor nats = (Reactor)options["nats"];
 
@@ -112,11 +112,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             nats.Subscribe("vcap.component.discover", delegate(string msg, string reply, string subject)
             {
                 update_discover_uptime();
-                nats.Publish(reply, null, discover.ToJson());
+                nats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(discover));
             });
 
             // Also announce ourselves on startup..
-            nats.Publish("vcap.component.announce", null, msg: discover.ToJson());
+            nats.Publish("vcap.component.announce", null, msg: JsonConvertibleObject.SerializeToJson(discover));
         }
 
         private void update_discover_uptime()

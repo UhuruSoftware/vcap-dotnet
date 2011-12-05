@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.IO;
-using CloudFoundry.Net.IIS.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Utilities;
 
 namespace CloudFoundry.Net.Test.Unit
 {

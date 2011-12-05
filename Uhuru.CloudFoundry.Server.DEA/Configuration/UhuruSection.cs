@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
-using Uhuru.CloudFoundry.Server.DEA.Configuration.DEA;
+using Uhuru.CloudFoundry.DEA.Configuration.DEA;
 
-namespace Uhuru.CloudFoundry.Server.DEA.Configuration
+namespace Uhuru.CloudFoundry.DEA.Configuration
 {
     public class UhuruSection : ConfigurationSection
     {

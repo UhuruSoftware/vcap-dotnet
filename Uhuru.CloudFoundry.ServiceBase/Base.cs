@@ -149,7 +149,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
         private void UpdateHealthz()
         {
-            vcapComponent.Healthz = HealthzDetails().ToJson();
+            vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(HealthzDetails());
         }
 
         /// <summary>

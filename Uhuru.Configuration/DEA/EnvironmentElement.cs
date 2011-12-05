@@ -57,6 +57,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyName];
             }
+            set
+            {
+                base[propertyName] = value;
+            }
         }
 
         /// <summary>
@@ -69,6 +73,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyValue];
             }
+            set
+            {
+                base[propertyValue] = value;
+            }
         }
 
         /// <summary>
@@ -77,6 +85,21 @@ namespace Uhuru.Configuration.DEA
         protected override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
+        }
+
+        #endregion
+
+        #region Overrides
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+        /// </summary>
+        /// <returns>
+        /// true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+        /// </returns>
+        public override bool IsReadOnly()
+        {
+            return false;
         }
 
         #endregion

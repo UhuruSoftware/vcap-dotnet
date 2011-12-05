@@ -2,58 +2,88 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Uhuru.NatsClient;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+
+namespace Uhuru.CloudFoundry.DEA
 {
-    public class DeaReactor
+    public class DeaReactor : VcapReactor
     {
 
-        public event EventHandler OnRouterStart;
+        public event SubscribeCallback OnRouterStart;
 
-        public event EventHandler OnHealthManagerStart;
+        public event SubscribeCallback OnHealthManagerStart;
 
-        public event EventHandler OnDeaStart;
+        public event SubscribeCallback OnDeaStart;
 
-        public event EventHandler OnDeaStop;
+        public event SubscribeCallback OnDeaStop;
 
-        public event EventHandler OnDeaStatus;
+        public event SubscribeCallback OnDeaStatus;
 
-        public event EventHandler OnDropletStatus;
+        public event SubscribeCallback OnDropletStatus;
 
-        public event EventHandler OnDeaDiscover;
+        public event SubscribeCallback OnDeaDiscover;
 
-        public event EventHandler OnDeaFindDroplet;
+        public event SubscribeCallback OnDeaFindDroplet;
 
-        public event EventHandler OnDeaUpdate;
+        public event SubscribeCallback OnDeaUpdate;
 
-        public void SendDeaHeartbeat()
+        
+
+        public DeaReactor()
         {
-            throw new System.NotImplementedException();
+
         }
 
-        public void SendDeaStart()
+        public string Uuid
         {
-            throw new System.NotImplementedException();
+            get;
+            set;
         }
 
-        public void SendDopletExited()
+        //Runs the DeaReactor in a blocking mode
+        public override void Start()
         {
-            throw new System.NotImplementedException();
+            base.Start();
+            
+
+            NatsClient.Subscribe("dea.status", OnDeaStatus);
+            NatsClient.Subscribe("droplet.status", OnDropletStatus);
+            NatsClient.Subscribe("dea.discover", OnDeaDiscover);
+            NatsClient.Subscribe("dea.find.droplet", OnDeaFindDroplet);
+            NatsClient.Subscribe("dea.update", OnDeaUpdate);
+
+            NatsClient.Subscribe("dea.stop", OnDeaStop);
+            NatsClient.Subscribe(String.Format("dea.{0}.start", Uuid), OnDeaStart);
+
+            NatsClient.Subscribe("router.start", OnRouterStart);
+            NatsClient.Subscribe("healthmanager.start", OnHealthManagerStart);
         }
 
-        public void SendReply()
+        public void SendDeaHeartbeat(string message)
         {
-            throw new System.NotImplementedException();
+            NatsClient.Publish("dea.heartbeat", null, message);
         }
 
-        public void SendRouterRegister()
+        public void SendDeaStart(string message)
         {
-            throw new System.NotImplementedException();
+            NatsClient.Publish("dea.start", null,  message);
         }
 
-        public void SendRouterUnregister()
+        public void SendDopletExited(string message)
         {
-            throw new System.NotImplementedException();
+            NatsClient.Publish("droplet.exited", null, message);
+            Logger.debug(String.Format("Sent droplet.exited {0}", message));
+        }
+
+        public void SendRouterRegister(string message)
+        {
+            NatsClient.Publish("router.register", null, message);
+        }
+
+        public void SendRouterUnregister(string message)
+        {
+            NatsClient.Publish("router.unregister", null, message);
         }
     }
 }

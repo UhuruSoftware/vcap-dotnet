@@ -6,11 +6,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
-using CloudFoundry.Net.DEA;
-using CloudFoundry.Net.Configuration;
 using System.IO;
 
-namespace CloudFoundry.Net.Services.DEA
+namespace CloudFoundry.Net.DEA
 {
     public partial class DEAService : ServiceBase
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     class Logger
     {
