@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.XPath;
-
-
-namespace Uhuru.Utilities
+﻿namespace Uhuru.Utilities
 {
+    using System.Xml;
+    using System.Xml.XPath;
+    
     static public class JsonTools
     {
         public static IXPathNavigable JsonToXml(string json)    
