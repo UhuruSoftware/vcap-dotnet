@@ -600,7 +600,7 @@ namespace Uhuru.CloudFoundry.DEA
 
 
             DeaUpdateMessageRequest pmessage = new DeaUpdateMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
             Logger.debug(String.Format("DEA received update message: {0}", message));
 
@@ -645,7 +645,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
 
             DeaStopMessageRequest pmessage = new DeaStopMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
 
             Logger.debug(String.Format("DEA received stop message: {0}", message));
@@ -1111,9 +1111,10 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(String.Format("VCAP_DEBUG_PORT='{0}'", instance.Properties.DebugPort));
 
 
-            if (instance.Properties.DebugPort != 0 && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
+            if (instance.Properties.DebugPort != null && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
             {
-                env.AddRange( AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] );
+                if(AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] != null)
+                    env.AddRange( AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] );
             }
 
 
