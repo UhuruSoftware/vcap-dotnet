@@ -170,7 +170,7 @@ namespace Uhuru.Configuration.DEA
         /// <summary>
         /// Port for accessing the files of running applications
         /// </summary>
-        [ConfigurationProperty("filerPort", IsRequired = false, DefaultValue = 12345)]
+        [ConfigurationProperty("filerPort", IsRequired = true, DefaultValue = 12345)]
         public int FilerPort
         {
             get
@@ -236,7 +236,7 @@ namespace Uhuru.Configuration.DEA
         /// Maximum memory allocated to this DEA. In a multi tenant setup, this
         /// memory is divided amongst all applications managed by this DEA.
         /// </summary>
-        [ConfigurationProperty("maxMemory", IsRequired = false, DefaultValue = 2048)]
+        [ConfigurationProperty("maxMemory", IsRequired = true, DefaultValue = 2048)]
         public int MaxMemory
         {
             get
