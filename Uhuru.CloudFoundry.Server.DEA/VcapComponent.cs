@@ -116,7 +116,7 @@ namespace Uhuru.CloudFoundry.DEA
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - StartedAt;
-            discover["uptime"] = String.Format("{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
+            discover["uptime"] = String.Format(Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
         private void StartHttpServer()

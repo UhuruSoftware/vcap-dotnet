@@ -96,8 +96,8 @@ namespace Uhuru.CloudFoundry.DEA
         public void DumpAppsDirDiskUsage(string AppsDirectory)
         {
             string tsig = DateTime.Now.ToString("yyyyMMdd_hhmm");
-            string summary_file = Path.Combine(AppsDumpDirectory, String.Format("apps.du.{0}.summary", tsig));
-            string details_file = Path.Combine(AppsDumpDirectory, String.Format("apps.du.{0}.details", tsig));
+            string summary_file = Path.Combine(AppsDumpDirectory, String.Format(Strings.AppsDuSummary, tsig));
+            string details_file = Path.Combine(AppsDumpDirectory, String.Format(Strings.AppsDuDetails, tsig));
 
             // todo: vladi: removed max depth level (6) from call, because netdu does not support it
 

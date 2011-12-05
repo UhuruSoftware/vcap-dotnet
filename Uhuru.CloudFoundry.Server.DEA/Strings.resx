@@ -1,0 +1,455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="VariableVmcServices" xml:space="preserve">
+    <value>VMC_SERVICES='{0}'</value>
+  </data>
+  <data name="DeaReceivedStartMessage" xml:space="preserve">
+    <value>DEA received start message: {0}</value>
+  </data>
+  <data name="ShuttingDownMessage" xml:space="preserve">
+    <value>Shutting down..</value>
+  </data>
+  <data name="TookXSecondsToCopyFromShared" xml:space="preserve">
+    <value>Took {0} to copy from shared directory</value>
+  </data>
+  <data name="DEAreceivedstatusmessage" xml:space="preserve">
+    <value>DEA received status message</value>
+  </data>
+  <data name="IgnoringRequest" xml:space="preserve">
+    <value>Ignoring request.</value>
+  </data>
+  <data name="MaxMemorySetTo" xml:space="preserve">
+    <value>Max memory set to {0}M</value>
+  </data>
+  <data name="DiskUsageLimitOf" xml:space="preserve">
+    <value>Disk usage limit of {0}M exceeded.</value>
+  </data>
+  <data name="TookXSecondsToDownloadAndWrite" xml:space="preserve">
+    <value>Took {0} to download and write file</value>
+  </data>
+  <data name="NatsMessageDeaSentinel" xml:space="preserve">
+    <value>dea.{0}.sentinel</value>
+  </data>
+  <data name="TookXSecondsToSnapshotApplication" xml:space="preserve">
+    <value>Took {0} to snapshot application state.</value>
+  </data>
+  <data name="UsingNetwork" xml:space="preserve">
+    <value>Using network {0}</value>
+  </data>
+  <data name="RestrictingToSingleTenant" xml:space="preserve">
+    <value>Restricting to single tenant</value>
+  </data>
+  <data name="TookXSecondsToExecutePs" xml:space="preserve">
+    <value>Took {0}s to execute ps. ({1} entries returned)</value>
+  </data>
+  <data name="LoweringPriorityOnCpuBound" xml:space="preserve">
+    <value>Lowering priority on CPU bound process({0}), new value:{1}</value>
+  </data>
+  <data name="Downloadcompleate" xml:space="preserve">
+    <value>Download compleate</value>
+  </data>
+  <data name="VariableVcapDebugIp" xml:space="preserve">
+    <value>VCAP_DEBUG_IP='{0}'</value>
+  </data>
+  <data name="TookXSecondsToExecuteDu" xml:space="preserve">
+    <value>Took {0}s to execute du.</value>
+  </data>
+  <data name="VariableVmc" xml:space="preserve">
+    <value>VMC_{0}={1}:{2}</value>
+  </data>
+  <data name="InstanceIsReadyForConnections" xml:space="preserve">
+    <value>Instance {0} is ready for connections, notifying system of status</value>
+  </data>
+  <data name="PidAssignedToDroplet" xml:space="preserve">
+    <value>PID:{0} assigned to droplet instance: {1}</value>
+  </data>
+  <data name="StopOperationStdOutputIs" xml:space="preserve">
+    <value>Stop operation std output is: {0}</value>
+  </data>
+  <data name="Pending" xml:space="preserve">
+    <value>{0}.pending</value>
+  </data>
+  <data name="RuntimeOk" xml:space="preserve">
+    <value>{0} OK</value>
+  </data>
+  <data name="TookXSecondsToProcessPsAndDu" xml:space="preserve">
+    <value>Took {0}s to process ps and du stats</value>
+  </data>
+  <data name="NameAppIdInstance" xml:space="preserve">
+    <value>name={0} app_id={1} instance={2} index={3}</value>
+  </data>
+  <data name="ByeMessage" xml:space="preserve">
+    <value>Bye..</value>
+  </data>
+  <data name="SetCommand" xml:space="preserve">
+    <value>set {0}</value>
+  </data>
+  <data name="FailedStagingAppDir" xml:space="preserve">
+    <value>Failed staging app dir '{0}', not starting app {1}, Exception: {2}</value>
+  </data>
+  <data name="FoundStagedBitsInLocalCache" xml:space="preserve">
+    <value>Found staged bits in local cache.</value>
+  </data>
+  <data name="GivingUpOnConnectingApp" xml:space="preserve">
+    <value>Giving up on connecting app</value>
+  </data>
+  <data name="StartingVcapDea" xml:space="preserve">
+    <value>Starting VCAP DEA {0}</value>
+  </data>
+  <data name="TookXSecondsToStageTheApp" xml:space="preserve">
+    <value>Took {0} to stage the app directory</value>
+  </data>
+  <data name="StartingUpInstanceOnPort" xml:space="preserve">
+    <value>Starting up instance {0} on port {1} </value>
+  </data>
+  <data name="Downlodedfileiscorrupt" xml:space="preserve">
+    <value>Downloded file is corrupt.</value>
+  </data>
+  <data name="FailedVersionMismatch" xml:space="preserve">
+    <value>{0} FAILED, version mismatch ({1})</value>
+  </data>
+  <data name="VariableVmcAppVersion" xml:space="preserve">
+    <value>VMC_APP_VERSION='{0}'</value>
+  </data>
+  <data name="UnableToDeleteDirectory" xml:space="preserve">
+    <value>Unable to delete directory {0}, UnauthorizedAccessException: {1}</value>
+  </data>
+  <data name="DeaReceivedDiscoveryMessage" xml:space="preserve">
+    <value>DEA received discovery message: {0}</value>
+  </data>
+  <data name="VariableVcapDebugPort" xml:space="preserve">
+    <value>VCAP_DEBUG_PORT='{0}'</value>
+  </data>
+  <data name="VariableVmcAppName" xml:space="preserve">
+    <value>VMC_APP_NAME='{0}'</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>HOME={0}</value>
+  </data>
+  <data name="Stopoperationcompletedrunning" xml:space="preserve">
+    <value>Stop operation completed running with status = {0}.</value>
+  </data>
+  <data name="UsingDirectory" xml:space="preserve">
+    <value>Using directory {0}</value>
+  </data>
+  <data name="DeaReceivedFindDroplet" xml:space="preserve">
+    <value>DEA received find droplet message: {0}</value>
+  </data>
+  <data name="ReservedMemoryUsageMb" xml:space="preserve">
+    <value>Reserved Memory Usage: {0} MB of {1} MB TOTAL</value>
+  </data>
+  <data name="CannotDetermineApplicationRuntimes" xml:space="preserve">
+    <value>Can't determine application runtimes, exiting</value>
+  </data>
+  <data name="CannotCreateSupported" xml:space="preserve">
+    <value>Can't create supported directories: {0}</value>
+  </data>
+  <data name="AppsDuSummary" xml:space="preserve">
+    <value>apps.du.{0}.summary</value>
+  </data>
+  <data name="DeaRecoveredApplications" xml:space="preserve">
+    <value>DEA recovered {0} applications</value>
+  </data>
+  <data name="VariableVcapApplication" xml:space="preserve">
+    <value>VCAP_APPLICATION='{0}'</value>
+  </data>
+  <data name="StoppingInstance" xml:space="preserve">
+    <value>Stopping instance {0}</value>
+  </data>
+  <data name="VariableVmcAppPort" xml:space="preserve">
+    <value>VMC_APP_PORT='{0}'</value>
+  </data>
+  <data name="CompletedRunningWith" xml:space="preserve">
+    <value>{0} completed running with status = {1}.</value>
+  </data>
+  <data name="ActualUsageWasProcessTerminated" xml:space="preserve">
+    <value>Actual usage was {0}M, process terminated.</value>
+  </data>
+  <data name="Allowingmultitenancy" xml:space="preserve">
+    <value>Allowing multi-tenancy</value>
+  </data>
+  <data name="DeaReceivedHealthmanagerStart" xml:space="preserve">
+    <value>DEA received healthmanager start message: {0}</value>
+  </data>
+  <data name="CdCommand" xml:space="preserve">
+    <value>cd /D {0}</value>
+  </data>
+  <data name="CrashesReaperDeleted" xml:space="preserve">
+    <value>Crashes reaper deleted: {0}</value>
+  </data>
+  <data name="FilerServiceFailedToStart" xml:space="preserve">
+    <value>Filer service failed to start: {0} already in use?: {1}</value>
+  </data>
+  <data name="Donothaveroomforthisclient" xml:space="preserve">
+    <value>Do not have room for this client application</value>
+  </data>
+  <data name="VariableVmcAppInstance" xml:space="preserve">
+    <value>VMC_APP_INSTANCE='{0}'</value>
+  </data>
+  <data name="Clients" xml:space="preserve">
+    <value>Clients: {0}</value>
+  </data>
+  <data name="SentDropletExited" xml:space="preserve">
+    <value>Sent droplet.exited {0}</value>
+  </data>
+  <data name="UtilizingCpuCores" xml:space="preserve">
+    <value>Utilizing {0} cpu cores</value>
+  </data>
+  <data name="NatsSubjectVcapComponentDiscover" xml:space="preserve">
+    <value>vcap.component.discover</value>
+  </data>
+  <data name="FileServiceStartedOnPort" xml:space="preserve">
+    <value>File service started on port: {0}</value>
+  </data>
+  <data name="HttpDroplets" xml:space="preserve">
+    <value>http://{0}:{1}/droplets/</value>
+  </data>
+  <data name="EvacuatingApp" xml:space="preserve">
+    <value>Evacuating app {0}</value>
+  </data>
+  <data name="VariableVmcDeprecatedWarning" xml:space="preserve">
+    <value>VMC_WARNING_WARNING='All VMC_* environment variables are deprecated, please use VCAP_* versions.'</value>
+  </data>
+  <data name="NewCurrent" xml:space="preserve">
+    <value>New: {0} Current: {1}</value>
+  </data>
+  <data name="VariableVcapAppPort" xml:space="preserve">
+    <value>VCAP_APP_PORT='{0}'</value>
+  </data>
+  <data name="VariableVcapServices" xml:space="preserve">
+    <value>VCAP_SERVICES='{0}'</value>
+  </data>
+  <data name="DeaReceivedUpdateMessage" xml:space="preserve">
+    <value>DEA received update message: {0}</value>
+  </data>
+  <data name="VariableVmcAppId" xml:space="preserve">
+    <value>VMC_APP_ID='{0}'</value>
+  </data>
+  <data name="VariableVcapAppHost" xml:space="preserve">
+    <value>VCAP_APP_HOST='{0}'</value>
+  </data>
+  <data name="FailedAdditionalChecks" xml:space="preserve">
+    <value>{0} FAILED, additional checks failed</value>
+  </data>
+  <data name="VariableVmcAppHost" xml:space="preserve">
+    <value>VMC_APP_HOST='{0}'</value>
+  </data>
+  <data name="Needtodownloadappbitsfrom" xml:space="preserve">
+    <value>Need to download app bits from {0}</value>
+  </data>
+  <data name="SnapshotTemplate" xml:space="preserve">
+    <value>snap_{0}</value>
+  </data>
+  <data name="NatsError" xml:space="preserve">
+    <value>Nats error: {0}</value>
+  </data>
+  <data name="CloudNotStartRuntimeNot" xml:space="preserve">
+    <value>Cloud not start, runtime not supported. ({0})</value>
+  </data>
+  <data name="DeaReceivedStopMessage" xml:space="preserve">
+    <value>DEA received stop message: {0}</value>
+  </data>
+  <data name="IgnoringRequestNotEnoughMemory" xml:space="preserve">
+    <value>Ignoring request, not enough memory</value>
+  </data>
+  <data name="IgnoringRequestRuntime" xml:space="preserve">
+    <value>Ignoring request, {0} runtime not supported</value>
+  </data>
+  <data name="UptimeWas" xml:space="preserve">
+    <value>{0} uptime was {1}.</value>
+  </data>
+  <data name="RemovingInstanceDoesn" xml:space="preserve">
+    <value>Removing instance '{0}', doesn't correspond to any instance entry.</value>
+  </data>
+  <data name="ExitingNatsError" xml:space="preserve">
+    <value>EXITING! Nats error: {0}</value>
+  </data>
+  <data name="Evacuatingapplications" xml:space="preserve">
+    <value>Evacuating applications..</value>
+  </data>
+  <data name="MemoryLimitOfExceeded" xml:space="preserve">
+    <value>Memory limit of {0}M exceeded.</value>
+  </data>
+  <data name="GivingUpDetectingStopFile" xml:space="preserve">
+    <value>Giving up detecting stop file</value>
+  </data>
+  <data name="IgnoringRequestNoSuitableRuntimes" xml:space="preserve">
+    <value>Ignoring request, no suitable runtimes available for '{0}'</value>
+  </data>
+  <data name="CloudNotCleanCacheDirectory" xml:space="preserve">
+    <value>Cloud not clean cache directory: {0}</value>
+  </data>
+  <data name="DaysHoursMinutesSecondsDateTimeFormat" xml:space="preserve">
+    <value>{0}d:{1}h:{2}m:{3}s</value>
+  </data>
+  <data name="SendingDeaDiscoverResponse" xml:space="preserve">
+    <value>Sending dea.discover response message with a taint delay of: {0} ms</value>
+  </data>
+  <data name="SchedulingShutdownIn" xml:space="preserve">
+    <value>Scheduling shutdown in {0} seconds..</value>
+  </data>
+  <data name="CloudNotRemoveInstance" xml:space="preserve">
+    <value>Cloud not remove instance: {0}, error: {1}</value>
+  </data>
+  <data name="NatsSubjectVcapComponentAnnounce" xml:space="preserve">
+    <value>vcap.component.announce</value>
+  </data>
+  <data name="MappingnewURIs" xml:space="preserve">
+    <value>Mapping new URIs</value>
+  </data>
+  <data name="NatsMessageDeaStart" xml:space="preserve">
+    <value>dea.{0}.start</value>
+  </data>
+  <data name="CleandUpDir" xml:space="preserve">
+    <value>{0}: Cleaned up dir {1}</value>
+  </data>
+  <data name="FailedExecutableNot" xml:space="preserve">
+    <value>{0} FAILED, executable '{1}' not found 
+ Current directory: {2} 
+ Full executable path: {3}</value>
+  </data>
+  <data name="StartRequestMissingProper" xml:space="preserve">
+    <value>Start request missing proper download information, ignoring request. ({0})</value>
+  </data>
+  <data name="WithDebuggerPort" xml:space="preserve">
+    <value>with debugger port {0}</value>
+  </data>
+  <data name="Checkingruntimes" xml:space="preserve">
+    <value>Checking runtimes...</value>
+  </data>
+  <data name="DonlodedFileFromIs" xml:space="preserve">
+    <value>Donloded file from {0} is corrupt: {1} != {2}</value>
+  </data>
+  <data name="AppsDuDetails" xml:space="preserve">
+    <value>apps.du.{0}.details</value>
+  </data>
+  <data name="DeaReceivedRouterStart" xml:space="preserve">
+    <value>DEA received router start message: {0}</value>
+  </data>
+  <data name="GivingUpOnTryingToStartFiler" xml:space="preserve">
+    <value>Giving up on trying to start filer, exiting...</value>
+  </data>
+  <data name="IgnoringRequestRuntimeNot" xml:space="preserve">
+    <value>Ignoring request, runtime not enabled for '{0}'</value>
+  </data>
+  <data name="SharingCloudControllerStagingDirectory" xml:space="preserve">
+    <value>Sharing cloud controller's staging directory</value>
+  </data>
+</root>

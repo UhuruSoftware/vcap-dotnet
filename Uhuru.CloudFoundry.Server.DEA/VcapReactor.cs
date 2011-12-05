@@ -35,12 +35,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             NatsClient.Start(Uri);
 
-            NatsClient.Subscribe("vcap.component.discover", OnComponentDiscover);
+            NatsClient.Subscribe(Strings.NatsSubjectVcapComponentDiscover, OnComponentDiscover);
         }
 
         public void SendVcapComponentAnnounce(string message)
         {
-            NatsClient.Publish("vcap.component.announce", null, message);
+            NatsClient.Publish(Strings.NatsSubjectVcapComponentAnnounce, null, message);
         }
 
         public void SendReply(string reply, string message)

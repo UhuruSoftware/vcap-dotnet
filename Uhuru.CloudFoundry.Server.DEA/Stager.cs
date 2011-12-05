@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Net;
 using System.Security.Cryptography;
+using Uhuru.Utilities;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -57,7 +58,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
                 catch (Exception e)
                 {
-                    Logger.warn(String.Format("Cloud not clean cache directory: {0}", e.ToString()));
+                    Logger.Warning(Strings.CloudNotCleanCacheDirectory, e.ToString());
                 }
             }
         }
@@ -66,13 +67,13 @@ namespace Uhuru.CloudFoundry.DEA
         {
             if (String.IsNullOrEmpty(runtime) || !Runtimes.ContainsKey(runtime))
             {
-                Logger.debug(String.Format("Ignoring request, no suitable runtimes available for '{0}'", runtime));
+                Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, runtime);
                 return false;
             }
 
             if (!Runtimes[runtime].Enabled)
             {
-                Logger.debug(String.Format("Ignoring request, runtime not enabled for '{0}'", runtime));
+                Logger.Debug(Strings.IgnoringRequestRuntimeNot, runtime);
                 return false;
             }
 
@@ -89,11 +90,11 @@ namespace Uhuru.CloudFoundry.DEA
         {
             if (Runtimes == null || Runtimes.Count == 0)
             {
-                Logger.fatal("Can't determine application runtimes, exiting");
+                Logger.Fatal(Strings.CannotDetermineApplicationRuntimes);
                 throw new ApplicationException();
             }
 
-            Logger.info("Checking runtimes...");
+            Logger.Info(Strings.Checkingruntimes);
 
             foreach (KeyValuePair<string, DeaRuntime> kvp in Runtimes)
             {
@@ -113,7 +114,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 if (!File.Exists(expanded_exec))
                 {
-                    Logger.info(String.Format("{0} FAILED, executable '{1}' not found \r\n Current directory: {2} \r\n Full executable path: {3}", name, runtime.Executable, Directory.GetCurrentDirectory(), expanded_exec));
+                    Logger.Info(Strings.FailedExecutableNot, name, runtime.Executable, Directory.GetCurrentDirectory(), expanded_exec);
                     continue;
                 }
 
@@ -136,15 +137,15 @@ namespace Uhuru.CloudFoundry.DEA
                         string additional_check = Utils.RunCommandAndGetOutputAndErrors(runtime.Executable, String.Format("{0}", runtime.AdditionalChecks));
                         if (!(new Regex("true").IsMatch(additional_check)))
                         {
-                            Logger.info(String.Format("{0} FAILED, additional checks failed", name));
+                            Logger.Info(Strings.FailedAdditionalChecks, name);
                         }
                     }
                     runtime.Enabled = true;
-                    Logger.info(String.Format("{0} OK", name));
+                    Logger.Info(Strings.RuntimeOk, name);
                 }
                 else
                 {
-                    Logger.info(String.Format("{0} FAILED, version mismatch ({1})", name, version_check));
+                    Logger.Info(Strings.FailedVersionMismatch, name, version_check);
                 }
             }
         }
@@ -165,7 +166,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 if (File.Exists(TgzFile))
                 {
-                    Logger.debug("Found staged bits in local cache.");
+                    Logger.Debug(Strings.FoundStagedBitsInLocalCache);
                 }
                 else
                 {
@@ -173,17 +174,17 @@ namespace Uhuru.CloudFoundry.DEA
                     DateTime start = DateTime.Now;
                     if (!ForeHttpFileSharing && File.Exists(BitsFile))
                     {
-                        Logger.debug("Sharing cloud controller's staging directories");
+                        Logger.Debug(Strings.SharingCloudControllerStagingDirectory);
                         File.Copy(BitsFile, TgzFile);
-                        Logger.debug(String.Format("Took {0} to copy from shared directory", DateTime.Now - start));
+                        Logger.Debug(Strings.TookXSecondsToCopyFromShared, DateTime.Now - start);
                     }
                     else
                     {
-                        Logger.debug(String.Format("Need to download app bits from {0}", BitsUri));
+                        Logger.Debug(Strings.Needtodownloadappbitsfrom, BitsUri);
 
                         DownloadAppBits(BitsUri, Sha1, TgzFile);
 
-                        Logger.debug(String.Format("Took {0} to download and write file", DateTime.Now - start));
+                        Logger.Debug(Strings.TookXSecondsToDownloadAndWrite, DateTime.Now - start);
                     }
                 }
 
@@ -208,7 +209,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 BindLocalRuntimes(InstanceDir, instance.Properties.Runtime);
 
-                Logger.debug(String.Format("Took {0} to stage the app directory", DateTime.Now - startStageing));
+                Logger.Debug(Strings.TookXSecondsToStageTheApp, DateTime.Now - startStageing);
 
             }
 
@@ -238,7 +239,7 @@ namespace Uhuru.CloudFoundry.DEA
         private void DownloadAppBits(string BitsUri, string Sha1, string TgzFile)
         {
             WebClient client = new WebClient();
-            string PendingTgzFile = Path.Combine(StagedDir, String.Format("{0}.pending", Sha1));
+            string PendingTgzFile = Path.Combine(StagedDir, String.Format(Strings.Pending, Sha1));
             client.DownloadFile(BitsUri, PendingTgzFile);
             File.Move(PendingTgzFile, TgzFile);
 
@@ -249,8 +250,8 @@ namespace Uhuru.CloudFoundry.DEA
             }
             
             if(FileSha1.ToUpper() != Sha1.ToUpper()){
-                Logger.warn(String.Format("Donloded file from {0} is corrupt: {1} != {2}", BitsUri, FileSha1, Sha1));
-                throw new Exception("Downloded file is corrupt.");
+                Logger.Warning(Strings.DonlodedFileFromIs, BitsUri, FileSha1, Sha1);
+                throw new Exception(Strings.Downlodedfileiscorrupt);
             }
             
         }
@@ -266,7 +267,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
             catch (Exception e)
             {
-                Logger.fatal(String.Format("Can't create supported directories: {0}", e.ToString()));
+                Logger.Fatal(Strings.CannotCreateSupported, e.ToString());
                 throw e;
             }
         }

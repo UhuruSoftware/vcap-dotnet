@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -60,17 +61,17 @@ namespace Uhuru.CloudFoundry.DEA
                     //FileViwerServer = new Cassini.Server(Port, "/droplets", DropletsPath);
                     //FileViwerServer.Start();
 
-                    Logger.info(String.Format("File service started on port: {0}", Port));
+                    Logger.Info(Strings.FileServiceStartedOnPort, Port);
                     StartAttempts += 1;
                     success = true;
                 }
                 catch (Exception ex)
                 {
-                    Logger.fatal(String.Format("Filer service failed to start: {0} already in use?: {1}", Port, ex.ToString()));
+                    Logger.Fatal(Strings.FilerServiceFailedToStart, Port, ex.ToString());
                     StartAttempts += 1;
                     if (StartAttempts >= 5)
                     {
-                        Logger.fatal("Giving up on trying to start filer, exiting...");
+                        Logger.Fatal(Strings.GivingUpOnTryingToStartFiler);
                         throw new ApplicationException();
                     }
                 }

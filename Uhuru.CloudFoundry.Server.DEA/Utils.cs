@@ -228,7 +228,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public static void EnsureWritableDirectory(string Directory)
         {
-            string testFile = Path.Combine(Directory, String.Format("dea.{0}.sentinel", Process.GetCurrentProcess().Id));
+            string testFile = Path.Combine(Directory, String.Format(Strings.NatsMessageDeaSentinel, Process.GetCurrentProcess().Id));
             File.WriteAllText(testFile, "");
             File.Delete(testFile);
         }

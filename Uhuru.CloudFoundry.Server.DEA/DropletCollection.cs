@@ -133,7 +133,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime start = DateTime.Now;
 
-            string tmpFilename = Path.Combine(Path.GetDirectoryName(AppStateFile), String.Format("snap_{0}", start.Ticks));
+            string tmpFilename = Path.Combine(Path.GetDirectoryName(AppStateFile), String.Format(Strings.SnapshotTemplate, start.Ticks));
 
             File.WriteAllText(tmpFilename, appState);
 
@@ -142,7 +142,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             File.Move(tmpFilename, AppStateFile);
 
-            Logger.debug(String.Format("Took {0} to snapshot application state.", DateTime.Now - start));
+            Logger.Debug(Strings.TookXSecondsToSnapshotApplication, DateTime.Now - start);
 
             SnapshotScheduled = false;
         }
@@ -232,7 +232,7 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Version = pmessage.Version;
             instance.Properties.Framework = pmessage.Framework;
             instance.Properties.Runtime = pmessage.Runtime;
-            instance.Properties.LoggingId = String.Format("name={0} app_id={1} instance={2} index={3}", pmessage.Name, pmessage.DropletId, instanceId, pmessage.Index);
+            instance.Properties.LoggingId = String.Format(Strings.NameAppIdInstance, pmessage.Name, pmessage.DropletId, instanceId, pmessage.Index);
 
             AddDropletInstance(instance);
             

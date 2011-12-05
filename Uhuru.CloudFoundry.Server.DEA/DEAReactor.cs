@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Uhuru.NatsClient;
+using Uhuru.Utilities;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -54,7 +55,7 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.update", OnDeaUpdate);
 
             NatsClient.Subscribe("dea.stop", OnDeaStop);
-            NatsClient.Subscribe(String.Format("dea.{0}.start", Uuid), OnDeaStart);
+            NatsClient.Subscribe(String.Format(Strings.NatsMessageDeaStart, Uuid), OnDeaStart);
 
             NatsClient.Subscribe("router.start", OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", OnHealthManagerStart);
@@ -73,7 +74,7 @@ namespace Uhuru.CloudFoundry.DEA
         public void SendDopletExited(string message)
         {
             NatsClient.Publish("droplet.exited", null, message);
-            Logger.debug(String.Format("Sent droplet.exited {0}", message));
+            Logger.Debug(Strings.SentDropletExited, message);
         }
 
         public void SendRouterRegister(string message)
