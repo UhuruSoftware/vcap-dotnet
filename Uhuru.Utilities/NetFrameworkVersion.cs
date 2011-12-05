@@ -1,4 +1,9 @@
-﻿namespace Uhuru.Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="NetFrameworkVersion.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.Utilities
 {
     using System;
     using System.Globalization;

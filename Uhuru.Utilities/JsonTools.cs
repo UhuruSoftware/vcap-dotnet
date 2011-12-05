@@ -1,4 +1,9 @@
-﻿namespace Uhuru.Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="JsonTools.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.Utilities
 {
     using System.Xml;
     using System.Xml.XPath;

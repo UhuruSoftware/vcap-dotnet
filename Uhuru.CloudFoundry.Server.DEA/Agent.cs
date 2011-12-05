@@ -226,7 +226,7 @@ namespace Uhuru.CloudFoundry.DEA
             foreach (object obj in instances)
             {
                 DropletInstance instance = new DropletInstance();
-                instance.Properties.FromJsonImtermediateObject(obj);
+                instance.Properties.FromJsonIntermediateObject(obj);
 
                 instance.Properties.Orphaned = true;
                 instance.Properties.ResourcesTracked = false;
@@ -473,7 +473,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
             
             DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
             if (!AgentStager.RuntimeSupported(pmessage.Runtime))
             {
@@ -534,7 +534,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
 
             DeaFindDropletMessageRequest pmessage = new DeaFindDropletMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
 
             Logger.debug(String.Format("DEA received find droplet message: {0}", message));
@@ -734,7 +734,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.debug(String.Format("DEA received start message: {0}", message));
 
                 pmessage = new DeaStartMessageRequest();
-                pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+                pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
                 long MemoryMbytes = pmessage.Limits != null && pmessage.Limits.MemoryMbytes != null ? pmessage.Limits.MemoryMbytes.Value : Monitoring.DefaultAppMemMbytes;
                 long DiskMbytes = pmessage.Limits != null && pmessage.Limits.DiskMbytes != null ? pmessage.Limits.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
