@@ -26,17 +26,16 @@ namespace Uhuru.Autowiring
         }
         
         void RegisterSectionRewire(INodeConfigRewireBase nodeConfig);
+
         IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig);
+
         void Rewire(bool backupOriginal);
+
         void CommitChanges();
     }
 
     public interface INodeConfigRewireBase
     {
-        void Register(ISiteConfigManager siteConfigManager);
-
-        IXPathNavigable RewireConfig(IXPathNavigable configNode, bool createNewIfNotPresent);
-
         string ConfigSectionName
         {
             get;
@@ -60,6 +59,10 @@ namespace Uhuru.Autowiring
             get;
             set;
         }
+
+        void Register(ISiteConfigManager siteConfigManager);
+
+        IXPathNavigable RewireConfig(IXPathNavigable configNode, bool createNewIfNotPresent);
     }
     
     public class HealthMonRewire : INodeConfigRewireBase
@@ -75,19 +78,13 @@ namespace Uhuru.Autowiring
 
         public ParentSection ConfigParent
         {
-            get 
-            { 
-                return ParentSection.SystemWeb; 
-            }
+            get { return ParentSection.SystemWeb; }
             set { }
         }
 
         public bool HasExternalSource
         {
-            get
-            {
-                return true;
-            }
+            get { return true; }
             set { }
         }
 
@@ -155,7 +152,7 @@ namespace Uhuru.Autowiring
         private SortedDictionary<ParentSection, string> configParents;
                
         /// <summary>
-        /// class constructor
+        /// Initializes a new instance of the SiteConfig class
         /// </summary>
         /// <param name="webConfigPath"></param>
         /// <param name="allowExternalSource"></param>
@@ -171,10 +168,10 @@ namespace Uhuru.Autowiring
 
             this.configFilePath = Path.Combine(webConfigPath, "Web.config");
 
-            this.fileStreamWebSiteConfig = File.Open(configFilePath, FileMode.Open, FileAccess.Read);
+            this.fileStreamWebSiteConfig = File.Open(this.configFilePath, FileMode.Open, FileAccess.Read);
 
             this.xmlConfigRoot = new XmlDocument();
-            this.xmlConfigRoot.Load(fileStreamWebSiteConfig);
+            this.xmlConfigRoot.Load(this.fileStreamWebSiteConfig);
 
             this.fileStreamWebSiteConfig.Close();
 
@@ -183,7 +180,7 @@ namespace Uhuru.Autowiring
         
         public bool AllowExternalSource
         {
-            get { return allowExternalSource; }
+            get { return this.allowExternalSource; }
             set { }
         }
 
@@ -194,7 +191,7 @@ namespace Uhuru.Autowiring
                 throw new ArgumentNullException("nodeConfig");
             }
 
-            sectionConfigurators.Add(nodeConfig.GetType().GetHashCode(), nodeConfig);
+            this.sectionConfigurators.Add(nodeConfig.GetType().GetHashCode(), nodeConfig);
         }
 
         public void Rewire(bool backupOriginal)
@@ -206,10 +203,10 @@ namespace Uhuru.Autowiring
 
             foreach (INodeConfigRewireBase node in this.sectionConfigurators.Values)
             {
-                RewireIndividualSection(node);
+                this.RewireIndividualSection(node);
                 if (node.HasExternalSource)
                 {
-                    string dstCfgFilePath = Path.Combine(sitePath, node.ExternalSource);
+                    string dstCfgFilePath = Path.Combine(this.sitePath, node.ExternalSource);
 
                     Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CloudFoundry.Net.IIS.Resources.UhuruAspNetEventProvider.config");
                     byte[] file = new byte[stream.Length];
@@ -218,7 +215,7 @@ namespace Uhuru.Autowiring
                     stream.Close();
 
                     string srcNetlibPath = Assembly.GetAssembly(typeof(Uhuru.Autowiring.SiteConfig)).Location;
-                    string dstNetLibPath = Path.Combine(sitePath, "bin", "CloudFoundry.Net.IIS.dll");
+                    string dstNetLibPath = Path.Combine(this.sitePath, "bin", "CloudFoundry.Net.IIS.dll");
                     File.Copy(srcNetlibPath, dstNetLibPath);
                 }
             }
@@ -226,11 +223,16 @@ namespace Uhuru.Autowiring
 
         public void CommitChanges()
         {
-            this.fileStreamWebSiteConfig = File.Open(configFilePath, FileMode.Create, FileAccess.Write);
-            this.xmlConfigRoot.Save(fileStreamWebSiteConfig);
+            this.fileStreamWebSiteConfig = File.Open(this.configFilePath, FileMode.Create, FileAccess.Write);
+            this.xmlConfigRoot.Save(this.fileStreamWebSiteConfig);
             this.fileStreamWebSiteConfig.Close();
         }
 
+        /// <summary>
+        /// creates a new xml node corresponding to a new section
+        /// </summary>
+        /// <param name="nodeConfig">the configuration info of the new section</param>
+        /// <returns>the corresponding xml node</returns>
         public IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig)
         {
             if (nodeConfig == null)
