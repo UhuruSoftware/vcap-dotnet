@@ -133,6 +133,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
             {
                 section.Service.MSSql.User = arguments.User;
             }
+            section.DEA = null;
             config.Save();
 
         }

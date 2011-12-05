@@ -102,7 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
-    <None Include="log4net.config" />
+    <Content Include="log4net.config" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">
