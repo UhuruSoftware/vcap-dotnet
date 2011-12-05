@@ -9,3 +9,4 @@ bin
 bin
 Uhuru.Utilities.WindowsProcess/x64
 *.user
+StyleCop.Cache

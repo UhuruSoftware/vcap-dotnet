@@ -21,10 +21,8 @@ namespace Uhuru.CloudFoundry.DEA
 
         public Uri Uri
         {
-            get
-            {
-                return NatsClient.ServerUri;
-            }
+            get;
+            set;
         }
 
         public VcapReactor()
@@ -47,7 +45,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void SendReply(string reply, string message)
         {
-            NatsClient.Publish(reply, msg: message);
+            NatsClient.Publish(reply, null, message);
         }
 
 

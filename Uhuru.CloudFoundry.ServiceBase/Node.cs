@@ -113,7 +113,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 UnprovisionRequest unprovision_req = new UnprovisionRequest();
-                unprovision_req.FromJson(msg);
+                unprovision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
                 string name = unprovision_req.Name;
                 ServiceCredentials[] bindings = unprovision_req.Bindings;
@@ -167,7 +167,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 UnbindRequest unbind_req = new UnbindRequest();
-                unbind_req.FromJson(msg);
+                unbind_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
                 bool result = Unbind(unbind_req.Credentials);
 
@@ -195,7 +195,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 RestoreRequest restore_message = new RestoreRequest();
-                restore_message.FromJson(msg);
+                restore_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
                 string instance_id = restore_message.InstanceId;
                 string backup_path = restore_message.BackupPath;
 
@@ -224,13 +224,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 object[] credentials = new object[0];
-                credentials = credentials.FromJson(msg);
+                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
                 ServiceCredentials prov_cred = new ServiceCredentials();
                 ServiceCredentials binding_creds = new ServiceCredentials();
 
-                prov_cred.FromJson(credentials[0].ToJson());
-                binding_creds.FromJson(credentials[1].ToJson());
+                prov_cred.FromJsonIntermediateObject(credentials[0]);
+                binding_creds.FromJsonIntermediateObject(credentials[1]);
 
 
                 string instance = prov_cred.Name;
@@ -260,21 +260,21 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 object[] credentials = new object[0];
-                credentials = credentials.FromJson(msg);
+                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
                 ServiceCredentials prov_cred = new ServiceCredentials();
                 Dictionary<string, object> binding_creds_hash = new Dictionary<string, object>();
 
-                prov_cred.FromJson(credentials[0].ToJson());
-                binding_creds_hash = binding_creds_hash.FromJson(credentials[1].ToJson());
+                prov_cred.FromJsonIntermediateObject(credentials[0]);
+                binding_creds_hash = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(credentials[1]);
 
                 EnableInstance(ref prov_cred, ref binding_creds_hash);
 
                 // Update node_id in provision credentials..
                 prov_cred.NodeId = node_id;
-                credentials[0] = prov_cred.ToDictionary();
+                credentials[0] = prov_cred;
                 credentials[1] = binding_creds_hash;
-                NodeNats.Publish(reply, null, credentials.ToJson());
+                NodeNats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(credentials));
             }
             catch (Exception ex)
             {
@@ -316,7 +316,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 CheckOrphanRequest request = new CheckOrphanRequest();
-                request.FromJson(msg);
+                request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
                 CheckOrphan(request.Handles);
 
                 response.OrphanInstances = OrphanInstancesHash;
@@ -335,7 +335,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
             finally
             {
-                NodeNats.Publish(String.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectOrphanResult, ServiceName()), null, response.ToJson());
+                NodeNats.Publish(String.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectOrphanResult, ServiceName()), null, response.SerializeToJson());
             }
         }
 
@@ -388,7 +388,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 PurgeOrphanRequest request = new PurgeOrphanRequest();
-                request.FromJson(msg);
+                request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
                 bool result = PurgeOrphan(request.OrphanInsList, request.OrphanBindingList);
                 if (result)
@@ -418,7 +418,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 try
                 {
                     ServiceCredentials[] bindings = ab_list.Where(b => b.Name == ins).ToArray();
-                    Logger.Debug(Strings.PurgeOrphanDebugLogMessage, ins, String.Join(", ", bindings.Select(binding => binding.ToJson()).ToArray()));
+                    Logger.Debug(Strings.PurgeOrphanDebugLogMessage, ins, String.Join(", ", JsonConvertibleObject.SerializeToJson(bindings)));
 
                     ret = ret && Unprovision(ins, bindings);
 
@@ -527,7 +527,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 Announcement a = AnnouncementDetails;
                 a.Id = node_id;
-                NodeNats.Publish(reply != null ? reply : String.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.ToJson());
+                NodeNats.Publish(reply != null ? reply : String.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.SerializeToJson());
             }
             catch (Exception ex)
             {
@@ -555,7 +555,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A dictionary containing varz details.</returns>
         protected override Dictionary<string, object> VarzDetails()
         {
-            return AnnouncementDetails.ToDictionary();
+            return AnnouncementDetails.ToJsonIntermediateObject();
         }
 
         /// <summary>
@@ -574,7 +574,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private static string EncodeSuccess(MessageWithSuccessStatus response)
         {
             response.Success = true;
-            return response.ToJson();
+            return response.SerializeToJson();
         }
 
         private static string EncodeFailure(MessageWithSuccessStatus response, Exception error = null)
@@ -585,7 +585,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
               error = new ServiceException(ServiceException.InternalError);
             }
             response.Error = ((ServiceException)error).ToDictionary();
-            return response.ToJson();
+            return response.SerializeToJson();
         }
 
         /// <summary>

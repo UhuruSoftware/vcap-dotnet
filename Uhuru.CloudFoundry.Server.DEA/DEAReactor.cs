@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CFNet = CloudFoundry.Net;
+using Uhuru.NatsClient;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -10,23 +10,23 @@ namespace Uhuru.CloudFoundry.DEA
     public class DeaReactor : VcapReactor
     {
 
-        public eventSubscribeCallback OnRouterStart;
+        public event SubscribeCallback OnRouterStart;
 
-        public eventSubscribeCallback OnHealthManagerStart;
+        public event SubscribeCallback OnHealthManagerStart;
 
-        public eventSubscribeCallback OnDeaStart;
+        public event SubscribeCallback OnDeaStart;
 
-        public eventSubscribeCallback OnDeaStop;
+        public event SubscribeCallback OnDeaStop;
 
-        public eventSubscribeCallback OnDeaStatus;
+        public event SubscribeCallback OnDeaStatus;
 
-        public eventSubscribeCallback OnDropletStatus;
+        public event SubscribeCallback OnDropletStatus;
 
-        public eventSubscribeCallback OnDeaDiscover;
+        public event SubscribeCallback OnDeaDiscover;
 
-        public eventSubscribeCallback OnDeaFindDroplet;
+        public event SubscribeCallback OnDeaFindDroplet;
 
-        public eventSubscribeCallback OnDeaUpdate;
+        public event SubscribeCallback OnDeaUpdate;
 
         
 
@@ -62,28 +62,28 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void SendDeaHeartbeat(string message)
         {
-            NatsClient.Publish("dea.heartbeat", msg: message);
+            NatsClient.Publish("dea.heartbeat", null, message);
         }
 
         public void SendDeaStart(string message)
         {
-            NatsClient.Publish("dea.start", msg: message);
+            NatsClient.Publish("dea.start", null,  message);
         }
 
         public void SendDopletExited(string message)
         {
-            NatsClient.Publish("droplet.exited", msg: message);
+            NatsClient.Publish("droplet.exited", null, message);
             Logger.debug(String.Format("Sent droplet.exited {0}", message));
         }
 
         public void SendRouterRegister(string message)
         {
-            NatsClient.Publish("router.register", msg: message);
+            NatsClient.Publish("router.register", null, message);
         }
 
         public void SendRouterUnregister(string message)
         {
-            NatsClient.Publish("router.unregister", msg: message);
+            NatsClient.Publish("router.unregister", null, message);
         }
     }
 }

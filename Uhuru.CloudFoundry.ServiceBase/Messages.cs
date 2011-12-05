@@ -9,13 +9,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
 {
     abstract class MessageWithSuccessStatus : JsonConvertibleObject
     {
-        abstract bool Success
+        public abstract bool Success
         {
             get;
             set;
         }
 
-        abstract Dictionary<string, object> Error
+        public abstract Dictionary<string, object> Error
         {
             get;
             set;
@@ -41,10 +41,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
     }
 
     // Node --> Provisioner
-    class ProvisionResponse : JsonConvertibleObject, MessageWithSuccessStatus
+    class ProvisionResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
-        public bool Success
+        public override bool Success
         {
             get;
             set;
@@ -58,7 +58,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         [JsonName("error")]
-        public Dictionary<string, object> Error
+        public override Dictionary<string, object> Error
         {
             get;
             set;
@@ -107,10 +107,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class BindResponse : JsonConvertibleObject, MessageWithSuccessStatus
+    class BindResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
-        public bool Success
+        public override bool Success
         {
             get;
             set;
@@ -124,7 +124,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         [JsonName("error")]
-        public Dictionary<string, object> Error
+        public override Dictionary<string, object> Error
         {
             get;
             set;
@@ -141,17 +141,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class SimpleResponse : JsonConvertibleObject, MessageWithSuccessStatus
+    class SimpleResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
-        public bool Success
+        public override bool Success
         {
             get;
             set;
         }
 
         [JsonName("error")]
-        public Dictionary<string, object> Error
+        public override Dictionary<string, object> Error
         {
             get;
             set;
@@ -185,18 +185,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class CheckOrphanResponse : JsonConvertibleObject, MessageWithSuccessStatus
+    class CheckOrphanResponse : MessageWithSuccessStatus
     {
 
         [JsonName("success")]
-        public bool Success
+        public override bool Success
         {
             get;
             set;
         }
 
         [JsonName("error")]
-        public Dictionary<string, object> Error
+        public override Dictionary<string, object> Error
         {
             get;
             set;

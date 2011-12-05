@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
-//using Cassini;
 using System.IO;
 using Uhuru.Utilities;
-using CFNet=CloudFoundry.Net;
 using Uhuru.CloudFoundry.DEA.Configuration;
 using System.Threading;
 
@@ -23,7 +21,7 @@ namespace Uhuru.CloudFoundry.DEA
         protected string Type;
         protected string Index;
         protected Uri NatsUri;
-
+        
         protected Dictionary<string, object> discover = new Dictionary<string, object>();
 
 
@@ -105,13 +103,13 @@ namespace Uhuru.CloudFoundry.DEA
             vcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
             {
                 UpdateDiscoverUptime();
-                vcapReactor.SendReply(reply, discover.ToJson());
+                vcapReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(discover));
             };
 
             StartHttpServer();
 
             // Also announce ourselves on startup..
-            vcapReactor.SendVcapComponentAnnounce(discover.ToJson()); 
+            vcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(discover)); 
         }
 
 
@@ -127,7 +125,7 @@ namespace Uhuru.CloudFoundry.DEA
             //Cassini.Server http_server = new Cassini.Server(Port, Host, "");
 
             File.WriteAllText("healthz", Healthz);
-            File.WriteAllText("varz", Varz.ToJson());
+            File.WriteAllText("varz", JsonConvertibleObject.SerializeToJson(Varz));
 
             //http_server.Start();
         }

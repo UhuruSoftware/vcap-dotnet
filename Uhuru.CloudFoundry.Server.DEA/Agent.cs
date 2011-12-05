@@ -221,7 +221,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
 
-            List<object> instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(Droplets.AppStateFile));
+            object[] instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(Droplets.AppStateFile));
 
             foreach (object obj in instances)
             {
@@ -379,7 +379,7 @@ namespace Uhuru.CloudFoundry.DEA
         //todo: do this the right way
         public void WaitForExit()
         {
-            while (deaReactor.NatsClient.Connected)
+            while (deaReactor.NatsClient.Status == ConnectionStatus.Open)
             {
                 Thread.Sleep(100);
             }
@@ -600,7 +600,7 @@ namespace Uhuru.CloudFoundry.DEA
 
 
             DeaUpdateMessageRequest pmessage = new DeaUpdateMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
             Logger.debug(String.Format("DEA received update message: {0}", message));
 
@@ -645,7 +645,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
 
             DeaStopMessageRequest pmessage = new DeaStopMessageRequest();
-            pmessage.FromJsonImtermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
 
             Logger.debug(String.Format("DEA received stop message: {0}", message));
@@ -1121,7 +1121,7 @@ namespace Uhuru.CloudFoundry.DEA
             // LEGACY STUFF
             env.Add(String.Format("VMC_WARNING_WARNING='All VMC_* environment variables are deprecated, please use VCAP_* versions.'"));
             env.Add(String.Format("VMC_SERVICES='{0}'", create_legacy_services_for_env(services)));
-            env.Add(String.Format("VMC_APP_INSTANCE='{0}'", instance.ToJson()));
+            env.Add(String.Format("VMC_APP_INSTANCE='{0}'", instance.Properties.SerializeToJson()));
             env.Add(String.Format("VMC_APP_NAME='{0}'", instance.Properties.Name));
             env.Add(String.Format("VMC_APP_ID='{0}'", instance.Properties.InstanceId));
             env.Add(String.Format("VMC_APP_VERSION='{0}'", instance.Properties.Version));
@@ -1132,18 +1132,18 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 string hostname = string.Empty;
 
-                Dictionary<string, object> serviceCredentials = service["credentials"].ToObject<Dictionary<string, object>>();
+                Dictionary<string, object> serviceCredentials =  JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(service["credentials"]);
 
                 if (serviceCredentials.ContainsKey("hostname"))
                 {
-                    hostname = serviceCredentials["hostname"].ToValue<string>();
+                    hostname = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["hostname"]);
                 }
                 else if (serviceCredentials.ContainsKey("host"))
                 {
-                    hostname = serviceCredentials["host"].ToValue<string>();
+                    hostname = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["host"]);
                 }
 
-                string port = serviceCredentials["port"].ToValue<string>();
+                string port = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["port"]);
 
                 if (!String.IsNullOrEmpty(hostname) && !String.IsNullOrEmpty(port))
                 {
@@ -1187,7 +1187,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 if (jInstance[key] != null)
                 {
-                    env_hash[key] = jInstance[key].ToObject<object>();
+                    env_hash[key] = JsonConvertibleObject.ObjectToValue<object>(jInstance[key]);
                 }
             }
 
