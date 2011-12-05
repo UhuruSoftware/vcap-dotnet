@@ -30,7 +30,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// the port where the app is to be found
         /// </summary>
-        public string Port { get; set; }
+        public int Port { get; set; }
 
         /// <summary>
         /// the name of the application
