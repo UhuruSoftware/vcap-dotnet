@@ -82,7 +82,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 ProvisionRequest provision_req = new ProvisionRequest();
-                provision_req.FromJson(msg);
+
+                provision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
                 ProvisionedServicePlanType plan = provision_req.Plan;
                 ServiceCredentials credentials = provision_req.Credentials;
@@ -92,7 +93,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 response.Credentials = credential;
 
                 Logger.Debug(Strings.OnProvisionSuccessDebugLogMessage,
-                    ServiceDescription(), msg, response.ToJson());
+                    ServiceDescription(), msg, response.SerializeToJson());
 
                 NodeNats.Publish(reply, null, EncodeSuccess(response));
             }
@@ -144,7 +145,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 BindRequest bind_message = new BindRequest();
-                bind_message.FromJson(msg);
+                bind_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
                 string name = bind_message.Name;
                 Dictionary<string, object> bind_opts = bind_message.BindOptions;
                 ServiceCredentials credentials = bind_message.Credentials;
@@ -289,11 +290,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 object[] request = new object[0];
-                request = request.FromJson(msg);
+                request = JsonConvertibleObject.DeserializeFromJsonArray(msg);
                 ServiceCredentials prov_cred = new ServiceCredentials();
                 ServiceCredentials binding_creds = new ServiceCredentials();
-                prov_cred.FromJson(request[0].ToJson());
-                binding_creds.FromJson(request[1].ToJson());
+                prov_cred.FromJsonIntermediateObject(request[0]);
+                binding_creds.FromJsonIntermediateObject(request[1]);
 
                 string instance = prov_cred.Name;
                 Directory.Delete(GetMigrationFolder(instance), true);
@@ -436,12 +437,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 try
                 {
-                    Logger.Debug(Strings.PurgeOrphanUnbindBindingDebugLogMessage, credential.ToJson());
+                    Logger.Debug(Strings.PurgeOrphanUnbindBindingDebugLogMessage, credential.SerializeToJson());
                     ret = ret && Unbind(credential);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Debug(Strings.PurgeOrphanUnbindBindingErrorLogMessage, credential.ToJson(), ex.ToString());
+                    Logger.Debug(Strings.PurgeOrphanUnbindBindingErrorLogMessage, credential.SerializeToJson(), ex.ToString());
                 }
             }
             return ret;
@@ -484,15 +485,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
             try
             {
                 object[] credentials = new object[0];
-                credentials = credentials.FromJson(msg);
+                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
-                ProvisionedServicePlanType plan = (ProvisionedServicePlanType)Enum.Parse(typeof(ProvisionedServicePlanType), credentials[0].ToValue<string>());
+                ProvisionedServicePlanType plan = (ProvisionedServicePlanType)Enum.Parse(typeof(ProvisionedServicePlanType), JsonConvertibleObject.ObjectToValue<string>(credentials[0]));
 
                 ServiceCredentials prov_cred = new ServiceCredentials();
                 ServiceCredentials binding_creds = new ServiceCredentials();
 
-                prov_cred.FromJson(credentials[1].ToJson());
-                binding_creds.FromJson(credentials[2].ToJson());
+                prov_cred.FromJsonIntermediateObject(credentials[1]);
+                binding_creds.FromJsonIntermediateObject(credentials[2]);
 
                 string instance = prov_cred.Name;
                 string file_path = GetMigrationFolder(instance);
@@ -570,13 +571,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             };
         }
 
-        private static string EncodeSuccess(IWithSuccessStatus response)
+        private static string EncodeSuccess(MessageWithSuccessStatus response)
         {
             response.Success = true;
             return response.ToJson();
         }
 
-        private static string EncodeFailure(IWithSuccessStatus response, Exception error = null)
+        private static string EncodeFailure(MessageWithSuccessStatus response, Exception error = null)
         {
             response.Success = false;
             if (error == null || !(error is ServiceException))

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Threading;
-using Nats=CloudFoundry.Net.Nats;
 using System.Diagnostics;
-using CloudFoundry.Net.Nats;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.NatsClient;
 
 namespace CloudFoundry.Net.Test.Automation
 {
@@ -23,7 +22,7 @@ namespace CloudFoundry.Net.Test.Automation
         [TestMethod, Description("should perform basic block start and stop")]
         public void Test1()
         {
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
                 natsClient.Stop();
@@ -33,10 +32,10 @@ namespace CloudFoundry.Net.Test.Automation
         [TestMethod, Description("should signal connected state")]
         public void Test2()
         {
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
-                Assert.IsTrue(natsClient.Connected);
+                Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
                 natsClient.Stop();
             }
         }
@@ -44,18 +43,18 @@ namespace CloudFoundry.Net.Test.Automation
         [TestMethod, Description("should be able to reconnect")]
         public void Test3()
         {
-            Nats.Client natsClient;
-            using (natsClient = new Nats.Client())
+            Reactor natsClient;
+            using (natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
-                Assert.IsTrue(natsClient.Connected);
+                Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
                 natsClient.Stop();
             }
 
-            using(natsClient = new Nats.Client())
+            using(natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
-                Assert.IsTrue(natsClient.Connected);
+                Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
                 natsClient.Stop();
             }
         }
@@ -66,10 +65,10 @@ namespace CloudFoundry.Net.Test.Automation
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
                 natsClient.Pedantic = true;
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                     {
                         errorThrown = true;
                         resetEvent.Set();
@@ -89,9 +88,9 @@ namespace CloudFoundry.Net.Test.Automation
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                     {
                         errorThrown = true;
                         resetEvent.Set();
@@ -116,9 +115,9 @@ namespace CloudFoundry.Net.Test.Automation
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -140,7 +139,7 @@ namespace CloudFoundry.Net.Test.Automation
         [TestMethod, Description("should receive a sid when doing a subscribe")]
         public void Test7() 
         {
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Subscribe("foo");
@@ -152,7 +151,7 @@ namespace CloudFoundry.Net.Test.Automation
         [TestMethod, Description("should receive a sid when doing a request")]
         public void Test8()
         {
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Request("foo");
@@ -168,9 +167,9 @@ namespace CloudFoundry.Net.Test.Automation
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -199,9 +198,9 @@ namespace CloudFoundry.Net.Test.Automation
             string receivedMessage = "xxx";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -230,9 +229,9 @@ namespace CloudFoundry.Net.Test.Automation
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = args.Message == null ? String.Empty : args.Message;
                     resetEvent.Set();
@@ -264,8 +263,8 @@ namespace CloudFoundry.Net.Test.Automation
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            Nats.Client natsClient = new Nats.Client();
-            natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+            Reactor natsClient = new Reactor();
+            natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
                 resetEvent.Set();
@@ -302,8 +301,8 @@ namespace CloudFoundry.Net.Test.Automation
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            Nats.Client natsClient = new Nats.Client();
-            natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+            Reactor natsClient = new Reactor();
+            natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
                 resetEvent.Set();
@@ -340,9 +339,9 @@ namespace CloudFoundry.Net.Test.Automation
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -374,9 +373,9 @@ namespace CloudFoundry.Net.Test.Automation
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -431,9 +430,9 @@ namespace CloudFoundry.Net.Test.Automation
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -447,7 +446,7 @@ namespace CloudFoundry.Net.Test.Automation
                     resetEvent.Set();
                 });
 
-                using (Nats.Client natsClient2 = new Nats.Client())
+                using (Reactor natsClient2 = new Reactor())
                 {
                     natsClient2.Start(natsEndpoint);
                     natsClient2.Publish("foo", null, "xxx");
@@ -471,9 +470,9 @@ namespace CloudFoundry.Net.Test.Automation
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -487,7 +486,7 @@ namespace CloudFoundry.Net.Test.Automation
                     natsClient.Publish(reply, null, "help");
                 });
 
-                using (Nats.Client natsClient2 = new Nats.Client())
+                using (Reactor natsClient2 = new Reactor())
                 {
                     natsClient2.Start(natsEndpoint);
                     //TODO: vladi: this doesn't work if no message is sent.
@@ -516,9 +515,9 @@ namespace CloudFoundry.Net.Test.Automation
             int sid = 0;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -551,9 +550,9 @@ namespace CloudFoundry.Net.Test.Automation
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();
@@ -576,9 +575,9 @@ namespace CloudFoundry.Net.Test.Automation
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Nats.Client natsClient = new Nats.Client())
+            using (Reactor natsClient = new Reactor())
             {
-                natsClient.OnError += new EventHandler<NatsEventArgs>(delegate(object sender, NatsEventArgs args)
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
                     errorThrown = true;
                     resetEvent.Set();

@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using Uhuru.CloudFoundry.DEA.Configuration;
 using System.IO;
-using CFNet = CloudFoundry.Net;
 using Uhuru.Utilities;
 using System.Threading;
 using System.Net.Sockets;
 using System.Diagnostics;
 using Uhuru.Utilities.ProcessPerformance;
+using Uhuru.NatsClient;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -163,19 +163,19 @@ namespace Uhuru.CloudFoundry.DEA
 
             AgentFileViewer.Start(AgentStager.DropletDir);
 
-            vcapReactor.OnNatsError += new EventHandler<CFNet.Nats.NatsEventArgs>(NatsErrorHandler);
+            vcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
 
-            deaReactor.OnDeaStatus += new CFNet.Nats.SubscribeCallback(DeaStatusHandler);
-            deaReactor.OnDropletStatus += new CFNet.Nats.SubscribeCallback(DropletStatusHandler);
-            deaReactor.OnDeaDiscover += new CFNet.Nats.SubscribeCallback(DeaDiscoverHandler);
-            deaReactor.OnDeaFindDroplet += new CFNet.Nats.SubscribeCallback(DeaFindDropletHandler);
-            deaReactor.OnDeaUpdate += new CFNet.Nats.SubscribeCallback(DeaUpdateHandler);
+            deaReactor.OnDeaStatus += new SubscribeCallback(DeaStatusHandler);
+            deaReactor.OnDropletStatus += new SubscribeCallback(DropletStatusHandler);
+            deaReactor.OnDeaDiscover += new SubscribeCallback(DeaDiscoverHandler);
+            deaReactor.OnDeaFindDroplet += new SubscribeCallback(DeaFindDropletHandler);
+            deaReactor.OnDeaUpdate += new SubscribeCallback(DeaUpdateHandler);
 
-            deaReactor.OnDeaStop += new CFNet.Nats.SubscribeCallback(DeaStopHandler);
-            deaReactor.OnDeaStart += new CFNet.Nats.SubscribeCallback(DeaStartHandler);
+            deaReactor.OnDeaStop += new SubscribeCallback(DeaStopHandler);
+            deaReactor.OnDeaStart += new SubscribeCallback(DeaStartHandler);
 
-            deaReactor.OnRouterStart += new CFNet.Nats.SubscribeCallback(RouterStartHandler);
-            deaReactor.OnHealthManagerStart += new CFNet.Nats.SubscribeCallback(HealthmanagerStartHandler);
+            deaReactor.OnRouterStart += new SubscribeCallback(RouterStartHandler);
+            deaReactor.OnHealthManagerStart += new SubscribeCallback(HealthmanagerStartHandler);
 
 
             base.Run();  // Start the nats client
@@ -291,7 +291,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
-        private void NatsErrorHandler(object sender, CFNet.Nats.NatsEventArgs args)
+        private void NatsErrorHandler(object sender,ReactorErrorEventArgs args)
         {
             string errorThrown = args.Message == null ? String.Empty : args.Message;
             Logger.error(String.Format("EXITING! Nats error: {0}", errorThrown));

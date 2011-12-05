@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudFoundry.Net.Services.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities", "Uhuru.Utilities\Uhuru.Utilities.csproj", "{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudFoundry.Net", "CloudFoundry.Net\CloudFoundry.Net.csproj", "{11D607A1-5DCA-4835-B753-844CD4FBCFC1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA", "Uhuru.CloudFoundry.Server.DEA\Uhuru.CloudFoundry.DEA.csproj", "{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MSSqlService", "Uhuru.CloudFoundry.Server.MsSqlNode\Uhuru.CloudFoundry.MSSqlService.csproj", "{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}"
@@ -102,16 +100,6 @@ Global
 		{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}.Release|x86.ActiveCfg = Release|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{11D607A1-5DCA-4835-B753-844CD4FBCFC1}.Release|x86.ActiveCfg = Release|Any CPU
 		{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

@@ -96,10 +96,6 @@
       <Project>{5AF4E4D2-30B5-49B6-9B2D-FD1A653DB8FB}</Project>
       <Name>CloudFoundry.Net.IIS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CloudFoundry.Net\CloudFoundry.Net.csproj">
-      <Project>{11D607A1-5DCA-4835-B753-844CD4FBCFC1}</Project>
-      <Name>CloudFoundry.Net</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.Part2\Uhuru.CloudFoundry.DEA.Part2.csproj">
       <Project>{8F79CD18-8EEE-47D7-9171-8E8B0ABB6EAD}</Project>
       <Name>Uhuru.CloudFoundry.DEA.Part2</Name>

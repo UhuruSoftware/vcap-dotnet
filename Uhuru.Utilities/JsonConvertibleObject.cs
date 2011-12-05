@@ -11,6 +11,7 @@ namespace Uhuru.Utilities
     using System.Reflection;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using System.Globalization;
 
     public class JsonNameAttribute : Attribute
     {
@@ -28,9 +29,9 @@ namespace Uhuru.Utilities
 
     public class JsonConvertibleObject
     {
-        public static List<object> DeserializeFromJsonArray(string json)
+        public static object[] DeserializeFromJsonArray(string json)
         {
-            return ((JArray)DeserializeFromJson(json)).ToObject<List<object>>();
+            return ((JArray)DeserializeFromJson(json)).ToObject<object[]>();
         }
 
         public static object DeserializeFromJson(string json)
@@ -284,6 +285,41 @@ namespace Uhuru.Utilities
                 }
             }
         }
+
+        /// <summary>
+        /// Converts an object into another type.
+        /// If the object is a JObject or JArray, this method uses their respective methods for conversion.
+        /// Otherwise, it uses Convert.ChangeType.
+        /// </summary>
+        /// <typeparam name="T">The type to convert to.</typeparam>
+        /// <param name="value">The object to convert.</param>
+        /// <returns>The converted object.</returns>
+        public static T ObjectToValue<T>(object value)
+        {
+            JObject jObject = value as JObject;
+
+            if (jObject != null)
+            {
+                return jObject.Value<T>();
+            }
+
+            JArray jArray = value as JArray;
+
+            if (jArray != null)
+            {
+                return jArray.Value<T>();
+            }
+
+            if (value is T)
+            {
+                return (T)value;
+            }
+            else
+            {
+                return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
+            }
+        }
+
     }
 }
 

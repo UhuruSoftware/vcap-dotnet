@@ -10,23 +10,23 @@ namespace Uhuru.CloudFoundry.DEA
     public class DeaReactor : VcapReactor
     {
 
-        public event CFNet.Nats.SubscribeCallback OnRouterStart;
+        public eventSubscribeCallback OnRouterStart;
 
-        public event CFNet.Nats.SubscribeCallback OnHealthManagerStart;
+        public eventSubscribeCallback OnHealthManagerStart;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaStart;
+        public eventSubscribeCallback OnDeaStart;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaStop;
+        public eventSubscribeCallback OnDeaStop;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaStatus;
+        public eventSubscribeCallback OnDeaStatus;
 
-        public event CFNet.Nats.SubscribeCallback OnDropletStatus;
+        public eventSubscribeCallback OnDropletStatus;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaDiscover;
+        public eventSubscribeCallback OnDeaDiscover;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaFindDroplet;
+        public eventSubscribeCallback OnDeaFindDroplet;
 
-        public event CFNet.Nats.SubscribeCallback OnDeaUpdate;
+        public eventSubscribeCallback OnDeaUpdate;
 
         
 

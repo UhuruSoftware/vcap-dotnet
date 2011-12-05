@@ -409,7 +409,7 @@ namespace Uhuru.NatsClient
             Status = ConnectionStatus.Open;
             parseState = ParseState.AwaitingControlLine;
 
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", cs.ToJson(), Resource.CR_LF));
+            SendCommand(String.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", JsonConvertibleObject.SerializeToJson(cs), Resource.CR_LF));
 
             if (pendingCommands.Count > 0)
             {
@@ -650,7 +650,7 @@ namespace Uhuru.NatsClient
                             }
                             else if (resource.INFO.IsMatch(strBuffer))
                             {
-                                serverInfo = serverInfo.FromJson(resource.INFO.Match(strBuffer).Groups[1].Value);
+                                serverInfo = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(JsonConvertibleObject.DeserializeFromJson(resource.INFO.Match(strBuffer).Groups[1].Value));
                                 strBuffer = resource.INFO.Replace(strBuffer, "");
                             }
                             else if (resource.UNKNOWN.IsMatch(strBuffer))
