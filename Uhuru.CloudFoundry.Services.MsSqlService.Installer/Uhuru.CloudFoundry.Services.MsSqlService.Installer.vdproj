@@ -3,7 +3,7 @@
 "VSVersion" = "3:800"
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
-"ProjectName" = "8:Uhuru.CloudFoundry.Services.MsSqlService.Installer"
+"ProjectName" = "8:Uhuru.CloudFoundry.MsSqlService.Installer"
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
@@ -13,6 +13,126 @@
 "SccProvider" = "8:"
     "Hierarchy"
     {
+        "Entry"
+        {
+        "MsmKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "OwnerKey" = "8:_1C198C7A79E56021A1377BFB382B052F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "OwnerKey" = "8:_AAA6515DFAB5330334BC78A1D6FEDC6D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "OwnerKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1C198C7A79E56021A1377BFB382B052F"
+        "OwnerKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1C198C7A79E56021A1377BFB382B052F"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+        "OwnerKey" = "8:_AAA6515DFAB5330334BC78A1D6FEDC6D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AAA6515DFAB5330334BC78A1D6FEDC6D"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E9B2BD78D4384355238D86814EF33C65"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
+        "OwnerKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E9B2BD78D4384355238D86814EF33C65"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_AAA6515DFAB5330334BC78A1D6FEDC6D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_1C198C7A79E56021A1377BFB382B052F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_09CC6BF1747B94741E9717D02536381A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -21,7 +141,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.MsSqlService.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.MsSqlService.Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -40,10 +160,10 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0"
                     {
-                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
-                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    "Name" = "8:Microsoft .NET Framework 4 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0"
                     }
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
                     {
@@ -58,7 +178,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.MsSqlService.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.MsSqlService.Installer.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -95,61 +215,61 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_006BA6D4BE064FF18EB15B1FE5846E61"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_168222F8CB92411C909E8BE46ECD07E2"
             {
-            "Name" = "8:Primary output from MssqlNode (Active)"
+            "Name" = "8:Primary output from Uhuru.CloudFoundry.MsSqlService.WindowsService (Active)"
             "Condition" = "8:"
-            "Object" = "8:"
-            "FileType" = "3:2"
-            "InstallAction" = "3:1"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_AF60957C_2B66_4A34_A4ED_D64FB9902D8D"
-            "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:/onlineConfig=[\"ONLINECONFIG\"] /installRuby=\"[INSTALLRUBY]\" /installDevKit=\"[INSTALLDEVKIT]\" /rubyPath=\"[RUBYPATH]\" /devKitPath=\"[DEVKITPATH]\"  /mssqlNodePath=\"[MSSQLNODEPATH]\" /cloudControllerIp=\"[CLOUDCONTROLLERIP]\" /cloudControllerPort=\"[CLOUDCONTROLLERPORT]\"  /proxy=\"[PROXY]\" /TARGETDIR=\"[TARGETDIR]\\\" /dbConnectionStr=\"[DBCONNECTIONSTR]\" /mbusurl=\"[MBUSURL]\""
-            }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_61C6981CF89D48C2B3B230CAEA7D0529"
-            {
-            "Name" = "8:Primary output from MssqlNode (Active)"
-            "Condition" = "8:"
-            "Object" = "8:"
-            "FileType" = "3:2"
-            "InstallAction" = "3:2"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_8692BF6B_4521_4300_B5FA_5737B967F2FD"
-            "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:"
-            }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_90032FC894914D3F971EF6E4B3630591"
-            {
-            "Name" = "8:Primary output from MssqlNode (Active)"
-            "Condition" = "8:"
-            "Object" = "8:"
-            "FileType" = "3:2"
-            "InstallAction" = "3:3"
-            "Arguments" = "8:"
-            "EntryPoint" = "8:"
-            "Sequence" = "3:1"
-            "Identifier" = "8:_C7683EDA_9557_48AC_84F4_FD37D30F3DA3"
-            "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:"
-            }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_E0DA870E81C74C58B058E17522AB4BD8"
-            {
-            "Name" = "8:Primary output from MssqlNode (Active)"
-            "Condition" = "8:"
-            "Object" = "8:"
+            "Object" = "8:_65AE2CADB42F43309186D277733ABBDF"
             "FileType" = "3:2"
             "InstallAction" = "3:4"
             "Arguments" = "8:"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_950BB6A7_F205_44B0_B997_AB27CD634022"
+            "Identifier" = "8:_8AD975F8_3CA0_4D40_95E5_7214F8B25702"
             "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:/uninstallRuby=\"[UNINSTALLRUBY]\" /uninstallDevKit=\"[UNINSTALLDEVKIT]\" /cleanupDroplets=\"[CLEANUPDROPLETS]\" /targetdir=\"[TARGETDIR]\\\""
+            "CustomActionData" = "8:/TARGETDIR=[\"TARGETDIR\"] /nodeId=[\"nodeId\"] /migrationNfs=[\"migrationNfs\"] /mbus=[\"mbus\"] /index=[\"index\"] /zInterval=[\"zInterval\"] /maxDbSize=[\"maxDbSize\"] /maxLongQuery=[\"maxLongQuery\"] /maxLongTx=[\"maxLongTx\"] /localDb=[\"localDb\"] /baseDir=[\"baseDir\"] /localRoute=[\"localRoute\"] /availableStorage=[\"availableStorage\"] /host=[\"host\"] /user=[\"user\"] /password=[\"password\"] /port=[\"port\"]"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_71C4AC5BD55D43668B5600B29AB283B1"
+            {
+            "Name" = "8:Primary output from Uhuru.CloudFoundry.MsSqlService.WindowsService (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_65AE2CADB42F43309186D277733ABBDF"
+            "FileType" = "3:2"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_F4A5791F_0C4C_42A6_884E_4391B7CDBB78"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/TARGETDIR=[\"TARGETDIR\"] /nodeId=[\"nodeId\"] /migrationNfs=[\"migrationNfs\"] /mbus=[\"mbus\"] /index=[\"index\"] /zInterval=[\"zInterval\"] /maxDbSize=[\"maxDbSize\"] /maxLongQuery=[\"maxLongQuery\"] /maxLongTx=[\"maxLongTx\"] /localDb=[\"localDb\"] /baseDir=[\"baseDir\"] /localRoute=[\"localRoute\"] /availableStorage=[\"availableStorage\"] /host=[\"host\"] /user=[\"user\"] /password=[\"password\"] /port=[\"port\"]"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_CE41516787AC44FDB2705C9F4DF21898"
+            {
+            "Name" = "8:Primary output from Uhuru.CloudFoundry.MsSqlService.WindowsService (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_65AE2CADB42F43309186D277733ABBDF"
+            "FileType" = "3:2"
+            "InstallAction" = "3:3"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_BD950BD6_B867_496C_8FA4_9864EF696BB2"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/TARGETDIR=[\"TARGETDIR\"] /nodeId=[\"nodeId\"] /migrationNfs=[\"migrationNfs\"] /mbus=[\"mbus\"] /index=[\"index\"] /zInterval=[\"zInterval\"] /maxDbSize=[\"maxDbSize\"] /maxLongQuery=[\"maxLongQuery\"] /maxLongTx=[\"maxLongTx\"] /localDb=[\"localDb\"] /baseDir=[\"baseDir\"] /localRoute=[\"localRoute\"] /availableStorage=[\"availableStorage\"] /host=[\"host\"] /user=[\"user\"] /password=[\"password\"] /port=[\"port\"]"
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_E62C678B3A1948BA96BC806F3D92E21B"
+            {
+            "Name" = "8:Primary output from Uhuru.CloudFoundry.MsSqlService.WindowsService (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_65AE2CADB42F43309186D277733ABBDF"
+            "FileType" = "3:2"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_245E9577_8922_4C3A_B36C_AD5817BEA339"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/nodeId=\"[NODEID]\" /migrationNfs=\"[MIGRATIONNFS]\" /mbus=\"[MBUS]\" /index=\"[INDEX]\" /zInterval=\"[ZINTERVAL]\" /maxDbSize=\"[MAXDBSIZE]\" /maxLongQuery=\"[MAXLONGQUERY]\" /maxLongTx=\"[MAXLONGTX]\" /localDb=\"[LOCALDB]\" /baseDir=\"[BASEDIR]\" /localRoute=\"[LOCALROUTE]\" /availableStorage=\"[AVAILABLESTORAGE]\" /host=\"[HOST]\" /user=\"[USER]\" /password=\"[PASSWORD]\" /port=\"[PORT]\" /TARGETDIR=\"[TARGETDIR]\\\""
             }
         }
         "DefaultFeature"
@@ -174,6 +294,192 @@
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_09CC6BF1747B94741E9717D02536381A"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Uhuru.Utilities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=14594b8a48a91b15, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_09CC6BF1747B94741E9717D02536381A"
+                    {
+                    "Name" = "8:Uhuru.Utilities.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Uhuru.Utilities.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1C198C7A79E56021A1377BFB382B052F"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Uhuru.NatsClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a66a33d7a72b2d95, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_1C198C7A79E56021A1377BFB382B052F"
+                    {
+                    "Name" = "8:Uhuru.NatsClient.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Uhuru.NatsClient.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8E5DCFD6EC2966D35661BCD9FEFD4956"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.ServiceBase, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8129169b129577ef, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_8E5DCFD6EC2966D35661BCD9FEFD4956"
+                    {
+                    "Name" = "8:Uhuru.CloudFoundry.ServiceBase.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Uhuru.CloudFoundry.ServiceBase.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_AAA6515DFAB5330334BC78A1D6FEDC6D"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.Server.MSSqlNode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ea50a53aba7aa798, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_AAA6515DFAB5330334BC78A1D6FEDC6D"
+                    {
+                    "Name" = "8:Uhuru.CloudFoundry.Server.MSSqlNode.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Uhuru.CloudFoundry.Server.MSSqlNode.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E9B2BD78D4384355238D86814EF33C65"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Uhuru.Configuration, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5a3403938664750e, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_E9B2BD78D4384355238D86814EF33C65"
+                    {
+                    "Name" = "8:Uhuru.Configuration.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Uhuru.Configuration.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F32E097F6656B05090CC5CB73A5F7F3A"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_F32E097F6656B05090CC5CB73A5F7F3A"
+                    {
+                    "Name" = "8:Newtonsoft.Json.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Newtonsoft.Json.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -230,9 +536,9 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:MssqlNode"
-        "ProductCode" = "8:{9366BAD6-858B-4681-A7C2-AF7B4A615A9E}"
-        "PackageCode" = "8:{1C966444-CFC1-46FA-9254-ACE0D9CD7378}"
-        "UpgradeCode" = "8:{A5E32CA7-AEC3-41BB-9301-1696CA82E322}"
+        "ProductCode" = "8:{D5D20AC8-7139-4578-AD0F-779C6B301138}"
+        "PackageCode" = "8:{F1BCF644-D402-41BA-AEDA-110F052DB20A}"
+        "UpgradeCode" = "8:{FAD694E9-85A4-4C98-A70F-E6612138330B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -750,6 +1056,146 @@
         }
         "ProjectOutput"
         {
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_15C0E74432E94A038F9929BF6F98ABDB"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1CEB82D8060F4AD4947121D78CD4C83E"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:ContentFiles"
+            "OutputProjectGuid" = "8:{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2A05CAA3ADBB420799EAD7D6318C13B2"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_65AE2CADB42F43309186D277733ABBDF"
+            {
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.MsSqlService.WindowsService\\obj\\x86\\Debug\\Uhuru.CloudFoundry.MSSqlService.WindowsService.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B65FA644B85C4923A4796517E409F4C7"
+            {
+            "SourcePath" = "8:"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Symbols"
+            "OutputProjectGuid" = "8:{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
         }
     }
 }

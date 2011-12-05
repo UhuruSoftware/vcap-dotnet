@@ -76,9 +76,7 @@
     <Compile Include="DynamicDllLoadTest.cs" />
     <Compile Include="UtilitiesTests.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="IISOperationsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="JsonToolsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

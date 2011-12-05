@@ -78,11 +78,13 @@ namespace Uhuru.Utilities
         /// <returns>The deserialized object.</returns>
         public static T FromJson<T>(this T value, string json) where T : class
         {
+            //TODO: uncomment this
+            /*
             if (value == null)
             {
                 throw new ArgumentNullException("value");
             }
-
+            */
             Type type = typeof(T);
             if (type.IsArray)
             {

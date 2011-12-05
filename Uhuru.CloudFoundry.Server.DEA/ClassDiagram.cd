@@ -17,14 +17,14 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AEAQCAAgAAQQAAAAAAIAgAAAIAAEgAgAAAAQAAAAAAI=</HashCode>
+      <HashCode>AEAQCAAgAAAQAAAAAAIAgAAAIAAEgAgAAAAQAAAAAAI=</HashCode>
       <FileName>DropletCollection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DropletInstance">
     <Position X="4.25" Y="7.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>IEAQAhAAAAAAAAAAAACAYAQEAAAABACAQAAgAoACAAA=</HashCode>
+      <HashCode>IEAQAgAAAAAAAAAAAACAYAQEAAAAAAAAAAAgAAACAAA=</HashCode>
       <FileName>DropletInstance.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -35,39 +35,11 @@
       <FileName>DropletInstanceUsage.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Service">
-    <Position X="3" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Service.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.ServiceCredentials">
     <Position X="3" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ServiceCredentials.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.ServiceCollection">
-    <Position X="3" Y="0.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>ServiceCollection.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.EnvironmentVariable">
-    <Position X="5.5" Y="1.5" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>EnvironmentVariable.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.EnvironmentVariableCollection">
-    <Position X="5.5" Y="0.5" Width="3.25" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>EnvironmentVariableCollection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DeaReactor">
@@ -101,22 +73,15 @@
       </Delegate>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>KAARFAEQgCUIAAEQAgSAAUYIQLAAAgiACkgQIAAAQGo=</HashCode>
+      <HashCode>KAARFAEQgCUMAAEQAwSAAUYIQLAAAgiCCkgQIEAAQGo=</HashCode>
       <FileName>Agent.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.FileViewer">
     <Position X="14.75" Y="6.5" Width="2" />
     <TypeIdentifier>
-      <HashCode>AKAAAAAAACAAgAAAAAEAQAAACAAEAAAAKAAAAAAAAAA=</HashCode>
+      <HashCode>AKAAAAAAACAAAAAAAAEAQAAACAAEAAAAKAAAAAAAAAA=</HashCode>
       <FileName>FileViewer.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.FlexibleJsonStructure">
-    <Position X="14.25" Y="4" Width="3" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>RubyJsonStructure.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.Utils">
@@ -328,28 +293,42 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageRequest">
-    <Position X="14.75" Y="26.75" Width="2" />
+    <Position X="14.25" Y="26.5" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>IAAgAAIAAEBAAAAAAAAAAAAAAAAAAAAAAgAABAAAAAA=</HashCode>
+      <HashCode>IBAgAAIAAEBAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
       <FileName>Messages\DeaFindDropletMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageResponse">
-    <Position X="17.25" Y="26.75" Width="2" />
+    <Position X="17.25" Y="26.75" Width="2.25" />
     <TypeIdentifier>
-      <HashCode>MAACAAIAAAAACAAEgBAAAAAAAAAAAAAQAAkAJAAAQAA=</HashCode>
+      <HashCode>MBACAAIAAAAACAAEgBAAAAAAAAAAAAAQAAkAJAAAQAA=</HashCode>
       <FileName>Messages\DeaFindDropletMessageResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaStopMessageRequest">
+    <Position X="23" Y="28.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IAAgAAIAAEBAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Messages\DeaStopMessageRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaUpdateMessageRequest">
+    <Position X="20.25" Y="29.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Messages\DeaUpdateMessageRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Enum Name="Uhuru.CloudFoundry.DEA.DropletInstanceState" Collapsed="true">
-    <Position X="2.5" Y="1.75" Width="1.5" />
+    <Position X="2.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>IAAQAAAAAAAAAAAAAAAQAJAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DropletInstanceProperties.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Enum Name="Uhuru.CloudFoundry.DEA.DropletExitReason" Collapsed="true">
-    <Position X="0.75" Y="1.75" Width="1.5" />
+    <Position X="2.75" Y="0.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>CAAAAAAAAAAAAAAAAQAQAIAAAAAAAAAAAAAAAAAQAAA=</HashCode>
       <FileName>DropletInstanceProperties.cs</FileName>

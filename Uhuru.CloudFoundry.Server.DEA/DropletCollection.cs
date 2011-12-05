@@ -52,11 +52,6 @@ namespace Uhuru.CloudFoundry.DEA
 
         }
 
-        public void CrashesReaper()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public delegate void ForEachDelegate(DropletInstance instance);
         public void ForEach(bool UpgradableReadLock, ForEachDelegate doThat)
         {
@@ -66,7 +61,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    Lock.EnterReadLock();
+                    Lock.EnterUpgradeableReadLock();
                     foreach (KeyValuePair<int, Droplet> instances in Droplets)
                     {
                         foreach (KeyValuePair<string, DropletInstance> instance in instances.Value.DropletInstances)
@@ -74,16 +69,19 @@ namespace Uhuru.CloudFoundry.DEA
                             ephemeralInstances.Add(instance.Value);
                         }
                     }
+
+                    foreach (DropletInstance instance in ephemeralInstances)
+                    {
+                        doThat(instance);
+                    }
+
                 }
                 finally
                 {
-                    Lock.ExitReadLock();
+                    Lock.ExitUpgradeableReadLock();
                 }
 
-                foreach (DropletInstance instance in ephemeralInstances)
-                {
-                    doThat(instance);
-                }
+                
 
             }
             else

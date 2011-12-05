@@ -141,6 +141,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyBaseDir];
             }
+            set
+            {
+                base[propertyBaseDir] = value;
+            }
         }
 
 
@@ -157,6 +161,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyLocalRoute];
             }
+            set
+            {
+                base[propertyLocalRoute] = value;
+            }
         }
 
         /// <summary>
@@ -168,6 +176,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (int)base[propertyFilerPort];
+            }
+            set
+            {
+                base[propertyFilerPort] = value;
             }
         }
 
@@ -182,6 +194,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (int)base[propertyHeartBeatInterval];
             }
+            set
+            {
+                base[propertyHeartBeatInterval] = value;
+            }
         }
          
         /// <summary>
@@ -193,6 +209,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (string)base[propertyMessageBus];
+            }
+            set
+            {
+                base[propertyMessageBus] = value;
             }
         }
 
@@ -206,18 +226,26 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyMultiTenant];
             }
+            set
+            {
+                base[propertyMultiTenant] = value;
+            }
         }
 
         /// <summary>
         /// Maximum memory allocated to this DEA. In a multi tenant setup, this
         /// memory is divided amongst all applications managed by this DEA.
         /// </summary>
-        [ConfigurationProperty("maxMemory", IsRequired = true, DefaultValue = 2048)]
+        [ConfigurationProperty("maxMemory", IsRequired = false, DefaultValue = 2048)]
         public int MaxMemory
         {
             get
             {
                 return (int)base[propertyMaxMemory];
+            }
+            set
+            {
+                base[propertyMaxMemory] = value;
             }
         }
 
@@ -231,6 +259,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertySecure];
             }
+            set
+            {
+                base[propertySecure] = value;
+            }
         }
 
         /// <summary>
@@ -242,6 +274,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (bool)base[propertyEnforceUlimit];
+            }
+            set
+            {
+                base[propertyEnforceUlimit] = value;
             }
         }
 
@@ -255,6 +291,10 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyDisableDirCleanup];
             }
+            set
+            {
+                base[propertyDisableDirCleanup] = value;
+            }
         }
 
         /// <summary>
@@ -267,6 +307,10 @@ namespace Uhuru.Configuration.DEA
             get
             {
                 return (bool)base[propertyForceHttpSharing];
+            }
+            set
+            {
+                base[propertyForceHttpSharing] = value;
             }
         }
 
@@ -291,6 +335,21 @@ namespace Uhuru.Configuration.DEA
             get { return properties; }
         }
 
+
+        #endregion
+
+        #region Overrides
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+        /// </summary>
+        /// <returns>
+        /// true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+        /// </returns>
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
 
         #endregion
     }
