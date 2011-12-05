@@ -12,7 +12,7 @@ namespace Uhuru.Utilities
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class JsonNameAttribute : Attribute
+    public sealed class JsonNameAttribute : Attribute
     {
         public string Name
         {
@@ -152,15 +152,21 @@ namespace Uhuru.Utilities
             return result;
         }
 
-        public void FromJsonIntermediateObject(object obj)
+        public void FromJsonIntermediateObject(object value)
         {
             Type type = this.GetType();
             
             PropertyInfo[] propertyInfos = type.GetProperties();
 
+            if (value == null)
+            { 
+                //TODO: what should the method do then?
+                return;
+            }
+
             // we do this here so there's no need to repeatedly cast the object within each pass of each for loop
-            JObject objectAsJObject = obj as JObject;
-            Dictionary<string, object> objectAsDictionary = obj as Dictionary<string, object>;
+            JObject valueAsJObject = value as JObject;
+            Dictionary<string, object> valueAsDictionary = value as Dictionary<string, object>;
 
             foreach (PropertyInfo property in propertyInfos)
             {
@@ -182,36 +188,36 @@ namespace Uhuru.Utilities
                             {
                                 JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                if (obj.GetType() == typeof(JObject))
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    finalValue.FromJsonIntermediateObject(objectAsJObject[jsonPropertyName]);
+                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
                                 }
-                                else if (obj.GetType() == typeof(Dictionary<string, object>))
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    finalValue.FromJsonIntermediateObject(objectAsDictionary[jsonPropertyName]);
+                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsupported intermediate format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
 
                                 property.SetValue(this, finalValue, null);
                             }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
-                                if (obj.GetType() == typeof(JObject))
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
+                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
                                     MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    property.SetValue(this, genericMethod.Invoke(objectAsJObject[jsonPropertyName], null), null);
+                                    property.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null), null);
                                 }
-                                else if (obj.GetType() == typeof(Dictionary<string, object>))
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    property.SetValue(this, objectAsDictionary[jsonPropertyName], null);
+                                    property.SetValue(this, valueAsDictionary[jsonPropertyName], null);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsupported intermediate format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
                             }
                         }
@@ -244,36 +250,36 @@ namespace Uhuru.Utilities
                             {
                                 JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
                                 
-                                if (obj.GetType() ==  typeof(JObject))
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    finalValue.FromJsonIntermediateObject(objectAsJObject[jsonPropertyName]);
+                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
                                 }
-                                else if (obj.GetType() == typeof(Dictionary<string, object>))
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    finalValue.FromJsonIntermediateObject(objectAsDictionary[jsonPropertyName]);
+                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsupported intermediate format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
 
                                 field.SetValue(this, finalValue);
                             }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
-                                if (obj.GetType() == typeof(JObject))
+                                if (value.GetType() == typeof(JObject))
                                 {
-                                    MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
+                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
                                     MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    field.SetValue(this, genericMethod.Invoke(objectAsJObject[jsonPropertyName], null));
+                                    field.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null));
                                 }
-                                else if (obj.GetType() == typeof(Dictionary<string, object>))
+                                else if (value.GetType() == typeof(Dictionary<string, object>))
                                 {
-                                    field.SetValue(this, objectAsDictionary[jsonPropertyName]);
+                                    field.SetValue(this, valueAsDictionary[jsonPropertyName]);
                                 }
                                 else
                                 {
-                                    throw new Exception("Unsupported intermediate format");
+                                    throw new FormatException("Unsupported intermediate format");
                                 }
                             }
                         }

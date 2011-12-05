@@ -1,36 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.XPath;
-using System.IO;
-using System.Collections;
-
-using System.Reflection;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="WebConfigRewiring.cs" company="Uhuru Software">
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Autowiring
 {
-    public enum ParentSection { SystemWeb };
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
+    using System.Xml;
+    using System.Xml.XPath;
+    
+    public enum ParentSection
+    { 
+        SystemWeb 
+    }
 
     public interface ISiteConfigManager
     {
-        void RegisterSectionRewire(INodeConfigRewireBase nodeConfig);
-        IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig);
-        void Rewire(bool backupOriginal);
-        void CommitChanges();
-
         bool AllowExternalSource
         {
             get;
             set;
         }
+        
+        void RegisterSectionRewire(INodeConfigRewireBase nodeConfig);
+        IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig);
+        void Rewire(bool backupOriginal);
+        void CommitChanges();
     }
 
     public interface INodeConfigRewireBase
     {
         void Register(ISiteConfigManager siteConfigManager);
+
         IXPathNavigable RewireConfig(IXPathNavigable configNode, bool createNewIfNotPresent);
 
         string ConfigSectionName
@@ -57,13 +61,41 @@ namespace Uhuru.Autowiring
             set;
         }
     }
-
-
+    
     public class HealthMonRewire : INodeConfigRewireBase
     {
-        private string hmExtSource = "UhuruAspNetEventProvider.config";
-
+        private string healthMonExtSource = "UhuruAspNetEventProvider.config";
         private ISiteConfigManager configmanager;
+                
+        public string ConfigSectionName
+        {
+            get { return "healthMonitoring"; }
+            set { }
+        }
+
+        public ParentSection ConfigParent
+        {
+            get 
+            { 
+                return ParentSection.SystemWeb; 
+            }
+            set { }
+        }
+
+        public bool HasExternalSource
+        {
+            get
+            {
+                return true;
+            }
+            set { }
+        }
+
+        public string ExternalSource
+        {
+            get { return this.healthMonExtSource; }
+            set { }
+        }
 
         public void Register(ISiteConfigManager siteConfigManager)
         {
@@ -71,7 +103,8 @@ namespace Uhuru.Autowiring
             {
                 throw new ArgumentNullException("siteConfigManager");
             }
-            configmanager = siteConfigManager;
+
+            this.configmanager = siteConfigManager;
             siteConfigManager.RegisterSectionRewire(this);
         }
 
@@ -83,7 +116,7 @@ namespace Uhuru.Autowiring
             {
                 if (createNewIfNotPresent)
                 {
-                    tempConfig = (XmlNode)configmanager.CreateNewSection(this);
+                    tempConfig = (XmlNode)this.configmanager.CreateNewSection(this);
                 }
                 else
                 {
@@ -95,10 +128,10 @@ namespace Uhuru.Autowiring
                 tempConfig.RemoveAll();
             }
 
-            if (configmanager.AllowExternalSource)
+            if (this.configmanager.AllowExternalSource)
             {
                 XPathNavigator nav = tempConfig.CreateNavigator();
-                nav.CreateAttribute(null, "configSource", null, hmExtSource);
+                nav.CreateAttribute(null, "configSource", null, this.healthMonExtSource);
             }
             else
             {
@@ -107,75 +140,51 @@ namespace Uhuru.Autowiring
 
             return tempConfig;
         }
-
-        public string ConfigSectionName
-        {
-            get { return "healthMonitoring"; }
-            set { }
-        }
-
-        public ParentSection ConfigParent
-        {
-            get { return ParentSection.SystemWeb; }
-            set { }
-        }
-
-        public bool HasExternalSource
-        {
-            get
-            {
-                return true;
-            }
-            set
-            {
-            }
-        }
-
-
-        public string ExternalSource
-        {
-            get { return hmExtSource; }
-            set { }
-        }
     }
 
     public class SiteConfig : ISiteConfigManager
     {
-        private FileStream fsWebSiteConfig;
+        private FileStream fileStreamWebSiteConfig;
         private XmlDocument xmlConfigRoot;
         private string rootConfigNode;
         private string configFilePath;
         private string sitePath;
+        private bool allowExternalSource;
 
         private Dictionary<int, INodeConfigRewireBase> sectionConfigurators;
         private SortedDictionary<ParentSection, string> configParents;
-
-        public bool AllowExternalSource
-        {
-            get { return true; }
-            set { }
-        }
-
+               
+        /// <summary>
+        /// class constructor
+        /// </summary>
+        /// <param name="webConfigPath"></param>
+        /// <param name="allowExternalSource"></param>
         public SiteConfig(string webConfigPath, bool allowExternalSource)
         {
-            sitePath = webConfigPath;
-            rootConfigNode = "configuration";
+            this.sitePath = webConfigPath;
+            this.rootConfigNode = "configuration";
 
-            sectionConfigurators = new Dictionary<int, INodeConfigRewireBase>();
-            configParents = new SortedDictionary<ParentSection, string>();
+            this.sectionConfigurators = new Dictionary<int, INodeConfigRewireBase>();
+            this.configParents = new SortedDictionary<ParentSection, string>();
 
-            configParents[ParentSection.SystemWeb] = "system.web";
+            this.configParents[ParentSection.SystemWeb] = "system.web";
 
-            configFilePath = Path.Combine(webConfigPath, "Web.config");
+            this.configFilePath = Path.Combine(webConfigPath, "Web.config");
 
-            fsWebSiteConfig = File.Open(configFilePath, FileMode.Open, FileAccess.Read);
+            this.fileStreamWebSiteConfig = File.Open(configFilePath, FileMode.Open, FileAccess.Read);
 
-            xmlConfigRoot = new XmlDocument();
-            xmlConfigRoot.Load(fsWebSiteConfig);
+            this.xmlConfigRoot = new XmlDocument();
+            this.xmlConfigRoot.Load(fileStreamWebSiteConfig);
 
-            fsWebSiteConfig.Close();
+            this.fileStreamWebSiteConfig.Close();
 
-            AllowExternalSource = allowExternalSource;
+            this.allowExternalSource = allowExternalSource;
+        }
+        
+        public bool AllowExternalSource
+        {
+            get { return allowExternalSource; }
+            set { }
         }
 
         public void RegisterSectionRewire(INodeConfigRewireBase nodeConfig)
@@ -184,15 +193,18 @@ namespace Uhuru.Autowiring
             {
                 throw new ArgumentNullException("nodeConfig");
             }
+
             sectionConfigurators.Add(nodeConfig.GetType().GetHashCode(), nodeConfig);
         }
 
         public void Rewire(bool backupOriginal)
         {
             if (backupOriginal == true)
+            {
                 throw new NotImplementedException("Site config: Configuration backup not implemented yet.");
+            }
 
-            foreach (INodeConfigRewireBase node in sectionConfigurators.Values)
+            foreach (INodeConfigRewireBase node in this.sectionConfigurators.Values)
             {
                 RewireIndividualSection(node);
                 if (node.HasExternalSource)
@@ -214,9 +226,9 @@ namespace Uhuru.Autowiring
 
         public void CommitChanges()
         {
-            fsWebSiteConfig = File.Open(configFilePath, FileMode.Create, FileAccess.Write);
-            xmlConfigRoot.Save(fsWebSiteConfig);
-            fsWebSiteConfig.Close();
+            this.fileStreamWebSiteConfig = File.Open(configFilePath, FileMode.Create, FileAccess.Write);
+            this.xmlConfigRoot.Save(fileStreamWebSiteConfig);
+            this.fileStreamWebSiteConfig.Close();
         }
 
         public IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig)
@@ -225,18 +237,16 @@ namespace Uhuru.Autowiring
             {
                 throw new ArgumentNullException("nodeConfig");
             }
-            XmlNode newConfigNode = xmlConfigRoot.CreateNode(XmlNodeType.Element, nodeConfig.ConfigSectionName, null);
+
+            XmlNode newConfigNode = this.xmlConfigRoot.CreateNode(XmlNodeType.Element, nodeConfig.ConfigSectionName, null);
             return newConfigNode;
         }
 
         private void RewireIndividualSection(INodeConfigRewireBase node)
         {
-            XmlNode firstParent = xmlConfigRoot.SelectSingleNode(rootConfigNode).SelectSingleNode(configParents[node.ConfigParent]);
-
+            XmlNode firstParent = this.xmlConfigRoot.SelectSingleNode(this.rootConfigNode).SelectSingleNode(this.configParents[node.ConfigParent]);
             XmlNode oldConfig = firstParent.SelectSingleNode(node.ConfigSectionName);
-
             XmlNode newConfig = (XmlNode)node.RewireConfig(oldConfig, true);
-
             XPathNavigator nav = firstParent.CreateNavigator();
 
             if (oldConfig == null)
