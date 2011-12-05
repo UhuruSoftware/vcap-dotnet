@@ -6,7 +6,7 @@ using NetFwTypeLib;
 
 namespace Uhuru.Utilities
 {
-    static class FirewallTools
+    public static class FirewallTools
     {
         public static void OpenPort(int port, string applicationName)
         {
