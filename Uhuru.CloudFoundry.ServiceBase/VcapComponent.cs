@@ -72,7 +72,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
 
             string host = options["host"].ToString();
-            int port = options.ContainsKey("port") ? Convert.ToInt32(options["port"], CultureInfo.InvariantCulture) : 0;
+            int port = NetworkInterface.GrabEphemeralPort();
 
             Reactor nats = (Reactor)options["nats"];
 
