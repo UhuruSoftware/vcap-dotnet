@@ -23,11 +23,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     {
         #region Class Members
 
-        private string appName = default(string);
-        private string appPath = default(string);
+        private string appName = String.Empty;
+        private string appPath = String.Empty;
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
-        private ServerManager serverMgr = new ServerManager();
         
+        //private ServerManager serverMgr = new ServerManager();
+        private ApplicationInfo applicationInfo = null;
+
         #endregion
 
         #region Public Interface Methods
@@ -35,10 +37,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             appName = removeSpecialCharacters(appInfo.Name) + appInfo.Port.ToString(CultureInfo.InvariantCulture);
             appPath = appInfo.Path;
-            
-            DotNetVersion version = getAppVersion(appInfo);
 
-            deployApp(appInfo, version);
+            applicationInfo = appInfo;
 
             autowireApp(appInfo, services, logFilePath);
         }
@@ -57,12 +57,36 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         public void StartApplication()
         {
+            DotNetVersion version = getAppVersion(applicationInfo);
+
+            deployApp(applicationInfo, version);
+
             startApp(); 
         }
 
-        public int[] GetApplicationProcessIDs()
+        public int GetApplicationProcessID()
         {
-            throw new NotImplementedException();
+            try
+            {
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    string appPoolName = serverMgr.Sites[appName].Applications["/"].ApplicationPoolName;
+                    
+                    foreach (WorkerProcess process in serverMgr.WorkerProcesses)
+                    {
+                        if (process.AppPoolName == appPoolName)
+                        {
+                            return process.ProcessId;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
+            return 0;
         }
 
         public void StopApplication()
@@ -72,9 +96,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             cleanup(appPath);
         }
 
+        public void CleanupApplication(string path)
+        {
+            cleanup(appPath);
+        }
+
         public void KillApplication()
         {
-            killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
+            try
+            {
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
         }
 
         #endregion
@@ -89,8 +129,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             try
             {
-                //using (ServerManager serverMgr = new ServerManager())
-                //{
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
                     DirectoryInfo deploymentDir = new DirectoryInfo(appInfo.Path);
                     DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
 
@@ -98,7 +139,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     deploymentDir.SetAccessControl(deploymentDirSecurity);
 
-                    mut.WaitOne();
 
                     Site mySite = serverMgr.Sites.Add(appName, appInfo.Path, appInfo.Port);
                     mySite.ServerAutoStart = false;
@@ -118,7 +158,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     mySite.Applications["/"].ApplicationPoolName = appName;
                     FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
                     serverMgr.CommitChanges();
-                //}
+                }
             }
             finally
             {
@@ -132,31 +172,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             if (File.Exists(configFile))
             {
-                Dictionary<string, string> connections = new Dictionary<string, string>();
-
-                foreach (ApplicationService service in services)
+                if (services != null)
                 {
-                    string key = service.ServiceName;
-                    string connectionString = String.Format(CultureInfo.InvariantCulture,
-                        "Data Source={0},{1};Initial Catalog={2},User Id={3},Password={4};",
-                        service.Host,
-                        service.Port,
-                        service.Name,
-                        service.User,
-                        service.Password);
+                    Dictionary<string, string> connections = new Dictionary<string, string>();
 
-                    connections.Add(key, connectionString);
+                    foreach (ApplicationService service in services)
+                    {
+                        string key = service.ServiceName;
+                        string connectionString = String.Format(CultureInfo.InvariantCulture,
+                            "Data Source={0},{1};Initial Catalog={2},User Id={3},Password={4};",
+                            service.Host,
+                            service.Port,
+                            service.Name,
+                            service.User,
+                            service.Password);
+
+                        connections.Add(key, connectionString);
+                    }
+
+                    string configFileContents = File.ReadAllText(configFile);
+
+                    foreach (string con in connections.Keys)
+                    {
+                        string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
+                        configFileContents = configFileContents.Replace(conToReplace, connections[con]);
+                    }
+
+                    File.WriteAllText(configFile, configFileContents);
                 }
-
-                string configFileContents = File.ReadAllText(configFile);
-
-                foreach (string con in connections.Keys)
-                {
-                    string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
-                    configFileContents = configFileContents.Replace(conToReplace, connections[con]);
-                }
-
-                File.WriteAllText(configFile, configFileContents);
             }
         }
 
@@ -165,30 +208,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 mut.WaitOne();
-                Site site = serverMgr.Sites[appName];
-                
-                if (site.State == ObjectState.Started)
+                using (ServerManager serverMgr = new ServerManager())
                 {
-                    mut.ReleaseMutex();
-                    return;
-                }
-                else
-                {
-                    if (site.State == ObjectState.Stopping)
-                        waitApp(ObjectState.Stopped, 5000);
+                    Site site = serverMgr.Sites[appName];
 
-                    if(site.State != ObjectState.Starting)
-                        site.Start();
+                    waitApp(ObjectState.Stopped, 5000);
 
-                    mut.ReleaseMutex();
+                    if (site.State == ObjectState.Started)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        if (site.State == ObjectState.Stopping)
+                        {
+                            waitApp(ObjectState.Stopped, 5000);
+                        }
+                        if (site.State != ObjectState.Starting)
+                        {
+                            site.Start();
+                        }
+                    }
+                    //ToDo: add configuration for timeout
+                    waitApp(ObjectState.Started, 20000);
                 }
-                //ToDo: add configuration for timeout
-                waitApp(ObjectState.Started, 20000);
             }
-            catch (Exception x)
+            finally
             {
                 mut.ReleaseMutex();
-                throw x;
             }
         }
 
@@ -197,27 +244,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 mut.WaitOne();
-                ObjectState state = serverMgr.Sites[appName].State;
-                mut.ReleaseMutex();
-
-                if (state == ObjectState.Stopped)
+                using (ServerManager serverMgr = new ServerManager())
                 {
-                    return;
-                }
-                else if (state == ObjectState.Starting || state == ObjectState.Started)
-                {
-                    waitApp(ObjectState.Started, 5000);
-                    mut.WaitOne();
-                    serverMgr.Sites[appName].Stop();
-                    mut.ReleaseMutex();
-                }
+                    ObjectState state = serverMgr.Sites[appName].State;
 
-                waitApp(ObjectState.Stopped, 5000);
+                    if (state == ObjectState.Stopped)
+                    {
+                        return;
+                    }
+                    else if (state == ObjectState.Starting || state == ObjectState.Started)
+                    {
+                        waitApp(ObjectState.Started, 5000);
+                        serverMgr.Sites[appName].Stop();
+                    }
+                    waitApp(ObjectState.Stopped, 5000);
+                }
             }
-            catch (Exception x)
+            finally
             {
                 mut.ReleaseMutex();
-                throw x;
             }
         }
 
@@ -347,8 +392,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         private void waitApp(ObjectState waitForState, int milliseconds)
         {
-            //using (ServerManager serverMgr = new ServerManager())
-            //{
+            using (ServerManager serverMgr = new ServerManager())
+            {
                 Site site = serverMgr.Sites[appName];
                 
                 int timeout = 0;
@@ -373,7 +418,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 {
                     throw new TimeoutException("App start operation exceeded maximum time");
                 }
-            //}
+            }
         }
 
         private void killApplicationProcesses(string appPoolName)
