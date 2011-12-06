@@ -1,7 +1,13 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DebugCollection.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.DEA
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This class is a collection of DebugElement.
     /// </summary>

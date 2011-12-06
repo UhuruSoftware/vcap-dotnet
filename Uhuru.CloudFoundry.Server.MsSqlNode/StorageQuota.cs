@@ -1,11 +1,17 @@
-﻿using System;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="StorageQuota.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
+    using System;
+    using System.Globalization;
+    
     partial class Node
     {
-        const int DATA_LENGTH_FIELD = 6;
+        private const int DataLengthField = 6;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "db"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         private int db_size(string db)

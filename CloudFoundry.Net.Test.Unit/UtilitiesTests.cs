@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="UtilitiesTests.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,7 +13,6 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.Utilities;
 using Uhuru.Utilities.ProcessPerformance;
-
 
 namespace CloudFoundry.Net.Test.Unit
 {

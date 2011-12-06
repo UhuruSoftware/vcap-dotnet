@@ -1,4 +1,10 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MsSqlServicesTest.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
@@ -219,7 +225,7 @@ namespace CloudFoundry.Net.Test.Automation
 
             Assert.AreEqual(0, exceptions.Count);
 
-            foreach(string service in services)
+            foreach (string service in services)
             {
                 Assert.IsTrue(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
             }

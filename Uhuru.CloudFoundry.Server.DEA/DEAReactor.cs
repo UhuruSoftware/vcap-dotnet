@@ -1,14 +1,18 @@
-﻿using System;
-using System.Globalization;
-using Uhuru.NatsClient;
-using Uhuru.Utilities;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaReactor.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Globalization;
+    using Uhuru.NatsClient;
+    using Uhuru.Utilities;
+
     public class DeaReactor : VcapReactor
     {
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnRouterStart;
@@ -45,8 +49,6 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaUpdate;
 
-        
-
         public DeaReactor()
         {
 
@@ -63,7 +65,6 @@ namespace Uhuru.CloudFoundry.DEA
         {
             base.Start();
             
-
             NatsClient.Subscribe("dea.status", OnDeaStatus);
             NatsClient.Subscribe("droplet.status", OnDropletStatus);
             NatsClient.Subscribe("dea.discover", OnDeaDiscover);

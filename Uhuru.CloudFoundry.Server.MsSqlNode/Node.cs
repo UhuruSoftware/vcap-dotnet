@@ -1,43 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Transactions;
-using Uhuru.CloudFoundry.ServiceBase;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Node.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Data.SqlClient;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
+    using System.Transactions;
+    using Uhuru.CloudFoundry.ServiceBase;
+    using Uhuru.Utilities;
+    
     /// <summary>
     /// This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.
     /// </summary>
     public partial class Node : NodeBase
     {
-        const int KEEP_ALIVE_INTERVAL = 15000;
-        const int LONG_QUERY_INTERVAL = 1;
-        const int STORAGE_QUOTA_INTERVAL = 1;
-        private MSSqlOptions mssql_config;
-        private int max_db_size;
-        private int max_long_query;
-        private int max_long_tx;
+        private const int KEEP_ALIVE_INTERVAL = 15000;
+        private const int LONG_QUERY_INTERVAL = 1;
+        private const int STORAGE_QUOTA_INTERVAL = 1;
+
+        private MSSqlOptions mssqlConfig;
+        private int maxDbSize;
+        private int maxLongQuery;
+        private int maxLongTx;
         SqlConnection connection;
-        private string base_dir;
-        private int available_storage;
-        private int node_capacity;
-        private int queries_served;
-        private DateTime qps_last_updated;
-        private int long_queries_killed;
-        private int long_tx_killed;
-        private int provision_served;
-        private int binding_served;
-        private string local_ip;
-
-
+        private string baseDir;
+        private int availableStorage;
+        private int nodeCapacity;
+        private int queriesServed;
+        private DateTime qpsLastUpdated;
+        private int longQueriesKilled;
+        private int longTxKilled;
+        private int provisionServed;
+        private int bindingServed;
+        private string localIp;
+        
         /// <summary>
         /// Gets the service name.
         /// </summary>
@@ -74,30 +80,30 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 throw new ArgumentNullException("msSqlOptions");
             }
 
-            mssql_config = msSqlOptions;
-            max_db_size = options.MaxDBSize * 1024 * 1024;
-            max_long_query = options.MaxLengthyQuery;
-            max_long_tx = options.MaxLengthyTX;
-            local_ip = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
+            this.mssqlConfig = msSqlOptions;
+            this.maxDbSize = options.MaxDBSize * 1024 * 1024;
+            this.maxLongQuery = options.MaxLengthyQuery;
+            this.maxLongTx = options.MaxLengthyTX;
+            this.localIp = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
-            connection = mssql_connect();
+            this.connection = mssql_connect();
 
             TimerHelper.RecurringCall(KEEP_ALIVE_INTERVAL, delegate()
             {
                 mssql_keep_alive();
             });
 
-            if (max_long_query > 0)
+            if (maxLongQuery > 0)
             {
-                TimerHelper.RecurringCall(max_long_query / 2, delegate()
+                TimerHelper.RecurringCall(maxLongQuery / 2, delegate()
                 {
                     kill_long_queries();
                 });
             }
 
-            if (max_long_tx > 0)
+            if (this.maxLongTx > 0)
             {
-                TimerHelper.RecurringCall(max_long_tx / 2, delegate()
+                TimerHelper.RecurringCall(this.maxLongTx / 2, delegate()
                 {
                     mssql_keep_alive();
                 });
@@ -108,32 +114,32 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 enforce_storage_quota();
             });
 
-            base_dir = options.BaseDir;
-            if (!String.IsNullOrEmpty(base_dir))
+            this.baseDir = options.BaseDir;
+            if (!string.IsNullOrEmpty(baseDir))
             {
-                Directory.CreateDirectory(base_dir);
+                Directory.CreateDirectory(baseDir);
             }
 
             ProvisionedService.Initialize(options.LocalDB);
 
             check_db_consistency();
 
-            available_storage = options.AvailableStorage * 1024 * 1024;
-            node_capacity = available_storage;
+            this.availableStorage = options.AvailableStorage * 1024 * 1024;
+            this.nodeCapacity = this.availableStorage;
 
             foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
             {
-                available_storage -= storage_for_service(provisioned_service);
+                this.availableStorage -= storage_for_service(provisioned_service);
             }
 
-            queries_served = 0;
-            qps_last_updated = DateTime.Now;
+            this.queriesServed = 0;
+            this.qpsLastUpdated = DateTime.Now;
             // initialize qps counter
-            get_qps();
-            long_queries_killed = 0;
-            long_tx_killed = 0;
-            provision_served = 0;
-            binding_served = 0;
+            this.get_qps();
+            this.longQueriesKilled = 0;
+            this.longTxKilled = 0;
+            this.provisionServed = 0;
+            this.bindingServed = 0;
             this.Start(options);
 
         }
@@ -146,7 +152,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableStorage = available_storage;
+                a.AvailableStorage = this.availableStorage;
                 return a;
             }
         }
@@ -162,7 +168,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
         {
             switch (provisioned_service.Plan)
             {
-                case ProvisionedServicePlanType.Free: return max_db_size;
+                case ProvisionedServicePlanType.Free: return maxDbSize;
                 default: throw new MSSqlError(MSSqlError.MSSqlInvalidPlan, provisioned_service.Plan.ToString());
             }
         }
@@ -172,7 +178,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             get
             {
                 return String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeConnectionString, 
-                    mssql_config.Host, mssql_config.Port, mssql_config.User, mssql_config.Password);
+                    mssqlConfig.Host, mssqlConfig.Port, mssqlConfig.User, mssqlConfig.Password);
             }
         }
 
@@ -288,7 +294,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 }
 
                 ServiceCredentials response = gen_credential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password);
-                provision_served += 1;
+                provisionServed += 1;
                 return response;
             }
             catch (Exception)
@@ -342,7 +348,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
 
             delete_database(provisioned_service);
             int storage = storage_for_service(provisioned_service);
-            available_storage += storage;
+            this.availableStorage += storage;
 
             if (!provisioned_service.Destroy())
             {
@@ -406,7 +412,7 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 ServiceCredentials response = gen_credential(name, binding["user"] as string, binding["password"] as string);
 
                 Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
-                binding_served += 1;
+                bindingServed += 1;
                 return response;
             }
             catch (Exception)
@@ -473,11 +479,12 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
 
                 create_database_user(name, user, password);
                 int storage = storage_for_service(provisioned_service);
-                if (available_storage < storage)
+                if (this.availableStorage < storage)
                 {
                     throw new MSSqlError(MSSqlError.MSSqlDiskFull);
                 }
-                available_storage -= storage;
+
+                this.availableStorage -= storage;
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisioned_service.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
@@ -700,14 +707,14 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
                 object[] status = get_instance_status();
                 varz["database_status"] = status;
                 // node capacity
-                varz["node_storage_capacity"] = node_capacity;
-                varz["node_storage_used"] = node_capacity - available_storage;
+                varz["node_storage_capacity"] = this.nodeCapacity;
+                varz["node_storage_used"] = this.nodeCapacity - this.availableStorage;
                 // how many long queries and long txs are killed.
-                varz["long_queries_killed"] = long_queries_killed;
-                varz["long_transactions_killed"] = long_tx_killed;
+                varz["long_queries_killed"] = longQueriesKilled;
+                varz["long_transactions_killed"] = longTxKilled;
                 // how many provision/binding operations since startup.
-                varz["provision_served"] = provision_served;
-                varz["binding_served"] = binding_served;
+                varz["provision_served"] = provisionServed;
+                varz["binding_served"] = bindingServed;
                 return varz;
             }
             catch (Exception ex)
@@ -755,11 +762,11 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             int queries = get_queries_status();
             DateTime ts = DateTime.Now;
 
-            double delta_t = (ts - qps_last_updated).TotalSeconds;
+            double delta_t = (ts - this.qpsLastUpdated).TotalSeconds;
 
-            double qps = (queries - @queries_served) / delta_t;
-            queries_served = queries;
-            qps_last_updated = ts;
+            double qps = (queries - @queriesServed) / delta_t;
+            this.queriesServed = queries;
+            this.qpsLastUpdated = ts;
 
             return qps;
         }
@@ -776,9 +783,9 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             ServiceCredentials response = new ServiceCredentials();
 
             response.Name = name;
-            response.HostName = local_ip;
-            response.HostName = local_ip;
-            response.Port = mssql_config.Port;
+            response.HostName = localIp;
+            response.HostName = localIp;
+            response.Port = mssqlConfig.Port;
             response.User = user;
             response.UserName = user;
             response.Password = passwd;

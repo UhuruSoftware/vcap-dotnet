@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="NetFrameworkVersion.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -59,7 +60,7 @@ namespace Uhuru.Utilities
                 string domainName = Guid.NewGuid().ToString();
                 AppDomain domain = AppDomain.CreateDomain(domainName, null, setup);
 
-                LoadAssembly obj = (LoadAssembly)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, "CloudFoundry.Net.IIS.Utilities.LoadAssembly");
+                LoadAssembly obj = (LoadAssembly)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, "Uhuru.Utilities.LoadAssembly");
 
                 string version = obj.GetDotNetVersion(assemblyPath); //a.ImageRuntimeVersion.Split('.')[0].Replace("v", "");
 

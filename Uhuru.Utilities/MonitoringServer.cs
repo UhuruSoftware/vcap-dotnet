@@ -1,11 +1,17 @@
-﻿using System;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Security;
-using System.ServiceModel.Web;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MonitoringServer.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel.Security;
+    using System.ServiceModel.Web;
+    
     /// <summary>
     /// This is an EventArgs class used by the Healthz and Varz server.
     /// When the server needs healthz information, it raises an event.
@@ -60,13 +66,14 @@ namespace Uhuru.Utilities
         /// Event that is raised when the server receives a healthz request (http://[ip]:[port]/healthz).
         /// </summary>
         public event EventHandler<HealthzRequestEventArgs> HealthzRequested;
+
         /// <summary>
         /// Event that is raised when the server receives a varz request (http://[ip]:[port]/varz).
         /// </summary>
         public event EventHandler<VarzRequestEventArgs> VarzRequested;
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the MonitoringServer class
         /// </summary>
         /// <param name="port">The port used by the server to listen.</param>
         /// <param name="host">The host used to publish the service.</param>
@@ -167,8 +174,6 @@ namespace Uhuru.Utilities
         }
 
         #endregion
-
-
 
         [ServiceContract]
         interface IMonitoringService

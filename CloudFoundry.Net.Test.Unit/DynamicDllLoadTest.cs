@@ -1,4 +1,10 @@
-﻿namespace CloudFoundry.Net.Test.Unit
+﻿// -----------------------------------------------------------------------
+// <copyright file="DynamicDllLoadTest.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace CloudFoundry.Net.Test.Unit
 {
     using System;
     using System.IO;

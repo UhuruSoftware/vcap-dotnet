@@ -1,6 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uhuru.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ConfigurationTests.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.Configuration;
 
 namespace CloudFoundry.Net.Test.Unit
 {

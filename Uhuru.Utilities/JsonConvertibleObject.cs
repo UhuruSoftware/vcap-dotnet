@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="JsonConvertibleObject.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -186,11 +187,11 @@ namespace Uhuru.Utilities
         public void FromJsonIntermediateObject(object value)
         {
             Type type = this.GetType();
-            
+
             PropertyInfo[] propertyInfos = type.GetProperties();
 
             if (value == null)
-            { 
+            {
                 //TODO: what should the method do then?
                 return;
             }
@@ -313,7 +314,7 @@ namespace Uhuru.Utilities
                             string jsonPropertyName = nameAttribute.Name;
 
                             Type propertyType = field.FieldType;
-                            
+
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
                                 if (valueAsJObject[jsonPropertyName] != null)
@@ -410,14 +411,14 @@ namespace Uhuru.Utilities
 
             if (jObject != null)
             {
-                return jObject.Value<T>();
+                return jObject.ToObject<T>();
             }
 
             JArray jArray = value as JArray;
 
             if (jArray != null)
             {
-                return jArray.Value<T>();
+                return jArray.ToObject<T>();
             }
 
             if (value is T)

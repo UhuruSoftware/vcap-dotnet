@@ -1,8 +1,14 @@
-﻿using System;
-using Uhuru.CloudFoundry.ServiceBase;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MsSqlError.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
+    using System;
+    using Uhuru.CloudFoundry.ServiceBase;
+    
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors"), Serializable]
     class MSSqlError : ServiceException
     {

@@ -1,12 +1,16 @@
-﻿using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="JsonConvertibleObjectTest.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+using Uhuru.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
 namespace CloudFoundry.Net.Test.Unit
 {
-    
-    
     /// <summary>
     ///This is a test class for JsonConvertibleObjectTest and is intended
     ///to contain all JsonConvertibleObjectTest Unit Tests

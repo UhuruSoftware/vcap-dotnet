@@ -1,13 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Objects.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Xml.Serialization;
+    using Uhuru.Utilities;
+    
     /// <summary>
     /// This class contains information about service credentials.
     /// </summary>
@@ -170,6 +176,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private static readonly object collectionLock = new object();
         private static List<ProvisionedService> services;
         private static string filename = String.Empty;
+        
+        private string name;
+        private string user;
+        private string password;
+        private ProvisionedServicePlanType plan;
+        private bool quotaExceeded;
 
         /// <summary>
         /// Initializes a local database for provisioned services.
@@ -181,8 +193,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             services = new List<ProvisionedService>();
             Load(dbFileName);
         }
-
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="ProvisionedService"/> class.
         /// Creates a new instance and adds it to a local collection, that is persisted.
@@ -208,14 +219,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             services.Remove(this);
             return Save();
         }
-
-        string name;
-        string user;
-        string password;
-        ProvisionedServicePlanType plan;
-        bool quotaExceeded;
-
-
+                
         /// <summary>
         /// Gets or sets the name of the provisioned service.
         /// </summary>
@@ -224,11 +228,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return name;
+                return this.name;
             }
             set
             {
-                name = value;
+                this.name = value;
             }
         }
 
@@ -240,11 +244,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return user;
+                return this.user;
             }
             set
             {
-                user = value;
+                this.user = value;
             }
         }
 
@@ -256,11 +260,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return password;
+                return this.password;
             }
             set
             {
-                password = value;
+                this.password = value;
             }
         }
 
@@ -272,11 +276,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return plan;
+                return this.plan;
             }
             set
             {
-                plan = value;
+                this.plan = value;
             }
         }
 
@@ -288,11 +292,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return quotaExceeded;
+                return this.quotaExceeded;
             }
             set
             {
-                quotaExceeded = value;
+                this.quotaExceeded = value;
             }
         }
 

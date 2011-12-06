@@ -1,13 +1,19 @@
-﻿using Uhuru.CloudFoundry.Server.MSSqlNode;
-using Uhuru.CloudFoundry.ServiceBase;
-using Uhuru.Configuration;
-using Uhuru.Configuration.Service;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MsSqlWindowsService.cs" company="">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 {
+    using Uhuru.CloudFoundry.Server.MSSqlNode;
+    using Uhuru.CloudFoundry.ServiceBase;
+    using Uhuru.Configuration;
+    using Uhuru.Configuration.Service;
+    
     public partial class MsSqlWindowsService : System.ServiceProcess.ServiceBase
     {
-        Node node;
+        private Node node;
 
         public MsSqlWindowsService()
         {
@@ -21,12 +27,11 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
         protected override void OnStop()
         {
-            node.Shutdown();
+            this.node.Shutdown();
         }
 
         internal void Start(string[] args)
         {
-
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
             Options options = new Options();
@@ -49,8 +54,8 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
             msSqlOptions.Port = serviceConfig.MSSql.Port;
             msSqlOptions.Password = serviceConfig.MSSql.Password;
 
-            Node node = new Node();
-            node.Start(options, msSqlOptions);
+            this.node = new Node();
+            this.node.Start(options, msSqlOptions);
         }
     }
 }

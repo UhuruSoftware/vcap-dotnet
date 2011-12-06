@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using Uhuru.NatsClient;
-using Uhuru.Utilities;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="Base.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using Uhuru.NatsClient;
+    using Uhuru.Utilities;
+    
     /// <summary>
     /// This is the service base for all Cloud Foundry system services.
     /// </summary>
@@ -30,6 +35,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return orphanInsHash;
             }
+
             set
             {
                 orphanInsHash = value;
@@ -46,6 +52,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return orphanBindingHash;
             }
+
             set
             {
                 orphanBindingHash = value;
@@ -101,7 +108,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             int z_interval = options.ZInterval;
 
-
             // give service a chance to wake up
             TimerHelper.DelayedCall(5000, delegate()
             {
@@ -143,8 +149,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             vcapComponent.Varz = details;
         }
-
-
+        
         private void UpdateHealthz()
         {
             vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(HealthzDetails());
@@ -158,28 +163,30 @@ namespace Uhuru.CloudFoundry.ServiceBase
            Logger.Info(Strings.ShuttingDownLogMessage, ServiceDescription());
             NodeNats.Stop();
         }
-
-
-        
+                
         /// <summary>
         /// Called after the node is connected to NATS.
         /// </summary>
         protected abstract void OnConnectNode();
+        
         /// <summary>
         /// Gets the flavor of the service. Only "Node" for the .net world.
         /// </summary>
         /// <returns>"Node"</returns>
         protected abstract string Flavor();
+        
         /// <summary>
         /// Gets the varz details for this service.
         /// </summary>
         /// <returns>A dictionary containing varz variables.</returns>
         protected abstract Dictionary<string, object> VarzDetails();
+        
         /// <summary>
         /// Gets the healthz details for this service.
         /// </summary>
         /// <returns>A dictionary containing healthz details.</returns>
         protected abstract Dictionary<string, string> HealthzDetails();
+        
         /// <summary>
         /// Gets the service name.
         /// </summary>

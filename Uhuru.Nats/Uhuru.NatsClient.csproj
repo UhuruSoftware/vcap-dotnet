@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReactorEventArgs.cs" />
+    <Compile Include="ReactorErrorEventArgs.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="ParseState.cs" />
     <Compile Include="Resources\ClientConnection.Designer.cs">

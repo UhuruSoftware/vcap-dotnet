@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudTestApp", "CloudTestApp.csproj", "{398C830D-1D3E-4097-AF48-43F76814D37D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug with Installer|Any CPU = Debug with Installer|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release with Installer|Any CPU = Release with Installer|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Debug with Installer|Any CPU.ActiveCfg = Debug with Installer|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Debug with Installer|Any CPU.Build.0 = Debug with Installer|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Release with Installer|Any CPU.ActiveCfg = Release with Installer|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Release with Installer|Any CPU.Build.0 = Release with Installer|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{398C830D-1D3E-4097-AF48-43F76814D37D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

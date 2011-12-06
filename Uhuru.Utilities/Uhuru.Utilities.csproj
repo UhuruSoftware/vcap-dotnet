@@ -105,7 +105,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
-    <Content Include="log4net.config" />
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NetFwTypeLib">
