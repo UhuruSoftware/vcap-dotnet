@@ -134,7 +134,7 @@ namespace Uhuru.Configuration.DEA
 
 
         /// <summary>
-        /// Base directory where all applications are staged and hosted
+        /// Gets or sets the base directory where all applications are staged and hosted
         /// </summary>
         [ConfigurationProperty("baseDir", IsRequired=true, DefaultValue = null)]
         public string BaseDir
@@ -143,18 +143,19 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyBaseDir];
             }
+
             set
             {
                 base[propertyBaseDir] = value;
             }
         }
-
-
+        
         /// <summary>
-        /// Local_route is the IP address of a well known server on your network, it
-        /// is used to choose the right ip address (think of hosts that have multiple nics
-        /// and IP addresses assigned to them) of the host running the DEA. Default
-        /// value of null, should work in most cases.
+        /// Gets or sets the local route.
+        /// The local route is the IP address of a well known server on your network,
+        /// used to choose the right ip address (think of hosts that have multiple nicks
+        /// and IP addresses assigned to them) of the host running the DEA. A default
+        /// value of null should work in most cases.
         /// </summary>
         [ConfigurationProperty("localRoute", IsRequired = false, DefaultValue = null)]
         public string LocalRoute
@@ -163,6 +164,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyLocalRoute];
             }
+
             set
             {
                 base[propertyLocalRoute] = value;
@@ -170,7 +172,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Port for accessing the files of running applications
+        /// Gets or sets the port for accessing the files of running applications.
         /// </summary>
         [ConfigurationProperty("filerPort", IsRequired = true, DefaultValue = 12345)]
         public int FilerPort
@@ -179,15 +181,15 @@ namespace Uhuru.Configuration.DEA
             {
                 return (int)base[propertyFilerPort];
             }
+
             set
             {
                 base[propertyFilerPort] = value;
             }
         }
-
-        
+                
         /// <summary>
-        /// Time interval to send heartbeat messages to the message bus in milliseconds
+        /// Gets or sets the time interval to send heartbeat messages to the message bus, in milliseconds.
         /// </summary>
         [ConfigurationProperty("heartBeatInterval", IsRequired = false, DefaultValue = 10000)]
         public int HeartBeatInterval
@@ -196,6 +198,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (int)base[propertyHeartBeatInterval];
             }
+
             set
             {
                 base[propertyHeartBeatInterval] = value;
@@ -203,7 +206,7 @@ namespace Uhuru.Configuration.DEA
         }
          
         /// <summary>
-        /// NATS message bus URI
+        /// Gets or sets the NATS message bus URI.
         /// </summary>
         [ConfigurationProperty("messageBus", IsRequired = true, DefaultValue = null)]
         public string MessageBus
@@ -212,6 +215,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyMessageBus];
             }
+
             set
             {
                 base[propertyMessageBus] = value;
@@ -219,7 +223,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Allow more than one application to run per DEA
+        /// Gets or sets whether more than one application is allowed to run per DEA.
         /// </summary>
         [ConfigurationProperty("multiTenant", IsRequired = false, DefaultValue = true)]
         public bool MultiTenant
@@ -228,6 +232,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyMultiTenant];
             }
+
             set
             {
                 base[propertyMultiTenant] = value;
@@ -235,7 +240,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Maximum memory allocated to this DEA. In a multi tenant setup, this
+        /// Gets or sets the maximum amount of memory allocated to this DEA. In a multi tenant setup, this
         /// memory is divided amongst all applications managed by this DEA.
         /// </summary>
         [ConfigurationProperty("maxMemory", IsRequired = true, DefaultValue = 2048)]
@@ -245,6 +250,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (int)base[propertyMaxMemory];
             }
+
             set
             {
                 base[propertyMaxMemory] = value;
@@ -252,7 +258,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Secure environment for running applications in a multi tenant setup.
+        /// Gets or sets a value indicating whether the environment for running applications in a multi tenant setup is secure or not.
         /// </summary>
         [ConfigurationProperty("secure", IsRequired = false, DefaultValue = true)]
         public bool Secure
@@ -261,6 +267,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertySecure];
             }
+
             set
             {
                 base[propertySecure] = value;
@@ -268,7 +275,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Provide ulimit based resource isolation in a multi tenant setup.
+        /// Gets or sets a value indicating whether ulimit-based resource isolation in a multi tenant setup is provided or not.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Ulimit"), ConfigurationProperty("enforceUlimit", IsRequired = false, DefaultValue = true)]
         public bool EnforceUlimit
@@ -277,6 +284,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyEnforceUlimit];
             }
+
             set
             {
                 base[propertyEnforceUlimit] = value;
@@ -284,7 +292,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Option to disable the cleanup of droplet instances after stopping them
+        /// Gets or sets a value indicating whether disabling the cleanup of droplet instances after stopping them is activated or not.
         /// </summary>
         [ConfigurationProperty("disableDirCleanup", IsRequired = false, DefaultValue = false)]
         public bool DisableDirCleanup
@@ -293,6 +301,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyDisableDirCleanup];
             }
+
             set
             {
                 base[propertyDisableDirCleanup] = value;
@@ -300,8 +309,8 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Force droplets to be downloaded over http even when
-        /// there is a shared directory containing the droplet.
+        /// Gets or sets a value indicating whether the droplets are to be downloaded over http even when
+        /// there is a shared directory containing the droplet or not.
         /// </summary>
         [ConfigurationProperty("forceHttpSharing", IsRequired = false, DefaultValue = false)]
         public bool ForceHttpSharing
@@ -310,16 +319,13 @@ namespace Uhuru.Configuration.DEA
             {
                 return (bool)base[propertyForceHttpSharing];
             }
+
             set
             {
                 base[propertyForceHttpSharing] = value;
             }
         }
-
-        /// <summary>
-        /// Force droplets to be downloaded over http even when
-        /// there is a shared directory containing the droplet.
-        /// </summary>
+                
         [ConfigurationProperty("runtimes", IsRequired = false, DefaultValue = null)]
         public RuntimeCollection Runtimes
         {
@@ -328,16 +334,7 @@ namespace Uhuru.Configuration.DEA
                 return (RuntimeCollection)base[propertyRuntimes];
             }
         }
-
-        /// <summary>
-        /// Override the Properties collection and return our custom one.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
-        }
-
-
+        
         #endregion
 
         #region Overrides
@@ -351,6 +348,14 @@ namespace Uhuru.Configuration.DEA
         public override bool IsReadOnly()
         {
             return false;
+        }
+        
+        /// <summary>
+        /// Overrides the Properties collection and returns our custom one.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
         }
 
         #endregion
