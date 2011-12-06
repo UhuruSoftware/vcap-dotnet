@@ -21,10 +21,10 @@ namespace Uhuru.Utilities
             return "UhuruVcap" + id.Substring(0, Math.Min(10, id.Length)); 
         }
 
-        public static string CreateUser(string AppId, string password)
+        public static string CreateUser(string appId, string password)
         {
             if (password == null) password = Utilities.Credentials.GenerateCredential();
-            string decoreatedUsername = DecorateUser(AppId);
+            string decoratedUsername = DecorateUser(appId);
             DirectoryEntry obDirEntry = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
             DirectoryEntries entries = obDirEntry.Children;
             DirectoryEntry obUser = entries.Add(decoratedUsername, "User");
@@ -35,9 +35,9 @@ namespace Uhuru.Utilities
         }
 
 
-        public static void DeleteUser(string AppId)
+        public static void DeleteUser(string appId)
         {
-            string decoreatedUsername = DecorateUser(AppId);
+            string decoratedUsername = DecorateUser(appId);
             DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
             DirectoryEntries users = localDirectory.Children;
             DirectoryEntry user = users.Find(appId);
