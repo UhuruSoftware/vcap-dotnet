@@ -1,25 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Threading;
-using Uhuru.NatsClient;
-using Uhuru.Utilities;
-using Uhuru.Utilities.ProcessPerformance;
-using Uhuru.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Agent.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Threading;
+    using Uhuru.Configuration;
+    using Uhuru.NatsClient;
+    using Uhuru.Utilities;
+    using Uhuru.Utilities.ProcessPerformance;
+    
     public delegate void BoolStateBlockCallback(bool state);
 
     public class Agent : VcapComponent
     {
         private const decimal Version = 0.99m;
-
-
+        
         private DropletCollection Droplets = new DropletCollection();
         private Stager AgentStager = new Stager();
 
@@ -30,8 +35,7 @@ namespace Uhuru.CloudFoundry.DEA
         private bool EnforceUlimit;
         private bool MultiTenant;
         private bool Secure;
-
-
+        
         private DeaReactor deaReactor;
 
         private HelloMessage HelloMessage = new HelloMessage(); 
@@ -41,20 +45,15 @@ namespace Uhuru.CloudFoundry.DEA
 
         public Agent()
         {
-            
-
             foreach (Configuration.DEA.RuntimeElement deaConf in UhuruSection.GetSection().DEA.Runtimes)
             {
                 DeaRuntime dea = new DeaRuntime();
-
 
                 dea.Executable = deaConf.Executable;
                 dea.Version = deaConf.Version;
                 dea.VersionFlag = deaConf.VersionFlag;
                 dea.AdditionalChecks = deaConf.AdditionalChecks;
                 dea.Enabled = true;
-
-                
 
                 foreach (Configuration.DEA.EnvironmentElement ienv in deaConf.Environment)
                 {
@@ -68,11 +67,8 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         dea.DebugEnv[debugEnv.Name].Add(ienv.Name + "=" + ienv.Value);
                     }   
-                    
-
                 }
-
-                
+               
                 AgentStager.Runtimes.Add(deaConf.Name, dea);
             }
 
@@ -89,14 +85,11 @@ namespace Uhuru.CloudFoundry.DEA
             
             AgentStager.ForeHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
 
-            
             Type = "DEA";
-
 
             //apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
             AgentMonitoring.AppsDumpDirectory = Path.GetTempPath();
 
-            
             //heartbeat_interval = UhuruSection.GetSection().DEA.HeartBeatInterval;
 
             AgentMonitoring.MaxClients = MultiTenant ? Monitoring.DefaultMaxClients : 1;
@@ -106,16 +99,13 @@ namespace Uhuru.CloudFoundry.DEA
             AgentStager.DbDir = Path.Combine(AgentStager.DropletDir, "db");
 
             Droplets.AppStateFile = Path.Combine(AgentStager.DropletDir, "applications.json");
-
-
+            
             deaReactor.Uuid = Uuid;
 
             HelloMessage.Id = Uuid;
             HelloMessage.Host = Host;
             HelloMessage.FileViewerPort = AgentFileViewer.Port;
             HelloMessage.Version = Version;
-            
-
         }
 
         protected override void ConstructReactor()
@@ -127,18 +117,12 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-
-
         public override void Run()
         {
 
             Logger.Info(Strings.StartingVcapDea, Version);
 
-
-
-
             AgentStager.SetupRuntimes();
-
 
             Logger.Info(Strings.UsingNetwork, Host);
             Logger.Info(Strings.MaxMemorySetTo, AgentMonitoring.MaxMemoryMbytes);
@@ -154,15 +138,13 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             Logger.Info(Strings.UsingDirectory, AgentStager.DropletDir);
-
-
+            
             AgentStager.CreateDirectories();
             Droplets.AppStateFile = Path.Combine(AgentStager.DbDir, "applications.json");
 
             //Clean everything in the staged directory
             AgentStager.CleanCacheDirectory();
-
-
+            
             AgentFileViewer.Start(AgentStager.DropletDir);
 
             vcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
@@ -178,17 +160,12 @@ namespace Uhuru.CloudFoundry.DEA
 
             deaReactor.OnRouterStart += new SubscribeCallback(RouterStartHandler);
             deaReactor.OnHealthManagerStart += new SubscribeCallback(HealthmanagerStartHandler);
-
-
+            
             base.Run();  // Start the nats client
-
             
-            
-
             RecoverExistingDroplets();
             DeleteUntrackedInstanceDirs();
-
-
+            
             TimerHelper.RecurringCall(Monitoring.HeartbeatIntervalMilliseconds, delegate
             {
                 SendHeartbeat();
@@ -203,14 +180,12 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 CrashesReaper();
             });
-
-
+            
             TimerHelper.RecurringCall(Monitoring.VarzUpdateIntervalMilliseconds, delegate
             {
                 SnapshotVarz();
             });
-
-
+            
             deaReactor.SendDeaStart(HelloMessage.SerializeToJson());
         }
 
@@ -221,8 +196,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Droplets.RecoveredDroplets = true;
                 return;
             }
-
-
+            
             object[] instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(Droplets.AppStateFile));
 
             foreach (object obj in instances)
@@ -237,8 +211,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 Droplets.AddDropletInstance(instance);
             }
-
-
+            
             Droplets.RecoveredDroplets = true;
 
             if (AgentMonitoring.Clients > 0)
@@ -257,16 +230,13 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void DeleteUntrackedInstanceDirs()
         {
-
-
             HashSet<string> trackedInstanceDirs = new HashSet<string>();
 
             Droplets.ForEach(delegate(DropletInstance instance)
             {
                 trackedInstanceDirs.Add(instance.Properties.Directory);
             });
-
-            
+                        
             List<string> allInstanceDirs = Directory.GetDirectories(AgentStager.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
 
             List<string> to_remove = (from dir in allInstanceDirs
@@ -289,9 +259,7 @@ namespace Uhuru.CloudFoundry.DEA
                     Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
                 }
             }
-
         }
-
 
         private void NatsErrorHandler(object sender,ReactorErrorEventArgs args)
         {
@@ -411,11 +379,8 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-
         void DeaStatusHandler(string message, string reply, string subject)
         {
-
-            
             Logger.Debug(Strings.DEAreceivedstatusmessage);
             DeaStatusMessageResponse response = new DeaStatusMessageResponse();
 
@@ -433,7 +398,6 @@ namespace Uhuru.CloudFoundry.DEA
             deaReactor.SendReply(reply, response.SerializeToJson());
         }
 
-
         void DropletStatusHandler(string message, string reply, string subject)
         {
             if (ShuttingDown)
@@ -448,7 +412,6 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.EnterReadLock();
                     if (instance.Properties.State == DropletInstanceState.Running || instance.Properties.State == DropletInstanceState.Starting)
                     {
-
                         DropletStatusMessageResponse response = instance.GenerateDropletStatusMessage();
                         response.Host = Host;
                         deaReactor.SendReply(reply, response.SerializeToJson());
@@ -458,12 +421,8 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Lock.ExitReadLock();
                 }
-
             });
-
         }
-
-
 
         void DeaDiscoverHandler(string message, string reply, string subject)
         {
@@ -489,7 +448,6 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
             }
 
-
             double taintMs = 0;
 
             try
@@ -500,7 +458,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     taintMs += Droplets.Droplets[pmessage.DropletId].DropletInstances.Count * Monitoring.TaintPerAppMilliseconds;
                 }
-
             }
             finally
             {
@@ -512,21 +469,17 @@ namespace Uhuru.CloudFoundry.DEA
                 AgentMonitoring.Lock.EnterReadLock();
                 taintMs += Monitoring.TaintForMemoryMilliseconds * (AgentMonitoring.MemoryReservedMbytes / AgentMonitoring.MaxMemoryMbytes);
                 taintMs = Math.Min(taintMs, Monitoring.TaintMaxMilliseconds);
-
             }
             finally
             {
                 AgentMonitoring.Lock.ExitReadLock();
             }
 
-
             Logger.Debug(Strings.SendingDeaDiscoverResponse, taintMs);
             TimerHelper.DelayedCall(taintMs, delegate()
             {
                 deaReactor.SendReply(reply, HelloMessage.SerializeToJson());
             });
-            
-
         }
 
 
@@ -538,13 +491,10 @@ namespace Uhuru.CloudFoundry.DEA
             DeaFindDropletMessageRequest pmessage = new DeaFindDropletMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-
             Logger.Debug(Strings.DeaReceivedFindDroplet, message);
-
 
             Droplets.ForEach(delegate(DropletInstance instance)
             {
-
                 try
                 {
                     instance.Lock.EnterReadLock();
@@ -572,7 +522,6 @@ namespace Uhuru.CloudFoundry.DEA
                         response.DebugIP = instance.Properties.DebugIP;
                         response.DebugPort = instance.Properties.DebugPort;
 
-
                         if (pmessage.IncludeStates && instance.Properties.State == DropletInstanceState.Running)
                         {
                             response.Stats = instance.GenerateDropletStatusMessage();
@@ -582,24 +531,18 @@ namespace Uhuru.CloudFoundry.DEA
 
                         deaReactor.SendReply(reply, response.SerializeToJson());
                     }
-
                 }
                 finally
                 {
                     instance.Lock.ExitReadLock();
                 }
-                
             });
-
-            
         }
-
 
         void DeaUpdateHandler(string message, string replay, string subject)
         {
             if (ShuttingDown)
                 return;
-
 
             DeaUpdateMessageRequest pmessage = new DeaUpdateMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
@@ -627,7 +570,6 @@ namespace Uhuru.CloudFoundry.DEA
                         RegisterInstanceWithRouter(instance);
 
                         instance.Properties.Uris = pmessage.Uris.ToArray();
-
                     }
                     finally
                     {
@@ -635,27 +577,20 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 }
             });
-
         }
-
-
 
         void DeaStopHandler(string message, string replay, string subject)
         {
-
             if (ShuttingDown)
                 return;
 
             DeaStopMessageRequest pmessage = new DeaStopMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-
             Logger.Debug(Strings.DeaReceivedStopMessage, message);
-
 
             Droplets.ForEach(true, delegate(DropletInstance instance)
             {
-
                 try
                 {
                     instance.Lock.EnterWriteLock();
@@ -665,7 +600,6 @@ namespace Uhuru.CloudFoundry.DEA
                     bool instace_match = pmessage.InstanceIds == null || pmessage.InstanceIds.Contains(instance.Properties.InstanceId);
                     bool index_match = pmessage.Indexes == null || pmessage.Indexes.Contains(instance.Properties.InstanceIndex);
                     bool state_match = pmessage.States == null || pmessage.States.Contains(instance.Properties.State);
-
 
                     if (droplet_match && version_match && instace_match && index_match && state_match)
                     {
@@ -681,15 +615,12 @@ namespace Uhuru.CloudFoundry.DEA
 
                         StopDroplet(instance);
                     }
-
                 }
                 finally
                 {
                     instance.Lock.ExitWriteLock();
                 }
-
             });
-
         }
 
         //onply stops the droplet instance from running, no cleanup or resource untracking
@@ -723,8 +654,6 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.NotifiedExited = true;
                 }
 
-
-
                 Logger.Info(Strings.StoppingInstance, instance.Properties.LoggingId);
 
                 // if system thinks this process is running, make sure to execute stop script
@@ -736,7 +665,6 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Properties.State = DropletInstanceState.Stopped;
                         instance.Properties.StateTimestamp = DateTime.Now;
                     }
-
 
                     StreamWriterCallback stopOperation = delegate(StreamWriter stdin)
                     {
@@ -773,7 +701,6 @@ namespace Uhuru.CloudFoundry.DEA
             // Drop usage and resource tracking regardless of state
             AgentMonitoring.RemoveInstanceResources(instance);
 
-
             // clean up the in memory instance and directory only if the instance didn't crash
             if (instance.Properties.State != DropletInstanceState.Crashed)
             {
@@ -802,7 +729,6 @@ namespace Uhuru.CloudFoundry.DEA
                             break;
                         }
                     }
-
                 }
             }
         }
@@ -815,8 +741,7 @@ namespace Uhuru.CloudFoundry.DEA
             try
             {
                 Droplets.Lock.EnterWriteLock();
-                
-
+  
                 if (ShuttingDown) return;
                 Logger.Debug(Strings.DeaReceivedStartMessage, message);
 
@@ -862,36 +787,28 @@ namespace Uhuru.CloudFoundry.DEA
 
                 AppEnv = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
 
-
                 AgentMonitoring.AddInstanceResources(instance);
-
             }
             finally
             {
                 Droplets.Lock.ExitWriteLock();    
             }
-           
-            
+             
             //toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
                 StartDropletInstance(instance, AppEnv, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
-
-
         }
-
 
         private void StartDropletInstance(DropletInstance instance, List<string> AppEnv, string sha1, string executableFile, string executableUri)
         {
             try
             {
-
                 string TgzFile = Path.Combine(AgentStager.StagedDir, sha1 + ".tgz");
                 AgentStager.StageAppDirectory(executableFile, executableUri, sha1, TgzFile, instance);
 
                 Logger.Debug(Strings.Downloadcompleate);
-
 
                 string starting = string.Format(CultureInfo.InvariantCulture, Strings.StartingUpInstanceOnPort, instance.Properties.LoggingId, instance.Properties.Port);
                 
@@ -903,7 +820,6 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.Clients, AgentMonitoring.Clients);
                 Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
 
-
                 StreamWriterCallback startOperation = delegate(StreamWriter stdin)
                 {
                     stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.CdCommand, instance.Properties.Directory));
@@ -911,8 +827,6 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.SetCommand, env));
                     }
-
-
 
                     string runtimeLayer = String.Format(CultureInfo.InvariantCulture, "{0}\\netiis.exe", Directory.GetCurrentDirectory());
                     /*
@@ -946,8 +860,6 @@ namespace Uhuru.CloudFoundry.DEA
                 //TODO: vladi: this must be done with clean environment variables
                 Utils.ExecuteCommands("cmd", "", startOperation, exitOperation);
 
-
-
                 DetectAppReady(instance,
                     delegate(bool detected)
                     {
@@ -963,7 +875,6 @@ namespace Uhuru.CloudFoundry.DEA
                                 deaReactor.SendDeaHeartbeat(instance.GenerateHeartbeat().SerializeToJson());
                                 RegisterInstanceWithRouter(instance);
                                 Droplets.ScheduleSnapshotAppState();
-
                             }
                             else
                             {
@@ -977,7 +888,6 @@ namespace Uhuru.CloudFoundry.DEA
                         }
                     }
                 );
-
 
                 int pid = DetectAppPid(instance);
 
@@ -996,10 +906,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Lock.ExitWriteLock();
                 }
-
-
-
-
             }
             catch(Exception ex)
             {
@@ -1011,21 +917,17 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.State = DropletInstanceState.Crashed;
                     instance.Properties.ExitReason = DropletExitReason.Crashed;
                     instance.Properties.StateTimestamp = DateTime.Now;
-
-                    
+                                        
                     StopDroplet(instance);
 
                     Droplets.RemoveDropletInstance(instance);
                     Droplets.ScheduleSnapshotAppState();
-
                 }
                 finally
                 {
                     instance.Lock.ExitWriteLock();
                 }
-
             }
-
         }
 
         private void DetectAppReady(DropletInstance instance, BoolStateBlockCallback callBack)
@@ -1074,7 +976,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-
         private int DetectAppPid(DropletInstance instance)
         {
             int detect_attempts = 0;
@@ -1103,13 +1004,12 @@ namespace Uhuru.CloudFoundry.DEA
                 catch 
                 {
                 }
+
                 Thread.Sleep(500);
             }
-
             
             return pid;
         }
-
 
         private List<string> SetupInstanceEnv(DropletInstance instance, string[] app_env, Dictionary<string, object>[] services)
         {
@@ -1122,16 +1022,13 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapAppPort, instance.Properties.Port));
             env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapDebugIp, instance.Properties.DebugIP));
             env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapDebugPort, instance.Properties.DebugPort));
-
-
+            
             if (instance.Properties.DebugPort != null && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
             {
                 if(AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] != null)
                     env.AddRange( AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] );
             }
-
-
-
+            
             // LEGACY STUFF
             env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcDeprecatedWarning));
             env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcServices, create_legacy_services_for_env(services)));
@@ -1166,7 +1063,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // Do the runtime environment settings
-
             foreach (KeyValuePair<string, string> runtimeEnv in AgentStager.Runtimes[instance.Properties.Runtime].Environment)
             {
                 env.Add(runtimeEnv.Key + "=" + runtimeEnv.Value);
@@ -1215,8 +1111,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             return JsonConvertibleObject.SerializeToJson(env_hash);
         }
-
-
+        
         private string create_legacy_services_for_env(Dictionary<string, object>[] services = null)
         {
             List<string> whitelist = new List<string>() { "name", "type", "vendor", "version" };
@@ -1238,6 +1133,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 as_legacy.Add(leg_svc);
             }
+
             return JsonConvertibleObject.SerializeToJson(as_legacy);
         }
 
@@ -1269,17 +1165,13 @@ namespace Uhuru.CloudFoundry.DEA
             return JsonConvertibleObject.SerializeToJson(svcs_hash);
         }
 
-
-        
-
         void RouterStartHandler(string message, string reply, string subject)
         {
             if (ShuttingDown)
                 return;
 
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
-
-
+            
             Droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
@@ -1287,9 +1179,7 @@ namespace Uhuru.CloudFoundry.DEA
                     RegisterInstanceWithRouter(instance);
                 }
             });
-
         }
-
 
         void RegisterInstanceWithRouter(DropletInstance instance)
         {
@@ -1308,12 +1198,12 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Tags = new RouterMessage.TagsObject();
                 response.Tags.Framework = instance.Properties.Framework;
                 response.Tags.Runtime = instance.Properties.Runtime;
-
             }
             finally
             {
                 instance.Lock.ExitReadLock();
             }
+
             deaReactor.SendRouterRegister(response.SerializeToJson());
         }
 
@@ -1334,7 +1224,6 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Tags = new RouterMessage.TagsObject();
                 response.Tags.Framework = instance.Properties.Framework;
                 response.Tags.Runtime = instance.Properties.Runtime;
-
             }
             finally
             {
@@ -1343,7 +1232,6 @@ namespace Uhuru.CloudFoundry.DEA
 
             deaReactor.SendRouterUnregister(response.SerializeToJson());
         }
-
 
         void HealthmanagerStartHandler(string message, string replay, string subject)
         {
@@ -1358,7 +1246,6 @@ namespace Uhuru.CloudFoundry.DEA
         void MonitorApps()
         {
             //AgentMonitoring.MemoryUsageKbytes = 0;
-
             long memoryUsageKbytes = 0;
             List<object> runningApps = new List<object>();
 
@@ -1367,8 +1254,7 @@ namespace Uhuru.CloudFoundry.DEA
                 AgentMonitoring.MemoryUsageKbytes = 0;
                 return;
             }
-
-            
+                        
             DateTime start = DateTime.Now;
 
             ProcessData[] processStatuses = ProcessInformation.GetProcessUsage();
@@ -1382,8 +1268,6 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 pidInfo[processStatus.ProcessId] = processStatus;
             }
-
-
 
             DateTime duStart = DateTime.Now;
 
@@ -1407,13 +1291,11 @@ namespace Uhuru.CloudFoundry.DEA
                 duHash[entry.Directory] = entry.Size * 1024;
             }
 
-
             Dictionary<string, Dictionary<string, Dictionary<string, long>>> metrics = new Dictionary<string, Dictionary<string, Dictionary<string, long>>>() 
             {
                 {"framework", new Dictionary<string, Dictionary<string, long>>()}, 
                 {"runtime", new Dictionary<string, Dictionary<string, long>>()}
             };
-
             
             Droplets.ForEach(true, delegate(DropletInstance instance)
             {
@@ -1428,15 +1310,13 @@ namespace Uhuru.CloudFoundry.DEA
                         long mem = (long)pidInfo[pid].WorkingSet;
                         long cpu = (long)pidInfo[pid].Cpu;
                         long disk = duHash.ContainsKey(instance.Properties.Directory) ? duHash[instance.Properties.Directory] : 0;
-
-
+                        
                         DropletInstanceUsage curUsage = new DropletInstanceUsage();
                         curUsage.Time = DateTime.Now;
                         curUsage.Cpu = cpu;
                         curUsage.MemoryKbytes = mem;
                         curUsage.DiskBytes = disk;
-
-
+                        
                         instance.Usage.Add(curUsage);
                         if (instance.Usage.Count > DropletInstance.MaxUsageSamples)
                         {
@@ -1449,8 +1329,6 @@ namespace Uhuru.CloudFoundry.DEA
                         }
 
                         memoryUsageKbytes += mem;
-
-
 
                         foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, long>>> kvp in metrics)
                         {
@@ -1484,10 +1362,8 @@ namespace Uhuru.CloudFoundry.DEA
                         }
 
                         // Track running apps for varz tracking
-
                         instance.Properties.UsageRecent = curUsage;
                         runningApps.Add(instance.Properties.ToJsonIntermediateObject());
-
                     }
                     else
                     {
@@ -1505,7 +1381,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Lock.ExitWriteLock();
                 }
-
             });
 
             // export running app information to varz
@@ -1518,8 +1393,6 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 Logger.Warning(Strings.TookXSecondsToProcessPsAndDu, ttlog.TotalSeconds);
             }
-
-            
         }
 
         // This is only called when in secure mode, cur_usage is in kb, quota is in bytes.
@@ -1531,7 +1404,6 @@ namespace Uhuru.CloudFoundry.DEA
             // Check Mem
             if (usage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024))
             {
-
                 FileLogger logger = new FileLogger(Path.Combine(instance.Properties.Directory, "logs\\err.log"));
 
                 logger.Fatal(Strings.MemoryLimitOfExceeded, instance.Properties.MemoryQuotaBytes / 1024 / 1024);
@@ -1578,20 +1450,17 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void CrashesReaper()
         {
-
             List<DropletInstance> toDelete = new List<DropletInstance>();
 
             Droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds)
                     toDelete.Add(instance);
-
             });
 
             foreach (DropletInstance instance in toDelete)
             {
-                
-                Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
+               Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
                 if (!DisableDirCleanup)
                 {
                     try
@@ -1605,11 +1474,6 @@ namespace Uhuru.CloudFoundry.DEA
 
                 Droplets.RemoveDropletInstance(instance);
             }
-
-
         }
-
-
-
     }
 }

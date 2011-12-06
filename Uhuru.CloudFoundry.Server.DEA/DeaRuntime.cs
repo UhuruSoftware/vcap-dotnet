@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaRuntime.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
-
-    class DeaRuntime
+    using System.Collections.Generic;
+    
+    public class DeaRuntime
     {
         public string Executable;
         public string Version;

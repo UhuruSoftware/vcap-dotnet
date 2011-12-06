@@ -1,11 +1,16 @@
-﻿using System;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletInstanceUsage.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using Uhuru.Utilities;
+
     public class DropletInstanceUsage : JsonConvertibleObject
     {
-
         [JsonName("mem")]
         public long MemoryKbytes
         {
