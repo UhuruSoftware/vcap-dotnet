@@ -62,21 +62,21 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
                 section.Service.LocalDB = arguments.LocalDb;
             }
 
-            string ip = "";
-            foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
-            {
-                if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                {
-                    ip = address.ToString();
-                }
-            }
-
             if (!String.IsNullOrEmpty(arguments.LocalRoute))
             {
                 section.Service.LocalRoute = arguments.LocalRoute;
             }
             else
             {
+                string ip = "";
+                foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+                {
+                    if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        ip = address.ToString();
+                        break;
+                    }
+                }
                 section.Service.LocalRoute = ip;
             }
 

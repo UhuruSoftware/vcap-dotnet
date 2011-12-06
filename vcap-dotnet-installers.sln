@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MsSqlSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Plugins", "Uhuru.CloudFoundry.DEA.Plugins\Uhuru.CloudFoundry.DEA.Plugins.csproj", "{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Uhuru.CloudFoundry.Services.DEA.Installer", "Uhuru.CloudFoundry.Services.DEA.Installer\Uhuru.CloudFoundry.Services.DEA.Installer.vdproj", "{165D3C3A-19FA-4586-BE97-B29DF34FFE79}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -178,6 +180,18 @@ Global
 		{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}.Release|x86.ActiveCfg = Release|Any CPU
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|Any CPU.ActiveCfg = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|Any CPU.Build.0 = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|Mixed Platforms.Build.0 = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|x86.ActiveCfg = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Debug|x86.Build.0 = Debug
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|Any CPU.ActiveCfg = Release
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|Any CPU.Build.0 = Release
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|Mixed Platforms.ActiveCfg = Release
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|Mixed Platforms.Build.0 = Release
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|x86.ActiveCfg = Release
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -191,5 +205,6 @@ Global
 		{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{CD483D94-8142-4166-A74F-2EE01FE1DC15} = {D074894B-B525-45CF-A2B2-D3FFCB9A9F90}
+		{165D3C3A-19FA-4586-BE97-B29DF34FFE79} = {D074894B-B525-45CF-A2B2-D3FFCB9A9F90}
 	EndGlobalSection
 EndGlobal
