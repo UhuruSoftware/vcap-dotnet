@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.MSSqlNode {
-    using System;
-    
-    
+namespace Uhuru.CloudFoundry.Server.MSSqlNode
+{
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

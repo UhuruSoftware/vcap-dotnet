@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.ServiceBase {
-    using System;
-    
-    
+namespace Uhuru.CloudFoundry.ServiceBase
+{
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

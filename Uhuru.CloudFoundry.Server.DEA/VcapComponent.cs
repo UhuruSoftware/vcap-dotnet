@@ -1,41 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Net;
 using System.IO;
-using Uhuru.Utilities;
-using Uhuru.CloudFoundry.DEA.Configuration;
 using System.Threading;
+using Uhuru.Utilities;
+using Uhuru.Configuration;
+using System.Globalization;
 
 namespace Uhuru.CloudFoundry.DEA
 {
     public class VcapComponent
     {
-        
+        protected DateTime StartedAt
+        {
+            get;
+            set;
+        }
 
-        protected DateTime StartedAt;
+        protected string Uuid
+        {
+            get;
+            set;
+        }
 
-        protected string Uuid;
-        protected string Type;
-        protected string Index;
-        protected Uri NatsUri;
+        protected string Type
+        {
+            get;
+            set;
+        }
+
+        protected string Index
+        {
+            get;
+            set;
+        }
+
+        protected Uri NatsUri
+        {
+            get;
+            set;
+        }
         
         protected Dictionary<string, object> discover = new Dictionary<string, object>();
 
+        protected string Host
+        {
+            get;
+            set;
+        }
 
-        protected string Host;
-        protected int Port;
-        protected string[] Authentication;
+        protected int Port
+        {
+            get;
+            set;
+        }
 
+        protected string[] Authentication
+        {
+            get;
+            set;
+        }
 
         public ReaderWriterLockSlim VarzLock = new ReaderWriterLockSlim();
         public Dictionary<string, object> Varz = new Dictionary<string, object>();
-        public string Healthz;
 
+        public string Healthz
+        {
+            get;
+            set;
+        }
 
-        protected VcapReactor vcapReactor;
+        protected VcapReactor vcapReactor
+        {
+            get;
+            set;
+        }
 
         public VcapComponent()
         {
@@ -57,10 +95,6 @@ namespace Uhuru.CloudFoundry.DEA
             Port = Utils.GetEphemeralPort();
 
             Authentication = new string[]{ "", "" };
-
-
-            
-
         }
 
         protected virtual void ConstructReactor()
@@ -71,8 +105,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-
-
         public virtual void Run()
         {
             vcapReactor.Start();
@@ -81,7 +113,7 @@ namespace Uhuru.CloudFoundry.DEA
               {"type", Type},
               {"index", Index},
               {"uuid", Uuid},
-              {"host", String.Format("{0}:{1}", Host, Port)},
+              {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", Host, Port)},
               {"credentials", Authentication},
               {"start", Utils.DateTimeToRubyString(StartedAt = DateTime.Now)}
             };
@@ -98,7 +130,6 @@ namespace Uhuru.CloudFoundry.DEA
 
             Healthz = "ok\n";
 
-
             // Listen for discovery requests
             vcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
             {
@@ -112,11 +143,10 @@ namespace Uhuru.CloudFoundry.DEA
             vcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(discover)); 
         }
 
-
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - StartedAt;
-            discover["uptime"] = String.Format("{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
+            discover["uptime"] = String.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
         private void StartHttpServer()
@@ -129,7 +159,5 @@ namespace Uhuru.CloudFoundry.DEA
 
             //http_server.Start();
         }
-
-
     }
 }

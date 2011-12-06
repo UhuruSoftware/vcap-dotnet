@@ -1,22 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Threading;
-using SevenZip;
-using System.Reflection;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
+using SevenZip;
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    public delegate void StreamWriterDelegate(StreamWriter stream);
-    public delegate void ProcessDoneDelegate(string output, int statuscode);
+    public delegate void StreamWriterCallback(StreamWriter stream);
+    public delegate void ProcessDoneCallback(string output, int statuscode);
 
     public class Utils
     {
@@ -61,23 +59,26 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        public static void ZipFile(string sourceDir, string zipFile)
+        public static void ZipFile(string sourceDir, string fileName)
         {
             SetupZlib();
 
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.ArchiveFormat = OutArchiveFormat.Zip;
-            compressor.CompressDirectory(sourceDir, zipFile);
+            compressor.CompressDirectory(sourceDir, fileName);
         }
 
-        public static void UnZipFile(string targetDir, string zipFile)
+        public static void UnzipFile(string targetDir, string zipFile)
         {
             SetupZlib();
 
-            SevenZipExtractor extractor = new SevenZipExtractor(zipFile);
-            extractor.ExtractArchive(targetDir);
+            using (SevenZipExtractor extractor = new SevenZipExtractor(zipFile))
+            {
+                extractor.ExtractArchive(targetDir);
+            }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static string RunCommandAndGetOutput(string command, string arguments)
         {
             ProcessStartInfo start = new ProcessStartInfo();
@@ -94,6 +95,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static string RunCommandAndGetOutputAndErrors(string command, string arguments)
         {
             ProcessStartInfo start = new ProcessStartInfo();
@@ -111,7 +113,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        public static void ExecuteCommands(string shell, string arguments, StreamWriterDelegate writerCallback, ProcessDoneDelegate doneCallback)
+        public static void ExecuteCommands(string shell, string arguments, StreamWriterCallback writerCallback, ProcessDoneCallback doneCallback)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(delegate(object data)
             {
@@ -143,6 +145,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static int ExecuteCommand(string Command)
         {
             ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + Command);
@@ -228,7 +231,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public static void EnsureWritableDirectory(string Directory)
         {
-            string testFile = Path.Combine(Directory, String.Format("dea.{0}.sentinel", Process.GetCurrentProcess().Id));
+            string testFile = Path.Combine(Directory, String.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaSentinel, Process.GetCurrentProcess().Id));
             File.WriteAllText(testFile, "");
             File.Delete(testFile);
         }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Uhuru.Utilities;
 
 
@@ -20,61 +17,136 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("droplet")]
-        public int DropletId;
-
-        [JsonName("index")]
-        public int Index;
-
-        [JsonName("name")]
-        public string Name;
-
-        [JsonName("uris")]
-        public List<string> Uris;
-
-        [JsonName("runtime")]
-        public string Runtime;
-
-        [JsonName("framework")]
-        public string Framework;
-
-        [JsonName("sha1")]
-        public string Sha1;
-
-        [JsonName("executableFile")]
-        public string ExecutableFile;
-
-        [JsonName("executableUri")]
-        public string ExecutableUri;
-
-        [JsonName("version")]
-        public string Version;
-
-        [JsonName("services")]
-        public List<Dictionary<string, object>> Services;
-
-        [JsonName("env")]
-        public List<string> Environment;
-
-        [JsonName("users")]
-        public List<string> Users;
-
-        [JsonName("limits")]
-        public DropletLimits Limits = new DropletLimits();
-
-        public class DropletLimits : JsonConvertibleObject
+        public int DropletId
         {
-
-            [JsonName("mem")]
-            public long? MemoryMbytes; 
-
-            [JsonName("disk")]
-            public long? DiskMbytes;
-
-            [JsonName("fds")]
-            public long? Fds;
-
+            get;
+            set;
         }
 
+        [JsonName("index")]
+        public int Index
+        {
+            get;
+            set;
+        }
 
+        [JsonName("name")]
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        JsonName("uris")]
+        public string[] Uris
+        {
+            get;
+            set;
+        }
+
+        [JsonName("runtime")]
+        public string Runtime
+        {
+            get;
+            set;
+        }
+
+        [JsonName("framework")]
+        public string Framework
+        {
+            get;
+            set;
+        }
+
+        [JsonName("sha1")]
+        public string Sha1
+        {
+            get;
+            set;
+        }
+
+        [JsonName("executableFile")]
+        public string ExecutableFile
+        {
+            get;
+            set;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings"), 
+        JsonName("executableUri")]
+        public string ExecutableUri
+        {
+            get;
+            set;
+        }
+
+        [JsonName("version")]
+        public string Version
+        {
+            get;
+            set;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        JsonName("services")]
+        public Dictionary<string, object>[] Services
+        {
+            get;
+            set;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        JsonName("env")]
+        public string[] Environment
+        {
+            get;
+            set;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        JsonName("users")]
+        public string[] Users
+        {
+            get;
+            set;
+        }
+
+        [JsonName("limits")]
+        public StartRequestDropletLimits Limits
+        {
+            get;
+            set;
+        }
+
+        public DeaStartMessageRequest()
+        {
+            Limits = new StartRequestDropletLimits();
+        }
+    }
+
+    public class StartRequestDropletLimits : JsonConvertibleObject
+    {
+
+        [JsonName("mem")]
+        public long? MemoryMbytes
+        {
+            get;
+            set;
+        }
+
+        [JsonName("disk")]
+        public long? DiskMbytes
+        {
+            get;
+            set;
+        }
+
+        [JsonName("fds")]
+        public long? Fds
+        {
+            get;
+            set;
+        }
     }
 }

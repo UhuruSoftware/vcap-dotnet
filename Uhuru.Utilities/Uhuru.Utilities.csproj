@@ -68,7 +68,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoWiring\LogFileWebEventProvider.cs" />
+    <Compile Include="AutoWiring\SiteConfig.cs" />
     <Compile Include="AutoWiring\WebConfigRewiring.cs" />
+    <Compile Include="FileLogger.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="FirewallTools.cs" />
     <Compile Include="DiskUsageEntry.cs" />

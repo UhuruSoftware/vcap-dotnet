@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Net.Sockets;
-using System.Net;
-using Uhuru.Utilities;
-using Uhuru.NatsClient;
 using System.Globalization;
+using Uhuru.NatsClient;
+using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {

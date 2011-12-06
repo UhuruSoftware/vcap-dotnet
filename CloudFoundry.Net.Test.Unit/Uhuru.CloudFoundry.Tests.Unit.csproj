@@ -23,8 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +38,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Interop.NetFwTypeLib">
+      <HintPath>..\Uhuru.Utilities\obj\Debug\Interop.NetFwTypeLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL" />
     <Reference Include="microsoft.managementconsole, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -54,8 +58,10 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web" />
@@ -74,6 +80,7 @@
     <Compile Include="AutoWiringTest.cs" />
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="DynamicDllLoadTest.cs" />
+    <Compile Include="JsonConvertibleObjectTest.cs" />
     <Compile Include="UtilitiesTests.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,13 +97,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.Part2\Uhuru.CloudFoundry.DEA.Part2.csproj">
-      <Project>{8F79CD18-8EEE-47D7-9171-8E8B0ABB6EAD}</Project>
-      <Name>Uhuru.CloudFoundry.DEA.Part2</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.PluginBase\Uhuru.CloudFoundry.DEA.PluginBase.csproj">
       <Project>{2EFB2C3D-89A1-439E-B1CA-B75FA8217314}</Project>
       <Name>Uhuru.CloudFoundry.DEA.PluginBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA\Uhuru.CloudFoundry.DEA.csproj">
+      <Project>{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}</Project>
+      <Name>Uhuru.CloudFoundry.DEA</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Configuration\Uhuru.Configuration.csproj">
       <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
@@ -113,6 +120,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Shadow Include="Test References\Uhuru.Utilities.accessor" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

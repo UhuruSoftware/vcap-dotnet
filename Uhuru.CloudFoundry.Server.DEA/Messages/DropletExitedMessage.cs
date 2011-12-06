@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
@@ -10,33 +7,57 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("droplet")]
-        public int DropletId;
+        public int DropletId
+        {
+            get;
+            set;
+        }
 
         [JsonName("version")]
-        public string Version;
+        public string Version
+        {
+            get;
+            set;
+        }
 
         [JsonName("instance")]
-        public string InstanceId;
+        public string InstanceId
+        {
+            get;
+            set;
+        }
 
         [JsonName("index")]
-        public int Index;
-
+        public int Index
+        {
+            get;
+            set;
+        }
 
         [JsonName("reason")]
-        public string ExitReasonInterchangableFormat
+        public string ExitReasonInterchangeableFormat
         {
             get { return ExitReason != null ? ExitReason.ToString() : null; }
             set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
         }
-        public DropletExitReason? ExitReason;
+
+        public DropletExitReason? ExitReason
+        {
+            get;
+            set;
+        }
 
         [JsonName("crash_timestamp")]
-        public int? StateTimestampInterchangelbeFormat
+        public int? StateTimestampInterchangeableFormat
         {
             get { return CrashedTimestamp != null ? (int?)Utils.DateTimeToEpochSeconds((DateTime)CrashedTimestamp) : null; }
             set { CrashedTimestamp = value != null ? (DateTime?)Utils.DateTimeFromEpochSeconds((int)value) : null; }
         }
-        public DateTime? CrashedTimestamp;
 
+        public DateTime? CrashedTimestamp
+        {
+            get;
+            set;
+        }
     }
 }

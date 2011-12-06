@@ -1,220 +1,119 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Uhuru.CloudFoundry.DEA.Droplet">
-    <Position X="2.75" Y="6" Width="2.75" />
+  <Class Name="Uhuru.CloudFoundry.DEA.Droplet" Collapsed="true">
+    <Position X="13" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAA=</HashCode>
       <FileName>Droplet.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletCollection">
-    <Position X="0.5" Y="3.5" Width="2" />
-    <NestedTypes>
-      <Delegate Name="Uhuru.CloudFoundry.DEA.DropletCollection.ForEachDelegate" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>DropletCollection.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Delegate>
-    </NestedTypes>
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletCollection" Collapsed="true">
+    <Position X="14.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AEAQCAAgAAAQAAAAAAIAgAAAIAAEgAgAAAAQAAAAAAI=</HashCode>
+      <HashCode>AEAQCAAgAAAAAAAAAQMAAAAAIAAEgAgAAAA4AAAAAAI=</HashCode>
       <FileName>DropletCollection.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstance">
-    <Position X="4.25" Y="7.75" Width="2.75" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstance" Collapsed="true">
+    <Position X="12" Y="5.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IEAQAgAAAAAAAAAAAACAYAQEAAAAAAAAAAAgAAACAAA=</HashCode>
+      <HashCode>IAIQBgAAAAAAAAAAAAUAYAQEgAAAAAAAAAAgAAACAAA=</HashCode>
       <FileName>DropletInstance.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstanceUsage">
-    <Position X="7.5" Y="12.75" Width="3" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstanceUsage" Collapsed="true">
+    <Position X="13" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAAAAAAAAAAAAAgAAAAAAACAAAAAAAAACAAQA=</HashCode>
+      <HashCode>AAAAAAAACAAAAAAAAAAAgAAAAAAACAAAAAAAAACAAQA=</HashCode>
       <FileName>DropletInstanceUsage.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.ServiceCredentials">
-    <Position X="3" Y="2.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>ServiceCredentials.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DeaReactor">
-    <Position X="17.5" Y="1.75" Width="2" />
+    <Position X="0.75" Y="4.25" Width="2" />
     <TypeIdentifier>
-      <HashCode>BAAgBAAAACAAEICQBAAgAEAAAAAAIQABQAAAQAAAAAA=</HashCode>
+      <HashCode>BAAgBAAAACAAEICQRAAgAEAAAAAAIQAAQAAAQAAAAAA=</HashCode>
       <FileName>DEAReactor.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Monitoring">
-    <Position X="7" Y="4.25" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.Monitoring" Collapsed="true">
+    <Position X="13" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CAgQAAAAIACAJAQAACAAAABDACAAEIAQMAIBAAQAAgk=</HashCode>
+      <HashCode>AIgQAAAAIACAAAQABiAEAARBQAAAEIEQIAIBCAAAAgk=</HashCode>
       <FileName>Monitoring.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Stager">
-    <Position X="12.75" Y="10.75" Width="2.5" />
+  <Class Name="Uhuru.CloudFoundry.DEA.Stager" Collapsed="true">
+    <Position X="13.75" Y="5.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>QAAUAAEICAAAAAAAAkECAUAAAAAAAAQAAAAABAACIAA=</HashCode>
       <FileName>Stager.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.Agent">
-    <Position X="11.75" Y="0.5" Width="2.25" />
-    <NestedTypes>
-      <Delegate Name="Uhuru.CloudFoundry.DEA.Agent.BoolStateBlockDelegate" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>Agent.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Delegate>
-    </NestedTypes>
+    <Position X="4.5" Y="6.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>KAARFAEQgCUMAAEQAwSAAUYIQLAAAgiCCkgQIEAAQGo=</HashCode>
       <FileName>Agent.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.FileViewer">
-    <Position X="14.75" Y="6.5" Width="2" />
+  <Class Name="Uhuru.CloudFoundry.DEA.FileViewer" Collapsed="true">
+    <Position X="13.75" Y="4.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AKAAAAAAACAAAAAAAAEAQAAACAAEAAAAKAAAAAAAAAA=</HashCode>
       <FileName>FileViewer.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Utils">
-    <Position X="17.5" Y="7.75" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.Utils" Collapsed="true">
+    <Position X="16" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>EIAMABAAgAAAACQAAIAghAAACQAIAAAAAAIAAAQQABA=</HashCode>
       <FileName>Utils.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Logger" Collapsed="true">
-    <Position X="0.5" Y="1.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAQAAABAACAAAAAAAAGAAAAAAIAwAAAAQAABAAAQAAA=</HashCode>
-      <FileName>Logger.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.VcapComponent">
-    <Position X="9.25" Y="0.5" Width="1.75" />
+    <Position X="4.75" Y="0.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAEIAAAAQABAAIAIACAAAGAAUAQUAAAAAAAY=</HashCode>
       <FileName>VcapComponent.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.DEAElement" Collapsed="true">
-    <Position X="0.5" Y="14.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>ABJAEBAACAiCEAAAAgABAUAAAACAAIAGAAAQAICCASA=</HashCode>
-      <FileName>Configuration\DEA\DEAElement.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.DebugCollection" Collapsed="true">
-    <Position X="0.5" Y="15" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAICAAAAAAAAIAAACAAAAAAAAAABAAAAAAIAAAACAAA=</HashCode>
-      <FileName>Configuration\DEA\DebugCollection.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.DebugElement" Collapsed="true">
-    <Position X="0.5" Y="13.5" Width="1.75" />
-    <TypeIdentifier>
-      <HashCode>AEIAAAACAAAAAAAAAAAAAAQAAAAAAAAAgAAAAAACAAA=</HashCode>
-      <FileName>Configuration\DEA\DebugElement.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.EnvironmentCollection" Collapsed="true">
-    <Position X="0.5" Y="12" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAICAAAAAAAAIAAACAAAAAAAAAABAAAAAAIAAAACAAA=</HashCode>
-      <FileName>Configuration\DEA\EnvironmentCollection.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.EnvironmentElement" Collapsed="true">
-    <Position X="0.5" Y="10.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AEIAAAABAAAAAAAAAAAAAAQAAAAAAAAAAAAgAAACAAA=</HashCode>
-      <FileName>Configuration\DEA\EnvironmentElement.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.RuntimeCollection" Collapsed="true">
-    <Position X="0.5" Y="12.75" Width="1.75" />
-    <TypeIdentifier>
-      <HashCode>AAICAAAAAAAAIAAACAAAAAAAAAABAAAAAAIAAAACAAA=</HashCode>
-      <FileName>Configuration\DEA\RuntimeCollections.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.DEA.RuntimeElement" Collapsed="true">
-    <Position X="0.5" Y="15.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>IkIAAAACAAAAAIAAAAIAAgQQAAAIACAAgAAAAAUCAAA=</HashCode>
-      <FileName>Configuration\DEA\RuntimeElement.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Configuration.UhuruSection" Collapsed="true">
-    <Position X="0.5" Y="11.25" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>gAIAAAAAAACCAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
-      <FileName>Configuration\UhuruSection.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.VcapReactor">
-    <Position X="14.25" Y="0.5" Width="2.5" />
+    <Position X="0.5" Y="0.5" Width="2.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAACAAAAAAAAAAEAAAAAAAIQIACAAAAQAAAAA=</HashCode>
       <FileName>VcapReactor.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.TimerHelper">
-    <Position X="9.75" Y="10" Width="2.25" />
-    <Compartments>
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
-    <NestedTypes>
-      <Delegate Name="Uhuru.CloudFoundry.DEA.TimerHelper.TimerCallbackDelegate" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>TimerHelper.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Delegate>
-    </NestedTypes>
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstanceProperties" Collapsed="true">
+    <Position X="11.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAE=</HashCode>
-      <FileName>TimerHelper.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletInstanceProperties">
-    <Position X="3.5" Y="12.75" Width="3" />
-    <TypeIdentifier>
-      <HashCode>MKACAHIGACAgCEBEigACAAQACIIQBAIQAAgAJAAgQQA=</HashCode>
+      <HashCode>IKAAADIOACAhCEBECgAAAIRACIIQFAoUAAgQBAAgQQA=</HashCode>
       <FileName>DropletInstanceProperties.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaStatusMessageResponse">
-    <Position X="15.25" Y="15.75" Width="1.75" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaStatusMessageResponse" Collapsed="true">
+    <Position X="7.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAACAAAAAAAAAAAAAAABEAAAAAAACMAAAAIABAAAAAA=</HashCode>
+      <HashCode>IAACAAAAAAAAAAAAAAABAAABAAAACMAAAAIABAAAAAA=</HashCode>
       <FileName>Messages\DeaStatusResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.DeaRuntime" Collapsed="true">
-    <Position X="0.75" Y="2.5" Width="1.5" />
+    <Position X="13" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>IgAAAAACAAAAAIIAAAIAAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>DeaRuntime.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.HelloMessage">
-    <Position X="17.5" Y="15.75" Width="1.75" />
+  <Class Name="Uhuru.CloudFoundry.DEA.HelloMessage" Collapsed="true">
+    <Position X="11.25" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>IAACAAAAAAAAAAAAAAABAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
       <FileName>Messages\HelloMessageResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.RouterMessage">
-    <Position X="19.75" Y="15.25" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.RouterMessage" Collapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
@@ -230,13 +129,13 @@
       <FileName>Messages\RouterRegisterResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.HearbeatMessage">
-    <Position X="17.5" Y="18.5" Width="2.5" />
+  <Class Name="Uhuru.CloudFoundry.DEA.HeartbeatMessage" Collapsed="true">
+    <Position X="9.5" Y="3.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Class Name="Uhuru.CloudFoundry.DEA.HearbeatMessage.InstanceHeartbeat">
+      <Class Name="Uhuru.CloudFoundry.DEA.HeartbeatMessage.InstanceHeartbeat" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Messages\HearbeatMessage.cs</NewMemberFileName>
         </TypeIdentifier>
@@ -247,102 +146,88 @@
       <FileName>Messages\HearbeatMessage.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletStatusMessageResponse">
-    <Position X="14.25" Y="19.25" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletStatusMessageResponse" Collapsed="true">
+    <Position X="14.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AIAAAAAAAAAAAEBAAAAAAAUECAAACAIAAAAAAACAAAA=</HashCode>
       <FileName>Messages\DropletStatusMessageResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaDiscoverMessageRequest">
-    <Position X="22.25" Y="19.5" Width="2.75" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaDiscoverMessageRequest" Collapsed="true">
+    <Position X="7.75" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="Uhuru.CloudFoundry.DEA.DeaDiscoverMessageRequest.DropletLimits">
-        <TypeIdentifier>
-          <NewMemberFileName>Messages\DeaDiscoverMessageRequest.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAAAIAAAAAAAAACAAAAQQAAAAAAAAAAACAAAAAAAA=</HashCode>
       <FileName>Messages\DeaDiscoverMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaStartMessageRequest">
-    <Position X="20" Y="23.25" Width="2.5" />
-    <NestedTypes>
-      <Class Name="Uhuru.CloudFoundry.DEA.DeaStartMessageRequest.DropletLimits" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>Messages\DeaStartMessageRequest.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaStartMessageRequest" Collapsed="true">
+    <Position X="14.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>oAAAACICAAAAAEAACAGAAQQBAIAAAAAAAAEAAAAAAAA=</HashCode>
       <FileName>Messages\DeaStartMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DropletExitedMessage">
-    <Position X="15" Y="23" Width="2" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DropletExitedMessage" Collapsed="true">
+    <Position X="7.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>MAAAAAIAAAAAAAAAAAAAAAAAAAIAAAAgAAEAIAAAQAA=</HashCode>
+      <HashCode>IAAAAAIAAAAAAAAAAAAAAABAAAIAAAggAAEAAAAAQAA=</HashCode>
       <FileName>Messages\DropletExitedMessage.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageRequest">
-    <Position X="14.25" Y="26.5" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageRequest" Collapsed="true">
+    <Position X="9.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IBAgAAIAAEBAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <HashCode>IBAgAgIAAAAAAAAAAAAAAABAAAAAAAAAAAAABAAAAAA=</HashCode>
       <FileName>Messages\DeaFindDropletMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageResponse">
-    <Position X="17.25" Y="26.75" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaFindDropletMessageResponse" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>MBACAAIAAAAACAAEgBAAAAAAAAAAAAAQAAkAJAAAQAA=</HashCode>
+      <HashCode>MBAAAAIAACAACAAEABAAAIAAAAAAAAgQAAkABAAAQAA=</HashCode>
       <FileName>Messages\DeaFindDropletMessageResponse.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaStopMessageRequest">
-    <Position X="23" Y="28.25" Width="2.25" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaStopMessageRequest" Collapsed="true">
+    <Position X="9.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAAgAAIAAEBAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <HashCode>IAAgAgIAAAAAAAAAAAAAAABAAAAAAAAAAAAABAAAAAA=</HashCode>
       <FileName>Messages\DeaStopMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.DeaUpdateMessageRequest">
-    <Position X="20.25" Y="29.5" Width="2" />
+  <Class Name="Uhuru.CloudFoundry.DEA.DeaUpdateMessageRequest" Collapsed="true">
+    <Position X="11.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAIAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Messages\DeaUpdateMessageRequest.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="Uhuru.CloudFoundry.DEA.DropletInstanceState" Collapsed="true">
-    <Position X="2.75" Y="1.5" Width="1.5" />
+    <Position X="9.5" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAAQAAAAAAAAAAAAAAAQAJAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAEAIAAAAAAAAAEAAAAAAAAAAIAAAAAAAAEAA=</HashCode>
       <FileName>DropletInstanceProperties.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Enum Name="Uhuru.CloudFoundry.DEA.DropletExitReason" Collapsed="true">
-    <Position X="2.75" Y="0.75" Width="1.5" />
+    <Position X="7.75" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CAAAAAAAAAAAAAAAAQAQAIAAAAAAAAAAAAAAAAAQAAA=</HashCode>
+      <HashCode>AAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAIAACAAEAEAA=</HashCode>
       <FileName>DropletInstanceProperties.cs</FileName>
     </TypeIdentifier>
   </Enum>
-  <Delegate Name="Uhuru.CloudFoundry.DEA.StreamWriterDelegate" Collapsed="true">
-    <Position X="7" Y="3.5" Width="2" />
+  <Delegate Name="Uhuru.CloudFoundry.DEA.StreamWriterCallback" Collapsed="true">
+    <Position X="9.5" Y="6.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Utils.cs</FileName>
     </TypeIdentifier>
   </Delegate>
-  <Delegate Name="Uhuru.CloudFoundry.DEA.ProcessDoneDelegate" Collapsed="true">
-    <Position X="4.75" Y="3.5" Width="2" />
+  <Delegate Name="Uhuru.CloudFoundry.DEA.ProcessDoneCallback" Collapsed="true">
+    <Position X="7.75" Y="6.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAACAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA=</HashCode>
       <FileName>Utils.cs</FileName>

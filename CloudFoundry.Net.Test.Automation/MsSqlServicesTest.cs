@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Configuration;
 using System.Threading;
-using System.Globalization;
-using Uhuru.CloudFoundry.Cloud;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.CloudFoundry.Cloud;
 
 namespace CloudFoundry.Net.Test.Automation
 {

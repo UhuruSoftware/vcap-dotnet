@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Configuration;
-using CloudFoundry.Net;
-using System.Threading;
-using System.IO;
-using System.Runtime.InteropServices;
-using Microsoft.Win32;
-using System.Net;
 using System.Globalization;
-using Uhuru.CloudFoundry.Cloud;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Uhuru.CloudFoundry.Cloud;
 
 namespace CloudFoundry.Net.Test.Automation
 {

@@ -1,23 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
+using System.Globalization;
 using System.IO;
 using System.Threading;
+using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    public delegate void ForEachCallback(DropletInstance instance);
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
     public class DropletCollection
     {
-
         //DropletId -> Droplet
-        public Dictionary<int, Droplet> Droplets = new Dictionary<int,Droplet>();
-        public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private Dictionary<int, Droplet> droplets = new Dictionary<int,Droplet>();
+        private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public Dictionary<int, Droplet> Droplets
+        {
+            get
+            {
+                return droplets;
+            }
+            set
+            {
+                droplets = value;
+            }
+        }
+
+        public ReaderWriterLockSlim Lock
+        {
+            get
+            {
+                return readerWriterLock;
+            }
+            set
+            {
+                readerWriterLock = value;
+            }
+        }
+
+
 
         public string AppStateFile { get; set; }
 
-        public bool RecoverdDroplets
+        public bool RecoveredDroplets
         {
             get;
             set;
@@ -25,13 +53,13 @@ namespace Uhuru.CloudFoundry.DEA
 
         private volatile bool SnapshotScheduled;
 
-        public HearbeatMessage GenerateHearbeatMessage()
+        public HeartbeatMessage GenerateHeartbeatMessage()
         {
-            HearbeatMessage response = new HearbeatMessage();
+            HeartbeatMessage response = new HeartbeatMessage();
 
             ForEach(delegate(DropletInstance instance)
             {
-                response.Droplets.Add(instance.GenerateInstanceHearbeat().ToJsonIntermediateObject());
+                response.Droplets.Add(instance.GenerateInstanceHeartbeat().ToJsonIntermediateObject());
             });
 
             return response;
@@ -43,7 +71,7 @@ namespace Uhuru.CloudFoundry.DEA
             bool result = true;
             ForEach(delegate(DropletInstance instance)
             {
-                if (instance.Properties.State == DropletInstanceState.STARTING || instance.Properties.State == DropletInstanceState.RUNNING)
+                if (instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running)
                 {
                     result = false;
                 }
@@ -52,10 +80,13 @@ namespace Uhuru.CloudFoundry.DEA
 
         }
 
-        public delegate void ForEachDelegate(DropletInstance instance);
-        public void ForEach(bool UpgradableReadLock, ForEachDelegate doThat)
+        public void ForEach(bool upgradableReadLock, ForEachCallback doThat)
         {
-            if (UpgradableReadLock)
+            if (doThat == null)
+            {
+                throw new ArgumentNullException("doThat");
+            }
+            if (upgradableReadLock)
             {
                 List<DropletInstance> ephemeralInstances = new List<DropletInstance>();
 
@@ -103,7 +134,7 @@ namespace Uhuru.CloudFoundry.DEA
             
         }
 
-        public void ForEach(ForEachDelegate doThat)
+        public void ForEach(ForEachCallback doThat)
         {
             ForEach(false, doThat);
         }
@@ -133,7 +164,8 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime start = DateTime.Now;
 
-            string tmpFilename = Path.Combine(Path.GetDirectoryName(AppStateFile), String.Format("snap_{0}", start.Ticks));
+            string tmpFilename = Path.Combine(Path.GetDirectoryName(AppStateFile), 
+                String.Format(CultureInfo.InvariantCulture, Strings.SnapshotTemplate, start.Ticks));
 
             File.WriteAllText(tmpFilename, appState);
 
@@ -142,7 +174,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             File.Move(tmpFilename, AppStateFile);
 
-            Logger.debug(String.Format("Took {0} to snapshot application state.", DateTime.Now - start));
+            Logger.Debug(Strings.TookXSecondsToSnapshotApplication, DateTime.Now - start);
 
             SnapshotScheduled = false;
         }
@@ -165,6 +197,11 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void RemoveDropletInstance(DropletInstance instance)
         {
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
+
             try
             {
                 Lock.EnterWriteLock();
@@ -193,6 +230,10 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void AddDropletInstance(DropletInstance instance)
         {
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
             try
             {
                 Lock.EnterWriteLock();
@@ -211,28 +252,33 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        public DropletInstance CreateDropletInstance(DeaStartMessageRequest pmessage)
+        public DropletInstance CreateDropletInstance(DeaStartMessageRequest message)
         {
+            if (message == null)
+            {
+                throw new ArgumentNullException("message");
+            }
+
             DropletInstance instance = new DropletInstance();
             
             //stefi: consider changing the format
             string instanceId = Guid.NewGuid().ToString();
 
 
-            instance.Properties.State = DropletInstanceState.STARTING;
+            instance.Properties.State = DropletInstanceState.Starting;
             instance.Properties.Start = DateTime.Now;
 
             instance.Properties.InstanceId = instanceId;
 
-            instance.Properties.DropletId = pmessage.DropletId;
-            instance.Properties.InstanceIndex = pmessage.Index;
-            instance.Properties.Name = pmessage.Name;
-            instance.Properties.Uris = pmessage.Uris;
-            instance.Properties.Users = pmessage.Users;
-            instance.Properties.Version = pmessage.Version;
-            instance.Properties.Framework = pmessage.Framework;
-            instance.Properties.Runtime = pmessage.Runtime;
-            instance.Properties.LoggingId = String.Format("name={0} app_id={1} instance={2} index={3}", pmessage.Name, pmessage.DropletId, instanceId, pmessage.Index);
+            instance.Properties.DropletId = message.DropletId;
+            instance.Properties.InstanceIndex = message.Index;
+            instance.Properties.Name = message.Name;
+            instance.Properties.Uris = message.Uris;
+            instance.Properties.Users = message.Users;
+            instance.Properties.Version = message.Version;
+            instance.Properties.Framework = message.Framework;
+            instance.Properties.Runtime = message.Runtime;
+            instance.Properties.LoggingId = String.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
 
             AddDropletInstance(instance);
             

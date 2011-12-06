@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
+﻿using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -10,32 +6,66 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("id")]
-        public string Id;
+        public string Id
+        {
+            get;
+            set;
+        }
 
         [JsonName("version")]
-        public decimal Version;
+        public decimal Version
+        {
+            get;
+            set;
+        }
 
         [JsonName("ip")]
-        public string Host;
+        public string Host
+        {
+            get;
+            set;
+        }
 
         [JsonName("port")]
-        public int FileViewerPort;
+        public int FileViewerPort
+        {
+            get;
+            set;
+        }
 
         [JsonName("max_memory")]
-        public long MaxMemoryMbytes;
+        public long MaxMemoryMbytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("reserved_memory")]
-        public long MemoryReservedMbytes;
+        public long MemoryReservedMbytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("used_memory")]
-        public long MermoryUsageKbytes;
+        public long MemoryUsageKbytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("num_clients")]
-        public long NumberOfClients;
+        public long NumberOfClients
+        {
+            get;
+            set;
+        }
 
         [JsonName("state")]
-        public string State;
-
-
+        public string State
+        {
+            get;
+            set;
+        }
     }
 }

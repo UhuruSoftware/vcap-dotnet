@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
+﻿using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -10,10 +6,18 @@ namespace Uhuru.CloudFoundry.DEA
     {
         
         [JsonName("droplet")]
-        public int DropletId;
+        public int DropletId
+        {
+            get;
+            set;
+        }
 
         [JsonName("uris")]
-        public List<string> Uris;
+        public string[] Uris
+        {
+            get;
+            set;
+        }
 
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
@@ -9,19 +7,38 @@ namespace Uhuru.CloudFoundry.DEA
     public class DeaStopMessageRequest : JsonConvertibleObject
     {
         [JsonName("droplet")]
-        public int DropletId;
+        public int DropletId
+        {
+            get;
+            set;
+        }
 
         [JsonName("version")]
-        public string Version;
+        public string Version
+        {
+            get;
+            set;
+        }
 
-        [JsonName("instances")]
-        public HashSet<string> InstanceIds;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        JsonName("instances")]
+        public HashSet<string> InstanceIds
+        {
+            get;
+            set;
+        }
 
-        [JsonName("indices")]
-        public HashSet<int> Indices;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        JsonName("indices")]
+        public HashSet<int> Indexes
+        {
+            get;
+            set;
+        }
 
-        [JsonName("states")]
-        public HashSet<string> StatesInterchangableFormat
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        JsonName("states")]
+        public HashSet<string> StatesInterchangeableFormat
         {
             get
             {
@@ -34,6 +51,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
             set
             {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
                 States = new HashSet<DropletInstanceState>();
                 foreach (string state in value)
                 {
@@ -41,6 +62,12 @@ namespace Uhuru.CloudFoundry.DEA
                 }
             }
         }
-        public HashSet<DropletInstanceState> States;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public HashSet<DropletInstanceState> States
+        {
+            get;
+            set;
+        }
     }
 }

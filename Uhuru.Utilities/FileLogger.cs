@@ -1,34 +1,19 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Globalization;
-using System.Linq;
-using log4net;
+using System.IO;
 
 namespace Uhuru.Utilities
 {
     /// <summary>
-    /// This is a helper logger class that is used throughout the code.
+    /// This is a helper logger class that writes to a file.
     /// </summary>
-    public static class Logger
+    public class FileLogger
     {
-        private static readonly ILog log = LogManager.GetLogger(System.AppDomain.CurrentDomain.FriendlyName);
-        private static bool isSourceConfigured = false;
-        private static readonly object configureEventLogSourceLock = new object();
+        private string fileName;
 
-        private static void SetEventLogSource()
+        public FileLogger(string fileName)
         {
-            if (!isSourceConfigured)
-            {
-                lock (configureEventLogSourceLock)
-                {
-                    if (!isSourceConfigured)
-                    {
-                        isSourceConfigured = true;
-                        EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
-                    }
-                }
-            }
+            this.fileName = fileName;
         }
 
         /// <summary>
@@ -36,10 +21,10 @@ namespace Uhuru.Utilities
         /// This indicates a really severe error, that will probably make the application crash.
         /// </summary>
         /// <param name="message">The message to be logged.</param>
-        public static void Fatal(string message)
+        public void Fatal(string message)
         {
-            SetEventLogSource();
-            log.Fatal(message);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[FATAL] [{0}] {1}", DateTime.Now, message));
         }
 
         /// <summary>
@@ -47,10 +32,10 @@ namespace Uhuru.Utilities
         /// This indicates an error, but the application may be able to continue.
         /// </summary>
         /// <param name="message">The message to be logged.</param>
-        public static void Error(string message)
+        public void Error(string message)
         {
-            SetEventLogSource();
-            log.Error(message);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[ERROR] [{0}] {1}", DateTime.Now, message));
         }
 
         /// <summary>
@@ -58,10 +43,10 @@ namespace Uhuru.Utilities
         /// This indicates a situation that could lead to some bad things.
         /// </summary>
         /// <param name="message">The message to be logged.</param>
-        public static void Warning(string message)
+        public void Warning(string message)
         {
-            SetEventLogSource();
-            log.Warn(message);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[WARN] [{0}] {1}", DateTime.Now, message));
         }
 
         /// <summary>
@@ -69,10 +54,10 @@ namespace Uhuru.Utilities
         /// The message is used to indicate some progress.
         /// </summary>
         /// <param name="message">The message to be logged.</param>
-        public static void Info(string message)
+        public void Info(string message)
         {
-            SetEventLogSource();
-            log.Info(message);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[INFO] [{0}] {1}", DateTime.Now, message));
         }
 
         /// <summary>
@@ -80,10 +65,10 @@ namespace Uhuru.Utilities
         /// This is an informational message, that is useful when debugging.
         /// </summary>
         /// <param name="message">The message to be logged.</param>
-        public static void Debug(string message)
+        public void Debug(string message)
         {
-            SetEventLogSource();
-            log.Debug(message);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[DEBUG] [{0}] {1}", DateTime.Now, message));
         }
 
         /// <summary>
@@ -92,10 +77,10 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="message">The message to be logged.</param>
         /// <param name="args">The arguments used for formatting.</param>
-        public static void Fatal(string message, params object[] args)
+        public void Fatal(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.FatalFormat(CultureInfo.InvariantCulture, message, args);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[FATAL] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -104,10 +89,10 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="message">The message to be logged.</param>
         /// <param name="args">The arguments used for formatting.</param>
-        public static void Error(string message, params object[] args)
+        public void Error(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.ErrorFormat(CultureInfo.InvariantCulture, message, args);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[ERROR] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -116,10 +101,10 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="message">The message to be logged.</param>
         /// <param name="args">The arguments used for formatting.</param>
-        public static void Warning(string message, params object[] args)
+        public void Warning(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.WarnFormat(CultureInfo.InvariantCulture, message, args);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[WARN] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -128,10 +113,10 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="message">The message to be logged.</param>
         /// <param name="args">The arguments used for formatting.</param>
-        public static void Info(string message, params object[] args)
+        public void Info(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.InfoFormat(CultureInfo.InvariantCulture, message, args);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[INFO] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -140,10 +125,10 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="message">The message to be logged.</param>
         /// <param name="args">The arguments used for formatting.</param>
-        public static void Debug(string message, params object[] args)
+        public void Debug(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.DebugFormat(CultureInfo.InvariantCulture, message, args);
+            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+                "[DEBUG] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
     }
 }

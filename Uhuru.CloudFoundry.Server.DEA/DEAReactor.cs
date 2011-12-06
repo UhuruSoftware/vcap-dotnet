@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 using Uhuru.NatsClient;
+using Uhuru.Utilities;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -10,22 +9,40 @@ namespace Uhuru.CloudFoundry.DEA
     public class DeaReactor : VcapReactor
     {
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnRouterStart;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnHealthManagerStart;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaStart;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaStop;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaStatus;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDropletStatus;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaDiscover;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaFindDroplet;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
         public event SubscribeCallback OnDeaUpdate;
 
         
@@ -54,7 +71,7 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.update", OnDeaUpdate);
 
             NatsClient.Subscribe("dea.stop", OnDeaStop);
-            NatsClient.Subscribe(String.Format("dea.{0}.start", Uuid), OnDeaStart);
+            NatsClient.Subscribe(String.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, Uuid), OnDeaStart);
 
             NatsClient.Subscribe("router.start", OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", OnHealthManagerStart);
@@ -70,10 +87,10 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Publish("dea.start", null,  message);
         }
 
-        public void SendDopletExited(string message)
+        public void SendDropletExited(string message)
         {
             NatsClient.Publish("droplet.exited", null, message);
-            Logger.debug(String.Format("Sent droplet.exited {0}", message));
+            Logger.Debug(Strings.SentDropletExited, message);
         }
 
         public void SendRouterRegister(string message)
