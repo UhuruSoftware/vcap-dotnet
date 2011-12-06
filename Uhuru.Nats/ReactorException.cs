@@ -17,7 +17,7 @@ namespace Uhuru.NatsClient
     public class ReactorException : Exception
     {
         /// <summary>
-        /// Public constructor inherited from the Exception class.
+        /// Initializes a new instance of the ReactorException class. Inherited from the Exception class.
         /// </summary>
         /// <param name="message">Exception message.</param>
         /// <param name="exception">Inner exception</param>
@@ -27,7 +27,7 @@ namespace Uhuru.NatsClient
         }
 
         /// <summary>
-        /// Public constructor inherited from the Exception class.
+        /// Initializes a new instance of the ReactorException class. Inherited from the Exception class.
         /// </summary>
         /// <param name="message">Exception message.</param>
         public ReactorException(string message)
@@ -41,19 +41,7 @@ namespace Uhuru.NatsClient
         /// <param name="uri">The uri the NATS client is connected to.</param>
         /// <param name="message">Exception message.</param>
         public ReactorException(Uri uri, string message) :
-            base(uri == null ? null : String.Format(CultureInfo.InvariantCulture, "{0}\r\n\r\nConnected to {1}:{2}",
-            message, uri.Host, uri.Port))
-        {
-
-        }
-
-        /// <summary>
-        /// Constructor required by the [Serializable] attribute.
-        /// </summary>
-        /// <param name="serializationInfo">Serialization info.</param>
-        /// <param name="streamingContext">Streaming context.</param>
-        protected ReactorException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-            : base(serializationInfo, streamingContext)
+            base(uri == null ? null : string.Format(CultureInfo.InvariantCulture, "{0}\r\n\r\nConnected to {1}:{2}", message, uri.Host, uri.Port))
         {
         }
 
@@ -61,6 +49,17 @@ namespace Uhuru.NatsClient
         /// Initializes a new instance of the ReactorException class.
         /// </summary>
         public ReactorException()
+        {
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the ReactorException class. 
+        /// Constructor required by the [Serializable] attribute.
+        /// </summary>
+        /// <param name="serializationInfo">Serialization info.</param>
+        /// <param name="streamingContext">Streaming context.</param>
+        protected ReactorException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }
