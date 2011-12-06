@@ -17,11 +17,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     {
         #region Class Members
 
-        private string appName = default(string);
-        private string appPath = default(string);
+        private string appName = String.Empty;
+        private string appPath = String.Empty;
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
-        private ServerManager serverMgr = new ServerManager();
         
+        private ServerManager serverMgr = new ServerManager();
+        private ApplicationInfo applicationInfo = null;
+
         #endregion
 
         #region Public Interface Methods
@@ -29,10 +31,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             appName = removeSpecialCharacters(appInfo.Name) + appInfo.Port.ToString(CultureInfo.InvariantCulture);
             appPath = appInfo.Path;
-            
-            DotNetVersion version = getAppVersion(appInfo);
 
-            deployApp(appInfo, version);
+            applicationInfo = appInfo;
 
             autowireApp(appInfo, services, logFilePath);
         }
@@ -51,6 +51,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         public void StartApplication()
         {
+            DotNetVersion version = getAppVersion(applicationInfo);
+
+            deployApp(applicationInfo, version);
+
             startApp(); 
         }
 
@@ -126,31 +130,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             if (File.Exists(configFile))
             {
-                Dictionary<string, string> connections = new Dictionary<string, string>();
-
-                foreach (ApplicationService service in services)
+                if (services != null)
                 {
-                    string key = service.ServiceName;
-                    string connectionString = String.Format(CultureInfo.InvariantCulture,
-                        "Data Source={0},{1};Initial Catalog={2},User Id={3},Password={4};",
-                        service.Host,
-                        service.Port,
-                        service.Name,
-                        service.User,
-                        service.Password);
+                    Dictionary<string, string> connections = new Dictionary<string, string>();
 
-                    connections.Add(key, connectionString);
+                    foreach (ApplicationService service in services)
+                    {
+                        string key = service.ServiceName;
+                        string connectionString = String.Format(CultureInfo.InvariantCulture,
+                            "Data Source={0},{1};Initial Catalog={2},User Id={3},Password={4};",
+                            service.Host,
+                            service.Port,
+                            service.Name,
+                            service.User,
+                            service.Password);
+
+                        connections.Add(key, connectionString);
+                    }
+
+                    string configFileContents = File.ReadAllText(configFile);
+
+                    foreach (string con in connections.Keys)
+                    {
+                        string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
+                        configFileContents = configFileContents.Replace(conToReplace, connections[con]);
+                    }
+
+                    File.WriteAllText(configFile, configFileContents);
                 }
-
-                string configFileContents = File.ReadAllText(configFile);
-
-                foreach (string con in connections.Keys)
-                {
-                    string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
-                    configFileContents = configFileContents.Replace(conToReplace, connections[con]);
-                }
-
-                File.WriteAllText(configFile, configFileContents);
             }
         }
 
@@ -160,29 +167,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 mut.WaitOne();
                 Site site = serverMgr.Sites[appName];
-                
+
+                waitApp(ObjectState.Stopped, 5000);
+
                 if (site.State == ObjectState.Started)
                 {
-                    mut.ReleaseMutex();
                     return;
                 }
                 else
                 {
                     if (site.State == ObjectState.Stopping)
+                    {
                         waitApp(ObjectState.Stopped, 5000);
-
-                    if(site.State != ObjectState.Starting)
+                    }
+                    if (site.State != ObjectState.Starting)
+                    {
                         site.Start();
-
-                    mut.ReleaseMutex();
+                    }
                 }
                 //ToDo: add configuration for timeout
                 waitApp(ObjectState.Started, 20000);
             }
             catch (Exception x)
             {
-                mut.ReleaseMutex();
                 throw x;
+            }
+            finally
+            {
+                mut.ReleaseMutex();
             }
         }
 
