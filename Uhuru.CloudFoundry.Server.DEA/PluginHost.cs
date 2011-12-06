@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;

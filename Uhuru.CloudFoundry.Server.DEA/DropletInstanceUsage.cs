@@ -35,8 +35,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("time")]
         public int TimeInterchangeableFormat
         {
-            get { return Utils.DateTimeToEpochSeconds(Time); }
-            set { Time = Utils.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToEpochSeconds(Time); }
+            set { Time = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
         public DateTime Time

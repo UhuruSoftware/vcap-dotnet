@@ -92,8 +92,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("start")]
         public string StartInterchangeableFormat
         {
-            get { return Utils.DateTimeToRubyString(this.Start); }
-            set { this.Start = Utils.DateTimeFromRubyString(value); }
+            get { return RubyCompatibility.DateTimeToRubyString(Start); }
+            set { Start = RubyCompatibility.DateTimeFromRubyString(value); }
         }
 
         public DateTime Start
@@ -105,8 +105,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("state_timestamp")]
         public int StateTimestampInterchangeableFormat
         {
-            get { return Utils.DateTimeToEpochSeconds(StateTimestamp); }
-            set { StateTimestamp = Utils.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToEpochSeconds(StateTimestamp); }
+            set { StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
         public DateTime StateTimestamp
@@ -317,5 +317,21 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
+
+
+        [JsonName("windows_username")]
+        public string WindowsUsername
+        {
+            get;
+            set;
+        }
+
+        [JsonName("windows_password")]
+        public string WindowsPassword
+        {
+            get;
+            set;
+        }
+
     }
 }

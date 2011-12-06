@@ -12,6 +12,7 @@ namespace CloudFoundry.Net.Test.Unit
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Uhuru.CloudFoundry.Server.DEA;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.CloudFoundry.DEA;
         
     /// <summary>
     /// a class containing a few basic test to confirm that PluginHost does load dynamically a test .dll and is able to acess its methods

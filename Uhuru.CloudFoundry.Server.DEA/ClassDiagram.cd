@@ -17,7 +17,7 @@
   <Class Name="Uhuru.CloudFoundry.DEA.DropletInstance" Collapsed="true">
     <Position X="12" Y="5.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>IAIQBgAAAAAAAAAAAAUAYAQEgAAAAAAAAAAgAAACAAA=</HashCode>
+      <HashCode>IAIQBgAAAAAAAAAAAAUEYAQEgAAAAAAAAAAgAAACAAA=</HashCode>
       <FileName>DropletInstance.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -45,15 +45,8 @@
   <Class Name="Uhuru.CloudFoundry.DEA.Stager" Collapsed="true">
     <Position X="13.75" Y="5.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>QAAUAAEICAAAAAAAAkECAUAAAAAAAAQAAAAABAACIAA=</HashCode>
+      <HashCode>QAAUAAEICAAAAAAAAkEKAUAAAAAAAAQAAAAABAACIAA=</HashCode>
       <FileName>Stager.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Uhuru.CloudFoundry.DEA.Agent">
-    <Position X="4.5" Y="6.25" Width="2.25" />
-    <TypeIdentifier>
-      <HashCode>KAARFAEQgCUMAAEQAwSAAUYIQLAAAgiCCkgQIEAAQGo=</HashCode>
-      <FileName>Agent.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Uhuru.CloudFoundry.DEA.FileViewer" Collapsed="true">
@@ -117,13 +110,6 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="Uhuru.CloudFoundry.DEA.RouterMessage.TagsObject">
-        <TypeIdentifier>
-          <NewMemberFileName>Messages\RouterRegisterResponse.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>EAAAAAAAAAAAAEAAAAAAAAAACAAACEAAAAAAAAAAAAA=</HashCode>
       <FileName>Messages\RouterRegisterResponse.cs</FileName>
@@ -134,13 +120,6 @@
     <Compartments>
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
-    <NestedTypes>
-      <Class Name="Uhuru.CloudFoundry.DEA.HeartbeatMessage.InstanceHeartbeat" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>Messages\HearbeatMessage.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
       <FileName>Messages\HearbeatMessage.cs</FileName>
@@ -203,6 +182,13 @@
     <TypeIdentifier>
       <HashCode>AAAAAAIAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Messages\DeaUpdateMessageRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Uhuru.CloudFoundry.DEA.Agent">
+    <Position X="4.5" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>KAARFAEQgCUMAAEQAwSAAUYIQLAAAgiCCkgQIEAAQGo=</HashCode>
+      <FileName>Agent.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Enum Name="Uhuru.CloudFoundry.DEA.DropletInstanceState" Collapsed="true">

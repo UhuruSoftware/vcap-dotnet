@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Security.Cryptography;
     using System.Text.RegularExpressions;
     using Uhuru.Utilities;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     
     class Stager
     {
@@ -80,6 +81,15 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             return true;
+        }
+
+        public Runtime GetPluginRuntime(string runtimeName)
+        {
+            Runtime rtime = new Runtime();
+            rtime.Name = runtimeName;
+            rtime.Version = Runtimes[runtimeName].Version;
+            //rtime.Description = Runtimes[runtimeName].
+            return rtime;
         }
 
         public void GetRuntimeEnvironment()

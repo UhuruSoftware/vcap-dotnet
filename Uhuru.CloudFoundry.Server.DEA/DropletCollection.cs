@@ -65,7 +65,10 @@ namespace Uhuru.CloudFoundry.DEA
 
             ForEach(delegate(DropletInstance instance)
             {
-                response.Droplets.Add(instance.GenerateInstanceHeartbeat().ToJsonIntermediateObject());
+                if (instance.Properties.State != DropletInstanceState.Stopped)
+                {
+                    response.Droplets.Add(instance.GenerateInstanceHeartbeat().ToJsonIntermediateObject());
+                }
             });
 
             return response;
@@ -219,6 +222,8 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 Lock.ExitWriteLock();
             }
+
+            ScheduleSnapshotAppState();
         }
        
         public void AddDropletInstance(DropletInstance instance)
@@ -243,6 +248,8 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Lock.ExitReadLock();
                 Lock.ExitWriteLock();
             }
+
+            ScheduleSnapshotAppState();
         }
 
         public DropletInstance CreateDropletInstance(DeaStartMessageRequest message)
@@ -271,6 +278,8 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Framework = message.Framework;
             instance.Properties.Runtime = message.Runtime;
             instance.Properties.LoggingId = String.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
+            instance.Properties.WindowsPassword = Credentials.GenerateCredential();
+            instance.Properties.WindowsUsername = WindowsVcapUsers.CreateUser(instanceId, instance.Properties.WindowsPassword);
 
             AddDropletInstance(instance);
             
