@@ -217,22 +217,25 @@ namespace Uhuru.Utilities
 
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
+                                if (valueAsJObject[jsonPropertyName] != null)
+                                {
+                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                if (value.GetType() == typeof(JObject))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                    if (value.GetType() == typeof(JObject))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                                    }
+                                    else if (value.GetType() == typeof(Dictionary<string, object>))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
+                                    }
+                                    else
+                                    {
+                                        throw new FormatException("Unsupported intermediate format");
+                                    }
 
-                                property.SetValue(this, finalValue, null);
+                                    property.SetValue(this, finalValue, null);
+                                }
                             }
                             else if (propertyType.IsEnum)
                             {
@@ -313,22 +316,25 @@ namespace Uhuru.Utilities
                             
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                
-                                if (value.GetType() == typeof(JObject))
+                                if (valueAsJObject[jsonPropertyName] != null)
                                 {
-                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                field.SetValue(this, finalValue);
+                                    if (value.GetType() == typeof(JObject))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                                    }
+                                    else if (value.GetType() == typeof(Dictionary<string, object>))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
+                                    }
+                                    else
+                                    {
+                                        throw new FormatException("Unsupported intermediate format");
+                                    }
+
+                                    field.SetValue(this, finalValue);
+                                }
                             }
                             else if (propertyType.IsEnum)
                             {
