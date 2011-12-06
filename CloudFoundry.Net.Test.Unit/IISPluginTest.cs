@@ -128,7 +128,10 @@ namespace CloudFoundry.Net.Test.Unit
                 appInfo.InstanceId = Guid.NewGuid().ToString();
                 appInfo.LocalIp = "192.168.1.4";
                 appInfo.Name = "MyTestApp";
-                appInfo.Path = @"F:\Code\vcap-dotnet\TestApps\CloudTestApp";
+
+                
+
+                appInfo.Path = Helper.CopyFolderToTemp(@"F:\Code\vcap-dotnet\TestApps\CloudTestApp");
                 appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
                 appInfo.WindowsPassword = "cfuser";
                 appInfo.WindowsPassword = "Password1234!";
@@ -178,7 +181,7 @@ namespace CloudFoundry.Net.Test.Unit
             {
                 WebClient client = new WebClient();
                 string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-                Assert.IsTrue(html.Contains("Welcome to ASP.NET!"));
+                Assert.IsTrue(html.Contains("My ASP.NET Application"));
             }
 
 

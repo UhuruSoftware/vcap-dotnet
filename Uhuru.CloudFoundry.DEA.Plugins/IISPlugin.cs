@@ -27,7 +27,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private string appPath = String.Empty;
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
         
-        private ServerManager serverMgr = new ServerManager();
+        //private ServerManager serverMgr = new ServerManager();
         private ApplicationInfo applicationInfo = null;
 
         #endregion
@@ -78,7 +78,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         public void KillApplication()
         {
-            killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
+            try
+            {
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
         }
 
         #endregion
@@ -93,8 +104,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             try
             {
-                //using (ServerManager serverMgr = new ServerManager())
-                //{
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
                     DirectoryInfo deploymentDir = new DirectoryInfo(appInfo.Path);
                     DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
 
@@ -102,7 +114,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     deploymentDir.SetAccessControl(deploymentDirSecurity);
 
-                    mut.WaitOne();
 
                     Site mySite = serverMgr.Sites.Add(appName, appInfo.Path, appInfo.Port);
                     mySite.ServerAutoStart = false;
@@ -122,7 +133,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     mySite.Applications["/"].ApplicationPoolName = appName;
                     FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
                     serverMgr.CommitChanges();
-                //}
+                }
             }
             finally
             {
@@ -172,31 +183,30 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 mut.WaitOne();
-                Site site = serverMgr.Sites[appName];
-
-                waitApp(ObjectState.Stopped, 5000);
-
-                if (site.State == ObjectState.Started)
+                using (ServerManager serverMgr = new ServerManager())
                 {
-                    return;
-                }
-                else
-                {
-                    if (site.State == ObjectState.Stopping)
+                    Site site = serverMgr.Sites[appName];
+
+                    waitApp(ObjectState.Stopped, 5000);
+
+                    if (site.State == ObjectState.Started)
                     {
-                        waitApp(ObjectState.Stopped, 5000);
+                        return;
                     }
-                    if (site.State != ObjectState.Starting)
+                    else
                     {
-                        site.Start();
+                        if (site.State == ObjectState.Stopping)
+                        {
+                            waitApp(ObjectState.Stopped, 5000);
+                        }
+                        if (site.State != ObjectState.Starting)
+                        {
+                            site.Start();
+                        }
                     }
+                    //ToDo: add configuration for timeout
+                    waitApp(ObjectState.Started, 20000);
                 }
-                //ToDo: add configuration for timeout
-                waitApp(ObjectState.Started, 20000);
-            }
-            catch (Exception x)
-            {
-                throw x;
             }
             finally
             {
@@ -209,27 +219,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 mut.WaitOne();
-                ObjectState state = serverMgr.Sites[appName].State;
-                mut.ReleaseMutex();
-
-                if (state == ObjectState.Stopped)
+                using (ServerManager serverMgr = new ServerManager())
                 {
-                    return;
-                }
-                else if (state == ObjectState.Starting || state == ObjectState.Started)
-                {
-                    waitApp(ObjectState.Started, 5000);
-                    mut.WaitOne();
-                    serverMgr.Sites[appName].Stop();
-                    mut.ReleaseMutex();
-                }
+                    ObjectState state = serverMgr.Sites[appName].State;
 
-                waitApp(ObjectState.Stopped, 5000);
+                    if (state == ObjectState.Stopped)
+                    {
+                        return;
+                    }
+                    else if (state == ObjectState.Starting || state == ObjectState.Started)
+                    {
+                        waitApp(ObjectState.Started, 5000);
+                        serverMgr.Sites[appName].Stop();
+                    }
+                    waitApp(ObjectState.Stopped, 5000);
+                }
             }
-            catch (Exception x)
+            finally
             {
                 mut.ReleaseMutex();
-                throw x;
             }
         }
 
@@ -359,8 +367,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         private void waitApp(ObjectState waitForState, int milliseconds)
         {
-            //using (ServerManager serverMgr = new ServerManager())
-            //{
+            using (ServerManager serverMgr = new ServerManager())
+            {
                 Site site = serverMgr.Sites[appName];
                 
                 int timeout = 0;
@@ -385,7 +393,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 {
                     throw new TimeoutException("App start operation exceeded maximum time");
                 }
-            //}
+            }
         }
 
         private void killApplicationProcesses(string appPoolName)

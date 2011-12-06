@@ -219,7 +219,7 @@ namespace CloudFoundry.Net.Test.Automation
 
             Assert.AreEqual(0, exceptions.Count);
 
-            foreach(string service in services)
+            foreach (string service in services)
             {
                 Assert.IsTrue(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
             }
