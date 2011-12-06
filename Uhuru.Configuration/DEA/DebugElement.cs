@@ -1,13 +1,27 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DebugElement.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.DEA
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This configuration class contains debug settings for a DEA runtime.
     /// </summary>
     public class DebugElement : ConfigurationElement
     {
-           #region Constructors
+        #region Static Fields
+
+        private static ConfigurationProperty propertyName;
+        private static ConfigurationProperty propertyEnvironment;
+
+        private static ConfigurationPropertyCollection properties;
+        #endregion
+
+        #region Constructors
 
         static DebugElement()
         {
@@ -30,15 +44,7 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyName);
             properties.Add(propertyEnvironment);
         }
-        
-        #endregion
 
-        #region Static Fields
-
-        private static ConfigurationProperty propertyName;
-        private static ConfigurationProperty propertyEnvironment;
-
-        private static ConfigurationPropertyCollection properties;
         #endregion
 
         #region Properties
@@ -53,6 +59,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyName];
             }
+
             set
             {
                 base[propertyName] = value;

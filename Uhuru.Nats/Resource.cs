@@ -1,9 +1,15 @@
-﻿using System;
-using System.Globalization;
-using System.Text.RegularExpressions;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Resource.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.NatsClient
 {
+    using System;
+    using System.Globalization;
+    using System.Text.RegularExpressions;
+    
     /// <summary>
     /// This is a helper class for getting parsing regex resources.
     /// </summary>
@@ -22,16 +28,15 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return msg;
+                return this.msg;
             }
-
         }
 
         internal Regex OK
         {
             get
             {
-                return ok;
+                return this.ok;
             }
         }
 
@@ -39,7 +44,7 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return err;
+                return this.err;
             }
         }
 
@@ -47,7 +52,7 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return ping;
+                return this.ping;
             }
         }
 
@@ -55,7 +60,7 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return pong;
+                return this.pong;
             }
         }
 
@@ -63,7 +68,7 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return info;
+                return this.info;
             }
         }
 
@@ -71,7 +76,7 @@ namespace Uhuru.NatsClient
         {
             get
             {
-                return unknown;
+                return this.unknown;
             }
         }
 
@@ -116,6 +121,5 @@ namespace Uhuru.NatsClient
             unknown =  new Regex(Uhuru.NatsClient.Resources.ClientConnection.UNKNOWN);
             //languageRM = ResourceManager.CreateFileBasedResourceManager("Language.resx", "Resouces", null);
         }
-        
     }
 }

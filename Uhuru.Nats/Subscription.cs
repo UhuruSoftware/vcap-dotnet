@@ -1,8 +1,17 @@
-﻿using System.Timers;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Subscription.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.NatsClient
 {
-    class Subscription
+    using System.Timers;
+    
+    /// <summary>
+    /// a class to hold subscription-related data
+    /// </summary>
+    public class Subscription
     {
         public string Subject
         { get; set; }

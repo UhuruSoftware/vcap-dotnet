@@ -1,12 +1,29 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MsSqlElement.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.Service
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This configuration class defines settings for the MS Sql Server Node component.
     /// </summary>
     public class MSSqlElement : ConfigurationElement
     {
+        #region Static Fields
+
+        private static ConfigurationProperty propertyHost;
+        private static ConfigurationProperty propertyUser;
+        private static ConfigurationProperty propertyPassword;
+        private static ConfigurationProperty propertyPort;
+
+        private static ConfigurationPropertyCollection properties;
+
+        #endregion
+        
         #region Constructors
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
@@ -46,16 +63,6 @@ namespace Uhuru.Configuration.Service
 
         #endregion
 
-        #region Static Fields
-
-        private static ConfigurationProperty propertyHost;
-        private static ConfigurationProperty propertyUser;
-        private static ConfigurationProperty propertyPassword;
-        private static ConfigurationProperty propertyPort;
-
-        private static ConfigurationPropertyCollection properties;
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -76,6 +83,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyHost];
             }
+
             set
             {
                 base[propertyHost] = value;
@@ -92,6 +100,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyUser];
             }
+
             set
             {
                 base[propertyUser] = value;
@@ -108,6 +117,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyPassword];
             }
+
             set
             {
                 base[propertyPassword] = value;
@@ -124,6 +134,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyPort];
             }
+
             set
             {
                 base[propertyPort] = value;

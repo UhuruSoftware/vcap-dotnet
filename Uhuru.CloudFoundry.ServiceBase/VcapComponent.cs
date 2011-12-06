@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using Uhuru.NatsClient;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="VcapComponent.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using Uhuru.NatsClient;
+    using Uhuru.Utilities;
+    
     /// <summary>
     /// This is a class used to register vcap components to the Cloud Foundry controller.
     /// </summary>
