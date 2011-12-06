@@ -97,23 +97,6 @@ namespace CloudFoundry.Net.Test.Unit
             target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
         }
 
-        /// <summary>
-        ///A test for GetApplicationProcessIDs
-        ///</summary>
-        [TestMethod()]
-        public void GetApplicationProcessIDsTest()
-        {
-            IISPlugin target = new IISPlugin(); // TODO: Initialize to an appropriate value
-            int[] expected = null; // TODO: Initialize to an appropriate value
-            int[] actual;
-            actual = target.GetApplicationProcessIDs();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        /// <summary>
-        ///A test for KillApplication
-        ///</summary>
         [TestMethod()]
         public void MultipleApps()
         {

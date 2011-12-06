@@ -64,15 +64,40 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             startApp(); 
         }
 
-        public int[] GetApplicationProcessIDs()
+        public int GetApplicationProcessID()
         {
-            throw new NotImplementedException();
+            try
+            {
+                mut.WaitOne();
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    string appPoolName = serverMgr.Sites[appName].Applications["/"].ApplicationPoolName;
+                    
+                    foreach (WorkerProcess process in serverMgr.WorkerProcesses)
+                    {
+                        if (process.AppPoolName == appPoolName)
+                        {
+                            return process.ProcessId;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
+            return 0;
         }
 
         public void StopApplication()
         {
             stopApp();
 
+            cleanup(appPath);
+        }
+
+        public void CleanupApplication(string path)
+        {
             cleanup(appPath);
         }
 
