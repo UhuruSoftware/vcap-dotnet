@@ -8,7 +8,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
     using System.Configuration.Install;
 
-    private class InstallArguments
+    class InstallArguments
     {
         private class Argument
         {
