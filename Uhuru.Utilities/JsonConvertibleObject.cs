@@ -16,15 +16,15 @@ namespace Uhuru.Utilities
 
     public sealed class JsonNameAttribute : Attribute
     {
+        public JsonNameAttribute(string name)
+        {
+            Name = name;
+        }
+        
         public string Name
         {
             get;
             set;
-        }
-
-        public JsonNameAttribute(string name)
-        {
-            Name = name;
         }
     }
 
@@ -48,42 +48,6 @@ namespace Uhuru.Utilities
         public string SerializeToJson()
         {
             return JsonConvert.SerializeObject(this.ToJsonIntermediateObject());
-        }
-
-        //todo: use in the future for deep transformation
-        private static T TransformIntermediateElment<T>(object obj)
-        {
-            T result;
-            Type toType = typeof(T);
-
-            if (typeof(List<>) == toType.GetGenericTypeDefinition())
-            {
-                MethodInfo method = typeof(JsonConvertibleObject).GetMethod("TransformIntermediateList");
-                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { toType.GetGenericArguments()[0] });
-                result = (T)genericMethod.Invoke(null, new object[] { obj });
-            }
-            else
-            {
-                result = ((JToken)obj).ToObject<T>();
-                //throw new Exception("Unsuported Intermediate Format");
-            }
-
-            return result;
-        }
-
-        //todo: use in the future for deap trandormation
-        private static List<T> TransformIntermediateList<T>(object obj)
-        {
-            Type elemType = typeof(T);
-            List<T> result = new List<T>();
-            foreach (JToken elem in (JArray)obj)
-            {
-                MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
-                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { elemType });
-                result.Add((T)genericMethod.Invoke(obj, null));
-            }
-
-            return result;
         }
 
         public Dictionary<string, object> ToJsonIntermediateObject(params string[] elementsToInclude)
@@ -133,7 +97,10 @@ namespace Uhuru.Utilities
                         }
                         else
                         {
-                            if (property.GetValue(this, null) != null) result.Add(jsonPropertyName, property.GetValue(this, null));
+                            if (property.GetValue(this, null) != null)
+                            {
+                                result.Add(jsonPropertyName, property.GetValue(this, null));
+                            }
                         }
                     }
                 }
@@ -171,11 +138,13 @@ namespace Uhuru.Utilities
                             {
                                 result.Add(jsonPropertyName, field.GetValue(this).ToString());
                             }
-
                         }
                         else
                         {
-                            if (field.GetValue(this) != null) result.Add(jsonPropertyName, field.GetValue(this));
+                            if (field.GetValue(this) != null)
+                            {
+                                result.Add(jsonPropertyName, field.GetValue(this));
+                            }
                         }
                     }
                 }
@@ -272,7 +241,7 @@ namespace Uhuru.Utilities
                                     property.SetValue(this, valueToSet, null);
                                 }
                             }
-                            else //if (propertyType.IsPrimitive) //we are a primitive type
+                            else // if (propertyType.IsPrimitive) //we are a primitive type
                             {
                                 if (value.GetType() == typeof(JObject))
                                 {
@@ -431,6 +400,40 @@ namespace Uhuru.Utilities
             }
         }
 
+        // todo: use in the future for deep transformation
+        private static T TransformIntermediateElment<T>(object obj)
+        {
+            T result;
+            Type toType = typeof(T);
+
+            if (typeof(List<>) == toType.GetGenericTypeDefinition())
+            {
+                MethodInfo method = typeof(JsonConvertibleObject).GetMethod("TransformIntermediateList");
+                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { toType.GetGenericArguments()[0] });
+                result = (T)genericMethod.Invoke(null, new object[] { obj });
+            }
+            else
+            {
+                result = ((JToken)obj).ToObject<T>();
+                // throw new Exception("Unsupported intermediate format");
+            }
+
+            return result;
+        }
+
+        // todo: use in the future for deep transformation
+        private static List<T> TransformIntermediateList<T>(object obj)
+        {
+            Type elemType = typeof(T);
+            List<T> result = new List<T>();
+            foreach (JToken elem in (JArray)obj)
+            {
+                MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
+                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { elemType });
+                result.Add((T)genericMethod.Invoke(obj, null));
+            }
+
+            return result;
+        }
     }
 }
-
