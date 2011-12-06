@@ -1,10 +1,15 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Helper.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.IO;
 using System.Xml;
 
 namespace CloudFoundry.Net.Test.Automation
 {
-    
     static class Helper
     {
         public static void UpdateWebConfigKey(string fileName, string key, string newValue)
