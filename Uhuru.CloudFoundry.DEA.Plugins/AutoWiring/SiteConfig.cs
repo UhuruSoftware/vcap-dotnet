@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.Utilities.AutoWiring
+namespace Uhuru.CloudFoundry.DEA.Autowiring
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,6 @@ namespace Uhuru.Utilities.AutoWiring
     using System.Reflection;
     using System.Xml;
     using System.Xml.XPath;
-    using Uhuru.Autowiring;
 
     public class SiteConfig : ISiteConfigManager
     {

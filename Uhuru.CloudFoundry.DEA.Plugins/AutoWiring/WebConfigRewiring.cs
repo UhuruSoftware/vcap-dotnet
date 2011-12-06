@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.Autowiring
+namespace Uhuru.CloudFoundry.DEA.Autowiring
 {
     using System;
     using System.Xml;
