@@ -9,8 +9,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uhuru.Autowiring;
-using Uhuru.Utilities.AutoWiring;
+using Uhuru.CloudFoundry.DEA.Autowiring;
 
 namespace CloudFoundry.Net.Test.Unit
 {
