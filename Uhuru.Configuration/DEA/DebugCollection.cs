@@ -14,6 +14,10 @@ namespace Uhuru.Configuration.DEA
     [ConfigurationCollection(typeof(DebugElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class DebugCollection : ConfigurationElementCollection
     {
+        #region Fields
+        private static ConfigurationPropertyCollection properties;
+        #endregion
+        
         #region Constructors
         static DebugCollection()
         {
@@ -21,15 +25,11 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Public parameterless constructor.
+        /// Initializes a new instance of the DebugCollection class.
         /// </summary>
         public DebugCollection()
         {
         }
-        #endregion
-
-        #region Fields
-        private static ConfigurationPropertyCollection properties;
         #endregion
 
         #region Properties
@@ -69,13 +69,18 @@ namespace Uhuru.Configuration.DEA
         /// <returns>The DebugElement at the specified index.</returns>
         public DebugElement this[int index]
         {
-            get { return (DebugElement)base.BaseGet(index); }
+            get 
+            { 
+                return (DebugElement)base.BaseGet(index); 
+            }
+
             set
             {
                 if (base.BaseGet(index) != null)
                 {
                     base.BaseRemoveAt(index);
                 }
+
                 base.BaseAdd(index, value);
             }
         }
