@@ -40,6 +40,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -56,6 +57,7 @@
     <Compile Include="DeaWindowsService.Designer.cs">
       <DependentUpon>DeaWindowsService.cs</DependentUpon>
     </Compile>
+    <Compile Include="InstallArguments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
@@ -74,6 +76,10 @@
     <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA\Uhuru.CloudFoundry.DEA.csproj">
       <Project>{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}</Project>
       <Name>Uhuru.CloudFoundry.DEA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Configuration\Uhuru.Configuration.csproj">
+      <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
+      <Name>Uhuru.Configuration</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

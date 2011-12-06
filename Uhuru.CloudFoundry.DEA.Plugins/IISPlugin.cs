@@ -18,6 +18,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using Microsoft.Web.Administration;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
+    using System.Configuration;
 
 
     /// <summary>
@@ -257,6 +258,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
                         configFileContents = configFileContents.Replace(conToReplace, connections[con]);
                     }
+
+                  //  System.Configuration.Configuration dllConfig = ConfigurationManager.OpenExeConfiguration(
+                    
 
                     File.WriteAllText(configFile, configFileContents);
                 }

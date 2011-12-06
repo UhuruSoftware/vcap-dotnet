@@ -33,12 +33,16 @@
             // 
             // serviceProcessInstaller1
             // 
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
+            this.serviceInstaller1.Description = "CloudFoundry Windows Droplet Execution Engine";
+            this.serviceInstaller1.DisplayName = "Uhuru Windows DEA";
             this.serviceInstaller1.ServiceName = "DeaWindowsService";
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

@@ -79,7 +79,11 @@ namespace CloudFoundry.Net.Test.Unit
             [JsonName("enum1")]
             foo,
             [JsonName("enum2")]
-            bar
+            bar,
+            [JsonName("enum3")]
+            foo1,
+            [JsonName("enum4")]
+            bar2
         }
 
         private class testclass : JsonConvertibleObject
@@ -151,6 +155,20 @@ namespace CloudFoundry.Net.Test.Unit
             string json2 = tc.SerializeToJson();
 
             Assert.AreEqual(json, json2);
+        }
+
+
+        private class EnumHash : JsonConvertibleObject
+        {
+            [JsonName("foo")]
+            public HashSet<testenum> foo;
+        }
+
+        [TestMethod()]
+        public void DeserializeEnumHashsetJsonTest()
+        {
+            testenum asd = JsonConvertibleObject.ObjectToValue<testenum>("enum4");
+            Assert.AreEqual(testenum.bar2, asd);
         }
     }
 }
