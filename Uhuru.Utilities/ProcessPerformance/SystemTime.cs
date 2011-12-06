@@ -1,7 +1,13 @@
-﻿using System.Runtime.InteropServices;
+﻿// -----------------------------------------------------------------------
+// <copyright file="SystemTime.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities.ProcessPerformance
 {
+    using System.Runtime.InteropServices;
+    
     //holds the time data
     [StructLayout(LayoutKind.Sequential)]
     internal struct SystemTime

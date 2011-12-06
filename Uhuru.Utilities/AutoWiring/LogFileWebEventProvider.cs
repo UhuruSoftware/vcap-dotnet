@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="LogFileWebEventProvider.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -124,6 +125,10 @@ namespace Uhuru.Autowiring
             Flush();
         }
 
+        /// <summary>
+        /// saves the currently gathered info to a file
+        /// </summary>
+        /// <param name="fileMode">the file mode to use when opening the file</param>
         private void StoreToFile(FileMode fileMode)
         {
             int writeBlock;

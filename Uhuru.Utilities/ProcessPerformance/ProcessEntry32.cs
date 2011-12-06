@@ -1,8 +1,14 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProcessEntry32.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities.ProcessPerformance
 {
+    using System;
+    using System.Runtime.InteropServices;
+    
     // holds the process info.
     [StructLayout(LayoutKind.Sequential)]
     internal struct ProcessEntry32
