@@ -178,7 +178,7 @@ namespace Uhuru.Utilities
         [ServiceContract]
         interface IMonitoringService
         {
-            [WebGet(UriTemplate = "/heathz")]
+            [WebGet(UriTemplate = "/healthz")]
             Message GetHealthz();
 
             [WebGet(UriTemplate = "/varz")]

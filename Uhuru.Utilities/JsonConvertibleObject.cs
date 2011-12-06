@@ -390,6 +390,36 @@ namespace Uhuru.Utilities
                 return jArray.ToObject<T>();
             }
 
+            if (typeof(T).IsEnum)
+            {
+                if (value is string)
+                {
+                    object valueToSet = 0;
+                    bool foundMatch = false;
+
+                    foreach (string possibleValue in Enum.GetNames(typeof(T)))
+                    {
+                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])typeof(T).GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+                        if (jsonNameAttributes.Length != 0)
+                        {
+                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                            {
+                                foundMatch = true;
+                                valueToSet = Enum.Parse(typeof(T), possibleValue, true);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        valueToSet = Enum.Parse(typeof(T), value as string, true);
+                    }
+
+                    return (T)valueToSet;
+                }
+            }
+
             if (value is T)
             {
                 return (T)value;

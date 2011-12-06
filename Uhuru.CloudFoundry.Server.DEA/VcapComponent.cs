@@ -81,6 +81,12 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        protected MonitoringServer monitoringServer
+        {
+            get;
+            set;
+        }
+
         public VcapComponent()
         {
             ConstructReactor();
@@ -101,7 +107,7 @@ namespace Uhuru.CloudFoundry.DEA
             //http server port
             Port = NetworkInterface.GrabEphemeralPort();
 
-            Authentication = new string[]{ "", "" };
+            Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
         }
 
         protected virtual void ConstructReactor()
@@ -157,13 +163,22 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void StartHttpServer()
         {
-            //TODO: vladi: port this again, this will most likely not work
-            //Cassini.Server http_server = new Cassini.Server(Port, Host, "");
+            monitoringServer = new MonitoringServer(Port, Host, Authentication[0], Authentication[1]);
 
-            File.WriteAllText("healthz", Healthz);
-            File.WriteAllText("varz", JsonConvertibleObject.SerializeToJson(Varz));
+            monitoringServer.VarzRequested += delegate(object sender, VarzRequestEventArgs response)
+            {
+                response.VarzMessage = JsonConvertibleObject.SerializeToJson(Varz);
+            };
+            monitoringServer.HealthzRequested += delegate(object sender, HealthzRequestEventArgs response)
+            {
+                response.HealthzMessage = Healthz;
+            };
+            monitoringServer.Start();
+        }
 
-            //http_server.Start();
+        ~VcapComponent()
+        {
+            monitoringServer.Stop();
         }
     }
 }

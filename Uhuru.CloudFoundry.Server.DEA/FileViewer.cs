@@ -16,7 +16,8 @@ namespace Uhuru.CloudFoundry.DEA
 
         System.Timers.Timer FilerStartTimer;
 
-        //Cassini.Server FileViwerServer;
+        FileServer FileViewerServer;
+
 
         public bool IsRunning
         {
@@ -44,7 +45,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public FileViewer()
         {
-            Credentials = new string[] { Guid.NewGuid().ToString("N"), Guid.NewGuid().ToString("N") };
+            Credentials = new string[] { Utilities.Credentials.GenerateCredential(), Utilities.Credentials.GenerateCredential() };
             IsRunning = false;
         }
 
@@ -58,8 +59,8 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    // FileViwerServer = new Cassini.Server(Port, "/droplets", DropletsPath);
-                    // FileViwerServer.Start();
+                    FileViewerServer = new FileServer(Port, DropletsPath, @"/droplets", Credentials[0], Credentials[1]);
+                    FileViewerServer.Start();
 
                     Logger.Info(Strings.FileServiceStartedOnPort, Port);
                     StartAttempts += 1;
@@ -94,7 +95,14 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void Stop()
         {
-            //throw new NotImplementedException();
+            if(FileViewerServer != null)
+                FileViewerServer.Stop();
         }
+
+        ~FileViewer()
+        {
+            Stop();
+        }
+
     }
 }

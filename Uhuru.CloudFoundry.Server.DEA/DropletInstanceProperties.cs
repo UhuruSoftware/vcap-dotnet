@@ -1,14 +1,8 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="DropletInstanceProperties.cs" company="Uhuru Software">
-// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
-// </copyright>
-// -----------------------------------------------------------------------
+﻿using System;
+using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    using System;
-    using Uhuru.Utilities;
-    
     public enum DropletInstanceState
     {
         [JsonName("STARTING")]
@@ -21,6 +15,7 @@ namespace Uhuru.CloudFoundry.DEA
         Deleted,
         [JsonName("CRASHED")]
         Crashed
+
     }
 
     public enum DropletExitReason
@@ -37,13 +32,11 @@ namespace Uhuru.CloudFoundry.DEA
         Crashed
     }
 
+
     public class DropletInstanceProperties : JsonConvertibleObject
     {
-        private DropletInstanceState state;
-        private readonly object stateLock = new object();
-        private readonly object stopProcessedLock = new object();
-        private bool stopProcessed;
-        
+
+
         [JsonName("state")]
         public string StateInterchangeableFormat
         {
@@ -51,20 +44,23 @@ namespace Uhuru.CloudFoundry.DEA
             set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
         }
 
+        private DropletInstanceState state;
+        private readonly object stateLock = new object();
+
         public DropletInstanceState State
         {
             get
             {
-                lock (this.stateLock)
+                lock (stateLock)
                 {
-                    return this.state;
+                    return state;
                 }
             }
             set
             {
-                lock (this.stateLock)
+                lock (stateLock)
                 {
-                    this.state = value;
+                    state = value;
                 }
             }
         }
@@ -121,7 +117,11 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-        
+
+
+        private readonly object stopProcessedLock = new object();
+        private bool stopProcessed;
+
         [JsonName("stop_processed")]
         public bool StopProcessed
         {

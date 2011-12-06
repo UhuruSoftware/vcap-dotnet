@@ -660,22 +660,20 @@ namespace Uhuru.CloudFoundry.DEA
 
                 // if system thinks this process is running, make sure to execute stop script
 
-                if (instance.Properties.ProcessId != 0 || instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running)
+                if (instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running)
                 {
-                    if (instance.Properties.State != DropletInstanceState.Crashed)
+                    instance.Properties.State = DropletInstanceState.Stopped;
+                    instance.Properties.StateTimestamp = DateTime.Now;
+                    if (instance.Plugin != null)
                     {
-                        instance.Properties.State = DropletInstanceState.Stopped;
-                        instance.Properties.StateTimestamp = DateTime.Now;
+                        instance.Plugin.StopApplication();
+                        WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
                     }
-
-                    instance.Plugin.StopApplication();
-
                 }
 
                 AgentMonitoring.RemoveInstanceResources(instance);
-
                 instance.Properties.StopProcessed = true;
-                
+
             }
             finally
             {
@@ -1516,7 +1514,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                     }
 
-                    if (instance.Properties.State == DropletInstanceState.Stopped)
+                    if (instance.Properties.State == DropletInstanceState.Stopped || instance.Properties.State == DropletInstanceState.Deleted)
                     {
                         if (instance.Plugin != null && (instance.Properties.StateTimestamp - DateTime.Now).Seconds > 2)
                         {
