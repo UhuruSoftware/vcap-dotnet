@@ -7,6 +7,7 @@
 namespace Uhuru.Utilities
 {
     using System.Timers;
+    using System;
     
     /// <summary>
     /// Delegate definition that refers to a method to be called when a timer tick occurs.
@@ -31,7 +32,7 @@ namespace Uhuru.Utilities
             Timer returnTimer = null;
             try
             {
-                newTimer = new Timer(delay);
+                newTimer = new Timer(Math.Max(delay, 1));
                 newTimer.AutoReset = false;
                 newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
                     {
