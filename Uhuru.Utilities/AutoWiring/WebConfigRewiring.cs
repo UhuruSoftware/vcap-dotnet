@@ -136,6 +136,4 @@ namespace Uhuru.Autowiring
             return tempConfig;
         }
     }
-
-
 }
