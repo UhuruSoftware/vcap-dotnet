@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Threading;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletCollection.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Threading;
+    using Uhuru.Utilities;
+    
     public delegate void ForEachCallback(DropletInstance instance);
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
@@ -23,6 +29,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return droplets;
             }
+
             set
             {
                 droplets = value;
@@ -35,13 +42,12 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return readerWriterLock;
             }
+
             set
             {
                 readerWriterLock = value;
             }
         }
-
-
 
         public string AppStateFile { get; set; }
 
@@ -65,7 +71,6 @@ namespace Uhuru.CloudFoundry.DEA
             return response;
         }
 
-
         public bool NoMonitorableApps()
         {
             bool result = true;
@@ -77,7 +82,6 @@ namespace Uhuru.CloudFoundry.DEA
                 }
             });
             return result;
-
         }
 
         public void ForEach(bool upgradableReadLock, ForEachCallback doThat)
@@ -111,7 +115,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     doThat(instance);
                 }
-
             }
             else
             {
@@ -131,18 +134,15 @@ namespace Uhuru.CloudFoundry.DEA
                     Lock.ExitReadLock();
                 }
             }
-            
         }
 
         public void ForEach(ForEachCallback doThat)
         {
             ForEach(false, doThat);
         }
-   
 
         public void SnapshotAppState()
         {
-            
             List<object> instances = new List<object>();
 
             ForEach(delegate(DropletInstance instance)
@@ -160,7 +160,6 @@ namespace Uhuru.CloudFoundry.DEA
             });
 
             string appState = JsonConvertibleObject.SerializeToJson(instances);
-            
 
             DateTime start = DateTime.Now;
 
@@ -179,8 +178,6 @@ namespace Uhuru.CloudFoundry.DEA
             SnapshotScheduled = false;
         }
 
-        
-
         public void ScheduleSnapshotAppState()
         {
             if (!SnapshotScheduled)
@@ -193,7 +190,6 @@ namespace Uhuru.CloudFoundry.DEA
                 });
             }
         }
-
 
         public void RemoveDropletInstance(DropletInstance instance)
         {
@@ -223,11 +219,8 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 Lock.ExitWriteLock();
             }
-
         }
-
-        
-
+       
         public void AddDropletInstance(DropletInstance instance)
         {
             if (instance == null)
@@ -263,8 +256,7 @@ namespace Uhuru.CloudFoundry.DEA
             
             //stefi: consider changing the format
             string instanceId = Guid.NewGuid().ToString();
-
-
+            
             instance.Properties.State = DropletInstanceState.Starting;
             instance.Properties.Start = DateTime.Now;
 
@@ -284,6 +276,5 @@ namespace Uhuru.CloudFoundry.DEA
             
             return instance;
         }
-
     }
 }

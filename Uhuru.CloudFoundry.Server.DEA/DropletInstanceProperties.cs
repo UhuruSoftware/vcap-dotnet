@@ -1,8 +1,14 @@
-﻿using System;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletInstanceProperties.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using Uhuru.Utilities;
+    
     public enum DropletInstanceState
     {
         [JsonName("STARTING")]
@@ -15,7 +21,6 @@ namespace Uhuru.CloudFoundry.DEA
         Deleted,
         [JsonName("CRASHED")]
         Crashed
-
     }
 
     public enum DropletExitReason
@@ -32,11 +37,13 @@ namespace Uhuru.CloudFoundry.DEA
         Crashed
     }
 
-
     public class DropletInstanceProperties : JsonConvertibleObject
     {
-
-
+        private DropletInstanceState state;
+        private readonly object stateLock = new object();
+        private readonly object stopProcessedLock = new object();
+        private bool stopProcessed;
+        
         [JsonName("state")]
         public string StateInterchangeableFormat
         {
@@ -44,23 +51,20 @@ namespace Uhuru.CloudFoundry.DEA
             set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
         }
 
-        private DropletInstanceState state;
-        private readonly object stateLock = new object();
-
         public DropletInstanceState State
         {
             get
             {
-                lock (stateLock)
+                lock (this.stateLock)
                 {
-                    return state;
+                    return this.state;
                 }
             }
             set
             {
-                lock (stateLock)
+                lock (this.stateLock)
                 {
-                    state = value;
+                    this.state = value;
                 }
             }
         }
@@ -88,8 +92,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("start")]
         public string StartInterchangeableFormat
         {
-            get { return Utils.DateTimeToRubyString(Start); }
-            set { Start = Utils.DateTimeFromRubyString(value); }
+            get { return Utils.DateTimeToRubyString(this.Start); }
+            set { this.Start = Utils.DateTimeFromRubyString(value); }
         }
 
         public DateTime Start
@@ -117,11 +121,7 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-
-
-        private readonly object stopProcessedLock = new object();
-        private bool stopProcessed;
-
+        
         [JsonName("stop_processed")]
         public bool StopProcessed
         {

@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using Uhuru.Utilities.ProcessPerformance;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletInstance.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Uhuru.Utilities.ProcessPerformance;
+    
     public class DropletInstance
     {
         public const int MaxUsageSamples = 30;
@@ -19,6 +25,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return readerWriterLock;
             }
+
             set
             {
                 readerWriterLock = value;
@@ -31,6 +38,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return properties;
             }
+
             set
             {
                 properties = value;
@@ -44,13 +52,12 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return usage;
             }
+
             set
             {
                 usage = value;
             }
         }
-
-        
 
         public bool IsRunning
         {
@@ -62,8 +69,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
             }
         }
-
-        
+                
         public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
         {
             HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
@@ -76,7 +82,6 @@ namespace Uhuru.CloudFoundry.DEA
                 beat.InstanceId = Properties.InstanceId;
                 beat.InstanceIndex = Properties.InstanceIndex;
                 beat.State = Properties.State;
-
             }
             finally
             {
@@ -109,8 +114,9 @@ namespace Uhuru.CloudFoundry.DEA
                 response.ExitReason = Properties.ExitReason;
 
                 if (Properties.State == DropletInstanceState.Crashed)
+                {
                     response.CrashedTimestamp = Properties.StateTimestamp;
-
+                }
             }
             finally
             {
