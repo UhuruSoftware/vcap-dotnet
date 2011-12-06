@@ -18,7 +18,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using Microsoft.Web.Administration;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
-    
+
+
+    /// <summary>
+    /// Class implementing the IAgentPlugin interface
+    /// Responsible for automatically deploying and managing an IIS .Net application
+    /// </summary>
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
         #region Class Members
@@ -33,6 +38,16 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         #endregion
 
         #region Public Interface Methods
+
+        /// <summary>
+        /// Sets the initial data for an IIS based application and auto-wires the web.config file with the required configuration settings
+        /// 
+        /// </summary>
+        /// <param name="appInfo">Basic information about the app ( deployment dir, app name, port , etc )</param>
+        /// <param name="runtime">app's runtime</param>
+        /// <param name="variables">some other variables, if necessary</param>
+        /// <param name="services">the services the app may want to use</param>
+        /// <param name="logFilePath">the file path where the logs will be saved</param>
         public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath)
         {
             appName = removeSpecialCharacters(appInfo.Name) + appInfo.Port.ToString(CultureInfo.InvariantCulture);
@@ -48,13 +63,26 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// a delegate used to devise a way to cope with a (potential) application crash
+        /// </summary>
         public event ApplicationCrashDelegate OnApplicationCrash;
 
+        /// <summary>
+        /// sets the data necessary for debugging the application remotely
+        /// </summary>
+        /// <param name="debugPort">the port used to reach the app remotely</param>
+        /// <param name="debugIp">the ip where the app cand be reached for debug</param>
+        /// <param name="debugVariables">the variables necessary for debug, if any</param>
         public void ConfigureDebug(string debugPort, string debugIp, ApplicationVariable[] debugVariables)
         {
             throw new NotImplementedException();
         }
 
+
+        /// <summary>
+        /// Starts the application
+        /// </summary>
         public void StartApplication()
         {
             DotNetVersion version = getAppVersion(applicationInfo);
@@ -64,6 +92,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             startApp(); 
         }
 
+        /// <summary>
+        /// Returns the process ID of the worker process associated with the running application
+        /// </summary>
+        /// <returns>
+        /// the ids of the processes, as an array
+        /// </returns>
         public int GetApplicationProcessID()
         {
             try
@@ -89,6 +123,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return 0;
         }
 
+        /// <summary>
+        /// Shuts down the application
+        /// </summary>
         public void StopApplication()
         {
             stopApp();
@@ -96,11 +133,19 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             cleanup(appPath);
         }
 
+        /// <summary>
+        /// Cleans up the application.
+        /// </summary>
+        /// <param name="path">The path.</param>
         public void CleanupApplication(string path)
         {
             cleanup(appPath);
         }
 
+
+        /// <summary>
+        /// Kills all application processes
+        /// </summary>
         public void KillApplication()
         {
             try
@@ -121,6 +166,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
         #region Private Helper Methods
 
+
+        /// <summary>
+        /// Creates a per application user, sets security access rules for the application deployment directory
+        /// and adds a new site to IIS without starting it
+        /// </summary>
+        /// <param name="appInfo">Structure that contains parameters required for deploying the application.</param>
+        /// <param name="version">The dot net framework version supported by the application.</param>
         private void deployApp(ApplicationInfo appInfo, DotNetVersion version)
         {
             string aspNetVersion = getAspDotNetVersion(version);
@@ -166,6 +218,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+
+        /// <summary>
+        /// Autowires the service connections and ASP.NET health monitoring in the application's web.config
+        /// </summary>
+        /// <param name="appInfo">The application info structure.</param>
+        /// <param name="services">The services.</param>
+        /// <param name="logFilePath">The ASP.NET events log file path.</param>
         private void autowireApp(ApplicationInfo appInfo, ApplicationService[] services, string logFilePath)
         {
             string configFile = Path.Combine(appInfo.Path, "web.config");
@@ -203,6 +263,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+        /// <summary>
+        /// Starts the application and blocks until the application is in the started state.
+        /// </summary>
         private void startApp()
         {
             try
@@ -239,6 +303,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+        /// <summary>
+        /// Stops the application and blocks until the application is in the stopped state.
+        /// </summary>
         private void stopApp()
         {
             try
@@ -266,6 +333,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+        /// <summary>
+        /// Cleans up everything associated with the application deployed at the specified path.
+        /// </summary>
+        /// <param name="path">The application path.</param>
         private void cleanup(string path)
         {
             mut.WaitOne();
@@ -309,6 +381,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             cleanupUser("Uhuru_");
         }
 
+
+        /// <summary>
+        /// Removes the application - reachable at the specified port - and its application pools from IIS.
+        /// Note: Stops the application pools and the application if necessary
+        /// </summary>
+        /// <param name="port">The port.</param>
         public void delete(int port)
         {
             mut.WaitOne();
@@ -390,6 +468,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+
+        /// <summary>
+        /// Blocks until the application is in the specified state or until the timeout expires
+        /// Note: If the timeout expires without the state condition being true, the method throws a TimeoutException
+        /// </summary>
+        /// <param name="waitForState">State to wait on.</param>
+        /// <param name="milliseconds">Timeout in milliseconds.</param>
         private void waitApp(ObjectState waitForState, int milliseconds)
         {
             using (ServerManager serverMgr = new ServerManager())
@@ -421,6 +507,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+        /// <summary>
+        /// Forcefully kills the application processes.
+        /// </summary>
+        /// <param name="appPoolName">Name of the app pool associated with the application.</param>
         private void killApplicationProcesses(string appPoolName)
         {
             using (ServerManager serverMgr = new ServerManager())
@@ -440,6 +531,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+        /// <summary>
+        /// Gets the ASP dot net version in string format from the dot net framework version
+        /// </summary>
+        /// <param name="version">The dot net framework version.</param>
+        /// <returns></returns>
         private String getAspDotNetVersion(DotNetVersion version)
         {
             string dotNetVersion = null;
@@ -460,6 +557,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return dotNetVersion;
         }
 
+
+        /// <summary>
+        /// Gets the dot net version that the application runs on.
+        /// </summary>
+        /// <param name="appInfo">The application info structure.</param>
+        /// <returns></returns>
         private DotNetVersion getAppVersion(ApplicationInfo appInfo)
         {
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
@@ -478,6 +581,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return version;
         }
 
+        /// <summary>
+        /// Removes special characters from an input string.
+        /// Note: special characters are considered the ones illegal in a Windows account name
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <returns></returns>
         private string removeSpecialCharacters(string input)
         {
             if (String.IsNullOrEmpty(input))
@@ -511,6 +620,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return sb.ToString();
         }
 
+
+        /// <summary>
+        /// Creates a local user account under which the application is run.
+        /// </summary>
+        /// <param name="appName">Name of the application.</param>
+        /// <param name="password">The password.</param>
+        /// <returns></returns>
         private string createUser(string appName, string password)
         {
             string userName = "Uhuru_" + appName.Substring(0, 3) + Guid.NewGuid().ToString().Substring(0, 10);
@@ -523,6 +639,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return userName;
         }
 
+
+        /// <summary>
+        /// Deletes the user.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
         private void deleteUser(string userName)
         {
             DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
@@ -531,6 +652,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             users.Remove(user);
         }
 
+
+        /// <summary>
+        /// Cleans up the user related stuff from IIS.
+        /// </summary>
+        /// <param name="prefix">The user prefix.</param>
         private void cleanupUser(string prefix)
         {
             DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());

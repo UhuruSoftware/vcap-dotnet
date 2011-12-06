@@ -84,6 +84,7 @@ namespace Uhuru.Utilities
                     newTimer.Close();
                 }
             }
+
             return returnTimer;
         }
 

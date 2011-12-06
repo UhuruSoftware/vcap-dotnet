@@ -14,10 +14,15 @@ namespace Uhuru.NatsClient
     public class Subscription
     {
         public string Subject { get; set; }
-        public SubscribeCallback Callback { get; set; }
+
+        public SubscribeCallback Callback { get; set; } 
+
         public int Received { get; set; }
+
         public int Queue { get; set; }
+
         public int Max { get; set; }
+
         public Timer Timeout { get; set; }
 
         // public int Expected TODO:Mitza
