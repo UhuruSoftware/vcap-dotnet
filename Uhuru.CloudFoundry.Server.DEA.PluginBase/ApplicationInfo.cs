@@ -1,7 +1,13 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ApplicationInfo.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
+    using System;
+    
     /// <summary>
     /// a delegate used to define the OnApplicationCrash event
     /// </summary>

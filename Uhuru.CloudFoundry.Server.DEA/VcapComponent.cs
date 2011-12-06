@@ -1,13 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using Uhuru.Utilities;
-using Uhuru.Configuration;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="VcapComponent.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Threading;
+    using Uhuru.Configuration;
+    using Uhuru.Utilities;
+    
     public class VcapComponent
     {
         protected DateTime StartedAt
@@ -117,8 +123,7 @@ namespace Uhuru.CloudFoundry.DEA
               {"credentials", Authentication},
               {"start", Utils.DateTimeToRubyString(StartedAt = DateTime.Now)}
             };
-
-
+            
             // Varz is customizable
             Varz = new Dictionary<string, object>();
             foreach (string key in discover.Keys)

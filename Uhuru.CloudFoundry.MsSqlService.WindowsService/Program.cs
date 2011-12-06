@@ -1,11 +1,17 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+
     static class Program
     {
         /// <summary>

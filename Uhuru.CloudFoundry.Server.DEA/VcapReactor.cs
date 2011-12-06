@@ -1,9 +1,14 @@
-﻿using System;
-using Uhuru.NatsClient;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="VcapReactor.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using Uhuru.NatsClient;
+    
     public class VcapReactor
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
@@ -46,8 +51,5 @@ namespace Uhuru.CloudFoundry.DEA
         {
             NatsClient.Publish(reply, null, message);
         }
-
-
-
     }
 }

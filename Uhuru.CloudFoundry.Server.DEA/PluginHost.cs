@@ -1,11 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+﻿// -----------------------------------------------------------------------
+// <copyright file="PluginHost.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.Server.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    
     //the basic data related to a plugin
     struct PluginData
     {

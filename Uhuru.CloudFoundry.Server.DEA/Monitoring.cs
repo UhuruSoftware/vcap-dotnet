@@ -1,11 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using Uhuru.Utilities;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Monitoring.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.IO;
+    using System.Threading;
+    using Uhuru.Utilities;
+    using System.Globalization;
+    
     public class Monitoring
     {
         public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);

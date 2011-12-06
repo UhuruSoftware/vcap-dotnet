@@ -1,10 +1,16 @@
-﻿using System.ServiceProcess;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaWindowsService.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA.WindowsService
 {
+    using System.ServiceProcess;
+    
     partial class DeaWindowsService : ServiceBase
     {
-        Agent agent;
+        private Agent agent;
 
         public DeaWindowsService()
         {
@@ -18,13 +24,13 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
         protected override void OnStop()
         {
-            agent.Shutdown();
+            this.agent.Shutdown();
         }
 
         internal void Start(string[] p)
         {
-            agent = new Agent();
-            agent.Run();
+            this.agent = new Agent();
+            this.agent.Run();
         }
     }
 }

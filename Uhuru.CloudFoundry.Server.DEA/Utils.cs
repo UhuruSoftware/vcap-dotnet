@@ -1,18 +1,24 @@
-﻿using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading;
-using SevenZip;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Utils.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Text;
+    using System.Threading;
+    using SevenZip;
+
     public delegate void StreamWriterCallback(StreamWriter stream);
     public delegate void ProcessDoneCallback(string output, int statuscode);
 
