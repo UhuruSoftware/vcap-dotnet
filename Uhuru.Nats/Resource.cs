@@ -18,7 +18,7 @@ namespace Uhuru.NatsClient
         internal readonly string PING_REQUEST = string.Format(CultureInfo.InvariantCulture, "PING{0}", "\r\n");
         internal readonly string PONG_RESPONSE = string.Format(CultureInfo.InvariantCulture, "PONG{0}", "\r\n");
         internal const string CR_LF = "\r\n";
-        internal const string EMPTY_MSG = string.Empty;
+        internal const string EMPTY_MSG = "";
 
         private static readonly object resourceInstanceLock = new object();
         private static Resource instance;
