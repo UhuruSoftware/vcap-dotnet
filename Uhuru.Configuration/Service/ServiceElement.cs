@@ -1,14 +1,42 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ServiceElement.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.Service
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This configuration class contains settings for a service component.
     /// </summary>
     public class ServiceElement : ConfigurationElement
     {
+        #region Static Fields
+
+        private static ConfigurationProperty propertyNodeId;
+        private static ConfigurationProperty propertyMigrationNfs;
+        private static ConfigurationProperty propertyMBus;
+        private static ConfigurationProperty propertyIndex;
+        private static ConfigurationProperty propertyZInterval;
+        private static ConfigurationProperty propertyMaxDbSize;
+        private static ConfigurationProperty propertyMaxLongQuery;
+        private static ConfigurationProperty propertyMaxLongTx;
+        private static ConfigurationProperty propertyLocalDb;
+        private static ConfigurationProperty propertyBaseDir;
+        private static ConfigurationProperty propertyLocalRoute;
+        private static ConfigurationProperty propertyAvailableStorage;
+        private static ConfigurationProperty propertyMsSql;
+        private static ConfigurationPropertyCollection properties;
+
+        #endregion
+
         #region Constructors
 
+        /// <summary>
+        /// Initializes static members of the ServiceElement class. 
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static ServiceElement()
         {
@@ -120,26 +148,6 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyMsSql);
         }
 
-        #endregion
-
-        #region Static Fields
-
-        private static ConfigurationProperty propertyNodeId;
-        private static ConfigurationProperty propertyMigrationNfs;
-        private static ConfigurationProperty propertyMBus;
-        private static ConfigurationProperty propertyIndex;
-        private static ConfigurationProperty propertyZInterval;
-        private static ConfigurationProperty propertyMaxDbSize;
-        private static ConfigurationProperty propertyMaxLongQuery;
-        private static ConfigurationProperty propertyMaxLongTx;
-        private static ConfigurationProperty propertyLocalDb;
-        private static ConfigurationProperty propertyBaseDir;
-        private static ConfigurationProperty propertyLocalRoute;
-        private static ConfigurationProperty propertyAvailableStorage;
-        private static ConfigurationProperty propertyMsSql;
-
-
-        private static ConfigurationPropertyCollection properties;
         #endregion
 
         #region Properties
