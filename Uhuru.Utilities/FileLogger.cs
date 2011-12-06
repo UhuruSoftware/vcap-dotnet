@@ -1,9 +1,15 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileLogger.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System;
+    using System.Globalization;
+    using System.IO;
+    
     /// <summary>
     /// This is a helper logger class that writes to a file.
     /// </summary>

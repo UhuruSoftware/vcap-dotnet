@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="JsonTools.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 

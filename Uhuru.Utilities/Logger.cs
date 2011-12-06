@@ -1,10 +1,16 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using log4net;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Logger.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using log4net;
+    
     /// <summary>
     /// This is a helper logger class that is used throughout the code.
     /// </summary>

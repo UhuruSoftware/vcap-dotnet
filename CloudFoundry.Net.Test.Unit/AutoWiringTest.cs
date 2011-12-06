@@ -4,7 +4,7 @@ using System.Xml;
 using System.Xml.XPath;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.Autowiring;
-
+using Uhuru.Utilities.AutoWiring;
 
 namespace CloudFoundry.Net.Test.Unit
 {

@@ -92,7 +92,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    Lock.EnterUpgradeableReadLock();
+                    Lock.EnterReadLock();
                     foreach (KeyValuePair<int, Droplet> instances in Droplets)
                     {
                         foreach (KeyValuePair<string, DropletInstance> instance in instances.Value.DropletInstances)
@@ -104,7 +104,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
                 finally
                 {
-                    Lock.ExitUpgradeableReadLock();
+                    Lock.ExitReadLock();
                 }
 
                 foreach (DropletInstance instance in ephemeralInstances)

@@ -913,8 +913,23 @@ namespace Uhuru.CloudFoundry.DEA
                     }
 
 
-                    string runtimeLayer = String.Format(CultureInfo.InvariantCulture, "{0}\\netiis.exe", Directory.GetCurrentDirectory());
 
+                    string runtimeLayer = String.Format(CultureInfo.InvariantCulture, "{0}\\netiis.exe", Directory.GetCurrentDirectory());
+                    /*
+                    // in startup, we have the classname and assembly to load as a plugin
+                    string assemblyName = ""; //read first line of file 'start'
+                    string className = ""; //read second line of file 'start'
+
+                    Guid myPluginId = PluginHost.LoadPlugin(instance.Properties.Directory + assemblyName, className);
+
+                    IAgentPlugin instancePlugin = PluginHost.CreateInstance(myPluginId);
+
+                    instancePlugin.ConfigureApplication(;
+                    instancePlugin.OnApplicationCrash += new ApplicationCrashDelegate(instancePlugin_OnApplicationCrash);
+                    instancePlugin.GetApplicationProcessIDs(
+                    instancePlugin.StartApplication();
+
+                     */
                     stdin.WriteLine("copy .\\startup .\\startup.ps1");
                     stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file .\\startup.ps1 \"{0}\"", runtimeLayer));
                     stdin.WriteLine("exit");
