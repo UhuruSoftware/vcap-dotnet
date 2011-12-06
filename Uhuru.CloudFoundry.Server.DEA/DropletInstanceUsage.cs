@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
@@ -10,23 +7,37 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("mem")]
-        public long MemoryKbytes;
+        public long MemoryKbytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("cpu")]
-        public long Cpu;
+        public long Cpu
+        {
+            get;
+            set;
+        }
 
         [JsonName("disk")]
-        public long DiskBytes;
+        public long DiskBytes
+        {
+            get;
+            set;
+        }
 
-
-        
         [JsonName("time")]
-        public int TimeInterchangelbeFormat
+        public int TimeInterchangeableFormat
         {
             get { return Utils.DateTimeToEpochSeconds(Time); }
             set { Time = Utils.DateTimeFromEpochSeconds(value); }
         }
-        public DateTime Time;
 
+        public DateTime Time
+        {
+            get;
+            set;
+        }
     }
 }

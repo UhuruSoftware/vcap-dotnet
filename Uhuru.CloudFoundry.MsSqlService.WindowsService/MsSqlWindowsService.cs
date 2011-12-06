@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using Uhuru.CloudFoundry.Server.MSSqlNode;
-using Uhuru.Configuration.Service;
-using Uhuru.Configuration;
+﻿using Uhuru.CloudFoundry.Server.MSSqlNode;
 using Uhuru.CloudFoundry.ServiceBase;
+using Uhuru.Configuration;
+using Uhuru.Configuration.Service;
 
 namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 {

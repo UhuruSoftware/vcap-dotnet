@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -9,10 +6,20 @@ namespace Uhuru.CloudFoundry.DEA
     {
         //InstanceId -> DropletInstance
         
-        public Dictionary<string, DropletInstance> DropletInstances = new Dictionary<string,DropletInstance>();
+        private Dictionary<string, DropletInstance> dropletInstances = new Dictionary<string,DropletInstance>();
 
 
-        
-        
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public Dictionary<string, DropletInstance> DropletInstances
+        {
+            get
+            {
+                return dropletInstances;
+            }
+            set
+            {
+                dropletInstances = value;
+            }
+        }
     }
 }

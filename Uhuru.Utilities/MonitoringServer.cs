@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.ServiceModel.Channels;
-using System.IdentityModel.Selectors;
 using System.ServiceModel.Security;
+using System.ServiceModel.Web;
 
 namespace Uhuru.Utilities
 {

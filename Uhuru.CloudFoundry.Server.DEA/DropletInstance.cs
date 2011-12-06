@@ -1,41 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using Uhuru.Utilities;
 using Uhuru.Utilities.ProcessPerformance;
 
 namespace Uhuru.CloudFoundry.DEA
 {
     public class DropletInstance
     {
+        public const int MaxUsageSamples = 30;
 
+        private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private DropletInstanceProperties properties = new DropletInstanceProperties();
+        private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
 
+        public ReaderWriterLockSlim Lock
+        {
+            get
+            {
+                return readerWriterLock;
+            }
+            set
+            {
+                readerWriterLock = value;
+            }
+        }
 
-        public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        public DropletInstanceProperties Properties
+        {
+            get
+            {
+                return properties;
+            }
+            set
+            {
+                properties = value;
+            }
+        }
 
-        public DropletInstanceProperties Properties = new DropletInstanceProperties();
-        public List<DropletInstanceUsage> Usage = new List<DropletInstanceUsage>();
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public List<DropletInstanceUsage> Usage
+        {
+            get
+            {
+                return usage;
+            }
+            set
+            {
+                usage = value;
+            }
+        }
 
         
-        public const int MaxUsageSamples = 30;
 
         public bool IsRunning
         {
             get
             {
-                if (Properties.Pid == 0)
+                if (Properties.ProcessId == 0)
                     return false;
 
-                return ProcessInformation.GetProcessUsage(Properties.Pid) != null;
+                return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
             }
         }
 
         
-        public HearbeatMessage.InstanceHeartbeat GenerateInstanceHearbeat()
+        public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
         {
-            HearbeatMessage.InstanceHeartbeat beat = new HearbeatMessage.InstanceHeartbeat();
+            HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
             try
             {
                 Lock.EnterReadLock();
@@ -54,10 +85,10 @@ namespace Uhuru.CloudFoundry.DEA
             return beat;
         }
 
-        public HearbeatMessage GenerateHeartbeat()
+        public HeartbeatMessage GenerateHeartbeat()
         {
-            HearbeatMessage response = new HearbeatMessage();
-            response.Droplets.Add(GenerateInstanceHearbeat().ToJsonIntermediateObject());
+            HeartbeatMessage response = new HeartbeatMessage();
+            response.Droplets.Add(GenerateInstanceHeartbeat().ToJsonIntermediateObject());
             return response;
         }
 
@@ -77,7 +108,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Index = Properties.InstanceIndex;
                 response.ExitReason = Properties.ExitReason;
 
-                if (Properties.State == DropletInstanceState.CRASHED)
+                if (Properties.State == DropletInstanceState.Crashed)
                     response.CrashedTimestamp = Properties.StateTimestamp;
 
             }
@@ -122,8 +153,7 @@ namespace Uhuru.CloudFoundry.DEA
             throw new System.NotImplementedException();
         }
 
-
-        public void DetectAppPid()
+        public void DetectAppProcessId()
         {
             throw new System.NotImplementedException();
         }

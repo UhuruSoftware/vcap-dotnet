@@ -35,6 +35,12 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL" />
     <Reference Include="System" />
@@ -47,14 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent.cs" />
-    <Compile Include="Configuration\DEA\DEAElement.cs" />
-    <Compile Include="Configuration\DEA\DebugCollection.cs" />
-    <Compile Include="Configuration\DEA\DebugElement.cs" />
-    <Compile Include="Configuration\DEA\EnvironmentCollection.cs" />
-    <Compile Include="Configuration\DEA\EnvironmentElement.cs" />
-    <Compile Include="Configuration\DEA\RuntimeCollections.cs" />
-    <Compile Include="Configuration\DEA\RuntimeElement.cs" />
-    <Compile Include="Configuration\UhuruSection.cs" />
     <Compile Include="DEAReactor.cs" />
     <Compile Include="DeaRuntime.cs" />
     <Compile Include="Messages\DeaUpdateMessageRequest.cs" />
@@ -76,6 +74,7 @@
     <Compile Include="Messages\HelloMessageResponse.cs" />
     <Compile Include="Messages\RouterRegisterResponse.cs" />
     <Compile Include="Monitoring.cs" />
+    <Compile Include="PluginHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceCredentials.cs" />
     <Compile Include="Stager.cs" />
@@ -84,7 +83,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="TimerHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VcapComponent.cs" />
     <Compile Include="VcapReactor.cs" />
@@ -106,8 +104,17 @@
     <Content Include="uhuru.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.Server.DEA.PluginBase\Uhuru.CloudFoundry.DEA.PluginBase.csproj">
+      <Project>{2EFB2C3D-89A1-439E-B1CA-B75FA8217314}</Project>
+      <Name>Uhuru.CloudFoundry.DEA.PluginBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Configuration\Uhuru.Configuration.csproj">
+      <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
+      <Name>Uhuru.Configuration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Uhuru.Nats\Uhuru.NatsClient.csproj">
       <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
       <Name>Uhuru.NatsClient</Name>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
+﻿using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -10,29 +6,57 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("dea")]
-        public string DeaId;
+        public string DeaId
+        {
+            get;
+            set;
+        }
 
         [JsonName("host")]
-        public string Host;
+        public string Host
+        {
+            get;
+            set;
+        }
 
         [JsonName("port")]
-        public int Port;
+        public int Port
+        {
+            get;
+            set;
+        }
 
         [JsonName("uris")]
-        public List<string> Uris;
+        public string[] Uris
+        {
+            get;
+            set;
+        }
 
         public class TagsObject : JsonConvertibleObject
         {
             [JsonName("framework")]
-            public string Framwork;
+            public string Framework
+            {
+                get;
+                set;
+            }
 
             [JsonName("runtime")]
-            public string Runtime;
+            public string Runtime
+            {
+                get;
+                set;
+            }
 
         }
 
         [JsonName("tags")]
-        public TagsObject Tags;
+        public TagsObject Tags
+        {
+            get;
+            set;
+        }
 
     }
 }

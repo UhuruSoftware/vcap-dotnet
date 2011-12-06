@@ -94,15 +94,15 @@ namespace Uhuru.CloudFoundry.Server.DEA
         /// <summary>
         /// creates a new instance of the plugin
         /// </summary>
-        /// <param name="pluginGuid">the unique key used to retrieve previously saved plugin information</param>
+        /// <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
         /// <returns>a plugin object</returns>
-        public static IAgentPlugin CreateInstance(Guid pluginGuid)
+        public static IAgentPlugin CreateInstance(Guid pluginId)
         {
-            PluginData data = GetPluginData(pluginGuid);
+            PluginData data = GetPluginData(pluginId);
             if (data.Equals(default(PluginData)))
                 throw new KeyNotFoundException("There is no data associated with the given unique key");
 
-            AppDomain domain = AppDomain.CreateDomain(pluginGuid.ToString());
+            AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
             IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);//typeof(IAgentPlugin).FullName);
             
             //save data to the dictionary
@@ -119,6 +119,10 @@ namespace Uhuru.CloudFoundry.Server.DEA
         /// <param name="agent">the plugin running the app</param>
         public static void RemoveInstance(IAgentPlugin agent)
         {
+            if (agent == null)
+            {
+                throw new ArgumentNullException("agent");
+            }
             int hash = agent.GetHashCode();
             AppDomain domain = GetInstanceData(hash);
             if (domain.Equals(default(AppDomain))) return; //looks like the data has already been removed

@@ -1,28 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
     public enum DropletInstanceState
     {
-        STARTING,
-        RUNNING,
-        STOPPED,
-        DELETED,
-        CRASHED
+        [JsonName("STARTING")]
+        Starting,
+        [JsonName("RUNNING")]
+        Running,
+        [JsonName("STOPPED")]
+        Stopped,
+        [JsonName("DELETED")]
+        Deleted,
+        [JsonName("CRASHED")]
+        Crashed
 
     }
 
     public enum DropletExitReason
     {
-        NONE,
-        DEA_EVACUATION,
-        DEA_SHUTDOWN,
-        STOPPED,
-        CRASHED
+        [JsonName("NONE")]
+        None,
+        [JsonName("DEA_EVACUATION")]
+        DeaEvacuation,
+        [JsonName("DEA_SHUTDOWN")]
+        DeaShutdown,
+        [JsonName("STOPPED")]
+        Stopped,
+        [JsonName("CRASHED")]
+        Crashed
     }
 
 
@@ -31,126 +38,284 @@ namespace Uhuru.CloudFoundry.DEA
 
 
         [JsonName("state")]
-        public string StateInterchangableFormat
+        public string StateInterchangeableFormat
         {
             get { return State.ToString(); }
             set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
         }
-        public volatile DropletInstanceState State;
 
+        private DropletInstanceState state;
+        private readonly object stateLock = new object();
+
+        public DropletInstanceState State
+        {
+            get
+            {
+                lock (stateLock)
+                {
+                    return state;
+                }
+            }
+            set
+            {
+                lock (stateLock)
+                {
+                    state = value;
+                }
+            }
+        }
 
         [JsonName("exit_reason")]
-        public string ExitReasonInterchangableFormat
+        public string ExitReasonInterchangeableFormat
         {
             get { return ExitReason != null ? ExitReason.ToString() : null; }
             set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
         }
-        public DropletExitReason? ExitReason;
 
+        public DropletExitReason? ExitReason
+        {
+            get;
+            set;
+        }
 
         [JsonName("orphaned")]
-        public bool Orphaned;
-
+        public bool Orphaned
+        {
+            get;
+            set;
+        }
 
         [JsonName("start")]
-        public string StartInterchangelbeFormat
+        public string StartInterchangeableFormat
         {
             get { return Utils.DateTimeToRubyString(Start); }
             set { Start = Utils.DateTimeFromRubyString(value); }
         }
-        public DateTime Start;
 
+        public DateTime Start
+        {
+            get;
+            set;
+        }
 
         [JsonName("state_timestamp")]
-        public int StateTimestampInterchangelbeFormat
+        public int StateTimestampInterchangeableFormat
         {
             get { return Utils.DateTimeToEpochSeconds(StateTimestamp); }
             set { StateTimestamp = Utils.DateTimeFromEpochSeconds(value); }
         }
-        public DateTime StateTimestamp;
 
+        public DateTime StateTimestamp
+        {
+            get;
+            set;
+        }
 
         [JsonName("resources_tracked")]
-        public bool ResourcesTracked;
+        public bool ResourcesTracked
+        {
+            get;
+            set;
+        }
+
+
+        private readonly object stopProcessedLock = new object();
+        private bool stopProcessed;
 
         [JsonName("stop_processed")]
-        public volatile bool StopProcessed;
+        public bool StopProcessed
+        {
+            get
+            {
+                lock (stopProcessedLock)
+                {
+                    return stopProcessed;
+                }
+            }
+            set
+            {
+                lock (stopProcessedLock)
+                {
+                    stopProcessed = value;
+                }
+            }
+        }
 
         [JsonName("debug_mode")]
-        public string DebugMode;
+        public string DebugMode
+        {
+            get;
+            set;
+        }
 
         [JsonName("port")]
-        public int Port;
+        public int Port
+        {
+            get;
+            set;
+        }
 
         [JsonName("debug_port")]
-        public int? DebugPort;
+        public int? DebugPort
+        {
+            get;
+            set;
+        }
 
         [JsonName("debug_ip")]
-        public string DebugIp;
+        public string DebugIP
+        {
+            get;
+            set;
+        }
 
         [JsonName("runtime")]
-        public string Runtime;
+        public string Runtime
+        {
+            get;
+            set;
+        }
 
         [JsonName("framework")]
-        public string Framework;
+        public string Framework
+        {
+            get;
+            set;
+        }
 
         [JsonName("fds_quota")]
-        public long FdsQuota;
+        public long FdsQuota
+        {
+            get;
+            set;
+        }
 
         [JsonName("disk_quota")]
-        public long DiskQuotaBytes;
+        public long DiskQuotaBytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("mem_quota")]
-        public long MemoryQuotaBytes;
+        public long MemoryQuotaBytes
+        {
+            get;
+            set;
+        }
 
         [JsonName("name")]
-        public string Name;
+        public string Name
+        {
+            get;
+            set;
+        }
 
         [JsonName("instance_id")]
-        public string InstanceId;
+        public string InstanceId
+        {
+            get;
+            set;
+        }
 
         [JsonName("version")]
-        public string Version;
+        public string Version
+        {
+            get;
+            set;
+        }
 
         [JsonName("droplet_id")]
-        public int DropletId;
+        public int DropletId
+        {
+            get;
+            set;
+        }
 
         [JsonName("instance_index")]
-        public int InstanceIndex;
+        public int InstanceIndex
+        {
+            get;
+            set;
+        }
 
         [JsonName("dir")]
-        public string Directory;
+        public string Directory
+        {
+            get;
+            set;
+        }
 
-        [JsonName("uris")]
-        public List<string> Uris;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        JsonName("uris")]
+        public string[] Uris
+        {
+            get;
+            set;
+        }
 
-        [JsonName("users")]
-        public List<string> Users;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        JsonName("users")]
+        public string[] Users
+        {
+            get;
+            set;
+        }
 
         [JsonName("log_id")]
-        public string LoggingId;
+        public string LoggingId
+        {
+            get;
+            set;
+        }
 
         [JsonName("evacuated")]
-        public bool Evacuated;
+        public bool Evacuated
+        {
+            get;
+            set;
+        }
 
         [JsonName("pid")]
-        public int Pid;
+        public int ProcessId
+        {
+            get;
+            set;
+        }
 
         [JsonName("notified")]
-        public bool NotifiedExited;
-
+        public bool NotifiedExited
+        {
+            get;
+            set;
+        }
 
         [JsonName("nice")]
-        public int Nice;
+        public int Nice
+        {
+            get;
+            set;
+        }
 
         [JsonName("secure_user")]
-        public string SecureUser;
+        public string SecureUser
+        {
+            get;
+            set;
+        }
 
         [JsonName("staged")]
-        public string Staged;
+        public string Staged
+        {
+            get;
+            set;
+        }
 
         [JsonName("usage")]
-        public DropletInstanceUsage UsageRecent;
-
+        public DropletInstanceUsage UsageRecent
+        {
+            get;
+            set;
+        }
     }
 }

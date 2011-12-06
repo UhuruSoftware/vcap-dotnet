@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using Uhuru.Utilities;
+using System.Globalization;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -119,7 +117,8 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 // java prints to stderr, so munch them both..
-                string version_check = Utils.RunCommandAndGetOutputAndErrors(expanded_exec, String.Format("{0}", expanded_exec, version_flag)).Trim();
+                string version_check = Utils.RunCommandAndGetOutputAndErrors(expanded_exec, 
+                    String.Format(CultureInfo.InvariantCulture, "{0}", expanded_exec, version_flag)).Trim();
 
                 runtime.Executable = expanded_exec;
 
@@ -134,7 +133,8 @@ namespace Uhuru.CloudFoundry.DEA
                     // Additional checks should return true
                     if (!String.IsNullOrEmpty(runtime.AdditionalChecks))
                     {
-                        string additional_check = Utils.RunCommandAndGetOutputAndErrors(runtime.Executable, String.Format("{0}", runtime.AdditionalChecks));
+                        string additional_check = Utils.RunCommandAndGetOutputAndErrors(runtime.Executable, 
+                            String.Format(CultureInfo.InvariantCulture, "{0}", runtime.AdditionalChecks));
                         if (!(new Regex("true").IsMatch(additional_check)))
                         {
                             Logger.Info(Strings.FailedAdditionalChecks, name);
@@ -202,8 +202,8 @@ namespace Uhuru.CloudFoundry.DEA
                 tarFileName = Path.ChangeExtension(tarFileName, ".tar");
 
 
-                Utils.UnZipFile(InstanceDir, TgzFile); //Unzip
-                Utils.UnZipFile(InstanceDir, Path.Combine(InstanceDir, tarFileName)); //Untar
+                Utils.UnzipFile(InstanceDir, TgzFile); //Unzip
+                Utils.UnzipFile(InstanceDir, Path.Combine(InstanceDir, tarFileName)); //Untar
                 File.Delete(Path.Combine(InstanceDir, tarFileName));
 
 
@@ -239,7 +239,7 @@ namespace Uhuru.CloudFoundry.DEA
         private void DownloadAppBits(string BitsUri, string Sha1, string TgzFile)
         {
             WebClient client = new WebClient();
-            string PendingTgzFile = Path.Combine(StagedDir, String.Format(Strings.Pending, Sha1));
+            string PendingTgzFile = Path.Combine(StagedDir, String.Format(CultureInfo.InvariantCulture, Strings.Pending, Sha1));
             client.DownloadFile(BitsUri, PendingTgzFile);
             File.Move(PendingTgzFile, TgzFile);
 
@@ -249,7 +249,7 @@ namespace Uhuru.CloudFoundry.DEA
                 FileSha1 = BitConverter.ToString(SHA1.Create().ComputeHash(stream)).Replace("-", string.Empty);
             }
             
-            if(FileSha1.ToUpper() != Sha1.ToUpper()){
+            if(FileSha1.ToUpperInvariant() != Sha1.ToUpperInvariant()){
                 Logger.Warning(Strings.DonlodedFileFromIs, BitsUri, FileSha1, Sha1);
                 throw new Exception(Strings.Downlodedfileiscorrupt);
             }

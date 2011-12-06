@@ -11,6 +11,9 @@
       <word>Unprovision</word>
       <word>Vcap</word>
       <word>Uuid</word>
+      <word>Sha</word>
+      <word>Plugin</word>
+      <word>Renice</word>
     </Recognized>
   </Words>
   <Acronyms>

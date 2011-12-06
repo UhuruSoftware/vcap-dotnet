@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA {
-    using System;
-    
-    
+namespace Uhuru.CloudFoundry.DEA
+{
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

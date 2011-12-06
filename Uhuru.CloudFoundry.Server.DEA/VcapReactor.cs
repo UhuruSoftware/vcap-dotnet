@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Uhuru.NatsClient;
 
 
@@ -9,6 +6,8 @@ namespace Uhuru.CloudFoundry.DEA
 {
     public class VcapReactor
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
         public event SubscribeCallback OnComponentDiscover;
 
         public event EventHandler<ReactorErrorEventArgs> OnNatsError;

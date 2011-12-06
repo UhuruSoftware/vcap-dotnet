@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
-using System.Xml.Serialization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {

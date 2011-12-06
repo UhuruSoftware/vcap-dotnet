@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.IO;
 using System.Globalization;
-using log4net;
-using System.Reflection;
-using log4net.Layout;
-using log4net.Repository.Hierarchy;
-using log4net.Appender;
-using log4net.Core;
+using System.IO;
 
 namespace Uhuru.Utilities
 {

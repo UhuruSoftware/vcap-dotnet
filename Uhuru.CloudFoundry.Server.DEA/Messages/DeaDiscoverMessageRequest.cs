@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Uhuru.Utilities;
+﻿using Uhuru.Utilities;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -11,34 +7,68 @@ namespace Uhuru.CloudFoundry.DEA
     {
 
         [JsonName("droplet")]
-        public int DropletId;
-
-        [JsonName("name")]
-        public string Name;
-
-        [JsonName("runtime")]
-        public string Runtime;
-
-        [JsonName("sha")]
-        public string Sha;
-
-        [JsonName("limits")]
-        public DropletLimits Limits = new DropletLimits();
-
-        public class DropletLimits : JsonConvertibleObject
+        public int DropletId
         {
-
-            [JsonName("mem")]
-            public long MemoryMbytes;
-
-            [JsonName("disk")]
-            public long DiskMbytes;
-
-            [JsonName("fds")]
-            public long Fds;
-
+            get;
+            set;
         }
 
+        [JsonName("name")]
+        public string Name
+        {
+            get;
+            set;
+        }
 
+        [JsonName("runtime")]
+        public string Runtime
+        {
+            get;
+            set;
+        }
+
+        [JsonName("sha")]
+        public string Sha
+        {
+            get;
+            set;
+        }
+
+        [JsonName("limits")]
+        public DropletLimits Limits
+        {
+            get;
+            set;
+        }
+        
+        public DeaDiscoverMessageRequest()
+        {
+            Limits = new DropletLimits();
+        }
+    }
+
+    public class DropletLimits : JsonConvertibleObject
+    {
+
+        [JsonName("mem")]
+        public long MemoryMbytes
+        {
+            get;
+            set;
+        }
+
+        [JsonName("disk")]
+        public long DiskMbytes
+        {
+            get;
+            set;
+        }
+
+        [JsonName("fds")]
+        public long Fds
+        {
+            get;
+            set;
+        }
     }
 }
