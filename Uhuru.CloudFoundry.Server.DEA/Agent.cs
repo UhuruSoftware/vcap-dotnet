@@ -10,6 +10,8 @@ using System.Net.Sockets;
 using System.Diagnostics;
 using Uhuru.Utilities.ProcessPerformance;
 using Uhuru.NatsClient;
+using Uhuru.CloudFoundry.Server.DEA;
+using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -912,7 +914,21 @@ namespace Uhuru.CloudFoundry.DEA
 
 
                     string runtimeLayer = String.Format("{0}\\netiis.exe", Directory.GetCurrentDirectory());
+                    /*
+                    // in startup, we have the classname and assembly to load as a plugin
+                    string assemblyName = ""; //read first line of file 'start'
+                    string className = ""; //read second line of file 'start'
 
+                    Guid myPluginId = PluginHost.LoadPlugin(instance.Properties.Directory + assemblyName, className);
+
+                    IAgentPlugin instancePlugin = PluginHost.CreateInstance(myPluginId);
+
+                    instancePlugin.ConfigureApplication(;
+                    instancePlugin.OnApplicationCrash += new ApplicationCrashDelegate(instancePlugin_OnApplicationCrash);
+                    instancePlugin.GetApplicationProcessIDs(
+                    instancePlugin.StartApplication();
+
+                     */
                     stdin.WriteLine("copy .\\startup .\\startup.ps1");
                     stdin.WriteLine(String.Format("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file .\\startup.ps1 \"{0}\"", runtimeLayer));
                     stdin.WriteLine("exit");
