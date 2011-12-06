@@ -1,18 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using Uhuru.Utilities;
-using System.Globalization;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="Stager.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Net;
+    using System.Security.Cryptography;
+    using System.Text.RegularExpressions;
+    using Uhuru.Utilities;
+    
     class Stager
     {
-
         private object Lock = new object();
 
         public Dictionary<string, DeaRuntime> Runtimes {get; set;}
@@ -76,7 +80,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             return true;
-
         }
 
         public void GetRuntimeEnvironment()
@@ -206,13 +209,10 @@ namespace Uhuru.CloudFoundry.DEA
                 Utils.UnzipFile(InstanceDir, Path.Combine(InstanceDir, tarFileName)); //Untar
                 File.Delete(Path.Combine(InstanceDir, tarFileName));
 
-
                 BindLocalRuntimes(InstanceDir, instance.Properties.Runtime);
 
                 Logger.Debug(Strings.TookXSecondsToStageTheApp, DateTime.Now - startStageing);
-
             }
-
         }
 
         private void BindLocalRuntimes(string instanceDir, string runtime)
@@ -253,7 +253,6 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Warning(Strings.DonlodedFileFromIs, BitsUri, FileSha1, Sha1);
                 throw new Exception(Strings.Downlodedfileiscorrupt);
             }
-            
         }
 
         public void CreateDirectories()

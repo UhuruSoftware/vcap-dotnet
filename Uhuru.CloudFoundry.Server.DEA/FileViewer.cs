@@ -1,9 +1,15 @@
-﻿using System;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileViewer.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    class FileViewer
+    using System;
+    using Uhuru.Utilities;
+
+    public class FileViewer
     {
         private int StartAttempts;
         public event EventHandler OnStartError;
@@ -44,7 +50,6 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void Start(string DropletsPath)
         {
-
             FilerStartTimer = new System.Timers.Timer(1000);
             FilerStartTimer.AutoReset = false;
             FilerStartTimer.Elapsed += new System.Timers.ElapsedEventHandler(delegate(object sender, System.Timers.ElapsedEventArgs args)
@@ -53,9 +58,8 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-
-                    //FileViwerServer = new Cassini.Server(Port, "/droplets", DropletsPath);
-                    //FileViwerServer.Start();
+                    // FileViwerServer = new Cassini.Server(Port, "/droplets", DropletsPath);
+                    // FileViwerServer.Start();
 
                     Logger.Info(Strings.FileServiceStartedOnPort, Port);
                     StartAttempts += 1;
@@ -84,8 +88,8 @@ namespace Uhuru.CloudFoundry.DEA
                     FilerStartTimer.Enabled = true;
                 }
             });
-            FilerStartTimer.Enabled = true;
 
+            FilerStartTimer.Enabled = true;
         }
 
         public void Stop()
