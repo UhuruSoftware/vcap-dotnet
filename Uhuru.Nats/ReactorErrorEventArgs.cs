@@ -16,21 +16,21 @@ namespace Uhuru.NatsClient
         private string message;
 
         /// <summary>
-        /// Gets or sets the error message.
-        /// </summary>
-        public string Message
-        {
-            get { return message; }
-            set { message = value; }
-        }
-
-        /// <summary>
-        /// Public constructor. Initializes the message property.
+        /// Initializes a new instance of the ReactorErrorEventArgs class.
         /// </summary>
         /// <param name="message">Error message to be set.</param>
         public ReactorErrorEventArgs(string message)
         {
             this.message = message;
+        }
+
+        /// <summary>
+        /// Gets or sets the error message.
+        /// </summary>
+        public string Message
+        {
+            get { return this.message; }
+            set { this.message = value; }
         }
     }
 }
