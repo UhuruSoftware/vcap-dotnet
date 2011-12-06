@@ -167,15 +167,8 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod()]
         public void DeserializeEnumHashsetJsonTest()
         {
-            string json = @"{""foo"":[""enum1"",""enum3"",""enum4""]}";
-
-            EnumHash des = new EnumHash();
-            des.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(json));
-
-            Assert.AreEqual(3, des.foo.Count);
-            Assert.IsTrue(des.foo.Contains(testenum.foo));
-            Assert.IsTrue(des.foo.Contains(testenum.foo1));
-            Assert.IsTrue(des.foo.Contains(testenum.bar2));
+            testenum asd = JsonConvertibleObject.ObjectToValue<testenum>("enum4");
+            Assert.AreEqual(testenum.bar2, asd);
         }
     }
 }
