@@ -198,7 +198,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         public void Dispose()
         {
-            NodeNats.Dispose();
+            nodeNats.Dispose();
             //Dispose(true);
             GC.SuppressFinalize(this);
         }
