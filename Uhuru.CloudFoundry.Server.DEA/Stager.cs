@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="Stager.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Security.Cryptography;
     using System.Text.RegularExpressions;
     using Uhuru.Utilities;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     
     class Stager
     {

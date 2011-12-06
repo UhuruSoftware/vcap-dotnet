@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="Agent.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
@@ -871,7 +871,7 @@ namespace Uhuru.CloudFoundry.DEA
                 */
 
 
-                int pid = instance.Plugin.GetApplicationProcessIDs()[0];
+                int pid = instance.Plugin.GetApplicationProcessID();
                     //DetectAppPid(instance);
                 
 
