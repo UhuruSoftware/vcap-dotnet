@@ -1,9 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ServiceError.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    
     /// <summary>
     /// This structure contains service error information.
     /// </summary>

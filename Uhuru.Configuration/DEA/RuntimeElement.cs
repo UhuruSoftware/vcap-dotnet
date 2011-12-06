@@ -21,46 +21,39 @@ namespace Uhuru.Configuration.DEA
                 "name",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyExecutable = new ConfigurationProperty(
                 "executable",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyVersion = new ConfigurationProperty(
                 "version",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyVersionFlag = new ConfigurationProperty(
                 "versionFlag",
                 typeof(string),
-                "-v"
-            );
+                "-v");
 
             propertyAdditionalChecks = new ConfigurationProperty(
                 "additionalChecks",
                 typeof(string),
-                null
-            );
+                null);
 
             propertyEnvironment = new ConfigurationProperty(
                 "environment",
                 typeof(EnvironmentCollection),
-                new EnvironmentCollection()
-            );
+                new EnvironmentCollection());
 
             propertyDebug = new ConfigurationProperty(
                 "debug",
                 typeof(DebugCollection),
-                new DebugCollection()
-            );
+                new DebugCollection());
 
             properties = new ConfigurationPropertyCollection();
 
@@ -100,6 +93,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyName];
             }
+
             set
             {
                 base[propertyName] = value;
@@ -116,6 +110,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyExecutable];
             }
+
             set
             {
                 base[propertyExecutable] = value;
@@ -132,6 +127,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyVersion];
             }
+
             set
             {
                 base[propertyVersion] = value;
@@ -148,6 +144,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyVersionFlag];
             }
+
             set
             {
                 base[propertyVersionFlag] = value;
@@ -164,6 +161,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyAdditionalChecks];
             }
+
             set
             {
                 base[propertyAdditionalChecks] = value;

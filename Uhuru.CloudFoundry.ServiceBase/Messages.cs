@@ -1,8 +1,14 @@
-﻿using System.Collections.Generic;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Messages.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System.Collections.Generic;
+    using Uhuru.Utilities;
+    
     abstract class MessageWithSuccessStatus : JsonConvertibleObject
     {
         public abstract bool Success
@@ -60,7 +66,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
     }
-
 
     class UnprovisionRequest : JsonConvertibleObject
     {
