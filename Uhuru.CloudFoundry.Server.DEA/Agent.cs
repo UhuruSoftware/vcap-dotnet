@@ -780,6 +780,8 @@ namespace Uhuru.CloudFoundry.DEA
                 for (int i = 0; i < AppEnv.Count; i++)
                 {
                     string[] envVar = AppEnv[i].Split('=');
+
+                    appVariables[i] = new ApplicationVariable();
                     appVariables[i].Name = envVar[0];
                     appVariables[i].Value = envVar[1];
                 }
@@ -1473,7 +1475,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Droplets.ForEach(true, delegate(DropletInstance instance)
             {
-                if (instance.Lock.TryEnterWriteLock(10)) return;
+                if (!instance.Lock.TryEnterWriteLock(10)) return;
 
                 try
                 {
