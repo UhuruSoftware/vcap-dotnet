@@ -51,29 +51,25 @@ namespace Uhuru.Configuration.Service
                 "migrationNfs",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMBus = new ConfigurationProperty(
                 "mbus",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyIndex = new ConfigurationProperty(
                 "index",
                 typeof(int),
                 0,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyZInterval = new ConfigurationProperty(
                 "zInterval",
                 typeof(int),
                 30000,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMaxDbSize = new ConfigurationProperty(
                 "maxDbSize",
@@ -93,43 +89,37 @@ namespace Uhuru.Configuration.Service
                 "maxLongTx",
                 typeof(int),
                 30,
-                ConfigurationPropertyOptions.IsRequired
-           );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyLocalDb = new ConfigurationProperty(
                 "localDb",
                 typeof(string),
                 "localServiceDb.xml",
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyBaseDir = new ConfigurationProperty(
                 "baseDir",
                 typeof(string),
                 ".\\",
-                ConfigurationPropertyOptions.IsRequired
-                );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyLocalRoute = new ConfigurationProperty(
                 "localRoute",
                 typeof(string),
                 "198.41.0.4",
-                ConfigurationPropertyOptions.IsRequired
-                );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyAvailableStorage = new ConfigurationProperty(
                 "availableStorage",
                 typeof(int),
                 1024,
-                ConfigurationPropertyOptions.IsRequired
-                );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMsSql = new ConfigurationProperty(
               "mssql",
               typeof(MSSqlElement),
               null,
-              ConfigurationPropertyOptions.None
-              );
+              ConfigurationPropertyOptions.None);
 
             properties = new ConfigurationPropertyCollection();
 
@@ -153,14 +143,6 @@ namespace Uhuru.Configuration.Service
         #region Properties
 
         /// <summary>
-        /// Override the Properties collection and return our custom one.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
-        }
-
-        /// <summary>
         /// Node id for the service.
         /// </summary>
         [ConfigurationProperty("nodeId", IsRequired = true, DefaultValue = null)]
@@ -170,6 +152,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyNodeId];
             }
+
             set
             {
                 base[propertyNodeId] = value;
@@ -186,6 +169,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyMigrationNfs];
             }
+
             set
             {
                 base[propertyMigrationNfs] = value;
@@ -202,6 +186,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyMBus];
             }
+
             set
             {
                 base[propertyMBus] = value;
@@ -218,6 +203,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyIndex];
             }
+
             set
             {
                 base[propertyIndex] = value;
@@ -234,6 +220,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyZInterval];
             }
+
             set
             {
                 base[propertyZInterval] = value;
@@ -250,6 +237,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyMaxDbSize];
             }
+
             set
             {
                 base[propertyMaxDbSize] = value;
@@ -266,6 +254,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyMaxLongQuery];
             }
+
             set
             {
                 base[propertyMaxLongQuery] = value;
@@ -282,6 +271,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyMaxLongTx];
             }
+
             set
             {
                 base[propertyMaxLongTx] = value;
@@ -298,6 +288,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyBaseDir];
             }
+
             set
             {
                 base[propertyBaseDir] = value;
@@ -314,6 +305,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (int)base[propertyAvailableStorage];
             }
+
             set
             {
                 base[propertyAvailableStorage] = value;
@@ -330,6 +322,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyLocalDb];
             }
+
             set
             {
                 base[propertyLocalDb] = value;
@@ -349,6 +342,7 @@ namespace Uhuru.Configuration.Service
             {
                 return (string)base[propertyLocalRoute];
             }
+
             set
             {
                 base[propertyLocalRoute] = value;
@@ -365,10 +359,19 @@ namespace Uhuru.Configuration.Service
             {
                 return (MSSqlElement)base[propertyMsSql];
             }
+
             set
             {
                 base[propertyMsSql] = value;
             }
+        }
+
+        /// <summary>
+        /// Override the Properties collection and return our custom one.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
         }
 
         #endregion

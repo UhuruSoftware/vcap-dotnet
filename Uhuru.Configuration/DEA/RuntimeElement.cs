@@ -1,13 +1,18 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="RuntimeElement.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.DEA
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This is a configuration class that defines the possible runtimes.
     /// </summary>
     public class RuntimeElement : ConfigurationElement
     {
-
         #region Constructors
 
         static RuntimeElement()

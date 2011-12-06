@@ -1,12 +1,26 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="EnvironmentElement.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.DEA
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This configuration class contains environment variable settings for a runtime.
     /// </summary>
     public class EnvironmentElement : ConfigurationElement
     {
+        #region Static Fields
+
+        private static ConfigurationProperty propertyName;
+        private static ConfigurationProperty propertyValue;
+
+        private static ConfigurationPropertyCollection properties;
+        #endregion
+
         #region Constructors
 
         static EnvironmentElement()
@@ -30,17 +44,9 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyName);
             properties.Add(propertyValue);
         }
+
+        #endregion
         
-        #endregion
-
-        #region Static Fields
-
-        private static ConfigurationProperty propertyName;
-        private static ConfigurationProperty propertyValue;
-
-        private static ConfigurationPropertyCollection properties;
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -53,6 +59,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyName];
             }
+
             set
             {
                 base[propertyName] = value;
@@ -69,6 +76,7 @@ namespace Uhuru.Configuration.DEA
             {
                 return (string)base[propertyValue];
             }
+
             set
             {
                 base[propertyValue] = value;
