@@ -1,4 +1,10 @@
-﻿using System.Reflection;
+﻿// -----------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
