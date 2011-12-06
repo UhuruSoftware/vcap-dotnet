@@ -1,4 +1,9 @@
-﻿
+﻿// -----------------------------------------------------------------------
+// <copyright file="MsSqlOptions.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Uhuru.CloudFoundry.Server.MSSqlNode
 {
     /// <summary>
@@ -6,7 +11,6 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
     /// </summary>
     public class MSSqlOptions
     {
-
         /// <summary>
         /// Gets or sets the host for connecting to the service.
         /// </summary>
@@ -42,6 +46,5 @@ namespace Uhuru.CloudFoundry.Server.MSSqlNode
             get;
             set;
         }
-
     }
 }
