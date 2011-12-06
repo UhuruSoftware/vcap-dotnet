@@ -1,13 +1,23 @@
-﻿using System.Configuration;
+﻿// -----------------------------------------------------------------------
+// <copyright file="RuntimeCollection.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Configuration.DEA
 {
+    using System.Configuration;
+    
     /// <summary>
     /// This class is a collection of RuntimeElement.
     /// </summary>
     [ConfigurationCollection(typeof(RuntimeElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class RuntimeCollection : ConfigurationElementCollection
     {
+        #region Fields
+        private static ConfigurationPropertyCollection properties;
+        #endregion
+
         #region Constructors
         static RuntimeCollection()
         {
@@ -15,15 +25,12 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Public parameterless constructor.
+        /// Initializes a new instance of the RuntimeCollection class.
         /// </summary>
         public RuntimeCollection()
         {
         }
-        #endregion
 
-        #region Fields
-        private static ConfigurationPropertyCollection properties;
         #endregion
 
         #region Properties

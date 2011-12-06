@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="JsonConvertibleObject.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -186,11 +187,11 @@ namespace Uhuru.Utilities
         public void FromJsonIntermediateObject(object value)
         {
             Type type = this.GetType();
-            
+
             PropertyInfo[] propertyInfos = type.GetProperties();
 
             if (value == null)
-            { 
+            {
                 //TODO: what should the method do then?
                 return;
             }
@@ -217,22 +218,25 @@ namespace Uhuru.Utilities
 
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
+                                if (valueAsJObject[jsonPropertyName] != null)
+                                {
+                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                if (value.GetType() == typeof(JObject))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                    if (value.GetType() == typeof(JObject))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                                    }
+                                    else if (value.GetType() == typeof(Dictionary<string, object>))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
+                                    }
+                                    else
+                                    {
+                                        throw new FormatException("Unsupported intermediate format");
+                                    }
 
-                                property.SetValue(this, finalValue, null);
+                                    property.SetValue(this, finalValue, null);
+                                }
                             }
                             else if (propertyType.IsEnum)
                             {
@@ -310,25 +314,28 @@ namespace Uhuru.Utilities
                             string jsonPropertyName = nameAttribute.Name;
 
                             Type propertyType = field.FieldType;
-                            
+
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-                                
-                                if (value.GetType() == typeof(JObject))
+                                if (valueAsJObject[jsonPropertyName] != null)
                                 {
-                                    finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                                field.SetValue(this, finalValue);
+                                    if (value.GetType() == typeof(JObject))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                                    }
+                                    else if (value.GetType() == typeof(Dictionary<string, object>))
+                                    {
+                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
+                                    }
+                                    else
+                                    {
+                                        throw new FormatException("Unsupported intermediate format");
+                                    }
+
+                                    field.SetValue(this, finalValue);
+                                }
                             }
                             else if (propertyType.IsEnum)
                             {
@@ -404,14 +411,14 @@ namespace Uhuru.Utilities
 
             if (jObject != null)
             {
-                return jObject.Value<T>();
+                return jObject.ToObject<T>();
             }
 
             JArray jArray = value as JArray;
 
             if (jArray != null)
             {
-                return jArray.Value<T>();
+                return jArray.ToObject<T>();
             }
 
             if (value is T)

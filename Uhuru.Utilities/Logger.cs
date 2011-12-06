@@ -1,10 +1,16 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using log4net;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Logger.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.Linq;
+    using log4net;
+    
     /// <summary>
     /// This is a helper logger class that is used throughout the code.
     /// </summary>
@@ -23,7 +29,10 @@ namespace Uhuru.Utilities
                     if (!isSourceConfigured)
                     {
                         isSourceConfigured = true;
-                        EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
+                        if (!EventLog.Exists(((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName))
+                        {
+                            EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
+                        }
                         ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
                         ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
                     }

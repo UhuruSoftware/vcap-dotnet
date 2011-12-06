@@ -1,16 +1,21 @@
-﻿using System;
-using System.Globalization;
-using System.Runtime.Serialization;
+﻿// -----------------------------------------------------------------------
+// <copyright file="ReactorException.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.NatsClient
 {
+    using System;
+    using System.Globalization;
+    using System.Runtime.Serialization;
+    
     /// <summary>
     /// This is an exception type that can be raised by the NATS client reactor.
     /// </summary>
     [Serializable]
     public class ReactorException : Exception
     {
-
         /// <summary>
         /// Public constructor inherited from the Exception class.
         /// </summary>
@@ -31,7 +36,7 @@ namespace Uhuru.NatsClient
         }
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the ReactorException class.
         /// </summary>
         /// <param name="uri">The uri the NATS client is connected to.</param>
         /// <param name="message">Exception message.</param>
@@ -53,7 +58,7 @@ namespace Uhuru.NatsClient
         }
 
         /// <summary>
-        /// Public constructor.
+        /// Initializes a new instance of the ReactorException class.
         /// </summary>
         public ReactorException()
         {

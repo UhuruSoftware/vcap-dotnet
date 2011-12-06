@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ReactorEventArgs.cs" company="Uhuru Software">
+// <copyright file="ReactorErrorEventArgs.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
