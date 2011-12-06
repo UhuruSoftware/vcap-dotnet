@@ -1,18 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.DirectoryServices;
-using System.Globalization;
-using System.IO;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading;
-using Microsoft.Web.Administration;
-using Uhuru.CloudFoundry.Server.DEA.PluginBase;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="IISPlugin.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA.Plugins
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.DirectoryServices;
+    using System.Globalization;
+    using System.IO;
+    using System.Security.AccessControl;
+    using System.Text;
+    using System.Threading;
+    using Microsoft.Web.Administration;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.Utilities;
+    
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
         #region Class Members
@@ -70,6 +76,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
         }
+
         #endregion
 
         #region Private Helper Methods
@@ -79,7 +86,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             string aspNetVersion = getAspDotNetVersion(version);
             string password = Guid.NewGuid().ToString();
             string userName = createUser(appInfo.Name, password);
-
 
             try
             {
@@ -520,7 +526,5 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         }
         
         #endregion
-
-
     }
 }
