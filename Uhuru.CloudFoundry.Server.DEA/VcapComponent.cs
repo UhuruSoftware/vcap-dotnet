@@ -88,11 +88,12 @@ namespace Uhuru.CloudFoundry.DEA
                 Uuid = String.Format("{0}-{1}", Index, Uuid);
             }
 
-            Host = Utils.GetLocalIpAddress(UhuruSection.GetSection().DEA.LocalRoute);
+
+            Host = NetworkInterface.GetLocalIPAddress(UhuruSection.GetSection().DEA.LocalRoute);
             vcapReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
 
             //http server port
-            Port = Utils.GetEphemeralPort();
+            Port = NetworkInterface.GrabEphemeralPort();
 
             Authentication = new string[]{ "", "" };
         }
@@ -115,7 +116,7 @@ namespace Uhuru.CloudFoundry.DEA
               {"uuid", Uuid},
               {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", Host, Port)},
               {"credentials", Authentication},
-              {"start", Utils.DateTimeToRubyString(StartedAt = DateTime.Now)}
+              {"start", RubyCompatibility.DateTimeToRubyString(StartedAt = DateTime.Now)}
             };
 
 

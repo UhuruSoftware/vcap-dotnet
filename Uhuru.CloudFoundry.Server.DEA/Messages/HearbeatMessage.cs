@@ -53,8 +53,8 @@ namespace Uhuru.CloudFoundry.DEA
             [JsonName("state_timestamp")]
             public int StateTimestampInterchangeableFormat
             {
-                get { return Utils.DateTimeToEpochSeconds(StateTimestamp); }
-                set { StateTimestamp = Utils.DateTimeFromEpochSeconds(value); }
+                get { return RubyCompatibility.DateTimeToEpochSeconds(StateTimestamp); }
+                set { StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
             }
 
             public DateTime StateTimestamp

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Uhuru.Utilities.ProcessPerformance;
+using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+using System.Net.Sockets;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -12,6 +14,8 @@ namespace Uhuru.CloudFoundry.DEA
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private DropletInstanceProperties properties = new DropletInstanceProperties();
         private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
+
+        public IAgentPlugin Plugin;
 
         public ReaderWriterLockSlim Lock
         {
@@ -63,6 +67,26 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        public bool IsPortReady
+        {
+            get
+            {
+                using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
+                {
+                    using (TcpClient client = new TcpClient())
+                    {
+                        IAsyncResult result = client.BeginConnect("localhost", properties.Port, null, null);
+                        result.AsyncWaitHandle.WaitOne(100);
+
+                        if (client.Connected)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
         
         public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
         {
@@ -147,6 +171,20 @@ namespace Uhuru.CloudFoundry.DEA
 
             return response;
         }
+
+        public ApplicationInfo PopulateApplicationInfo(ApplicationInfo appInfo)
+        {
+            if(appInfo == null) appInfo = new ApplicationInfo();
+            appInfo.InstanceId = Properties.InstanceId;
+            appInfo.Name = Properties.Name;
+            appInfo.Path = Properties.Directory;
+            appInfo.Port = Properties.Port;
+            appInfo.WindowsPassword = Properties.WindowsPassword;
+            appInfo.WindowsUsername = Properties.WindowsPassword;
+            return appInfo;
+        }
+
+        
 
         public void GenerateDeaFindDropletResponse()
         {

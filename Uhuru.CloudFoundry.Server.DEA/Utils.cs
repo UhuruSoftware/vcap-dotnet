@@ -156,48 +156,7 @@ namespace Uhuru.CloudFoundry.DEA
             return p.ExitCode;
         }
 
-        public static void SystemCleanup(string AppsDir = "", string AppStateFile = "")
-        {
-            try
-            {
-                ExecuteCommand(@"taskkill /im netiis.exe /f /t");
-            }
-            catch { }
-            try
-            {
-                ExecuteCommand(String.Format(@"netiis -cleanup={0}", AppsDir));
-            }
-            catch { }
-            try
-            {
-                //delete_untracked_instances does the same thing
-                //Directory.Delete(AppsDir, true);
-                //Directory.CreateDirectory(AppsDir);
-            }
-            catch { }
-
-            try
-            {
-                File.Delete(AppStateFile);
-            }
-            catch { }
-        }
-
-
-        public static int DateTimeToEpochSeconds(DateTime date)
-        {
-            return (int)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds;
-        }
-
-        public static DateTime DateTimeFromEpochSeconds(int seconds)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0) + new TimeSpan(0, 0, seconds);
-        }
-
-        public static string DateTimeToRubyString(DateTime date)
-        {
-            return date.ToString("yyyy-MM-dd HH:mm:ss zzz");
-        }
+     
 
         public static DateTime DateTimeFromRubyString(string date)
         {
@@ -206,21 +165,6 @@ namespace Uhuru.CloudFoundry.DEA
             return DateTime.Parse(date, dateFormat);
         }
 
-        public static string GetStack()
-        {
-            StackTrace stackTrace = new StackTrace();           // get call stack
-            StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
-
-            StringBuilder sb = new StringBuilder();
-
-            // write call stack method names
-            foreach (StackFrame stackFrame in stackFrames)
-            {
-                sb.AppendLine(stackFrame.GetMethod().Name);   // write method name
-            }
-
-            return sb.ToString();
-        }
 
         //todo: stefi: maby this is not a precise way to get the number of physical cores of a machine
         public static int NumberOfCores()
@@ -235,50 +179,7 @@ namespace Uhuru.CloudFoundry.DEA
             File.WriteAllText(testFile, "");
             File.Delete(testFile);
         }
-
-        //returns the ip used by the OS to connect to the RouteIPAddress. Pointing to a interface address will return that same address
-        public static string GetLocalIpAddress(string RouteIPAddress = "198.41.0.4")
-        {
-            UdpClient udpClient = new UdpClient();
-            udpClient.Connect(RouteIPAddress, 1);
-            IPEndPoint ep = (IPEndPoint)udpClient.Client.LocalEndPoint;
-            udpClient.Close();
-            return ep.Address.ToString();
-        }
-
-        public static int GetEphemeralPort()
-        {
-            TcpListener socket = new TcpListener(IPAddress.Any, 0);
-            socket.Start();
-            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
-            socket.Stop();
-            return port;
-        }
-
-        public static T Clone<T>(T source)
-        {
-            if (!typeof(T).IsSerializable)
-            {
-                throw new ArgumentException("The type must be serializable.", "source");
-            }
-
-            // Don't serialize a null object, simply return the default for that object
-            if (Object.ReferenceEquals(source, null))
-            {
-                return default(T);
-            }
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            using (stream)
-            {
-                formatter.Serialize(stream, source);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (T)formatter.Deserialize(stream);
-            }
-        }
-
-
+       
     }
 
 }

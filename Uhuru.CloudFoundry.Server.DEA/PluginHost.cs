@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 
-namespace Uhuru.CloudFoundry.Server.DEA
+namespace Uhuru.CloudFoundry.DEA
 {
     //the basic data related to a plugin
     struct PluginData

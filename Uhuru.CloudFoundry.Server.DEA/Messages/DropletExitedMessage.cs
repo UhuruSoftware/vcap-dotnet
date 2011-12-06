@@ -50,8 +50,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("crash_timestamp")]
         public int? StateTimestampInterchangeableFormat
         {
-            get { return CrashedTimestamp != null ? (int?)Utils.DateTimeToEpochSeconds((DateTime)CrashedTimestamp) : null; }
-            set { CrashedTimestamp = value != null ? (DateTime?)Utils.DateTimeFromEpochSeconds((int)value) : null; }
+            get { return CrashedTimestamp != null ? (int?)RubyCompatibility.DateTimeToEpochSeconds((DateTime)CrashedTimestamp) : null; }
+            set { CrashedTimestamp = value != null ? (DateTime?)RubyCompatibility.DateTimeFromEpochSeconds((int)value) : null; }
         }
 
         public DateTime? CrashedTimestamp

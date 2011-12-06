@@ -10,6 +10,7 @@ using Uhuru.NatsClient;
 using Uhuru.Utilities;
 using Uhuru.Utilities.ProcessPerformance;
 using Uhuru.Configuration;
+using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 
 namespace Uhuru.CloudFoundry.DEA
 {
@@ -128,7 +129,6 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
-
         public override void Run()
         {
 
@@ -199,9 +199,9 @@ namespace Uhuru.CloudFoundry.DEA
                 MonitorApps();
             });
 
-            TimerHelper.RecurringCall(Monitoring.CrashesReaperIntervalMilliseconds, delegate
+            TimerHelper.RecurringLongCall(Monitoring.CrashesReaperIntervalMilliseconds, delegate
             {
-                CrashesReaper();
+                TheReaper();
             });
 
 
@@ -737,27 +737,11 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Properties.StateTimestamp = DateTime.Now;
                     }
 
+                    instance.Plugin.StopApplication();
 
-                    StreamWriterCallback stopOperation = delegate(StreamWriter stdin)
-                    {
-                        stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.CdCommand, instance.Properties.Directory));
-                        stdin.WriteLine("copy .\\stop .\\stop.ps1");
-                        stdin.WriteLine("powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file .\\stop.ps1");
-                        stdin.WriteLine("exit");
-                    };
-
-                    ProcessDoneCallback exitOperation = delegate(string output, int status)
-                    {
-                        Logger.Info(Strings.Stopoperationcompletedrunning, status);
-                        Logger.Info(Strings.StopOperationStdOutputIs, output);
-                        
-                    };
-
-                    //TODO: vladi: this must be done with clean environment variables
-                    Utils.ExecuteCommands("cmd", "", stopOperation, exitOperation);
                 }
 
-                CleanupDroplet(instance);
+                AgentMonitoring.RemoveInstanceResources(instance);
 
                 instance.Properties.StopProcessed = true;
                 
@@ -811,7 +795,9 @@ namespace Uhuru.CloudFoundry.DEA
         {
             DeaStartMessageRequest pmessage;
             DropletInstance instance;
-            List<string> AppEnv;
+            ApplicationVariable[] appVariables;
+            ApplicationService[] appServices;
+
             try
             {
                 Droplets.Lock.EnterWriteLock();
@@ -854,13 +840,24 @@ namespace Uhuru.CloudFoundry.DEA
 
                 if (!String.IsNullOrEmpty(instance.Properties.DebugMode))
                 {
-                    instance.Properties.DebugPort = Utils.GetEphemeralPort();
+                    instance.Properties.DebugPort = NetworkInterface.GrabEphemeralPort();
                     instance.Properties.DebugIP = Host;
                 }
 
-                instance.Properties.Port = Utils.GetEphemeralPort();
+                instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
 
-                AppEnv = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+                List<string> AppEnv = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+
+                appVariables = new ApplicationVariable[AppEnv.Count];
+                for (int i = 0; i < AppEnv.Count; i++)
+                {
+                    string[] envVar = AppEnv[i].Split('=');
+                    appVariables[i].Name = envVar[0];
+                    appVariables[i].Value = envVar[1];
+                }
+
+                //todo: poulate application services
+                appServices = new ApplicationService[0];
 
 
                 AgentMonitoring.AddInstanceResources(instance);
@@ -875,14 +872,14 @@ namespace Uhuru.CloudFoundry.DEA
             //toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
-                StartDropletInstance(instance, AppEnv, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
+                StartDropletInstance(instance, appVariables, appServices, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
 
 
         }
 
 
-        private void StartDropletInstance(DropletInstance instance, List<string> AppEnv, string sha1, string executableFile, string executableUri)
+        private void StartDropletInstance(DropletInstance instance, ApplicationVariable[] appVariables, ApplicationService[] appServices, string sha1, string executableFile, string executableUri)
         {
             try
             {
@@ -904,6 +901,27 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
 
 
+                // in startup, we have the classname and assembly to load as a plugin
+                string[] startMetadata = File.ReadAllLines(Path.Combine(instance.Properties.Directory, "start"));
+                string assemblyName = startMetadata[0]; //read first line of file 'start'
+                string className = startMetadata[1]; //read second line of file 'start'
+
+
+                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(instance.Properties.Directory + assemblyName), className);
+                
+                instance.Plugin = PluginHost.CreateInstance(PluginId);
+                
+                ApplicationInfo appInfo = new ApplicationInfo();
+                appInfo.LocalIp = Host;
+                instance.PopulateApplicationInfo(appInfo);
+
+                Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
+
+                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs"));
+                
+                instance.Plugin.StartApplication();
+                
+                /*
                 StreamWriterCallback startOperation = delegate(StreamWriter stdin)
                 {
                     stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.CdCommand, instance.Properties.Directory));
@@ -912,24 +930,8 @@ namespace Uhuru.CloudFoundry.DEA
                         stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.SetCommand, env));
                     }
 
-
-
                     string runtimeLayer = String.Format(CultureInfo.InvariantCulture, "{0}\\netiis.exe", Directory.GetCurrentDirectory());
-                    /*
-                    // in startup, we have the classname and assembly to load as a plugin
-                    string assemblyName = ""; //read first line of file 'start'
-                    string className = ""; //read second line of file 'start'
-
-                    Guid myPluginId = PluginHost.LoadPlugin(instance.Properties.Directory + assemblyName, className);
-
-                    IAgentPlugin instancePlugin = PluginHost.CreateInstance(myPluginId);
-
-                    instancePlugin.ConfigureApplication(;
-                    instancePlugin.OnApplicationCrash += new ApplicationCrashDelegate(instancePlugin_OnApplicationCrash);
-                    instancePlugin.GetApplicationProcessIDs(
-                    instancePlugin.StartApplication();
-
-                     */
+                    
                     stdin.WriteLine("copy .\\startup .\\startup.ps1");
                     stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file .\\startup.ps1 \"{0}\"", runtimeLayer));
                     stdin.WriteLine("exit");
@@ -945,7 +947,28 @@ namespace Uhuru.CloudFoundry.DEA
 
                 //TODO: vladi: this must be done with clean environment variables
                 Utils.ExecuteCommands("cmd", "", startOperation, exitOperation);
+                */
 
+
+                int pid = instance.Plugin.GetApplicationProcessIDs()[0];
+                    //DetectAppPid(instance);
+                
+
+                try
+                {
+                    instance.Lock.EnterWriteLock();
+
+                    if (pid != 0 && !instance.Properties.StopProcessed)
+                    {
+                        Logger.Info(Strings.PidAssignedToDroplet, pid, instance.Properties.LoggingId);
+                        instance.Properties.ProcessId = pid;
+                        Droplets.ScheduleSnapshotAppState();
+                    }
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
+                }
 
 
                 DetectAppReady(instance,
@@ -979,26 +1002,6 @@ namespace Uhuru.CloudFoundry.DEA
                 );
 
 
-                int pid = DetectAppPid(instance);
-
-                try
-                {
-                    instance.Lock.EnterWriteLock();
-
-                    if (pid != 0 && !instance.Properties.StopProcessed)
-                    {
-                        Logger.Info(Strings.PidAssignedToDroplet, pid, instance.Properties.LoggingId);
-                        instance.Properties.ProcessId = pid;
-                        Droplets.ScheduleSnapshotAppState();
-                    }
-                }
-                finally
-                {
-                    instance.Lock.ExitWriteLock();
-                }
-
-
-
 
             }
             catch(Exception ex)
@@ -1014,9 +1017,6 @@ namespace Uhuru.CloudFoundry.DEA
 
                     
                     StopDroplet(instance);
-
-                    Droplets.RemoveDropletInstance(instance);
-                    Droplets.ScheduleSnapshotAppState();
 
                 }
                 finally
@@ -1050,22 +1050,16 @@ namespace Uhuru.CloudFoundry.DEA
             bool keep_going = true;
             while (attempts <= 1000 && instance.Properties.State == DropletInstanceState.Starting && keep_going == true)
             {
-                using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
+                if (instance.IsPortReady)
                 {
-                    using (TcpClient client = new TcpClient())
-                    {
-                        IAsyncResult result = client.BeginConnect(Host, port, null, null);
-                        result.AsyncWaitHandle.WaitOne(100);
-
-                        if (client.Connected)
-                        {
-                            keep_going = false;
-                            callBack(true);
-                        }
-                    }
+                    keep_going = false;
+                    callBack(true);
                 }
-                Thread.Sleep(100);
-                attempts++;
+                else
+                {
+                    Thread.Sleep(100);
+                    attempts++;
+                }
             }
 
             if (keep_going)
@@ -1075,6 +1069,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
+        //todo: stefi: consider removing this method
         private int DetectAppPid(DropletInstance instance)
         {
             int detect_attempts = 0;
@@ -1576,35 +1571,115 @@ namespace Uhuru.CloudFoundry.DEA
             // pegged_cpus = @num_cores * 100
         }
 
-        private void CrashesReaper()
+        private void TheReaper()
         {
-
-            List<DropletInstance> toDelete = new List<DropletInstance>();
-
-            Droplets.ForEach(delegate(DropletInstance instance)
+            /*
+            TimerHelper.DelayedCall(1000, delegate
             {
-                if (instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds)
-                    toDelete.Add(instance);
-
-            });
-
-            foreach (DropletInstance instance in toDelete)
-            {
-                
-                Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-                if (!DisableDirCleanup)
+                if (instance.IsPortReady)
                 {
-                    try
+                    instance.Plugin.KillApplication();
+                }
+            });
+            */
+
+            Droplets.ForEach(true, delegate(DropletInstance instance)
+            {
+                if (instance.Lock.TryEnterWriteLock(10)) return;
+
+                try
+                {
+
+                    if (instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds)
                     {
-                        Directory.Delete(instance.Properties.Directory, true);
+
+                        Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
+                        if (!DisableDirCleanup)
+                        {
+                            try
+                            {
+                                Directory.Delete(instance.Properties.Directory, true);
+                                instance.Properties.Directory = null;
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        else
+                        {
+                            instance.Properties.Directory = null;
+                        }
+
+                        if (instance.Plugin != null)
+                        {
+                            if (instance.IsPortReady)
+                            {
+                                instance.Plugin.KillApplication();
+                            }
+                            instance.Plugin = null;
+                        }
+
+                        if (instance.Plugin == null && instance.Properties.Directory == null)
+                        {
+                            Droplets.RemoveDropletInstance(instance);
+                        }
+
                     }
-                    catch
+
+                    if (instance.Properties.State == DropletInstanceState.Stopped)
                     {
+                        if (instance.Plugin != null && (instance.Properties.StateTimestamp - DateTime.Now).Seconds > 2)
+                        {
+                            if (instance.IsPortReady)
+                            {
+                                instance.Plugin.KillApplication();
+                            }
+                            instance.Plugin = null;
+                        }
+
+                        if (instance.Plugin == null)
+                        {
+                            if (instance.Properties.Directory != null)
+                            {
+
+                                if (!DisableDirCleanup)
+                                {
+
+                                    try
+                                    {
+                                        Directory.Delete(instance.Properties.Directory, true);
+                                        Logger.Debug(Strings.CleandUpDir, instance.Properties.Name, instance.Properties.Directory);
+                                        instance.Properties.Directory = null;
+                                    }
+                                    catch (UnauthorizedAccessException e)
+                                    {
+                                        Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
+                                        instance.Properties.Directory = null;
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                        if (instance.Plugin == null && instance.Properties.Directory == null)
+                        {
+                            Droplets.RemoveDropletInstance(instance);
+                        }
+
                     }
+
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
                 }
 
-                Droplets.RemoveDropletInstance(instance);
-            }
+            });
 
 
         }

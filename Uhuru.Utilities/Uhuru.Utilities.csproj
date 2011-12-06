@@ -93,6 +93,7 @@
     <Compile Include="RubyCompatibility.cs" />
     <Compile Include="TimerHelper.cs" />
     <Compile Include="UserCustomAuthentication.cs" />
+    <Compile Include="WindowsVcapUsers.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">

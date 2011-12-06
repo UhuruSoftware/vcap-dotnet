@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Uhuru.Utilities;
 using System.Globalization;
+using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 
 
 namespace Uhuru.CloudFoundry.DEA
@@ -77,6 +78,15 @@ namespace Uhuru.CloudFoundry.DEA
 
             return true;
 
+        }
+
+        public Runtime GetPluginRuntime(string runtimeName)
+        {
+            Runtime rtime = new Runtime();
+            rtime.Name = runtimeName;
+            rtime.Version = Runtimes[runtimeName].Version;
+            //rtime.Description = Runtimes[runtimeName].
+            return rtime;
         }
 
         public void GetRuntimeEnvironment()

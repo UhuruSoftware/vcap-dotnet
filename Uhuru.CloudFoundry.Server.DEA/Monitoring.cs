@@ -70,7 +70,7 @@ namespace Uhuru.CloudFoundry.DEA
         public const int HeartbeatIntervalMilliseconds = 10 * 1000;
         public const int VarzUpdateIntervalMilliseconds = 1 * 1000;
         public const int MonitorIntervalMilliseconds = 2 * 1000;
-        public const int CrashesReaperIntervalMilliseconds = 30 * 1000;
+        public const int CrashesReaperIntervalMilliseconds = 10 * 1000;
         public const int CrashesReaperTimeoutMilliseconds = 60 * 60 * 1000;
 
         //todo: adapt this to windows system
