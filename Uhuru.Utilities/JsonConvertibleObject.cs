@@ -405,14 +405,14 @@ namespace Uhuru.Utilities
 
             if (jObject != null)
             {
-                return jObject.Value<T>();
+                return jObject.ToObject<T>();
             }
 
             JArray jArray = value as JArray;
 
             if (jArray != null)
             {
-                return jArray.Value<T>();
+                return jArray.ToObject<T>();
             }
 
             if (value is T)
