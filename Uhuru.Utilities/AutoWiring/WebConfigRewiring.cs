@@ -7,9 +7,6 @@
 namespace Uhuru.Autowiring
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
     using System.Xml;
     using System.Xml.XPath;
     
