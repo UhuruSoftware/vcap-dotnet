@@ -115,6 +115,21 @@ namespace Uhuru.Utilities
                         {
                             result.Add(jsonPropertyName, ((JsonConvertibleObject)property.GetValue(this, null)).ToJsonIntermediateObject());
                         }
+                        else if (propertyType.IsEnum)
+                        {
+                            string value = property.GetValue(this, null).ToString();
+                            JsonNameAttribute[] attributes = (JsonNameAttribute[])propertyType.GetMember(value)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+
+                            if (attributes.Length != 0)
+                            {
+                                result.Add(jsonPropertyName, attributes[0].Name);
+                            }
+                            else
+                            {
+                                result.Add(jsonPropertyName, property.GetValue(this, null).ToString());
+                            }
+
+                        }
                         else
                         {
                             if (property.GetValue(this, null) != null) result.Add(jsonPropertyName, property.GetValue(this, null));
@@ -141,6 +156,21 @@ namespace Uhuru.Utilities
                         if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                         {
                             result.Add(jsonPropertyName, ((JsonConvertibleObject)field.GetValue(this)).ToJsonIntermediateObject());
+                        }
+                        else if (propertyType.IsEnum)
+                        {
+                            string value = field.GetValue(this).ToString();
+                            JsonNameAttribute[] attributes = (JsonNameAttribute[])propertyType.GetMember(value)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+
+                            if (attributes.Length != 0)
+                            {
+                                result.Add(jsonPropertyName, attributes[0].Name);
+                            }
+                            else
+                            {
+                                result.Add(jsonPropertyName, field.GetValue(this).ToString());
+                            }
+
                         }
                         else
                         {
@@ -204,6 +234,40 @@ namespace Uhuru.Utilities
 
                                 property.SetValue(this, finalValue, null);
                             }
+                            else if (propertyType.IsEnum)
+                            {
+                                if (valueAsJObject != null)
+                                {
+                                    value = valueAsJObject[jsonPropertyName].Value<string>();
+                                }
+
+                                if (value is string)
+                                {
+                                    object valueToSet = 0;
+                                    bool foundMatch = false;
+
+                                    foreach (string possibleValue in Enum.GetNames(propertyType))
+                                    {
+                                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+                                        if (jsonNameAttributes.Length != 0)
+                                        {
+                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                                            {
+                                                foundMatch = true;
+                                                valueToSet = Enum.Parse(propertyType, possibleValue, true);
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (!foundMatch)
+                                    {
+                                        valueToSet = Enum.Parse(propertyType, value as string, true);
+                                    }
+
+                                    property.SetValue(this, valueToSet, null);
+                                }
+                            }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
                                 if (value.GetType() == typeof(JObject))
@@ -265,6 +329,40 @@ namespace Uhuru.Utilities
                                 }
 
                                 field.SetValue(this, finalValue);
+                            }
+                            else if (propertyType.IsEnum)
+                            {
+                                if (valueAsJObject != null)
+                                {
+                                    value = valueAsJObject[jsonPropertyName].Value<string>();
+                                }
+
+                                if (value is string)
+                                {
+                                    object valueToSet = 0;
+                                    bool foundMatch = false;
+
+                                    foreach (string possibleValue in Enum.GetNames(propertyType))
+                                    {
+                                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+                                        if (jsonNameAttributes.Length != 0)
+                                        {
+                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                                            {
+                                                foundMatch = true;
+                                                valueToSet = Enum.Parse(propertyType, possibleValue, true);
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (!foundMatch)
+                                    {
+                                        valueToSet = Enum.Parse(propertyType, value as string, true);
+                                    }
+
+                                    field.SetValue(this, valueToSet);
+                                }
                             }
                             else //if (propertyType.IsPrimitive) //we are a primitive type
                             {
