@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
     using System.IO;
     using System.Text;
     using System.Web.Management;
+    using System.Configuration;
     
     public class LogFileWebEventProvider : BufferedWebEventProvider
     {
@@ -23,7 +24,7 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
         /// </summary>
         public LogFileWebEventProvider()
         {
-            this.logFilePath = @"c:\Users\Public\Documents\WebErrorsLog.txt";
+            this.logFilePath = ConfigurationManager.AppSettings["UHURU_LOG_FILE"];
             this.customInfo = new StringBuilder();
         }
         

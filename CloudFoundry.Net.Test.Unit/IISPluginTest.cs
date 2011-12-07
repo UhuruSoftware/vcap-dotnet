@@ -81,7 +81,7 @@ namespace CloudFoundry.Net.Test.Unit
             appInfo.InstanceId = Guid.NewGuid().ToString();
             appInfo.LocalIp = "192.168.1.4";
             appInfo.Name = "MyTestApp";
-            appInfo.Path = @"F:\Code\vcap-dotnet\TestApps\CloudTestApp";
+            appInfo.Path = @"c:\deployment\WebApplication1\";
             appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
             appInfo.WindowsPassword = "cfuser";
             appInfo.WindowsPassword = "Password1234!";
@@ -89,10 +89,16 @@ namespace CloudFoundry.Net.Test.Unit
             Runtime runtime = new Runtime();
             runtime.Name = "iis";
 
-            ApplicationVariable[] variables = null;
+            ApplicationVariable[] variables = new ApplicationVariable[2];
             ApplicationService[] services = null;
 
-            string logFilePath = @"F:\Code\vcap-dotnet\TestApps\cloudtestapp.log";
+            for (int i = 0; i < 2; i++)
+                variables[i] = new ApplicationVariable();
+
+            variables[0].Name = "VCAP_PORT"; variables[0].Value = "1423";
+            variables[1].Name = "INSTANCE_COUNT"; variables[1].Value = "6";
+
+            string logFilePath = @"F:\Code\vcap-dotnet\TestApps\cloudtestapp2.log";
 
             target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
         }
