@@ -1,11 +1,22 @@
-﻿using System;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletExitedMessage.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using Uhuru.Utilities;
+    
+    /// <summary>
+    /// Contains relevant information after a droplet instance has exited.
+    /// </summary>
     public class DropletExitedMessage : JsonConvertibleObject
     {
-
+        /// <summary>
+        /// The id of the droplet the instance belongs to.
+        /// </summary>
         [JsonName("droplet")]
         public int DropletId
         {
@@ -13,6 +24,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// The droplet version.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -20,6 +34,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// The id of the droplet instance.
+        /// </summary>
         [JsonName("instance")]
         public string InstanceId
         {
@@ -27,6 +44,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// The index of the droplet instance.
+        /// </summary>
         [JsonName("index")]
         public int Index
         {
@@ -41,6 +61,10 @@ namespace Uhuru.CloudFoundry.DEA
             set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
         }
         */
+
+        /// <summary>
+        /// The reason, if known, why the droplet instance has exited.
+        /// </summary>
         [JsonName("reason")]
         public DropletExitReason? ExitReason
         {
@@ -48,6 +72,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// The timestamp corresponding to the moment the instance has crashed (if that is what happened), in interchangeable format.
+        /// </summary>
         [JsonName("crash_timestamp")]
         public int? StateTimestampInterchangeableFormat
         {
@@ -55,6 +82,9 @@ namespace Uhuru.CloudFoundry.DEA
             set { CrashedTimestamp = value != null ? (DateTime?)RubyCompatibility.DateTimeFromEpochSeconds((int)value) : null; }
         }
 
+        /// <summary>
+        /// The timestamp corresponding to the moment the instance has crashed (if that is what happened).
+        /// </summary>
         public DateTime? CrashedTimestamp
         {
             get;
