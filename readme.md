@@ -8,7 +8,7 @@ What are the .Net Extensions to Cloud Foundry?
 
 This project is an effort to extend Cloud Foundry so it runs .Net web applications on a Windows environment.
 
-Although Cloud Foundry is developed on Linux/Ruby, our stack is 100% .Net. We have ported the NATS client (NATS is the message bus used for communication by all Cloud Foundry components), the DEA (Droplet Execution Engine) and the Service Node base. This means that now we can bring in frameworks and services on Cloud Foundry that run on Windows.
+Although Cloud Foundry is developed on Linux/Ruby, our stack is 100% .Net. We have ported the NATS client (NATS is the message bus used for communication by all Cloud Foundry components), the DEA (Droplet Execution Engine) and the Service Node base. This means that now we can bring in frameworks and services on Cloud Foundry that run on Windows. We hope that since it's .Net, adding frameworks/services for Windows will be easier and faster for Windows devs, as well as more stable than Ruby on Windows.
 
 So far we've added:
 
@@ -39,11 +39,11 @@ Install "WindowsDEA.msi" and "MSSqlNode.msi" on a box that meets the following p
 Detailed Install/Run Instructions:
 ----------------------------------
 
-Installing the WindowsDEA
+### Installing the WindowsDEA
 
 You have to run the WindowsDEA.msi installer in order to install the service. There are two ways to do that.
 
-1. Install from from command line using following command and parameters: msiexec /i WindowsDEA.msi [parameterName=parameterValue]
+#### Install from from command line using following command and parameters: msiexec /i WindowsDEA.msi [parameterName=parameterValue]
 
 Valid parameters that can be used are: 
 	
@@ -58,15 +58,15 @@ Valid parameters that can be used are:
 	heartBeatInterval (integer)
 	forceHttpSharing (boolean)
 
-2. Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+#### Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
 
 After the installation start the DeaWindowsService in services.msc
 
-Installing the MSSqlNode
+### Installing the MSSqlNode
 
 You have to run the MSSqlNode.msi installer in order to install the service. There are two ways to do that.
 
-1. Install from from command line using following command and parameters: msiexec /i MSSqlNode.msi [parameterName=parameterValue]
+#### Install from from command line using following command and parameters: msiexec /i MSSqlNode.msi [parameterName=parameterValue]
 
 Valid parameters that can be used are: 
 
@@ -87,10 +87,28 @@ Valid parameters that can be used are:
 	password (string) - MSSql Server password
 	port (integer) - MSSql Server port
 
-2. Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+#### Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
 
 After the installation start the MssqlNodeService in services.msc
 
 Trying your setup
 -----------------
 
+
+Running the tests
+-----------------
+
+### Unit Tests
+
+#### Configure
+#### Run
+
+### Integration Tests
+
+#### Configure
+#### Run
+
+### System Tests
+
+#### Configure
+#### Run
