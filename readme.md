@@ -30,7 +30,7 @@ Once you have a Cloud Foundry setup running, you can either:
 * get the code and compile it to get the installers (use the vcap-dotnet-installers solution)
 * grab the latest release from here [http://www.uhurusoftware.com/vcap-dotnet/latest](http://www.uhurusoftware.com/vcap-dotnet/latest)
 
-Install "Windows DEA.msi" and "MS Sql Node.msi" on a box that meets the following prerequisites:
+Install "WindowsDEA.msi" and "MSSqlNode.msi" on a box that meets the following prerequisites:
 
 * Windows 7 or Windows 2008 Server R2
 * IIS 7
@@ -39,8 +39,57 @@ Install "Windows DEA.msi" and "MS Sql Node.msi" on a box that meets the followin
 Detailed Install/Run Instructions:
 ----------------------------------
 
+Installing the WindowsDEA
 
+You have to run the WindowsDEA.msi installer in order to install the service. There are two ways to do that.
 
+1. Install from from command line using following command and parameters: msiexec /i WindowsDEA.msi [parameterName=parameterValue]
+
+Valid parameters that can be used are: 
+	
+	baseDir (string)
+	localRoute (string)
+	filerPort (int) - port for the fileserver
+	messageBus (string) - message bus address (nats://user:password@someip:port/)
+	multiTenant (boolean)
+	maxMemory (integer)
+	secure (boolean)
+	enforceUlimit (integer)
+	heartBeatInterval (integer)
+	forceHttpSharing (boolean)
+
+2. Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+
+After the installation start the DeaWindowsService in services.msc
+
+Installing the MSSqlNode
+
+You have to run the MSSqlNode.msi installer in order to install the service. There are two ways to do that.
+
+1. Install from from command line using following command and parameters: msiexec /i MSSqlNode.msi [parameterName=parameterValue]
+
+Valid parameters that can be used are: 
+
+	nodeId (string)
+	migrationNfs (string)
+	mbus (string) - message bus address (nats://user:password@someip:port/)
+	index (integer)
+	zInterval (integer)
+	maxDbSize (integer)
+	maxLongQuery (integer)
+	maxLongTx (integer)
+	localDb (string)
+	baseDir (string)
+	localRoute (string)
+	availableStorage (integer)
+	host (string) - MSSql Server address
+	user (string) - MSSql Server user
+	password (string) - MSSql Server password
+	port (integer) - MSSql Server port
+
+2. Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+
+After the installation start the MssqlNodeService in services.msc
 
 Trying your setup
 -----------------
