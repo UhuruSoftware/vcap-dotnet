@@ -332,7 +332,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         [JsonName("windows_username")]
-        public string WindowsUserName
+        public string WindowsUsername
         {
             get;
             set;

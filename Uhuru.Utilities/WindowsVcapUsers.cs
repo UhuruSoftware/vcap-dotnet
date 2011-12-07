@@ -55,9 +55,14 @@ namespace Uhuru.Utilities
             }
         }
 
+        /// <summary>
+        /// Returns a string that is unique for a given user.
+        /// </summary>
+        /// <param name="id"> The id of the user. </param>
+        /// <returns> The unique string.</returns>
         private static string DecorateUser(string id)
         {
-            return "UhuruVc4p" + id.Substring(0, Math.Min(10, id.Length));
+            return "UhuruVcap_" + id.Substring(0, Math.Min(10, id.Length));
         }
     }
 }
