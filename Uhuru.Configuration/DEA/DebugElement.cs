@@ -23,21 +23,22 @@ namespace Uhuru.Configuration.DEA
 
         #region Constructors
 
+        /// <summary>
+        /// Initializes static members of the DebugElement class.
+        /// </summary>
         static DebugElement()
         {
             propertyName = new ConfigurationProperty(
                 "name",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyEnvironment = new ConfigurationProperty(
                 "environment",
                 typeof(EnvironmentCollection),
                 new EnvironmentCollection(),
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             properties = new ConfigurationPropertyCollection();
 
@@ -50,7 +51,7 @@ namespace Uhuru.Configuration.DEA
         #region Properties
 
         /// <summary>
-        /// Gets the name of a debug configuration for a runtime.
+        /// Gets or sets the name of a debug configuration for a runtime.
         /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name

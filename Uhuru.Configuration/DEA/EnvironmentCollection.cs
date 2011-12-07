@@ -9,38 +9,46 @@ namespace Uhuru.Configuration.DEA
     using System.Configuration;
     
     /// <summary>
-    /// This class is a collection of EnvironmentElement.
+    /// This class is a collection of EnvironmentElement items.
     /// </summary>
     [ConfigurationCollection(typeof(EnvironmentElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class EnvironmentCollection : ConfigurationElementCollection
     {
+        #region Fields
+        private static ConfigurationPropertyCollection properties;
+        #endregion
+
         #region Constructors
+
+        /// <summary>
+        /// Initializes static members of EnvironmentCollection class.
+        /// </summary>
         static EnvironmentCollection()
         {
             properties = new ConfigurationPropertyCollection();
         }
 
         /// <summary>
-        /// Public parameterless constructor.
+        /// Initializes a new instance of the EnvironmentCollection class.
         /// </summary>
         public EnvironmentCollection()
         {
         }
-        #endregion
 
-        #region Fields
-        private static ConfigurationPropertyCollection properties;
         #endregion
 
         #region Properties
-        /// Defines the configuration properties available for a EnvironmentCollection
+        
+        /// <summary>
+        /// Defines the configuration properties available for the current object.
+        /// </summary>
         protected override ConfigurationPropertyCollection Properties
         {
             get { return properties; }
         }
 
         /// <summary>
-        /// Defines the collection type (BasicMap) for EnvironmentCollection
+        /// Defines the collection type (BasicMap) for the current object.
         /// </summary>
         public override ConfigurationElementCollectionType CollectionType
         {
@@ -48,7 +56,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the element name for a EnvironmentCollection
+        /// Gets the element name for the current object.
         /// </summary>
         protected override string ElementName
         {
@@ -62,23 +70,28 @@ namespace Uhuru.Configuration.DEA
         /// <summary>
         /// Gets a environment variable by index.
         /// </summary>
-        /// <param name="index">Zero-based index of a environment variable.</param>
+        /// <param name="index">The zero-based index of an environment variable.</param>
         /// <returns>The EnvironmentElement at the specified index.</returns>
         public EnvironmentElement this[int index]
         {
-            get { return (EnvironmentElement)base.BaseGet(index); }
+            get 
+            { 
+                return (EnvironmentElement)this.BaseGet(index); 
+            }
+
             set
             {
-                if (base.BaseGet(index) != null)
+                if (this.BaseGet(index) != null)
                 {
-                    base.BaseRemoveAt(index);
+                    this.BaseRemoveAt(index);
                 }
-                base.BaseAdd(index, value);
+
+                this.BaseAdd(index, value);
             }
         }
 
         /// <summary>
-        /// Gets a environment variable by its name.
+        /// Gets an environment variable by its name.
         /// </summary>
         /// <param name="name">String specifying the environment variable name.</param>
         /// <returns>The EnvironmentElement with the specified name.</returns>
@@ -86,6 +99,7 @@ namespace Uhuru.Configuration.DEA
         {
             get { return (EnvironmentElement)base.BaseGet(name); }
         }
+
         #endregion
 
         #region Overrides

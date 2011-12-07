@@ -22,6 +22,9 @@ namespace Uhuru.CloudFoundry.DEA
         private Dictionary<int, Droplet> droplets = new Dictionary<int,Droplet>();
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        /// <summary>
+        /// Exposes the collection members, organized by IDs.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public Dictionary<int, Droplet> Droplets
         {
@@ -194,6 +197,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Removes a droplet instance from the collection.
+        /// </summary>
+        /// <param name="instance">The droplet instance to remove.</param>
         public void RemoveDropletInstance(DropletInstance instance)
         {
             if (instance == null)
@@ -226,6 +233,10 @@ namespace Uhuru.CloudFoundry.DEA
             ScheduleSnapshotAppState();
         }
        
+        /// <summary>
+        /// Adds a droplet instance to the collection.
+        /// </summary>
+        /// <param name="instance">The droplet instance to add.</param>
         public void AddDropletInstance(DropletInstance instance)
         {
             if (instance == null)
@@ -252,6 +263,11 @@ namespace Uhuru.CloudFoundry.DEA
             ScheduleSnapshotAppState();
         }
 
+        /// <summary>
+        /// Creates a new droplet instance.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public DropletInstance CreateDropletInstance(DeaStartMessageRequest message)
         {
             if (message == null)

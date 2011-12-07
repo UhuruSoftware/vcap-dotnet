@@ -3,11 +3,6 @@
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.DirectoryServices;
 
 namespace Uhuru.Utilities
 {
@@ -25,23 +20,28 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
-        /// Creates a user based on an id. The created user has a random string added to it, and a specific prefix.
+        /// Creates a user based on an id. The created user has a prefix added to it.
         /// </summary>
         /// <param name="id">An id for the username.</param>
         /// <param name="password">A password for the user. Make sure it's strong.</param>
         /// <returns>The final username of the newly created Windows User.</returns>
         public static string CreateUser(string id, string password)
         {
-            if (password == null) password = Utilities.Credentials.GenerateCredential();
-            string decoratedUsername = DecorateUser(id);
-            using (DirectoryEntry obDirEntry = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
+            if (password == null)
             {
-                DirectoryEntries entries = obDirEntry.Children;
-                DirectoryEntry obUser = entries.Add(decoratedUsername, "User");
-                obUser.Properties["FullName"].Add("Uhuru Vcap Instance " + id + " user");
-                obUser.Invoke("SetPassword", password);
-                obUser.CommitChanges();
+                password = Utilities.Credentials.GenerateCredential();
             }
+
+            string decoratedUsername = DecorateUser(id);
+            using (DirectoryEntry directoryEntry = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
+            {
+                DirectoryEntries entries = directoryEntry.Children;
+                DirectoryEntry user = entries.Add(decoratedUsername, "User");
+                user.Properties["FullName"].Add("Uhuru Vcap Instance " + id + " user");
+                user.Invoke("SetPassword", password);
+                user.CommitChanges();
+            }
+
             return decoratedUsername;
         }
 
