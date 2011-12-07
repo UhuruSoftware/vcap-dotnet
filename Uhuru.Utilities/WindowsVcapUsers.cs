@@ -21,7 +21,7 @@ namespace Uhuru.Utilities
     {
         private static string DecorateUser(string id)
         {
-            return "UhuruVc4p" + id.Substring(0, Math.Min(10, id.Length)); 
+            return "UhuruVcap_" + id.Substring(0, Math.Min(10, id.Length)); 
         }
 
         /// <summary>
