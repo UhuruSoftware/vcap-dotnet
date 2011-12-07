@@ -40,9 +40,9 @@ namespace Uhuru.Utilities
             return JsonConvert.DeserializeObject(json);
         }
 
-        public static string SerializeToJson(object intermediateObject)
+        public static string SerializeToJson(object intermediateValue)
         {
-            return JsonConvert.SerializeObject(intermediateObject);
+            return JsonConvert.SerializeObject(intermediateValue);
         }
 
         public string SerializeToJson()
