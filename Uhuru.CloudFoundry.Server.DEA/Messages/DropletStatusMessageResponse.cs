@@ -1,7 +1,16 @@
-﻿using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DropletStatusMessageResponse.cs" company="Uhuru Software">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// ----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using Uhuru.Utilities;
+    
+    /// <summary>
+    /// A class containing a set of data reflecting the status of a droplet instance.
+    /// </summary>
     public class DropletStatusMessageResponse : JsonConvertibleObject
     {
         [JsonName("name")]

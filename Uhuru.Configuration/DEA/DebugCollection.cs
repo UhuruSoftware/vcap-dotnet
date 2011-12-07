@@ -15,7 +15,12 @@ namespace Uhuru.Configuration.DEA
     public class DebugCollection : ConfigurationElementCollection
     {
         #region Fields
+
+        /// <summary>
+        /// Designed to hold the the configuration properties of the current instance.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
+        
         #endregion
         
         #region Constructors
@@ -55,7 +60,7 @@ namespace Uhuru.Configuration.DEA
         }
         
         /// <summary>
-        /// Defines the configuration properties available for a DebugCollection.
+        /// Defines the configuration properties available for a DebugCollection object.
         /// </summary>
         protected override ConfigurationPropertyCollection Properties
         {

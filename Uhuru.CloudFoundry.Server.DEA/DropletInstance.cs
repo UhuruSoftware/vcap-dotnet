@@ -6,207 +6,225 @@
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Uhuru.Utilities.ProcessPerformance;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+	using System;
+	using System.Collections.Generic;
+	using System.Threading;
+	using Uhuru.Utilities.ProcessPerformance;
+	using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 	using System.Net.Sockets;
 	
-    public class DropletInstance
-    {
-        public const int MaxUsageSamples = 30;
+	public class DropletInstance
+	{
+		public const int MaxUsageSamples = 30;
 
-        private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private DropletInstanceProperties properties = new DropletInstanceProperties();
-        private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
+		private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+		private DropletInstanceProperties properties = new DropletInstanceProperties();
+		private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
 
-        public IAgentPlugin Plugin;
+		public IAgentPlugin Plugin;
 
-        public ReaderWriterLockSlim Lock
-        {
-            get
-            {
-                return readerWriterLock;
-            }
+		public ReaderWriterLockSlim Lock
+		{
+			get
+			{
+				return readerWriterLock;
+			}
 
-            set
-            {
-                readerWriterLock = value;
-            }
-        }
+			set
+			{
+				readerWriterLock = value;
+			}
+		}
 
-        public DropletInstanceProperties Properties
-        {
-            get
-            {
-                return properties;
-            }
+		public DropletInstanceProperties Properties
+		{
+			get
+			{
+				return properties;
+			}
 
-            set
-            {
-                properties = value;
-            }
-        }
+			set
+			{
+				properties = value;
+			}
+		}
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public List<DropletInstanceUsage> Usage
-        {
-            get
-            {
-                return usage;
-            }
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+		public List<DropletInstanceUsage> Usage
+		{
+			get
+			{
+				return usage;
+			}
 
-            set
-            {
-                usage = value;
-            }
-        }
+			set
+			{
+				usage = value;
+			}
+		}
 
-        public bool IsRunning
-        {
-            get
-            {
-                if (Properties.ProcessId == 0)
-                    return false;
+		public bool IsRunning
+		{
+			get
+			{
+				if (Properties.ProcessId == 0)
+				{
+					return false;
+				}
 
-                return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
-            }
-        }
+				return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
+			}
+		}
 
-        public bool IsPortReady
-        {
-            get
-            {
-                using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
-                {
-                    using (TcpClient client = new TcpClient())
-                    {
-                        IAsyncResult result = client.BeginConnect("localhost", properties.Port, null, null);
-                        result.AsyncWaitHandle.WaitOne(100);
+		public bool IsPortReady
+		{
+			get
+			{
+				using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
+				{
+					using (TcpClient client = new TcpClient())
+					{
+						IAsyncResult result = client.BeginConnect("localhost", properties.Port, null, null);
+						result.AsyncWaitHandle.WaitOne(100);
 
-                        if (client.Connected)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-        
-        public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
-        {
-            HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
-            try
-            {
-                Lock.EnterReadLock();
-                
-                beat.DropletId = Properties.DropletId;
-                beat.Version = Properties.Version;
-                beat.InstanceId = Properties.InstanceId;
-                beat.InstanceIndex = Properties.InstanceIndex;
-                beat.State = Properties.State;
-                beat.StateTimestamp = Properties.StateTimestamp;
-            }
-            finally
-            {
-                Lock.ExitReadLock();
-            }
-            return beat;
-        }
+						if (client.Connected)
+						{
+							return true;
+						}
+					}
+				}
 
-        public HeartbeatMessage GenerateHeartbeat()
-        {
-            HeartbeatMessage response = new HeartbeatMessage();
-            response.Droplets.Add(GenerateInstanceHeartbeat().ToJsonIntermediateObject());
-            return response;
-        }
+				return false;
+			}
+		}
+		
+		/// <summary>
+		/// Returns the heartbeat info of the current droplet instance.
+		/// </summary>
+		/// <returns>The requested heartbeat info.</returns>
+		public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
+		{
+			HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
+			try
+			{
+				Lock.EnterReadLock();
+				
+				beat.DropletId = Properties.DropletId;
+				beat.Version = Properties.Version;
+				beat.InstanceId = Properties.InstanceId;
+				beat.InstanceIndex = Properties.InstanceIndex;
+				beat.State = Properties.State;
+				beat.StateTimestamp = Properties.StateTimestamp;
+			}
+			finally
+			{
+				Lock.ExitReadLock();
+			}
 
-        /// <summary>
-        /// returns the instances exited message
-        /// </summary>
-        public DropletExitedMessage GenerateDropletExitedMessage()
-        {
-            DropletExitedMessage response = new DropletExitedMessage();
+			return beat;
+		}
 
-            try
-            {
-                Lock.EnterReadLock();
-                response.DropletId = Properties.DropletId;
-                response.Version = Properties.Version;
-                response.InstanceId = Properties.InstanceId;
-                response.Index = Properties.InstanceIndex;
-                response.ExitReason = Properties.ExitReason;
+		public HeartbeatMessage GenerateHeartbeat()
+		{
+			HeartbeatMessage response = new HeartbeatMessage();
+			response.Droplets.Add(GenerateInstanceHeartbeat().ToJsonIntermediateObject());
+			return response;
+		}
 
-                if (Properties.State == DropletInstanceState.Crashed)
-                {
-                    response.CrashedTimestamp = Properties.StateTimestamp;
-                }
-            }
-            finally
-            {
-                Lock.ExitReadLock();
-            }
+		/// <summary>
+		/// returns the instances exited message
+		/// </summary>
+		public DropletExitedMessage GenerateDropletExitedMessage()
+		{
+			DropletExitedMessage response = new DropletExitedMessage();
 
-            return response;
+			try
+			{
+				Lock.EnterReadLock();
+				response.DropletId = Properties.DropletId;
+				response.Version = Properties.Version;
+				response.InstanceId = Properties.InstanceId;
+				response.Index = Properties.InstanceIndex;
+				response.ExitReason = Properties.ExitReason;
 
-        }
+				if (Properties.State == DropletInstanceState.Crashed)
+				{
+					response.CrashedTimestamp = Properties.StateTimestamp;
+				}
+			}
+			finally
+			{
+				Lock.ExitReadLock();
+			}
 
-        public DropletStatusMessageResponse GenerateDropletStatusMessage()
-        {
-            DropletStatusMessageResponse response = new DropletStatusMessageResponse();
+			return response;
+		}
 
-            try
-            {
-                Lock.EnterReadLock();
-                response.Name = Properties.Name;
-                response.Port = Properties.Port;
-                response.Uris = Properties.Uris;
-                response.Uptime = (DateTime.Now - Properties.Start).TotalSeconds;
-                response.MemoryQuotaBytes = Properties.MemoryQuotaBytes;
-                response.DiskQuotaBytes = Properties.DiskQuotaBytes;
-                response.FdsQuota = Properties.FdsQuota;
-                if (Usage.Count > 0)
-                {
-                    response.Usage = Usage[Usage.Count - 1];
-                }
-            }
-            finally
-            {
-                Lock.ExitReadLock();
-            }
+		/// <summary>
+		/// Generates a status message reflecting the properties of the current droplet instance.
+		/// </summary>
+		/// <returns>The generated status message.</returns>
+		public DropletStatusMessageResponse GenerateDropletStatusMessage()
+		{
+			DropletStatusMessageResponse response = new DropletStatusMessageResponse();
 
-            return response;
-        }
+			try
+			{
+				Lock.EnterReadLock();
+				response.Name = Properties.Name;
+				response.Port = Properties.Port;
+				response.Uris = Properties.Uris;
+				response.Uptime = (DateTime.Now - Properties.Start).TotalSeconds;
+				response.MemoryQuotaBytes = Properties.MemoryQuotaBytes;
+				response.DiskQuotaBytes = Properties.DiskQuotaBytes;
+				response.FdsQuota = Properties.FdsQuota;
+				if (Usage.Count > 0)
+				{
+					response.Usage = Usage[Usage.Count - 1];
+				}
+			}
+			finally
+			{
+				Lock.ExitReadLock();
+			}
 
-        public ApplicationInfo PopulateApplicationInfo(ApplicationInfo appInfo)
-        {
-            if(appInfo == null) appInfo = new ApplicationInfo();
-            appInfo.InstanceId = Properties.InstanceId;
-            appInfo.Name = Properties.Name;
-            appInfo.Path = Properties.Directory;
-            appInfo.Port = Properties.Port;
-            appInfo.WindowsPassword = Properties.WindowsPassword;
-            appInfo.WindowsUsername = Properties.WindowsUsername;
-            return appInfo;
-        }
+			return response;
+		}
 
-        
+		/// <summary>
+		/// Updates an ApplicationInfo object with the information of the current droplet instance.
+		/// </summary>
+		/// <param name="appInfo">The object whose info is to be updated (if this is null a new ApplicationInfo object will be used instead).</param>
+		/// <returns>The updated ApplicationInfo object.</returns>
+		public ApplicationInfo PopulateApplicationInfo(ApplicationInfo appInfo)
+		{
+			if (appInfo == null)
+			{
+				appInfo = new ApplicationInfo();
+			}
 
-        public void GenerateDeaFindDropletResponse()
-        {
-            throw new System.NotImplementedException();
-        }
+			appInfo.InstanceId = Properties.InstanceId;
+			appInfo.Name = Properties.Name;
+			appInfo.Path = Properties.Directory;
+			appInfo.Port = Properties.Port;
+			appInfo.WindowsPassword = Properties.WindowsPassword;
+			appInfo.WindowsUsername = Properties.WindowsUsername;
+			return appInfo;
+		}
 
-        public void DetectAppProcessId()
-        {
-            throw new System.NotImplementedException();
-        }
+		public void GenerateDeaFindDropletResponse()
+		{
+			throw new System.NotImplementedException();
+		}
 
-        public void DetectAppReady()
-        {
-            throw new System.NotImplementedException();
-        }
-    }
+		public void DetectAppProcessId()
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public void DetectAppReady()
+		{
+			throw new System.NotImplementedException();
+		}
+	}
 }
