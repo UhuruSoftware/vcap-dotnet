@@ -86,7 +86,7 @@ namespace Uhuru.CloudFoundry.DEA
             
             AgentStager.ForeHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
 
-            Type = "DEA";
+            ComponentType = "DEA";
 
             //apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
             AgentMonitoring.AppsDumpDirectory = Path.GetTempPath();
@@ -114,7 +114,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (deaReactor == null)
             {
                 deaReactor = new DeaReactor();
-                vcapReactor = deaReactor;
+                VcapReactor = deaReactor;
             }
         }
 
@@ -149,7 +149,7 @@ namespace Uhuru.CloudFoundry.DEA
             
             AgentFileViewer.Start(AgentStager.DropletDir);
 
-            vcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
+            VcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
 
             deaReactor.OnDeaStatus += new SubscribeCallback(DeaStatusHandler);
             deaReactor.OnDropletStatus += new SubscribeCallback(DropletStatusHandler);

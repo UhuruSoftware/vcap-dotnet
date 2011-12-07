@@ -248,7 +248,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     foreach (ApplicationService service in services)
                     {
-                        string key = service.ServiceName;
+                        string key = service.Vendor;
                         string connectionString = String.Format(CultureInfo.InvariantCulture,
                             "Data Source={0},{1};Initial Catalog={2};User Id={2};Password={3};MultipleActiveResultSets=true",
                             service.Host,
