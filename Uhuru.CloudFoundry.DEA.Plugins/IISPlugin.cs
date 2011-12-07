@@ -275,6 +275,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
+
+        /// <summary>
+        /// Autowires the application variables and the log file path in the web.config file.
+        /// </summary>
+        /// <param name="configFileContents">The config file contents.</param>
+        /// <param name="variables">The variables.</param>
+        /// <param name="logFilePath">The log file path.</param>
+        /// <returns></returns>
         string setApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath)
         {
             XmlDocument doc = new XmlDocument();
