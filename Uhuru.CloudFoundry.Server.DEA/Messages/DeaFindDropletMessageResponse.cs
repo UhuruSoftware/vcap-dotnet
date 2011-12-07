@@ -41,13 +41,14 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
-        [JsonName("state")]
+        /*
         public string StateInterchangeableFormat
         {
             get { return State.ToString(); }
             set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
         }
-
+         */
+        [JsonName("state")]
         public DropletInstanceState State
         {
             get;

@@ -34,13 +34,14 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        [JsonName("reason")]
+        /*
         public string ExitReasonInterchangeableFormat
         {
             get { return ExitReason != null ? ExitReason.ToString() : null; }
             set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
         }
-
+        */
+        [JsonName("reason")]
         public DropletExitReason? ExitReason
         {
             get;
