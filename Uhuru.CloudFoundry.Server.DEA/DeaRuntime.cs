@@ -10,13 +10,21 @@ namespace Uhuru.CloudFoundry.DEA
     
     public class DeaRuntime
     {
-        public string Executable;
-        public string Version;
-        public string VersionFlag;
-        public string AdditionalChecks;
-        public Dictionary<string, List<string>> DebugEnv = new Dictionary<string,List<string>>();
-        public Dictionary<string, string> Environment = new Dictionary<string,string>();
-        public bool Enabled;
-    }
+        public string Executable { get; set; }
+        public string Version { get; set; }
+        public string VersionFlag { get; set; }
+        public string AdditionalChecks { get; set; }
+        public Dictionary<string, List<string>> DebugEnv { get; set; }
+        public Dictionary<string, string> Environment { get; set; }
+        public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the DeaRuntime class.
+        /// </summary>
+        public DeaRuntime()
+        { 
+            this.DebugEnv = new Dictionary<string,List<string>>();
+            this.Environment = new Dictionary<string,string>();
+        }
+    }
 }
