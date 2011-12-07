@@ -8,7 +8,7 @@ What are the .Net Extensions to Cloud Foundry?
 
 This project is an effort to extend Cloud Foundry so it runs .Net web applications on a Windows environment.
 
-Although Cloud Foundry is developed on Linux/Ruby, our stack is 100% .Net. We have ported the NATS client (NATS is the message bus used for communication by all Cloud Foundry components), the DEA (Droplet Execution Engine) and the Service Node base. This means that now we can bring in frameworks and services on Cloud Foundry that run on Windows.
+Although Cloud Foundry is developed on Linux/Ruby, our stack is 100% .Net. We have ported the NATS client (NATS is the message bus used for communication by all Cloud Foundry components), the DEA (Droplet Execution Engine) and the Service Node base. This means that now we can bring in frameworks and services on Cloud Foundry that run on Windows. We hope that since it's .Net, adding frameworks/services for Windows will be easier and faster for Windows devs, as well as more stable than Ruby on Windows.
 
 So far we've added:
 
