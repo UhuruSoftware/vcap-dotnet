@@ -811,25 +811,41 @@ namespace Uhuru.CloudFoundry.DEA
                     appVariables[i].Name = envVar[0];
                     appVariables[i].Value = envVar[1];
                 }
-
-                
+                    
+                //Adding services
                 appServices = new ApplicationService[pmessage.Services.Length];
                 for(int i = 0; i < pmessage.Services.Length; i++)
                 {
-                    Dictionary<string, object> service = pmessage.Services[i];
+                    Dictionary<string, object> dService = pmessage.Services[i];
+
+                    StarRequestService pService = new StarRequestService(); 
+                    pService.FromJsonIntermediateObject(pmessage.Services[i]);
+
                     ApplicationService appService = appServices[i] = new ApplicationService();
 
                     //todo: verifi if the association is right
-                    appService.Name = service.ContainsKey("name") ? JsonConvertibleObject.ObjectToValue<string>(service["name"]) : null;
-                    appService.ServiceName = service.ContainsKey("label") ? JsonConvertibleObject.ObjectToValue<string>(service["label"]) : null;
-                    appService.Plan = service.ContainsKey("plan") ? JsonConvertibleObject.ObjectToValue<string>(service["plan"]) : null;
-                    appService.PlanOptions = service.ContainsKey("plan_option") ? JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(service["plan_option"]) : null;
+                    //Mabe the coments are incosistent with the properties name
                     
-                    string[] credentials = service.ContainsKey("credentials") ? JsonConvertibleObject.ObjectToValue<string[]>(service["credentials"]) : null;
-                    appService.User = credentials[0];
-                    appService.Password = credentials[1];
+                    appService.Name = pService.ServiceName;
+                    appService.ServiceName = pService.ServiceType;
+                    appService.Plan = pService.Plan;
+                    appService.PlanOptions = pService.PlanOptions;
 
-                    //appService. = service.ContainsKey("tags") ? JsonConvertibleObject.ObjectToValue<string>(service["tags"]) : null;
+                    //todo: what ??
+                    //appService.Type = pService.
+
+                    //todo: choose the blue pill or red pill
+                    appService.Host = pService.Credentials.Host;
+                    appService.Host = pService.Credentials.Hostname;
+
+                    //todo: choose again 
+                    appService.User = pService.Credentials.User;
+                    appService.User = pService.Credentials.Username;
+
+
+                    appService.Password = pService.Credentials.Password;
+                    appService.Port = pService.Credentials.Port.ToString();
+
                 }
 
 
