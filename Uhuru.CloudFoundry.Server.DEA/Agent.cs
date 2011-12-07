@@ -687,8 +687,11 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.StateTimestamp = DateTime.Now;
                     if (instance.Plugin != null)
                     {
-                        instance.Plugin.StopApplication();
-                        WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
+                        try
+                        {
+                            instance.Plugin.StopApplication();
+                        }
+                        catch { }
                     }
                 }
 
@@ -802,25 +805,34 @@ namespace Uhuru.CloudFoundry.DEA
                 appVariables = new ApplicationVariable[AppEnv.Count];
                 for (int i = 0; i < AppEnv.Count; i++)
                 {
-                    string[] envVar = AppEnv[i].Split('=');
-
-                    appVariables[i] = new ApplicationVariable();
-                    appVariables[i].Name = envVar[0];
-                    appVariables[i].Value = envVar[1];
-                }
-
-                appVariables = new ApplicationVariable[pmessage.Environment.Length];
-
-                for (int i = 0; i < pmessage.Environment.Length; i++)
-                {
                     string[] envVar = AppEnv[i].Split(new char[]{'='}, 2);
+
                     appVariables[i] = new ApplicationVariable();
                     appVariables[i].Name = envVar[0];
                     appVariables[i].Value = envVar[1];
                 }
 
-                //todo: poulate application services
-                appServices = new ApplicationService[0];
+                
+                appServices = new ApplicationService[pmessage.Services.Length];
+                for(int i = 0; i < pmessage.Services.Length; i++)
+                {
+                    Dictionary<string, object> service = pmessage.Services[i];
+                    ApplicationService appService = appServices[i] = new ApplicationService();
+
+                    //todo: verifi if the association is right
+                    appService.Name = service.ContainsKey("name") ? JsonConvertibleObject.ObjectToValue<string>(service["name"]) : null;
+                    appService.ServiceName = service.ContainsKey("label") ? JsonConvertibleObject.ObjectToValue<string>(service["label"]) : null;
+                    appService.Plan = service.ContainsKey("plan") ? JsonConvertibleObject.ObjectToValue<string>(service["plan"]) : null;
+                    appService.PlanOptions = service.ContainsKey("plan_option") ? JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(service["plan_option"]) : null;
+                    
+                    string[] credentials = service.ContainsKey("credentials") ? JsonConvertibleObject.ObjectToValue<string[]>(service["credentials"]) : null;
+                    appService.User = credentials[0];
+                    appService.Password = credentials[1];
+
+                    //appService. = service.ContainsKey("tags") ? JsonConvertibleObject.ObjectToValue<string>(service["tags"]) : null;
+                }
+
+
 
                 AgentMonitoring.AddInstanceResources(instance);
             }
@@ -957,7 +969,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 instance.Lock.EnterWriteLock();
                                 if (detected)
                                 {
-                                    if (instance.Properties.State != DropletInstanceState.Starting)
+                                    if (instance.Properties.State == DropletInstanceState.Starting)
                                     {
                                         Logger.Info(Strings.InstanceIsReadyForConnections, instance.Properties.LoggingId);
                                         instance.Properties.State = DropletInstanceState.Running;
@@ -1118,17 +1130,12 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // User's environment settings
-            // Make sure user's env variables are in double quotes.
             if (app_env != null)
             {
                 foreach (string appEnv in app_env)
                 {
-                    string[] pieces = appEnv.Split(new char[] { '=' }, 2);
-                    if (!pieces[1].StartsWith("'", StringComparison.OrdinalIgnoreCase))
-                    {
-                        pieces[1] = String.Format(CultureInfo.InvariantCulture, "\"{0}\"", pieces[1]);
-                    }
-                    env.Add(String.Format(CultureInfo.InvariantCulture, "{0}={1}", pieces[0], pieces[1]));
+                    //string[] envVar = appEnv.Split(new char[] { '=' }, 2);
+                    env.Add(appEnv);
                 }
             }
 
@@ -1351,7 +1358,11 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-                    instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
+                    try
+                    {
+                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
+                    }
+                    catch { }
 
                     if (instance.Properties.ProcessId != 0 && pidInfo.ContainsKey(instance.Properties.ProcessId))
                     {
@@ -1523,12 +1534,13 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                 instance.Plugin = null;
+                                WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
                             }
                             catch { }
                         }
 
                         if (DisableDirCleanup) instance.Properties.Directory = null;
-                        if (instance.Properties.Directory != null)
+                        if (instance.Properties.Directory != null && instance.Plugin == null)
                         {
                             try
                             {
