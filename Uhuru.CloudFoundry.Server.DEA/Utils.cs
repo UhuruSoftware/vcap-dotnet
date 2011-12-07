@@ -20,15 +20,22 @@ namespace Uhuru.CloudFoundry.DEA
     using SevenZip;
 
     public delegate void StreamWriterCallback(StreamWriter stream);
-    public delegate void ProcessDoneCallback(string output, int statuscode);
+    public delegate void ProcessDoneCallback(string output, int statusCode);
 
     /// <summary>
     /// A class containing a set of file- and process-related methods. 
     /// </summary>
-    public class Utils
+    public sealed class Utils
     {
         private static readonly object zLibLock = new object();
         private static bool zLibInitalized = false;
+
+        /// <summary>
+        /// Private constructor, to supress the need of the compiler to auto-create a public one.
+        /// </summary>
+        private Utils()
+        { 
+        }
 
         /// <summary>
         /// Compresses a file using the .zip format.
@@ -64,29 +71,11 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         /// <param name="command"> The command to execute. </param>
         /// <param name="arguments"> The arguments of the command. </param>
-        /// <param name="outputIncludesErrors"> A value indicated whether the errors are to be included in output or not. </param>
         /// <returns>The output of the executed command.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
-        public static string RunCommandAndGetOutput(string command, string arguments, bool outputIncludesErrors = false)
+        public static string RunCommandAndGetOutput(string command, string arguments)
         {
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = command;
-            start.Arguments = arguments;
-            start.UseShellExecute = false;
-            start.CreateNoWindow = true;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError = true;
-            using (Process process = Process.Start(start))
-            {
-                string result = process.StandardOutput.ReadToEnd();
-
-                if (outputIncludesErrors)
-                {
-                    result += process.StandardError.ReadToEnd();
-                }
-
-                return result;
-            }
+            return RunCommandAndGetOutput(command, arguments, false);
         }
 
         /// <summary>
@@ -177,11 +166,45 @@ namespace Uhuru.CloudFoundry.DEA
             return Environment.ProcessorCount;
         }
         
+        /// <summary>
+        /// Tries to write a file to a directory to make sure writing is allowed.
+        /// </summary>
+        /// <param name="directory"> The directory to write in.</param>
         public static void EnsureWritableDirectory(string directory)
         {
             string testFile = Path.Combine(directory, String.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaSentinel, Process.GetCurrentProcess().Id));
             File.WriteAllText(testFile, "");
             File.Delete(testFile);
+        }
+
+        /// <summary>
+        /// Starts up a new process and executes a command.
+        /// </summary>
+        /// <param name="command"> The command to execute. </param>
+        /// <param name="arguments"> The arguments of the command. </param>
+        /// <param name="outputIncludesErrors"> A value indicated whether the errors are to be included in output or not. </param>
+        /// <returns>The output of the executed command.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
+        private static string RunCommandAndGetOutput(string command, string arguments, bool outputIncludesErrors)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = command;
+            start.Arguments = arguments;
+            start.UseShellExecute = false;
+            start.CreateNoWindow = true;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            using (Process process = Process.Start(start))
+            {
+                string result = process.StandardOutput.ReadToEnd();
+
+                if (outputIncludesErrors)
+                {
+                    result += process.StandardError.ReadToEnd();
+                }
+
+                return result;
+            }
         }
 
         private static void SetupZlib()
