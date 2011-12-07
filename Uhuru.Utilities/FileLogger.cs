@@ -13,10 +13,14 @@ namespace Uhuru.Utilities
     /// <summary>
     /// This is a helper logger class that writes to a file.
     /// </summary>
-    public class FileLogger
+    public class FileLogger //TODO: vladi: make this use log4net
     {
         private string fileName;
 
+        /// <summary>
+        /// Public constructor.
+        /// </summary>
+        /// <param name="fileName">The file in which log events will be written.</param>
         public FileLogger(string fileName)
         {
             this.fileName = fileName;
