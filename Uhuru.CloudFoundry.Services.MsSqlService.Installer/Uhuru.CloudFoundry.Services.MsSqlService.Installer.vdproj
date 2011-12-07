@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1580572FBC004A4DB32C66FD64E308A5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1C198C7A79E56021A1377BFB382B052F"
         "OwnerKey" = "8:_8E5DCFD6EC2966D35661BCD9FEFD4956"
         "MsmSig" = "8:_UNDEFINED"
@@ -87,6 +93,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D785B89153E848F689B61F758E11BB9A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E9B2BD78D4384355238D86814EF33C65"
         "OwnerKey" = "8:_65AE2CADB42F43309186D277733ABBDF"
         "MsmSig" = "8:_UNDEFINED"
@@ -101,18 +113,6 @@
         {
         "MsmKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
         "OwnerKey" = "8:_09CC6BF1747B94741E9717D02536381A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_576AA5C8643F35355BC1440F9354317D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -151,6 +151,18 @@
         "OwnerKey" = "8:_09CC6BF1747B94741E9717D02536381A"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F32E097F6656B05090CC5CB73A5F7F3A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_576AA5C8643F35355BC1440F9354317D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -159,7 +171,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.MsSqlService.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\MSSqlNode.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -196,7 +208,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.MsSqlService.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\MSSqlNode.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -343,6 +355,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1580572FBC004A4DB32C66FD64E308A5"
+            {
+            "SourcePath" = "8:..\\readme.md"
+            "TargetName" = "8:readme.md"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1C198C7A79E56021A1377BFB382B052F"
             {
             "AssemblyRegister" = "3:1"
@@ -467,6 +499,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D785B89153E848F689B61F758E11BB9A"
+            {
+            "SourcePath" = "8:..\\license.txt"
+            "TargetName" = "8:license.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E9B2BD78D4384355238D86814EF33C65"
             {
             "AssemblyRegister" = "3:1"
@@ -559,7 +611,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_9923411E2E364AA1BE699C9EACDDB81F"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -584,9 +636,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:MssqlNode"
+        "ProductName" = "8:MSSqlNode"
         "ProductCode" = "8:{D5D20AC8-7139-4578-AD0F-779C6B301138}"
-        "PackageCode" = "8:{CDFD685E-8A97-4A47-87A3-9B044D78CA5E}"
+        "PackageCode" = "8:{E2A14F09-0488-4742-8104-671D03731479}"
         "UpgradeCode" = "8:{FAD694E9-85A4-4C98-A70F-E6612138330B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -594,12 +646,12 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.2"
-        "Manufacturer" = "8:Uhuru"
+        "Manufacturer" = "8:Uhuru Software"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:MssqlNode"
+        "Title" = "8:Uhuru MSSqlNode"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Uhuru"
+        "ARPCONTACT" = "8:Uhuru Software"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
@@ -607,7 +659,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -938,7 +990,7 @@
                 {
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_018BAFCE286946ABA68FBB28A1799CA6"
                     {
-                    "Sequence" = "3:300"
+                    "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1008,7 +1060,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_4CBBA5732A1F4A08A9ADAD05B351C3B5"
                     {
-                    "Sequence" = "3:200"
+                    "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1037,6 +1089,53 @@
                             "Setting" = "3:0"
                             "Value" = "3:1"
                             "DefaultValue" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_C9EE464F6CE94EBA992DDA0E904DBEBC"
+                    {
+                    "Sequence" = "3:200"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_D785B89153E848F689B61F758E11BB9A"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -1191,7 +1290,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_65AE2CADB42F43309186D277733ABBDF"
             {
-            "SourcePath" = "8:..\\Uhuru.CloudFoundry.MsSqlService.WindowsService\\obj\\x86\\Debug\\Uhuru.CloudFoundry.MSSqlService.WindowsService.exe"
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.MsSqlService.WindowsService\\obj\\x86\\Release\\Uhuru.CloudFoundry.MSSqlService.WindowsService.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_9923411E2E364AA1BE699C9EACDDB81F"
