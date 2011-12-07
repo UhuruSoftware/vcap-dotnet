@@ -106,6 +106,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
+                    if (serverMgr.Sites[appName] == null)
+                    {
+                        return 0;
+                    }
                     string appPoolName = serverMgr.Sites[appName].Applications["/"].ApplicationPoolName;
                     
                     foreach (WorkerProcess process in serverMgr.WorkerProcesses)
