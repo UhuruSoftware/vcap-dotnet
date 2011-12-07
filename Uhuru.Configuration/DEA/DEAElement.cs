@@ -13,105 +13,6 @@ namespace Uhuru.Configuration.DEA
     /// </summary>
     public class DEAElement : ConfigurationElement
     {
-        #region Constructors
-        
-        static DEAElement()
-        {
-            propertyBaseDir = new ConfigurationProperty(
-                "baseDir",
-                typeof(string),
-                null,
-                ConfigurationPropertyOptions.IsRequired
-            );
-
-            propertyLocalRoute = new ConfigurationProperty(
-                "localRoute",
-                typeof(string),
-                null
-            );
-
-            propertyFilerPort = new ConfigurationProperty(
-                "filerPort",
-                typeof(int),
-                12345,
-                ConfigurationPropertyOptions.IsRequired
-            );
-
-            propertyHeartBeatInterval = new ConfigurationProperty(
-                "heartBeatInterval",
-                typeof(int),
-                10000
-            );
-
-            propertyMessageBus = new ConfigurationProperty(
-                "messageBus",
-                typeof(string),
-                null,
-                ConfigurationPropertyOptions.IsRequired
-            );
-
-            propertyMultiTenant = new ConfigurationProperty(
-                "multiTenant",
-                typeof(bool),
-                true
-            );
-
-            propertyMaxMemory = new ConfigurationProperty(
-                "maxMemory",
-                typeof(int),
-                2048,
-                ConfigurationPropertyOptions.IsRequired
-            );
-
-            propertySecure = new ConfigurationProperty(
-                "secure",
-                typeof(bool),
-                true
-            );
-
-            propertyEnforceUlimit = new ConfigurationProperty(
-                "enforceUlimit",
-                typeof(bool),
-                true
-            );
-
-            propertyDisableDirCleanup = new ConfigurationProperty(
-                "disableDirCleanup",
-                typeof(bool),
-                false
-            );
-
-            
-            propertyForceHttpSharing = new ConfigurationProperty(
-                "forceHttpSharing",
-                typeof(bool),
-                false
-            );
-
-            propertyRuntimes = new ConfigurationProperty(
-             "runtimes",
-             typeof(RuntimeCollection),
-             new RuntimeCollection()
-            );
-
-            properties = new ConfigurationPropertyCollection();
-
-            properties.Add(propertyBaseDir);
-            properties.Add(propertyLocalRoute);
-            properties.Add(propertyFilerPort);
-            properties.Add(propertyHeartBeatInterval);
-            properties.Add(propertyDisableDirCleanup);
-            properties.Add(propertyMessageBus);
-            properties.Add(propertyMultiTenant);
-            properties.Add(propertyMaxMemory);
-            properties.Add(propertySecure);
-            properties.Add(propertyEnforceUlimit);
-            properties.Add(propertyForceHttpSharing);
-            properties.Add(propertyRuntimes);
-        }
-        
-        #endregion
-
         #region Static Fields
 
         private static ConfigurationProperty propertyBaseDir;
@@ -130,9 +31,97 @@ namespace Uhuru.Configuration.DEA
         private static ConfigurationPropertyCollection properties;
         #endregion
 
+        #region Constructors
+
+        /// <summary>
+        /// Initializes the static members of the DEAElement class.
+        /// </summary>
+        static DEAElement()
+        {
+            propertyBaseDir = new ConfigurationProperty(
+                "baseDir",
+                typeof(string),
+                null,
+                ConfigurationPropertyOptions.IsRequired);
+
+            propertyLocalRoute = new ConfigurationProperty(
+                "localRoute",
+                typeof(string),
+                null);
+
+            propertyFilerPort = new ConfigurationProperty(
+                "filerPort",
+                typeof(int),
+                12345,
+                ConfigurationPropertyOptions.IsRequired);
+
+            propertyHeartBeatInterval = new ConfigurationProperty(
+                "heartBeatInterval",
+                typeof(int),
+                10000);
+
+            propertyMessageBus = new ConfigurationProperty(
+                "messageBus",
+                typeof(string),
+                null,
+                ConfigurationPropertyOptions.IsRequired);
+
+            propertyMultiTenant = new ConfigurationProperty(
+                "multiTenant",
+                typeof(bool),
+                true);
+
+            propertyMaxMemory = new ConfigurationProperty(
+                "maxMemory",
+                typeof(int),
+                2048,
+                ConfigurationPropertyOptions.IsRequired);
+
+            propertySecure = new ConfigurationProperty(
+                "secure",
+                typeof(bool),
+                true);
+
+            propertyEnforceUlimit = new ConfigurationProperty(
+                "enforceUlimit",
+                typeof(bool),
+                true);
+
+            propertyDisableDirCleanup = new ConfigurationProperty(
+                "disableDirCleanup",
+                typeof(bool),
+                false);
+
+            propertyForceHttpSharing = new ConfigurationProperty(
+                "forceHttpSharing",
+                typeof(bool),
+                false);
+
+            propertyRuntimes = new ConfigurationProperty(
+             "runtimes",
+             typeof(RuntimeCollection),
+             new RuntimeCollection());
+
+            properties = new ConfigurationPropertyCollection();
+
+            properties.Add(propertyBaseDir);
+            properties.Add(propertyLocalRoute);
+            properties.Add(propertyFilerPort);
+            properties.Add(propertyHeartBeatInterval);
+            properties.Add(propertyDisableDirCleanup);
+            properties.Add(propertyMessageBus);
+            properties.Add(propertyMultiTenant);
+            properties.Add(propertyMaxMemory);
+            properties.Add(propertySecure);
+            properties.Add(propertyEnforceUlimit);
+            properties.Add(propertyForceHttpSharing);
+            properties.Add(propertyRuntimes);
+        }
+
+        #endregion
+
         #region Properties
-
-
+        
         /// <summary>
         /// Gets or sets the base directory where all applications are staged and hosted
         /// </summary>
@@ -223,7 +212,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets or sets whether more than one application is allowed to run per DEA.
+        /// Gets or sets a value indicating whether more than one application is allowed to run per DEA.
         /// </summary>
         [ConfigurationProperty("multiTenant", IsRequired = false, DefaultValue = true)]
         public bool MultiTenant
