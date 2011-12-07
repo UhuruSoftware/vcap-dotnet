@@ -8,12 +8,16 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.DirectoryServices;
+    using System.Collections.Generic;
     
     /// <summary>
     /// This is a helper class for creating Windows Users.
     /// </summary>
     public static class WindowsVcapUsers
     {
+
+        private const string UserDecoration = "UhuruVcap_";
+
         /// <summary>
         /// Creates a user based on an id. The created user has a prefix added to it.
         /// </summary>
@@ -55,6 +59,30 @@ namespace Uhuru.Utilities
             }
         }
 
+        public static string[] GetVcapUsers()
+        {
+            List<string> result = new List<string>();
+
+            using (DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
+            {
+                DirectoryEntries users = localDirectory.Children;
+                
+                foreach (DirectoryEntry user in users)
+                {
+                    if (user.SchemaClassName == "User")
+                    {
+                        if(user.Name.Contains(UserDecoration))
+                        {
+                            result.Add(user.Name);
+                        }
+                    }
+                }
+
+            }
+
+            return result.ToArray();
+        }
+
         /// <summary>
         /// Returns a string that is unique for a given user.
         /// </summary>
@@ -62,7 +90,7 @@ namespace Uhuru.Utilities
         /// <returns> The unique string.</returns>
         private static string DecorateUser(string id)
         {
-            return "UhuruVcap_" + id.Substring(0, Math.Min(10, id.Length));
+            return UserDecoration + id.Substring(0, Math.Min(10, id.Length));
         }
     }
 }

@@ -147,7 +147,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="path">The path.</param>
         public void CleanupApplication(string path)
         {
-            cleanup(appPath);
+            cleanup(path);
         }
 
 
