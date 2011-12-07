@@ -87,6 +87,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_804B30354BBA4108B2372ED0013E6FF4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_94244065DEEC22090D719B43858C08D2"
         "OwnerKey" = "8:_40EBCEB891CBFEA88823795C4239861E"
         "MsmSig" = "8:_UNDEFINED"
@@ -117,8 +123,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_070433C379C24EBDBA332B21F1395A87"
+        "MsmKey" = "8:_F8B6EC68C0BE4C4BA8D8AA61CFA4B522"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -169,6 +175,12 @@
         "OwnerKey" = "8:_67969ECC8089138762C1B867BADA6C8A"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_070433C379C24EBDBA332B21F1395A87"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -177,7 +189,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.DEA.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\WindowsDEA.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -214,7 +226,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\Uhuru.CloudFoundry.Services.DEA.Installer.msi"
+        "OutputFilename" = "8:..\\..\\bin-vcap-dotnet\\Installers\\WindowsDEA.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -516,6 +528,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_804B30354BBA4108B2372ED0013E6FF4"
+            {
+            "SourcePath" = "8:..\\license.txt"
+            "TargetName" = "8:license.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_94244065DEEC22090D719B43858C08D2"
             {
             "AssemblyRegister" = "3:1"
@@ -578,6 +610,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8B6EC68C0BE4C4BA8D8AA61CFA4B522"
+            {
+            "SourcePath" = "8:..\\readme.md"
+            "TargetName" = "8:readme.md"
+            "Tag" = "8:"
+            "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -597,7 +649,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -633,9 +685,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:WinDEA"
+        "ProductName" = "8:WindowsDEA"
         "ProductCode" = "8:{41087919-07EE-4D2E-878B-C109C5A851DE}"
-        "PackageCode" = "8:{AB25B9ED-9B77-41E1-A333-23D4231D835F}"
+        "PackageCode" = "8:{9B1584A8-7BD1-4324-B9DB-F0E47D710A6E}"
         "UpgradeCode" = "8:{DFA37B02-D244-4B65-AF96-B3926D995F3C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -643,12 +695,12 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:Uhuru"
+        "Manufacturer" = "8:Uhuru Software"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:WinDEA"
+        "Title" = "8:Uhuru Windows DEA"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Microsoft"
+        "ARPCONTACT" = "8:Uhuru Software"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
@@ -656,7 +708,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -929,6 +981,53 @@
                             }
                         }
                     }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_9C5534C9A9294D69A83D2979217246EE"
+                    {
+                    "Sequence" = "3:110"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:1"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_804B30354BBA4108B2372ED0013E6FF4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_F7E0CD7D4979462FB570123CF7154EC2"
                     {
                     "Sequence" = "3:200"
@@ -1156,7 +1255,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_03A6DC9AE1D0458997959C04B6CD40E1"
             {
-            "SourcePath" = "8:..\\Uhuru.CloudFoundry.Services.DEA\\obj\\Debug\\Uhuru.CloudFoundry.DEA.WindowsService.exe"
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.Services.DEA\\obj\\Release\\Uhuru.CloudFoundry.DEA.WindowsService.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
