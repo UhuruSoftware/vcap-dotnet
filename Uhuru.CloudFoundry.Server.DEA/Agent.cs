@@ -675,6 +675,10 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Properties.StopProcessed = true;
 
             }
+            catch (Exception ex)
+            {
+                Logger.Error("Error stoping droplet: {0}, instance: {1}, exception:", instance.Properties.DropletId, instance.Properties.InstanceId, ex.ToString());
+            }
             finally
             {
                 instance.Lock.ExitWriteLock();
@@ -784,6 +788,16 @@ namespace Uhuru.CloudFoundry.DEA
                     appVariables[i].Value = envVar[1];
                 }
 
+                appVariables = new ApplicationVariable[pmessage.Environment.Length];
+
+                for (int i = 0; i < pmessage.Environment.Length; i++)
+                {
+                    string[] envVar = AppEnv[i].Split(new char[]{'='}, 2);
+                    appVariables[i] = new ApplicationVariable();
+                    appVariables[i].Name = envVar[0];
+                    appVariables[i].Value = envVar[1];
+                }
+
                 //todo: poulate application services
                 appServices = new ApplicationService[0];
 
@@ -847,7 +861,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
 
-                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs"));
+                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs", "startup.log"));
                 
                 instance.Plugin.StartApplication();
                 

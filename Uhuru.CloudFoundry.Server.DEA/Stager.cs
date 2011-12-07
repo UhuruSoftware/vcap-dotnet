@@ -219,11 +219,13 @@ namespace Uhuru.CloudFoundry.DEA
                 Utils.UnzipFile(InstanceDir, Path.Combine(InstanceDir, tarFileName)); //Untar
                 File.Delete(Path.Combine(InstanceDir, tarFileName));
 
+                //consider: maby not needed because of the new plugin system
                 BindLocalRuntimes(InstanceDir, instance.Properties.Runtime);
 
                 Logger.Debug(Strings.TookXSecondsToStageTheApp, DateTime.Now - startStageing);
             }
         }
+
 
         private void BindLocalRuntimes(string instanceDir, string runtime)
         {

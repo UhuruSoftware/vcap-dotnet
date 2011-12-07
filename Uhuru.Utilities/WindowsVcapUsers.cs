@@ -14,6 +14,11 @@ namespace Uhuru.Utilities
     /// </summary>
     public static class WindowsVcapUsers
     {
+        private static string DecorateUser(string id)
+        {
+            return "UhuruVcap_" + id.Substring(0, Math.Min(10, id.Length)); 
+        }
+
         /// <summary>
         /// Creates a user based on an id. The created user has a prefix added to it.
         /// </summary>
@@ -53,11 +58,6 @@ namespace Uhuru.Utilities
                 DirectoryEntry user = users.Find(decoratedUsername);
                 users.Remove(user);
             }
-        }
-
-        private static string DecorateUser(string id)
-        {
-            return "UhuruVc4p" + id.Substring(0, Math.Min(10, id.Length));
         }
     }
 }
