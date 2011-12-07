@@ -34,7 +34,7 @@ namespace Uhuru.Configuration.DEA
         #region Constructors
 
         /// <summary>
-        /// Initializes the static members of the DEAElement class.
+        /// Initializes static members of the DEAElement class.
         /// </summary>
         static DEAElement()
         {
@@ -125,7 +125,7 @@ namespace Uhuru.Configuration.DEA
         /// <summary>
         /// Gets or sets the base directory where all applications are staged and hosted
         /// </summary>
-        [ConfigurationProperty("baseDir", IsRequired=true, DefaultValue = null)]
+        [ConfigurationProperty("baseDir", IsRequired = true, DefaultValue = null)]
         public string BaseDir
         {
             get
