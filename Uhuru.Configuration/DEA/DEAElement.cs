@@ -323,7 +323,15 @@ namespace Uhuru.Configuration.DEA
                 return (RuntimeCollection)base[propertyRuntimes];
             }
         }
-        
+
+        /// <summary>
+        /// Overrides the Properties collection and returns our custom one.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
+        }
+
         #endregion
 
         #region Overrides
@@ -337,14 +345,6 @@ namespace Uhuru.Configuration.DEA
         public override bool IsReadOnly()
         {
             return false;
-        }
-        
-        /// <summary>
-        /// Overrides the Properties collection and returns our custom one.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
         }
 
         #endregion
