@@ -100,111 +100,126 @@ namespace CloudFoundry.Net.Test.Unit
         [TestMethod()]
         public void MultipleApps()
         {
-            List<ApplicationInfo> appInfos = new List<ApplicationInfo>();
-            List<IISPlugin> plugins = new List<IISPlugin>();
-            List<Thread> threadsStart = new List<Thread>();
-            List<Thread> threadsStop = new List<Thread>();
+            string password = "~!@213abc";
 
-            for (int i = 0; i < 20; i++)
+            try
             {
-                ApplicationInfo appInfo = new ApplicationInfo();
-                appInfo.InstanceId = Guid.NewGuid().ToString();
-                appInfo.LocalIp = "192.168.1.4";
-                appInfo.Name = "MyTestApp";
-                appInfo.Path = Helper.CopyFolderToTemp(@"F:\Code\vcap-dotnet\TestApps\CloudTestApp");
-                appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-                appInfo.WindowsUsername = "cfuser";
-                appInfo.WindowsPassword = "Password1234!";
-                appInfos.Add(appInfo);
-                plugins.Add(new IISPlugin());
+                // paranoid cleanup
+                Uhuru.Utilities.WindowsVcapUsers.DeleteUser("testuser");
             }
+            catch { }
 
+            string username = Uhuru.Utilities.WindowsVcapUsers.CreateUser("testuser", password);
 
-            for (int i = 0; i < 20; i++)
+            try
             {
-                threadsStart.Add(new Thread(new ParameterizedThreadStart(delegate(object data)
+                List<ApplicationInfo> appInfos = new List<ApplicationInfo>();
+                List<IISPlugin> plugins = new List<IISPlugin>();
+                List<Thread> threadsStart = new List<Thread>();
+                List<Thread> threadsStop = new List<Thread>();
+
+                for (int i = 0; i < 20; i++)
+                {
+                    ApplicationInfo appInfo = new ApplicationInfo();
+                    appInfo.InstanceId = Guid.NewGuid().ToString();
+                    appInfo.LocalIp = "192.168.1.4";
+                    appInfo.Name = "MyTestApp";
+                    appInfo.Path = Helper.CopyFolderToTemp(@"F:\Code\vcap-dotnet\TestApps\CloudTestApp");
+                    appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+                    appInfo.WindowsUsername = username;
+                    appInfo.WindowsPassword = password;
+                    appInfos.Add(appInfo);
+                    plugins.Add(new IISPlugin());
+                }
+
+
+                for (int i = 0; i < 20; i++)
+                {
+                    threadsStart.Add(new Thread(new ParameterizedThreadStart(delegate(object data)
+                        {
+                            try
+                            {
+                                IISPlugin target = plugins[(int)data];
+                                Runtime runtime = new Runtime();
+                                runtime.Name = "iis";
+                                ApplicationVariable[] variables = null;
+                                ApplicationService[] services = null;
+                                string logFilePath = @"F:\Code\vcap-dotnet\TestApps\cloudtestapp.log";
+
+                                target.ConfigureApplication(appInfos[(int)data], runtime, variables, services, logFilePath);
+                                target.StartApplication();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Fatal(ex.ToString());
+                            }
+                        })));
+                }
+
+                for (int i = 0; i < threadsStart.Count; i++)
+                {
+                    Thread thread = threadsStart[i];
+                    thread.Start(i);
+                }
+
+                foreach (Thread thread in threadsStart)
+                {
+                    thread.Join();
+                }
+
+
+                foreach (ApplicationInfo appInfo in appInfos)
+                {
+                    WebClient client = new WebClient();
+                    string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                    Assert.IsTrue(html.Contains("My ASP.NET Application"));
+                }
+
+
+                for (int i = 0; i < 20; i++)
+                {
+                    threadsStop.Add(new Thread(new ParameterizedThreadStart(delegate(object data)
                     {
                         try
                         {
                             IISPlugin target = plugins[(int)data];
-                            Runtime runtime = new Runtime();
-                            runtime.Name = "iis";
-                            ApplicationVariable[] variables = null;
-                            ApplicationService[] services = null;
-                            string logFilePath = @"F:\Code\vcap-dotnet\TestApps\cloudtestapp.log";
-
-                            target.ConfigureApplication(appInfos[(int)data], runtime, variables, services, logFilePath);
-                            target.StartApplication();
-
-                            Thread.Sleep(5000);
+                            target.StopApplication();
                         }
                         catch (Exception ex)
                         {
                             Logger.Fatal(ex.ToString());
                         }
                     })));
-            }
-
-            for (int i = 0; i < threadsStart.Count; i++)
-            {
-                Thread thread = threadsStart[i];
-                thread.Start(i);
-            }
-
-            foreach (Thread thread in threadsStart)
-            {
-                thread.Join();
-            }
+                }
 
 
-            foreach (ApplicationInfo appInfo in appInfos)
-            {
-                WebClient client = new WebClient();
-                string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-                Assert.IsTrue(html.Contains("My ASP.NET Application"));
-            }
+                for (int i = 0; i < threadsStop.Count; i++)
+                {
+                    Thread thread = threadsStop[i];
+                    thread.Start(i);
+                }
 
+                foreach (Thread thread in threadsStop)
+                {
+                    thread.Join();
+                }
 
-            for (int i = 0; i < 20; i++)
-            {
-                threadsStop.Add(new Thread(new ParameterizedThreadStart(delegate(object data)
+                foreach (ApplicationInfo appInfo in appInfos)
                 {
                     try
                     {
-                        IISPlugin target = plugins[(int)data];
-                        target.StopApplication();
-                        Thread.Sleep(5000);
+                        WebClient client = new WebClient();
+                        string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                        Assert.Fail();
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        Logger.Fatal(ex.ToString());
                     }
-                })));
-            }
-
-
-            for (int i = 0; i < threadsStop.Count; i++)
-            {
-                Thread thread = threadsStop[i];
-                thread.Start(i);
-            }
-
-            foreach (Thread thread in threadsStop)
-            {
-                thread.Join();
-            }
-
-            foreach (ApplicationInfo appInfo in appInfos)
-            {
-                try
-                {
-                    WebClient client = new WebClient();
-                    string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-                    Assert.Fail();
                 }
-                catch
-                {
-                }
+            }
+            finally
+            {
+                Uhuru.Utilities.WindowsVcapUsers.DeleteUser("testuser");
             }
         }
     
@@ -249,8 +264,6 @@ namespace CloudFoundry.Net.Test.Unit
                 target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
                 target.StartApplication();
 
-                Thread.Sleep(5000);
-
                 WebClient client = new WebClient();
                 string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
                 Assert.IsTrue(html.Contains("Welcome to ASP.NET!"));
@@ -273,6 +286,61 @@ namespace CloudFoundry.Net.Test.Unit
             }
         }
 
-      
+
+        /// <summary>
+        ///A test for StartApplication
+        ///</summary>
+        [TestMethod()]
+        public void GetProcessIdTest()
+        {
+            string password = "~!@213abc";
+
+            try
+            {
+                // paranoid cleanup
+                Uhuru.Utilities.WindowsVcapUsers.DeleteUser("testuser");
+            }
+            catch { }
+
+            string username = Uhuru.Utilities.WindowsVcapUsers.CreateUser("testuser", password);
+
+            try
+            {
+                IISPlugin target = new IISPlugin();
+                ApplicationInfo appInfo = new ApplicationInfo();
+                appInfo.InstanceId = Guid.NewGuid().ToString();
+                appInfo.LocalIp = "192.168.1.4";
+                appInfo.Name = "MyTestApp";
+                appInfo.Path = @"F:\Code\vcap-dotnet\TestApps\CloudTestApp";
+                appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+                appInfo.WindowsUsername = username;
+                appInfo.WindowsPassword = password;
+
+                Runtime runtime = new Runtime();
+                runtime.Name = "iis";
+
+                ApplicationVariable[] variables = null;
+                ApplicationService[] services = null;
+
+                string logFilePath = @"F:\Code\vcap-dotnet\TestApps\cloudtestapp.log";
+
+                target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
+                target.StartApplication();
+
+                WebClient client = new WebClient();
+                string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                Assert.IsTrue(html.Contains("Welcome to ASP.NET!"));
+
+                Assert.AreNotEqual(0, target.GetApplicationProcessID());
+
+                target.StopApplication();
+                Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            }
+            finally
+            {
+                Uhuru.Utilities.WindowsVcapUsers.DeleteUser("testuser");
+            }
+        }
     }
 }

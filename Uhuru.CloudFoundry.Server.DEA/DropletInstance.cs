@@ -6,11 +6,11 @@
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Uhuru.Utilities.ProcessPerformance;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+	using System;
+	using System.Collections.Generic;
+	using System.Threading;
+	using Uhuru.Utilities.ProcessPerformance;
+	using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 	using System.Net.Sockets;
     using System.IO;
 	
@@ -96,6 +96,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
         
+		/// <summary>
+		/// Returns the heartbeat info of the current droplet instance.
+		/// </summary>
+		/// <returns>The requested heartbeat info.</returns>
         public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
         {
             HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
@@ -154,6 +158,10 @@ namespace Uhuru.CloudFoundry.DEA
 
         }
 
+		/// <summary>
+		/// Generates a status message reflecting the properties of the current droplet instance.
+		/// </summary>
+		/// <returns>The generated status message.</returns>
         public DropletStatusMessageResponse GenerateDropletStatusMessage()
         {
             DropletStatusMessageResponse response = new DropletStatusMessageResponse();
@@ -181,9 +189,18 @@ namespace Uhuru.CloudFoundry.DEA
             return response;
         }
 
+		/// <summary>
+		/// Updates an ApplicationInfo object with the information of the current droplet instance.
+		/// </summary>
+		/// <param name="appInfo">The object whose info is to be updated (if this is null a new ApplicationInfo object will be used instead).</param>
+		/// <returns>The updated ApplicationInfo object.</returns>
         public ApplicationInfo PopulateApplicationInfo(ApplicationInfo appInfo)
         {
-            if(appInfo == null) appInfo = new ApplicationInfo();
+			if (appInfo == null)
+			{
+				appInfo = new ApplicationInfo();
+			}
+
             appInfo.InstanceId = Properties.InstanceId;
             appInfo.Name = Properties.Name;
             appInfo.Path = Properties.Directory;

@@ -30,12 +30,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return droplets;
+                return this.droplets;
             }
 
             set
             {
-                droplets = value;
+                this.droplets = value;
             }
         }
 
@@ -43,12 +43,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return readerWriterLock;
+                return this.readerWriterLock;
             }
 
             set
             {
-                readerWriterLock = value;
+                this.readerWriterLock = value;
             }
         }
 
