@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Utilities.ProcessPerformance;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 	using System.Net.Sockets;
+    using System.IO;
 	
     public class DropletInstance
     {
@@ -192,7 +193,27 @@ namespace Uhuru.CloudFoundry.DEA
             return appInfo;
         }
 
-        
+
+        public void LoadPlugin()
+        {
+            // in startup, we have the classname and assembly to load as a plugin
+            string[] startMetadata = File.ReadAllLines(Path.Combine(Properties.Directory, "startup"));
+            string assemblyName = startMetadata[0].Trim();
+            string className = startMetadata[1].Trim();
+
+            try
+            {
+                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory + assemblyName), className);
+                Plugin = PluginHost.CreateInstance(PluginId);
+            }
+            catch { }
+
+            if (Plugin == null)
+            {
+                Guid PluginId = PluginHost.LoadPlugin(assemblyName, className);
+                Plugin = PluginHost.CreateInstance(PluginId);
+            }
+        }
 
         public void GenerateDeaFindDropletResponse()
         {

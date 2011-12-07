@@ -31,8 +31,6 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public enum DropletExitReason
     {
-        [JsonName("NONE")]
-        None,
         [JsonName("DEA_EVACUATION")]
         DeaEvacuation,
         [JsonName("DEA_SHUTDOWN")]
@@ -51,44 +49,27 @@ namespace Uhuru.CloudFoundry.DEA
         private readonly object stopProcessedLock = new object();
         private bool stopProcessed;
 
-        
-        [JsonName("state")]
-        public string StateInterchangeableFormat
-        {
-            get { return State.ToString(); }
-            set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
-        }
+    
         
         /// <summary>
         /// The state of a droplet instance at a given time.
         /// </summary>
+        [JsonName("state")]
         public DropletInstanceState State
         {
             get
             {
-                lock (stateLock)
-                {
-                    return state;
-                }
+                return state;
             }
 
             set
             {
-                lock (stateLock)
-                {
-                    state = value;
-                }
+                state = value;
             }
         }
 
+
         [JsonName("exit_reason")]
-        public string ExitReasonInterchangeableFormat
-        {
-            get { return ExitReason != null ? ExitReason.ToString() : null; }
-
-            set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
-        }
-
         public DropletExitReason? ExitReason
         {
             get;

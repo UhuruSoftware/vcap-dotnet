@@ -281,6 +281,7 @@ namespace Uhuru.CloudFoundry.DEA
             string instanceId = Guid.NewGuid().ToString("N");
             
             instance.Properties.State = DropletInstanceState.Starting;
+            instance.Properties.StateTimestamp = DateTime.Now;
             instance.Properties.Start = DateTime.Now;
 
             instance.Properties.InstanceId = instanceId;

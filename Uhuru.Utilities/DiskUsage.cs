@@ -59,6 +59,7 @@ namespace Uhuru.Utilities
 
                     foreach (string file in allFiles)
                     {
+                        //todo: add exception handling
                         allObjects.Add(file, GetFileSize(file));
                     }
 
@@ -160,8 +161,16 @@ namespace Uhuru.Utilities
         /// <returns>the size of the file, in bytes</returns>
         private static long GetFileSize(string file)
         {
-            FileInfo info = new FileInfo(file);
-            return info.Length;
+            if (!File.Exists(file)) return 0;
+            try
+            {
+                FileInfo info = new FileInfo(file);
+                return info.Length;
+            }
+            catch(FileNotFoundException)
+            {
+                return 0;
+            }
         }
 
         /// <summary>

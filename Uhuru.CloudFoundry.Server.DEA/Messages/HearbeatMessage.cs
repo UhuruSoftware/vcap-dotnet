@@ -57,7 +57,7 @@ namespace Uhuru.CloudFoundry.DEA
                 set;
             }
 
-            /*[JsonName("state")]
+            /*
             public string StateInterchangeableFormat
             {
                 get { return State.ToString(); }
@@ -68,6 +68,7 @@ namespace Uhuru.CloudFoundry.DEA
             /// <summary>
             /// The state of the droplet instance.
             /// </summary>
+            [JsonName("state")]
             public DropletInstanceState State
             {
                 get;
