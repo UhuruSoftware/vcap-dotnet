@@ -823,15 +823,24 @@ namespace Uhuru.CloudFoundry.DEA
 
 
                 // in startup, we have the classname and assembly to load as a plugin
-                string[] startMetadata = File.ReadAllLines(Path.Combine(instance.Properties.Directory, "start"));
-                string assemblyName = startMetadata[0]; //read first line of file 'start'
-                string className = startMetadata[1]; //read second line of file 'start'
+                string[] startMetadata = File.ReadAllLines(Path.Combine(instance.Properties.Directory, "startup"));
+                string assemblyName = startMetadata[0].Trim();
+                string className = startMetadata[1].Trim();
 
+                try
+                {
 
-                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(instance.Properties.Directory + assemblyName), className);
-                
-                instance.Plugin = PluginHost.CreateInstance(PluginId);
-                
+                    Guid PluginId = PluginHost.LoadPlugin(Path.Combine(instance.Properties.Directory + assemblyName), className);
+                    instance.Plugin = PluginHost.CreateInstance(PluginId);
+                }
+                catch{}
+
+                if (instance.Plugin == null)
+                {
+                    Guid PluginId = PluginHost.LoadPlugin(assemblyName, className);
+                    instance.Plugin = PluginHost.CreateInstance(PluginId);
+                }
+
                 ApplicationInfo appInfo = new ApplicationInfo();
                 appInfo.LocalIp = Host;
                 instance.PopulateApplicationInfo(appInfo);
