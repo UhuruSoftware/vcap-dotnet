@@ -178,7 +178,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             string aspNetVersion = getAspDotNetVersion(version);
             string password = Guid.NewGuid().ToString();
-            string userName = createUser(appInfo.Name, password);
+            string userName = appInfo.WindowsUsername;
 
             try
             {
@@ -381,8 +381,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 mut.ReleaseMutex();
             }
-
-            cleanupUser("Uhuru_");
         }
 
 
@@ -462,7 +460,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             deploymentDirSecurity.RemoveAccessRuleAll(new FileSystemAccessRule(username, FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, AccessControlType.Allow));
                             deploymentDir.SetAccessControl(deploymentDirSecurity);
                         }
-                        deleteUser(username);
                     }
                 }
             }
@@ -624,82 +621,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return sb.ToString();
         }
 
-
-        /// <summary>
-        /// Creates a local user account under which the application is run.
-        /// </summary>
-        /// <param name="appName">Name of the application.</param>
-        /// <param name="password">The password.</param>
-        /// <returns></returns>
-        private string createUser(string appName, string password)
-        {
-            string userName = "Uhuru_" + appName.Substring(0, 3) + Guid.NewGuid().ToString().Substring(0, 10);
-            DirectoryEntry obDirEntry = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
-            DirectoryEntries entries = obDirEntry.Children;
-            DirectoryEntry obUser = entries.Add(userName, "User");
-            obUser.Properties["FullName"].Add("Uhuru " + appName + " user");
-            object obRet = obUser.Invoke("SetPassword", password);
-            obUser.CommitChanges();
-            return userName;
-        }
-
-
-        /// <summary>
-        /// Deletes the user.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        private void deleteUser(string userName)
-        {
-            DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
-            DirectoryEntries users = localDirectory.Children;
-            DirectoryEntry user = users.Find(userName);
-            users.Remove(user);
-        }
-
-
-        /// <summary>
-        /// Cleans up the user related stuff from IIS.
-        /// </summary>
-        /// <param name="prefix">The user prefix.</param>
-        private void cleanupUser(string prefix)
-        {
-            DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString());
-            DirectoryEntries users = localDirectory.Children;
-            List<string> markedForDeletion = new List<string>();
-            foreach (DirectoryEntry user in users)
-            {
-                if (user.Name.StartsWith(prefix))
-                {
-                    markedForDeletion.Add(user.Name);
-                }
-            }
-
-            using (ServerManager mgr = new ServerManager())
-            {
-                foreach (Site site in mgr.Sites)
-                {
-                    ApplicationPool currentAppPool = mgr.ApplicationPools[site.Applications["/"].ApplicationPoolName];
-                    if (currentAppPool != null)
-                    {
-                        if (currentAppPool.ProcessModel.IdentityType == ProcessModelIdentityType.SpecificUser)
-                        {
-                            string username = currentAppPool.ProcessModel.UserName;
-                            if (markedForDeletion.Contains(username))
-                            {
-                                markedForDeletion.Remove(username);
-                            }
-                        }
-                    }
-                }
-            }
-
-            foreach (string username in markedForDeletion)
-            {
-                DirectoryEntry user = users.Find(username);
-                users.Remove(user);
-            }
-        }
-        
         #endregion
     }
 }

@@ -14,6 +14,7 @@ namespace Uhuru.Utilities
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class JsonNameAttribute : Attribute
     {
         public JsonNameAttribute(string name)
