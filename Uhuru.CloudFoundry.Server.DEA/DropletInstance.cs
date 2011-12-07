@@ -107,6 +107,7 @@ namespace Uhuru.CloudFoundry.DEA
                 beat.InstanceId = Properties.InstanceId;
                 beat.InstanceIndex = Properties.InstanceIndex;
                 beat.State = Properties.State;
+                beat.StateTimestamp = Properties.StateTimestamp;
             }
             finally
             {
@@ -187,7 +188,7 @@ namespace Uhuru.CloudFoundry.DEA
             appInfo.Path = Properties.Directory;
             appInfo.Port = Properties.Port;
             appInfo.WindowsPassword = Properties.WindowsPassword;
-            appInfo.WindowsUsername = Properties.WindowsPassword;
+            appInfo.WindowsUsername = Properties.WindowsUsername;
             return appInfo;
         }
 

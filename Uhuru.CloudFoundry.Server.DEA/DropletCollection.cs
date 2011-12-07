@@ -278,7 +278,7 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Framework = message.Framework;
             instance.Properties.Runtime = message.Runtime;
             instance.Properties.LoggingId = String.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
-            instance.Properties.WindowsPassword = Credentials.GenerateCredential();
+            instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
             instance.Properties.WindowsUsername = WindowsVcapUsers.CreateUser(instanceId, instance.Properties.WindowsPassword);
 
             AddDropletInstance(instance);
