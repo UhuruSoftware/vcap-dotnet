@@ -19,6 +19,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
     using System.Configuration;
+    using System.Reflection;
+    using System.Xml;
+    using System.Xml.XPath;
 
 
     /// <summary>
@@ -56,7 +59,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             applicationInfo = appInfo;
 
-            autowireApp(appInfo, services, logFilePath);
+            autowireApp(appInfo, variables, services, logFilePath);
         }
 
         public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, int[] processIds)
@@ -231,12 +234,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="appInfo">The application info structure.</param>
         /// <param name="services">The services.</param>
         /// <param name="logFilePath">The ASP.NET events log file path.</param>
-        private void autowireApp(ApplicationInfo appInfo, ApplicationService[] services, string logFilePath)
+        private void autowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath)
         {
             string configFile = Path.Combine(appInfo.Path, "web.config");
 
             if (File.Exists(configFile))
             {
+                string configFileContents = File.ReadAllText(configFile);
+
                 if (services != null)
                 {
                     Dictionary<string, string> connections = new Dictionary<string, string>();
@@ -245,7 +250,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     {
                         string key = service.ServiceName;
                         string connectionString = String.Format(CultureInfo.InvariantCulture,
-                            "Data Source={0},{1};Initial Catalog={2},User Id={3},Password={4};",
+                            "Data Source={0},{1};Initial Catalog={2};User Id={2};Password={3};MultipleActiveResultSets=true",
                             service.Host,
                             service.Port,
                             service.Name,
@@ -255,20 +260,115 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         connections.Add(key, connectionString);
                     }
 
-                    string configFileContents = File.ReadAllText(configFile);
+
 
                     foreach (string con in connections.Keys)
                     {
                         string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
                         configFileContents = configFileContents.Replace(conToReplace, connections[con]);
                     }
-
-                  //  System.Configuration.Configuration dllConfig = ConfigurationManager.OpenExeConfiguration(
-                    
-
-                    File.WriteAllText(configFile, configFileContents);
                 }
+
+                configFileContents = setApplicationVariables(configFileContents, variables, logFilePath);
+
+                File.WriteAllText(configFile, configFileContents);
             }
+        }
+
+
+        /// <summary>
+        /// Autowires the application variables and the log file path in the web.config file.
+        /// </summary>
+        /// <param name="configFileContents">The config file contents.</param>
+        /// <param name="variables">The variables.</param>
+        /// <param name="logFilePath">The log file path.</param>
+        /// <returns></returns>
+        string setApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(configFileContents);
+
+            XmlNode appSettingsNode = doc.SelectSingleNode("configuration/appSettings");
+
+            if( appSettingsNode == null )
+            {
+                appSettingsNode = doc.CreateNode( XmlNodeType.Element, "appSettings","");
+
+                doc.SelectSingleNode("configuration").PrependChild(appSettingsNode);
+            }
+
+            bool bExists = false;
+            bool hasUhuruLogFile = false;
+
+            foreach (ApplicationVariable var in variables)
+            {
+                bExists = false;
+                if (var.Name == "UHURU_LOG_FILE")
+                    hasUhuruLogFile = true;
+
+                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", "");
+
+                XmlAttribute keyAttr = doc.CreateAttribute("key");
+                keyAttr.Value = var.Name;
+
+                XmlAttribute valueAttr = doc.CreateAttribute("value");
+                valueAttr.Value = var.Value;
+
+                n.Attributes.Append(keyAttr);
+                n.Attributes.Append(valueAttr);
+
+                XPathNodeIterator iter = appSettingsNode.CreateNavigator().Select("add");
+
+                while (iter.MoveNext())
+                {
+                    string key = iter.Current.GetAttribute("key", "");
+                    if (key != string.Empty && key == var.Name)
+                    {
+                        bExists = true;
+                        iter.Current.ReplaceSelf(n.CreateNavigator());
+                    }
+                }
+
+                if(!bExists)
+                    appSettingsNode.AppendChild(n);
+            }
+
+            if (!hasUhuruLogFile)
+            {
+                bExists = false;
+                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", "");
+
+                XmlAttribute keyAttr = doc.CreateAttribute("key");
+                keyAttr.Value = "UHURU_LOG_FILE"; ;
+
+                XmlAttribute valueAttr = doc.CreateAttribute("value");
+                valueAttr.Value = logFilePath;
+
+                n.Attributes.Append(keyAttr);
+                n.Attributes.Append(valueAttr);
+
+                XPathNodeIterator iter = appSettingsNode.CreateNavigator().Select("add");
+
+                while (iter.MoveNext())
+                {
+                    string key = iter.Current.GetAttribute("key", "");
+                    if (key != string.Empty && key == "UHURU_LOG_FILE")
+                    {
+                        bExists = true;
+                        iter.Current.ReplaceSelf(n.CreateNavigator());
+                    }
+                }
+
+                if (!bExists)
+                    appSettingsNode.AppendChild(n);
+            }
+
+            StringBuilder newConfig = new StringBuilder();
+            StringWriter writer = new StringWriter(newConfig);
+
+            doc.Save(writer);
+
+            return newConfig.ToString();
         }
 
 
