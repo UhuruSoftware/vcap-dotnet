@@ -177,7 +177,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private void deployApp(ApplicationInfo appInfo, DotNetVersion version)
         {
             string aspNetVersion = getAspDotNetVersion(version);
-            string password = Guid.NewGuid().ToString();
+            string password = appInfo.WindowsPassword;
             string userName = appInfo.WindowsUsername;
 
             try

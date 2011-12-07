@@ -25,7 +25,7 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
-        /// Creates a user based on an id. The created user has a random string added to it, and a specific prefix.
+        /// Creates a user based on an id. The created user has a prefix added to it.
         /// </summary>
         /// <param name="id">An id for the username.</param>
         /// <param name="password">A password for the user. Make sure it's strong.</param>
