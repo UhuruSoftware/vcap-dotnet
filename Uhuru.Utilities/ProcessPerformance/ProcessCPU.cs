@@ -13,45 +13,47 @@ namespace Uhuru.Utilities.ProcessPerformance
     /// <summary>
     /// exposes a few WinAPI methods for working with processes
     /// </summary>
-    public static class NativeMethods
+    internal static class NativeMethods
     {
-        // some consts we'll need later
-        public const int ProcessEntry32Size = 296;
-        public const uint TH32CSSnapProcess = 0x00000002;
-        public const uint ProcessAllAccess = 0x1F0FFF;
-
+        /// <summary>
+        /// This tells OpenProcess that we want all possible access rights for a process object.
+        /// </summary>
+        public const int ProcessAllAccess = 0x1F0FFF;
+        /// <summary>
+        /// This is an IntPtr that looks like an error response. We use it for comparison.
+        /// </summary>
         public static readonly IntPtr ProcessHandleError = new IntPtr(-1);
         
         /// <summary>
         /// closes handles
         /// </summary>
-        /// <param name="Handle"></param>
+        /// <param name="handle"></param>
         /// <returns></returns>
         [DllImport("KERNEL32.DLL")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool CloseHandle(IntPtr Handle);
+        public static extern bool CloseHandle(IntPtr handle);
 
         /// <summary>
         /// gets the process handle
         /// </summary>
-        /// <param name="DesiredAccess">the access level we want to obtain</param>
-        /// <param name="InheritHandle"></param>
-        /// <param name="ProcessId">the process ID</param>
+        /// <param name="desiredAccess">the access level we want to obtain</param>
+        /// <param name="inheritHandle"></param>
+        /// <param name="processId">the process ID</param>
         /// <returns>a process handle</returns>
         [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(uint DesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool InheritHandle, uint ProcessId);
+        public static extern IntPtr OpenProcess(uint desiredAccess, [MarshalAs(UnmanagedType.Bool)] bool inheritHandle, uint processId);
 
         /// <summary>
         /// gets the process creation, exit, kernel and user time 
         /// </summary>
-        /// <param name="ProcessHandle">the handle of the process</param>
-        /// <param name="CreationTime">the creation time</param>
-        /// <param name="ExitTime">the exit time</param>
-        /// <param name="KernelTime">the kernel time</param>
-        /// <param name="UserTime">the user time</param>
-        /// <returns></returns>
-        [DllImport("kernel32.dll")]
+        /// <param name="processHandle">the handle of the process</param>
+        /// <param name="creationTime">the creation time</param>
+        /// <param name="exitTime">the exit time</param>
+        /// <param name="kernelTime">the kernel time</param>
+        /// <param name="userTime">the user time</param>
+        /// <returns>True if the operation was successful</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters"), DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetProcessTimes(IntPtr ProcessHandle, out ComType.FILETIME CreationTime, out ComType.FILETIME ExitTime, out ComType.FILETIME KernelTime, out ComType.FILETIME UserTime);
+        public static extern bool GetProcessTimes(IntPtr processHandle, out ComType.FILETIME creationTime, out ComType.FILETIME exitTime, out ComType.FILETIME kernelTime, out ComType.FILETIME userTime);
     }
 }

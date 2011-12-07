@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DropletInstanceProperties.cs" company="Uhuru Software">
+// <copyright file="Droplet.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -8,7 +8,10 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using Uhuru.Utilities;
-    
+
+    /// <summary>
+    /// An enum containing the possible states a droplet instance can be in.
+    /// </summary>
     public enum DropletInstanceState
     {
         [JsonName("STARTING")]
@@ -23,10 +26,11 @@ namespace Uhuru.CloudFoundry.DEA
         Crashed
     }
 
+    /// <summary>
+    /// An enum containing the possible exit reasons for a droplet.
+    /// </summary>
     public enum DropletExitReason
     {
-        [JsonName("NONE")]
-        None,
         [JsonName("DEA_EVACUATION")]
         DeaEvacuation,
         [JsonName("DEA_SHUTDOWN")]
@@ -36,46 +40,36 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("CRASHED")]
         Crashed
     }
-
+    
     public class DropletInstanceProperties : JsonConvertibleObject
     {
         private DropletInstanceState state;
         private readonly object stateLock = new object();
+
         private readonly object stopProcessedLock = new object();
         private bool stopProcessed;
-        
-        [JsonName("state")]
-        public string StateInterchangeableFormat
-        {
-            get { return State.ToString(); }
-            set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
-        }
 
+    
+        
+        /// <summary>
+        /// The state of a droplet instance at a given time.
+        /// </summary>
+        [JsonName("state")]
         public DropletInstanceState State
         {
             get
             {
-                lock (this.stateLock)
-                {
-                    return this.state;
-                }
+                return state;
             }
+
             set
             {
-                lock (this.stateLock)
-                {
-                    this.state = value;
-                }
+                state = value;
             }
         }
 
-        [JsonName("exit_reason")]
-        public string ExitReasonInterchangeableFormat
-        {
-            get { return ExitReason != null ? ExitReason.ToString() : null; }
-            set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
-        }
 
+        [JsonName("exit_reason")]
         public DropletExitReason? ExitReason
         {
             get;
@@ -318,7 +312,6 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-
         [JsonName("windows_username")]
         public string WindowsUsername
         {
@@ -332,6 +325,5 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-
     }
 }

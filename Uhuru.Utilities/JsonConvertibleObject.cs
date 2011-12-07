@@ -14,6 +14,7 @@ namespace Uhuru.Utilities
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
+    [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class JsonNameAttribute : Attribute
     {
         public JsonNameAttribute(string name)
@@ -40,9 +41,9 @@ namespace Uhuru.Utilities
             return JsonConvert.DeserializeObject(json);
         }
 
-        public static string SerializeToJson(object intermediateObject)
+        public static string SerializeToJson(object intermediateValue)
         {
-            return JsonConvert.SerializeObject(intermediateObject);
+            return JsonConvert.SerializeObject(intermediateValue);
         }
 
         public string SerializeToJson()
@@ -209,12 +210,13 @@ namespace Uhuru.Utilities
                             }
                             else if (propertyType.IsEnum)
                             {
+                                object enumValue = null;
                                 if (valueAsJObject != null)
                                 {
-                                    value = valueAsJObject[jsonPropertyName].Value<string>();
+                                    enumValue = valueAsJObject[jsonPropertyName].Value<string>();
                                 }
 
-                                if (value is string)
+                                if (enumValue is string)
                                 {
                                     object valueToSet = 0;
                                     bool foundMatch = false;
@@ -224,7 +226,7 @@ namespace Uhuru.Utilities
                                         JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
                                         if (jsonNameAttributes.Length != 0)
                                         {
-                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (enumValue as string).ToLowerInvariant())
                                             {
                                                 foundMatch = true;
                                                 valueToSet = Enum.Parse(propertyType, possibleValue, true);
@@ -308,12 +310,13 @@ namespace Uhuru.Utilities
                             }
                             else if (propertyType.IsEnum)
                             {
+                                object enumValue = null;
                                 if (valueAsJObject != null)
                                 {
-                                    value = valueAsJObject[jsonPropertyName].Value<string>();
+                                    enumValue = valueAsJObject[jsonPropertyName].Value<string>();
                                 }
 
-                                if (value is string)
+                                if (enumValue is string)
                                 {
                                     object valueToSet = 0;
                                     bool foundMatch = false;
@@ -323,7 +326,7 @@ namespace Uhuru.Utilities
                                         JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
                                         if (jsonNameAttributes.Length != 0)
                                         {
-                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (enumValue as string).ToLowerInvariant())
                                             {
                                                 foundMatch = true;
                                                 valueToSet = Enum.Parse(propertyType, possibleValue, true);
@@ -388,6 +391,36 @@ namespace Uhuru.Utilities
             if (jArray != null)
             {
                 return jArray.ToObject<T>();
+            }
+
+            if (typeof(T).IsEnum)
+            {
+                if (value is string)
+                {
+                    object valueToSet = 0;
+                    bool foundMatch = false;
+
+                    foreach (string possibleValue in Enum.GetNames(typeof(T)))
+                    {
+                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])typeof(T).GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+                        if (jsonNameAttributes.Length != 0)
+                        {
+                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                            {
+                                foundMatch = true;
+                                valueToSet = Enum.Parse(typeof(T), possibleValue, true);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        valueToSet = Enum.Parse(typeof(T), value as string, true);
+                    }
+
+                    return (T)valueToSet;
+                }
             }
 
             if (value is T)

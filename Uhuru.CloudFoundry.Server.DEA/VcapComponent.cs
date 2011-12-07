@@ -16,6 +16,12 @@ namespace Uhuru.CloudFoundry.DEA
     
     public class VcapComponent
     {
+        public ReaderWriterLockSlim VarzLock { get; set; }
+
+        public Dictionary<string, object> Varz { get; set; }
+
+        protected Dictionary<string, object> Discover { get; set; }
+
         protected DateTime StartedAt
         {
             get;
@@ -28,7 +34,7 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        protected string Type
+        protected string ComponentType
         {
             get;
             set;
@@ -46,8 +52,6 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
         
-        protected Dictionary<string, object> discover = new Dictionary<string, object>();
-
         protected string Host
         {
             get;
@@ -66,58 +70,66 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        public ReaderWriterLockSlim VarzLock = new ReaderWriterLockSlim();
-        public Dictionary<string, object> Varz = new Dictionary<string, object>();
-
         public string Healthz
         {
             get;
             set;
         }
 
-        protected VcapReactor vcapReactor
+        protected VcapReactor VcapReactor
         {
             get;
             set;
         }
 
+        protected MonitoringServer MonitoringServer
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the VcapComponent class.
+        /// </summary>
         public VcapComponent()
         {
+            this.VarzLock = new ReaderWriterLockSlim();
+            this.Varz = new Dictionary<string, object>();
+            this.Discover = new Dictionary<string, object>();
+            
             ConstructReactor();
 
             Uuid = Guid.NewGuid().ToString("N");
 
-            //Initialize Index from config file
-
+            // Initialize Index from config file
             if (Index != null)
             {
-                Uuid = String.Format("{0}-{1}", Index, Uuid);
+                Uuid = String.Format(CultureInfo.InvariantCulture, "{0}-{1}", Index, Uuid);
             }
 
-
             Host = NetworkInterface.GetLocalIPAddress(UhuruSection.GetSection().DEA.LocalRoute);
-            vcapReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
+            VcapReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
 
-            //http server port
+            // http server port
             Port = NetworkInterface.GrabEphemeralPort();
 
-            Authentication = new string[]{ "", "" };
+            Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
         }
 
         protected virtual void ConstructReactor()
         {
-            if (vcapReactor == null)
+            if (VcapReactor == null)
             {
-                vcapReactor = new VcapReactor();
+                VcapReactor = new VcapReactor();
             }
         }
 
         public virtual void Run()
         {
-            vcapReactor.Start();
+            VcapReactor.Start();
 
-            discover = new Dictionary<string, object>() {
-              {"type", Type},
+            Discover = new Dictionary<string, object>() {
+              {"type", ComponentType},
               {"index", Index},
               {"uuid", Uuid},
               {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", Host, Port)},
@@ -127,9 +139,9 @@ namespace Uhuru.CloudFoundry.DEA
             
             // Varz is customizable
             Varz = new Dictionary<string, object>();
-            foreach (string key in discover.Keys)
+            foreach (string key in Discover.Keys)
             {
-                Varz[key] = discover[key];
+                Varz[key] = Discover[key];
             }
 
             Varz["num_cores"] = Environment.ProcessorCount;
@@ -137,33 +149,42 @@ namespace Uhuru.CloudFoundry.DEA
             Healthz = "ok\n";
 
             // Listen for discovery requests
-            vcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
+            VcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
             {
                 UpdateDiscoverUptime();
-                vcapReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(discover));
+                VcapReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(Discover));
             };
 
             StartHttpServer();
 
             // Also announce ourselves on startup..
-            vcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(discover)); 
+            VcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(Discover)); 
         }
 
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - StartedAt;
-            discover["uptime"] = String.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
+            Discover["uptime"] = String.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
         private void StartHttpServer()
         {
-            //TODO: vladi: port this again, this will most likely not work
-            //Cassini.Server http_server = new Cassini.Server(Port, Host, "");
+            MonitoringServer = new MonitoringServer(Port, Host, Authentication[0], Authentication[1]);
 
-            File.WriteAllText("healthz", Healthz);
-            File.WriteAllText("varz", JsonConvertibleObject.SerializeToJson(Varz));
+            MonitoringServer.VarzRequested += delegate(object sender, VarzRequestEventArgs response)
+            {
+                response.VarzMessage = JsonConvertibleObject.SerializeToJson(Varz);
+            };
+            MonitoringServer.HealthzRequested += delegate(object sender, HealthzRequestEventArgs response)
+            {
+                response.HealthzMessage = Healthz;
+            };
+            MonitoringServer.Start();
+        }
 
-            //http_server.Start();
+        ~VcapComponent()
+        {
+            MonitoringServer.Stop();
         }
     }
 }

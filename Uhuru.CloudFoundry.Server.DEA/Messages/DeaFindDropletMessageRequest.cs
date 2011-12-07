@@ -36,6 +36,7 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        //todo: change this conversion mechanism
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("states")]
         public HashSet<string> StatesInterchangeableFormat
@@ -58,7 +59,8 @@ namespace Uhuru.CloudFoundry.DEA
                 States = new HashSet<DropletInstanceState>();
                 foreach (string state in value)
                 {
-                    States.Add((DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), state));
+                    //States.Add((DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), state));
+                    States.Add(JsonConvertibleObject.ObjectToValue<DropletInstanceState>(state));
                 }
             }
         }

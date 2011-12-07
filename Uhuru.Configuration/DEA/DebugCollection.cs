@@ -15,10 +15,19 @@ namespace Uhuru.Configuration.DEA
     public class DebugCollection : ConfigurationElementCollection
     {
         #region Fields
+
+        /// <summary>
+        /// Designed to hold the the configuration properties of the current instance.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
+        
         #endregion
         
         #region Constructors
+
+        /// <summary>
+        /// Initializes static members of the DebugCollection class.
+        /// </summary>
         static DebugCollection()
         {
             properties = new ConfigurationPropertyCollection();
@@ -33,17 +42,9 @@ namespace Uhuru.Configuration.DEA
         #endregion
 
         #region Properties
-
+        
         /// <summary>
-        /// Defines the configuration properties available for a DebugCollection
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
-        }
-
-        /// <summary>
-        /// Defines the collection type (BasicMap) for DebugCollection
+        /// Defines the collection type (BasicMap) for DebugCollection.
         /// </summary>
         public override ConfigurationElementCollectionType CollectionType
         {
@@ -51,11 +52,19 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the element name for a DebugCollection
+        /// Gets the element name for a DebugCollection.
         /// </summary>
         protected override string ElementName
         {
             get { return "debugConfiguration"; }
+        }
+        
+        /// <summary>
+        /// Defines the configuration properties available for a DebugCollection object.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
         }
 
         #endregion
@@ -71,17 +80,17 @@ namespace Uhuru.Configuration.DEA
         {
             get 
             { 
-                return (DebugElement)base.BaseGet(index); 
+                return (DebugElement)this.BaseGet(index); 
             }
 
             set
             {
-                if (base.BaseGet(index) != null)
+                if (this.BaseGet(index) != null)
                 {
-                    base.BaseRemoveAt(index);
+                   this.BaseRemoveAt(index);
                 }
 
-                base.BaseAdd(index, value);
+                this.BaseAdd(index, value);
             }
         }
 
@@ -92,8 +101,9 @@ namespace Uhuru.Configuration.DEA
         /// <returns>The DebugElement with the specified name.</returns>
         public new DebugElement this[string name]
         {
-            get { return (DebugElement)base.BaseGet(name); }
+            get { return (DebugElement)this.BaseGet(name); }
         }
+
         #endregion
 
         #region Overrides

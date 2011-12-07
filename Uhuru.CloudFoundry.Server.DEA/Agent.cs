@@ -86,7 +86,7 @@ namespace Uhuru.CloudFoundry.DEA
             
             AgentStager.ForeHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
 
-            Type = "DEA";
+            ComponentType = "DEA";
 
             //apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
             AgentMonitoring.AppsDumpDirectory = Path.GetTempPath();
@@ -114,7 +114,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (deaReactor == null)
             {
                 deaReactor = new DeaReactor();
-                vcapReactor = deaReactor;
+                VcapReactor = deaReactor;
             }
         }
 
@@ -149,7 +149,7 @@ namespace Uhuru.CloudFoundry.DEA
             
             AgentFileViewer.Start(AgentStager.DropletDir);
 
-            vcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
+            VcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
 
             deaReactor.OnDeaStatus += new SubscribeCallback(DeaStatusHandler);
             deaReactor.OnDropletStatus += new SubscribeCallback(DropletStatusHandler);
@@ -204,14 +204,35 @@ namespace Uhuru.CloudFoundry.DEA
             foreach (object obj in instances)
             {
                 DropletInstance instance = new DropletInstance();
-                instance.Properties.FromJsonIntermediateObject(obj);
+                
+                try
+                {
+                    instance.Properties.FromJsonIntermediateObject(obj);
+                    instance.Properties.Orphaned = true;
+                    instance.Properties.ResourcesTracked = false;
+                    AgentMonitoring.AddInstanceResources(instance);
+                    instance.Properties.StopProcessed = false;
 
-                instance.Properties.Orphaned = true;
-                instance.Properties.ResourcesTracked = false;
-                AgentMonitoring.AddInstanceResources(instance);
-                instance.Properties.StopProcessed = false;
+                    try
+                    {
+                        instance.LoadPlugin();
+                    }
+                    catch
+                    {
+                    }
 
-                Droplets.AddDropletInstance(instance);
+                    if (instance.Properties.State == DropletInstanceState.Starting)
+                    {
+                        DetectAppReady(instance);
+                    }
+                    
+                    
+                    Droplets.AddDropletInstance(instance);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning("Error recovering droplet {0}. Exception: {1}", instance.Properties.InstanceId, ex.ToString());
+                }
             }
             
             Droplets.RecoveredDroplets = true;
@@ -373,7 +394,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Varz["apps_used_memory"] = AgentMonitoring.MemoryUsageKbytes / 1024;
                 Varz["num_apps"] = AgentMonitoring.MaxClients;
                 if (ShuttingDown)
-                    Varz["state"] = "SHUTTING_SOWN";
+                    Varz["state"] = "SHUTTING_DOWN";
             }
             finally
             {
@@ -660,22 +681,24 @@ namespace Uhuru.CloudFoundry.DEA
 
                 // if system thinks this process is running, make sure to execute stop script
 
-                if (instance.Properties.ProcessId != 0 || instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running)
+                if (instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running)
                 {
-                    if (instance.Properties.State != DropletInstanceState.Crashed)
+                    instance.Properties.State = DropletInstanceState.Stopped;
+                    instance.Properties.StateTimestamp = DateTime.Now;
+                    if (instance.Plugin != null)
                     {
-                        instance.Properties.State = DropletInstanceState.Stopped;
-                        instance.Properties.StateTimestamp = DateTime.Now;
+                        instance.Plugin.StopApplication();
+                        WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
                     }
-
-                    instance.Plugin.StopApplication();
-
                 }
 
                 AgentMonitoring.RemoveInstanceResources(instance);
-
                 instance.Properties.StopProcessed = true;
-                
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error stoping droplet: {0}, instance: {1}, exception:", instance.Properties.DropletId, instance.Properties.InstanceId, ex.ToString());
             }
             finally
             {
@@ -786,6 +809,16 @@ namespace Uhuru.CloudFoundry.DEA
                     appVariables[i].Value = envVar[1];
                 }
 
+                appVariables = new ApplicationVariable[pmessage.Environment.Length];
+
+                for (int i = 0; i < pmessage.Environment.Length; i++)
+                {
+                    string[] envVar = AppEnv[i].Split(new char[]{'='}, 2);
+                    appVariables[i] = new ApplicationVariable();
+                    appVariables[i].Name = envVar[0];
+                    appVariables[i].Value = envVar[1];
+                }
+
                 //todo: poulate application services
                 appServices = new ApplicationService[0];
 
@@ -824,23 +857,15 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
 
 
-                // in startup, we have the classname and assembly to load as a plugin
-                string[] startMetadata = File.ReadAllLines(Path.Combine(instance.Properties.Directory, "start"));
-                string assemblyName = startMetadata[0]; //read first line of file 'start'
-                string className = startMetadata[1]; //read second line of file 'start'
+                instance.LoadPlugin();
 
-
-                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(instance.Properties.Directory + assemblyName), className);
-                
-                instance.Plugin = PluginHost.CreateInstance(PluginId);
-                
                 ApplicationInfo appInfo = new ApplicationInfo();
                 appInfo.LocalIp = Host;
                 instance.PopulateApplicationInfo(appInfo);
 
                 Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
 
-                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs"));
+                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs", "startup.log"));
                 
                 instance.Plugin.StartApplication();
                 
@@ -894,34 +919,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
 
-                DetectAppReady(instance,
-                    delegate(bool detected)
-                    {
-                        try
-                        {
-                            instance.Lock.EnterWriteLock();
-                            if (detected && !instance.Properties.StopProcessed)
-                            {
-                                Logger.Info(Strings.InstanceIsReadyForConnections, instance.Properties.LoggingId);
-                                instance.Properties.State = DropletInstanceState.Running;
-                                instance.Properties.StateTimestamp = DateTime.Now;
-
-                                deaReactor.SendDeaHeartbeat(instance.GenerateHeartbeat().SerializeToJson());
-                                RegisterInstanceWithRouter(instance);
-                                Droplets.ScheduleSnapshotAppState();
-                            }
-                            else
-                            {
-                                Logger.Warning(Strings.GivingUpOnConnectingApp);
-                                StopDroplet(instance);
-                            }
-                        }
-                        finally
-                        {
-                            instance.Lock.ExitWriteLock();
-                        }
-                    }
-                );
+                DetectAppReady(instance);
 
 
 
@@ -945,6 +943,44 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitWriteLock();
                 }
             }
+        }
+
+        private void DetectAppReady(DropletInstance instance)
+        {
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                DetectAppReady(instance,
+                        delegate(bool detected)
+                        {
+                            try
+                            {
+                                instance.Lock.EnterWriteLock();
+                                if (detected)
+                                {
+                                    if (instance.Properties.State != DropletInstanceState.Starting)
+                                    {
+                                        Logger.Info(Strings.InstanceIsReadyForConnections, instance.Properties.LoggingId);
+                                        instance.Properties.State = DropletInstanceState.Running;
+                                        instance.Properties.StateTimestamp = DateTime.Now;
+
+                                        deaReactor.SendDeaHeartbeat(instance.GenerateHeartbeat().SerializeToJson());
+                                        RegisterInstanceWithRouter(instance);
+                                        Droplets.ScheduleSnapshotAppState();
+                                    }
+                                }
+                                else
+                                {
+                                    Logger.Warning(Strings.GivingUpOnConnectingApp);
+                                    StopDroplet(instance);
+                                }
+                            }
+                            finally
+                            {
+                                instance.Lock.ExitWriteLock();
+                            }
+                        }
+                    );
+            });
         }
 
         private void DetectAppReady(DropletInstance instance, BoolStateBlockCallback callBack)
@@ -1315,6 +1351,7 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
+                    instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
 
                     if (instance.Properties.ProcessId != 0 && pidInfo.ContainsKey(instance.Properties.ProcessId))
                     {
@@ -1380,14 +1417,14 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     else
                     {
-                        // App *should* no longer be running if we are here
-                        // Check to see if this is an orphan that is no longer running, clean up here if needed 
-                        // since there will not be a cleanup proc or stop call associated with the instance..
+
                         instance.Properties.ProcessId = 0;
-                        if (instance.Properties.Orphaned && !instance.Properties.StopProcessed)
+                        if (instance.Properties.State == DropletInstanceState.Running)
                         {
-                            StopDroplet(instance);
+                            if(!instance.IsPortReady)
+                                StopDroplet(instance);
                         }
+
                     }
                 }
                 finally
@@ -1463,15 +1500,6 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void TheReaper()
         {
-            /*
-            TimerHelper.DelayedCall(1000, delegate
-            {
-                if (instance.IsPortReady)
-                {
-                    instance.Plugin.KillApplication();
-                }
-            });
-            */
 
             Droplets.ForEach(true, delegate(DropletInstance instance)
             {
@@ -1479,81 +1507,35 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
+                    bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
+                    bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
+                    bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
 
-                    if (instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds)
+                    if (isOldCrash || isStopped || isDeleted)
                     {
 
                         Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-                        if (!DisableDirCleanup)
+
+
+                        if (instance.Plugin != null)
+                        {
+                            try
+                            {
+                                instance.Plugin.CleanupApplication(instance.Properties.Directory);
+                                instance.Plugin = null;
+                            }
+                            catch { }
+                        }
+
+                        if (DisableDirCleanup) instance.Properties.Directory = null;
+                        if (instance.Properties.Directory != null)
                         {
                             try
                             {
                                 Directory.Delete(instance.Properties.Directory, true);
                                 instance.Properties.Directory = null;
                             }
-                            catch
-                            {
-                            }
-                        }
-                        else
-                        {
-                            instance.Properties.Directory = null;
-                        }
-
-                        if (instance.Plugin != null)
-                        {
-                            if (instance.IsPortReady)
-                            {
-                                instance.Plugin.KillApplication();
-                            }
-                            instance.Plugin = null;
-                        }
-
-                        if (instance.Plugin == null && instance.Properties.Directory == null)
-                        {
-                            Droplets.RemoveDropletInstance(instance);
-                        }
-
-                    }
-
-                    if (instance.Properties.State == DropletInstanceState.Stopped)
-                    {
-                        if (instance.Plugin != null && (instance.Properties.StateTimestamp - DateTime.Now).Seconds > 2)
-                        {
-                            if (instance.IsPortReady)
-                            {
-                                instance.Plugin.KillApplication();
-                            }
-                            instance.Plugin = null;
-                        }
-
-                        if (instance.Plugin == null)
-                        {
-                            if (instance.Properties.Directory != null)
-                            {
-
-                                if (!DisableDirCleanup)
-                                {
-
-                                    try
-                                    {
-                                        Directory.Delete(instance.Properties.Directory, true);
-                                        Logger.Debug(Strings.CleandUpDir, instance.Properties.Name, instance.Properties.Directory);
-                                        instance.Properties.Directory = null;
-                                    }
-                                    catch (UnauthorizedAccessException e)
-                                    {
-                                        Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
-                                        instance.Properties.Directory = null;
-                                    }
-
-                                }
-
-                            }
+                            catch { }
                         }
 
                         if (instance.Plugin == null && instance.Properties.Directory == null)

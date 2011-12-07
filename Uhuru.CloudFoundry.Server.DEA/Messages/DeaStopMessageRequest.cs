@@ -58,7 +58,7 @@ namespace Uhuru.CloudFoundry.DEA
                 States = new HashSet<DropletInstanceState>();
                 foreach (string state in value)
                 {
-                    States.Add((DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), state));
+                    States.Add(JsonConvertibleObject.ObjectToValue<DropletInstanceState>(state));
                 }
             }
         }

@@ -86,8 +86,10 @@ namespace Uhuru.Utilities
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
     class LoadAssembly : MarshalByRefObject
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
         public string GetDotNetVersion(string assemblyPath)
         {
             Assembly a = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
