@@ -687,8 +687,11 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.StateTimestamp = DateTime.Now;
                     if (instance.Plugin != null)
                     {
-                        instance.Plugin.StopApplication();
-                        WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
+                        try
+                        {
+                            instance.Plugin.StopApplication();
+                        }
+                        catch { }
                     }
                 }
 
@@ -802,25 +805,44 @@ namespace Uhuru.CloudFoundry.DEA
                 appVariables = new ApplicationVariable[AppEnv.Count];
                 for (int i = 0; i < AppEnv.Count; i++)
                 {
-                    string[] envVar = AppEnv[i].Split('=');
-
-                    appVariables[i] = new ApplicationVariable();
-                    appVariables[i].Name = envVar[0];
-                    appVariables[i].Value = envVar[1];
-                }
-
-                appVariables = new ApplicationVariable[pmessage.Environment.Length];
-
-                for (int i = 0; i < pmessage.Environment.Length; i++)
-                {
                     string[] envVar = AppEnv[i].Split(new char[]{'='}, 2);
+
                     appVariables[i] = new ApplicationVariable();
                     appVariables[i].Name = envVar[0];
                     appVariables[i].Value = envVar[1];
                 }
+                    
+                //Adding services
+                appServices = new ApplicationService[pmessage.Services.Length];
+                for(int i = 0; i < pmessage.Services.Length; i++)
+                {
+                    Dictionary<string, object> dService = pmessage.Services[i];
 
-                //todo: poulate application services
-                appServices = new ApplicationService[0];
+                    StartRequestService pService = new StartRequestService(); 
+                    pService.FromJsonIntermediateObject(pmessage.Services[i]);
+
+                    ApplicationService appService = appServices[i] = new ApplicationService();
+                    //"name":"helloservice"
+                    appService.Name = pService.ServiceName;
+                    //"credentials"->"name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
+                    appService.InstanceName = pService.Credentials.InstanceName;
+                    //"vendor":"mssql"
+                    appService.Vendor = pService.Vendor;
+                    //"plan":"free"
+                    appService.Plan = pService.Plan;
+                    //"plan_option":null
+                    appService.PlanOptions = pService.PlanOptions;
+                    //"type":"database"
+                    appService.Type = pService.ServiceType;
+                    //"credentials"->"hostname":"192.168.1.116" (or host)
+                    appService.Host = String.IsNullOrEmpty(pService.Credentials.Hostname) ? pService.Credentials.Host : pService.Credentials.Hostname;
+                    //"credentials"->"user":"US3RkkyIUnYreXC8" (or username)
+                    appService.User = String.IsNullOrEmpty(pService.Credentials.User) ? pService.Credentials.Username : pService.Credentials.User;
+                    //"credentials"->"password":"P4SSJ0jwJTg0ojGx"
+                    appService.Password = pService.Credentials.Password;
+                    //"credentials"->"port":1433
+                    appService.Port = pService.Credentials.Port;
+                }
 
                 AgentMonitoring.AddInstanceResources(instance);
             }
@@ -957,7 +979,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 instance.Lock.EnterWriteLock();
                                 if (detected)
                                 {
-                                    if (instance.Properties.State != DropletInstanceState.Starting)
+                                    if (instance.Properties.State == DropletInstanceState.Starting)
                                     {
                                         Logger.Info(Strings.InstanceIsReadyForConnections, instance.Properties.LoggingId);
                                         instance.Properties.State = DropletInstanceState.Running;
@@ -1118,17 +1140,12 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // User's environment settings
-            // Make sure user's env variables are in double quotes.
             if (app_env != null)
             {
                 foreach (string appEnv in app_env)
                 {
-                    string[] pieces = appEnv.Split(new char[] { '=' }, 2);
-                    if (!pieces[1].StartsWith("'", StringComparison.OrdinalIgnoreCase))
-                    {
-                        pieces[1] = String.Format(CultureInfo.InvariantCulture, "\"{0}\"", pieces[1]);
-                    }
-                    env.Add(String.Format(CultureInfo.InvariantCulture, "{0}={1}", pieces[0], pieces[1]));
+                    //string[] envVar = appEnv.Split(new char[] { '=' }, 2);
+                    env.Add(appEnv);
                 }
             }
 
@@ -1351,7 +1368,11 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-                    instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
+                    try
+                    {
+                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
+                    }
+                    catch { }
 
                     if (instance.Properties.ProcessId != 0 && pidInfo.ContainsKey(instance.Properties.ProcessId))
                     {
@@ -1523,12 +1544,13 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                 instance.Plugin = null;
+                                WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
                             }
                             catch { }
                         }
 
                         if (DisableDirCleanup) instance.Properties.Directory = null;
-                        if (instance.Properties.Directory != null)
+                        if (instance.Properties.Directory != null && instance.Plugin == null)
                         {
                             try
                             {
