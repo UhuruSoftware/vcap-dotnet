@@ -244,19 +244,23 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        public void GenerateDeaFindDropletResponse()
+        public DropletInstanceUsage AddUsage(long mem, long cpu, long disk)
         {
-            throw new System.NotImplementedException();
-        }
+            DropletInstanceUsage curUsage = new DropletInstanceUsage();
+            curUsage.Time = DateTime.Now;
+            curUsage.Cpu = cpu;
+            curUsage.MemoryKbytes = mem;
+            curUsage.DiskBytes = disk;
 
-        public void DetectAppProcessId()
-        {
-            throw new System.NotImplementedException();
-        }
+            Usage.Add(curUsage);
+            if (Usage.Count > DropletInstance.MaxUsageSamples)
+            {
+                Usage.RemoveAt(0);
+            }
 
-        public void DetectAppReady()
-        {
-            throw new System.NotImplementedException();
+            Properties.UsageRecent = curUsage;
+            return curUsage;
         }
+        
     }
 }

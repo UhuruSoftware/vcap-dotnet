@@ -1307,21 +1307,12 @@ namespace Uhuru.CloudFoundry.DEA
                         long mem = (long)pidInfo[pid].WorkingSet;
                         long cpu = (long)pidInfo[pid].Cpu;
                         long disk = duHash.ContainsKey(instance.Properties.Directory) ? duHash[instance.Properties.Directory] : 0;
-                        
-                        DropletInstanceUsage curUsage = new DropletInstanceUsage();
-                        curUsage.Time = DateTime.Now;
-                        curUsage.Cpu = cpu;
-                        curUsage.MemoryKbytes = mem;
-                        curUsage.DiskBytes = disk;
-                        
-                        instance.Usage.Add(curUsage);
-                        if (instance.Usage.Count > DropletInstance.MaxUsageSamples)
-                        {
-                            instance.Usage.RemoveAt(0);
-                        }
+
+                        instance.AddUsage(mem, cpu, disk);
 
                         if (Secure)
                         {
+                            //todo: after the monitorapps is working properly, enable checkusage
                             //CheckUsage(instance, curUsage);
                         }
 
@@ -1359,7 +1350,6 @@ namespace Uhuru.CloudFoundry.DEA
                         }
 
                         // Track running apps for varz tracking
-                        instance.Properties.UsageRecent = curUsage;
                         runningApps.Add(instance.Properties.ToJsonIntermediateObject());
                     }
                     else
@@ -1368,8 +1358,14 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Properties.ProcessId = 0;
                         if (instance.Properties.State == DropletInstanceState.Running)
                         {
-                            if(!instance.IsPortReady)
+                            if (!instance.IsPortReady)
+                            {
                                 StopDroplet(instance);
+                            }
+                            else
+                            {
+                                instance.AddUsage(0, 0, 0);
+                            }
                         }
 
                     }
