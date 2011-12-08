@@ -172,7 +172,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 
         private class VcapPluginStagingInfoLogs : JsonConvertibleObject
         {
-            [JsonName("app_err")]
+            [JsonName("app_error")]
             public string AppErrorLog
             {
                 get;
