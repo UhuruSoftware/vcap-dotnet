@@ -134,9 +134,6 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
                 throw new NotImplementedException("logging auto-wiring only supports configuration from an external source at this time");
             }
 
-            System.EnterpriseServices.Internal.Publish gacPublisher = new System.EnterpriseServices.Internal.Publish();
-            gacPublisher.GacInstall(typeof(LogFileWebEventProvider).Assembly.Location);
-
             return tempConfig;
         }
     }

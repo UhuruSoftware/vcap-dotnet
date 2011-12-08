@@ -35,7 +35,7 @@ namespace Uhuru.Utilities
         public void Fatal(string message)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[FATAL] [{0}] {1}", DateTime.Now, message));
+                "[FATAL] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Uhuru.Utilities
         public void Error(string message)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[ERROR] [{0}] {1}", DateTime.Now, message));
+                "[ERROR] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Uhuru.Utilities
         public void Warning(string message)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[WARN] [{0}] {1}", DateTime.Now, message));
+                "[WARN] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Uhuru.Utilities
         public void Info(string message)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[INFO] [{0}] {1}", DateTime.Now, message));
+                "[INFO] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Uhuru.Utilities
         public void Debug(string message)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[DEBUG] [{0}] {1}", DateTime.Now, message));
+                "[DEBUG] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Uhuru.Utilities
         public void Fatal(string message, params object[] args)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[FATAL] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
+                "[FATAL] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Uhuru.Utilities
         public void Error(string message, params object[] args)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[ERROR] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
+                "[ERROR] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Uhuru.Utilities
         public void Warning(string message, params object[] args)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[WARN] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
+                "[WARN] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Uhuru.Utilities
         public void Info(string message, params object[] args)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[INFO] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
+                "[INFO] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Uhuru.Utilities
         public void Debug(string message, params object[] args)
         {
             File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
-                "[DEBUG] [{0}] {1}", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
+                "[DEBUG] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
     }
 }

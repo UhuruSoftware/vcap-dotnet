@@ -11,3 +11,4 @@ Uhuru.Utilities.WindowsProcess/x64
 StyleCop.Cache
 *.testsettings
 *.trx
+!/TestApps/CloudTestApp/App/bin
