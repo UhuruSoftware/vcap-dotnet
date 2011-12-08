@@ -183,11 +183,11 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
             "password":"P4SSJ0jwJTg0ojGx"
            }
      */
-    public class StarRequestService : JsonConvertibleObject
+    public class StartRequestService : JsonConvertibleObject
     {
-        public StarRequestService()
+        public StartRequestService()
         {
-            Credentials = new StarRequestServiceCredentials();
+            Credentials = new StartRequestServiceCredentials();
         }
 
         [JsonName("name")]
@@ -215,15 +215,15 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         public Dictionary<string, object> PlanOptions { get; set; }
 
         [JsonName("credentials")]
-        public StarRequestServiceCredentials Credentials {get; set; }
+        public StartRequestServiceCredentials Credentials {get; set; }
 
     }
 
 
-    public class StarRequestServiceCredentials : JsonConvertibleObject
+    public class StartRequestServiceCredentials : JsonConvertibleObject
     {
         [JsonName("name")]
-        public string DatabaseName { get; set; }
+        public string InstanceName { get; set; }
 
         [JsonName("hostname")]
         public string Hostname { get; set; }
@@ -232,7 +232,7 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         public string Host { get; set; }
 
         [JsonName("port")]
-        public string Port { get; set; }
+        public int Port { get; set; }
 
         [JsonName("user")]
         public string User { get; set; }
@@ -242,10 +242,6 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
 
         [JsonName("password")]
         public string Password { get; set; }
-
-
-
-
     }
 
 }

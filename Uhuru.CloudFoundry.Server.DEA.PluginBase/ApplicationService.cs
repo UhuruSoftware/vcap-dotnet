@@ -37,7 +37,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// the port where the service will be available
         /// </summary>
-        public string Port { get; set; }
+        public int Port { get; set; }
 
         /// <summary>
         /// the usage plan of the service
@@ -57,6 +57,11 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// the general name of the service (mssql, mysql, etc)
         /// </summary>
-        public string ServiceName { get; set; }
+        public string Vendor { get; set; }
+
+        /// <summary>
+        /// Name of the database/key value store/etc.
+        /// </summary>
+        public string InstanceName { get; set; }
     }
 }

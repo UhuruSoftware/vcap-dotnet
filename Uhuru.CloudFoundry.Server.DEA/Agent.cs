@@ -818,37 +818,31 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     Dictionary<string, object> dService = pmessage.Services[i];
 
-                    StarRequestService pService = new StarRequestService(); 
+                    StartRequestService pService = new StartRequestService(); 
                     pService.FromJsonIntermediateObject(pmessage.Services[i]);
 
                     ApplicationService appService = appServices[i] = new ApplicationService();
-
-                    //todo: verifi if the association is right
-                    //Mabe the coments are incosistent with the properties name
-                    
+                    //"name":"helloservice"
                     appService.Name = pService.ServiceName;
-                    appService.ServiceName = pService.ServiceType;
+                    //"credentials"->"name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
+                    appService.InstanceName = pService.Credentials.InstanceName;
+                    //"vendor":"mssql"
+                    appService.Vendor = pService.Vendor;
+                    //"plan":"free"
                     appService.Plan = pService.Plan;
+                    //"plan_option":null
                     appService.PlanOptions = pService.PlanOptions;
-
-                    //todo: what ??
-                    //appService.Type = pService.
-
-                    //todo: choose the blue pill or red pill
-                    appService.Host = pService.Credentials.Host;
-                    appService.Host = pService.Credentials.Hostname;
-
-                    //todo: choose again 
-                    appService.User = pService.Credentials.User;
-                    appService.User = pService.Credentials.Username;
-
-
+                    //"type":"database"
+                    appService.Type = pService.ServiceType;
+                    //"credentials"->"hostname":"192.168.1.116" (or host)
+                    appService.Host = String.IsNullOrEmpty(pService.Credentials.Hostname) ? pService.Credentials.Host : pService.Credentials.Hostname;
+                    //"credentials"->"user":"US3RkkyIUnYreXC8" (or username)
+                    appService.User = String.IsNullOrEmpty(pService.Credentials.User) ? pService.Credentials.Username : pService.Credentials.User;
+                    //"credentials"->"password":"P4SSJ0jwJTg0ojGx"
                     appService.Password = pService.Credentials.Password;
-                    appService.Port = pService.Credentials.Port.ToString();
-
+                    //"credentials"->"port":1433
+                    appService.Port = pService.Credentials.Port;
                 }
-
-
 
                 AgentMonitoring.AddInstanceResources(instance);
             }
