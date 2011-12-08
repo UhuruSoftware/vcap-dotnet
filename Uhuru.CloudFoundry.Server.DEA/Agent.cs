@@ -1042,7 +1042,6 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
-            env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort.ToString());
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
 
             if (instance.Properties.DebugPort != null && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
