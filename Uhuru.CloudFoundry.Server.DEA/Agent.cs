@@ -168,7 +168,7 @@ namespace Uhuru.CloudFoundry.DEA
             RecoverExistingDroplets();
             DeleteUntrackedInstanceDirs();
             
-            TimerHelper.RecurringCall(Monitoring.HeartbeatIntervalMilliseconds, delegate
+            TimerHelper.RecurringLongCall(Monitoring.HeartbeatIntervalMilliseconds, delegate
             {
                 SendHeartbeat();
             });
@@ -183,7 +183,7 @@ namespace Uhuru.CloudFoundry.DEA
                 TheReaper();
             });
             
-            TimerHelper.RecurringCall(Monitoring.VarzUpdateIntervalMilliseconds, delegate
+            TimerHelper.RecurringLongCall(Monitoring.VarzUpdateIntervalMilliseconds, delegate
             {
                 SnapshotVarz();
             });
@@ -750,7 +750,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             DeaStartMessageRequest pmessage;
             DropletInstance instance;
-            List<ApplicationVariable> appVariables;
+            Dictionary<string, string> appEnvs;
 
             try
             {
@@ -799,16 +799,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
 
-                Dictionary<string, string> appEnvs = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
-
-                appVariables = new List<ApplicationVariable>();
-                foreach(KeyValuePair<string, string> appEnv in appEnvs)
-                {
-                    ApplicationVariable appVariable = new ApplicationVariable();
-                    appVariable.Name = appEnv.Key;
-                    appVariable.Value = appEnv.Value;
-                    appVariables.Add(appVariable);
-                }
+                appEnvs = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
 
                 AgentMonitoring.AddInstanceResources(instance);
             }
@@ -820,12 +811,12 @@ namespace Uhuru.CloudFoundry.DEA
             //toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
-                StartDropletInstance(instance, appVariables, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
+                StartDropletInstance(instance, appEnvs, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
         }
 
 
-        private void StartDropletInstance(DropletInstance instance, List<ApplicationVariable> appVariables, string sha1, string executableFile, string executableUri)
+        private void StartDropletInstance(DropletInstance instance, Dictionary<string, string> appEnvs, string sha1, string executableFile, string executableUri)
         {
             try
             {
@@ -844,14 +835,23 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.Clients, AgentMonitoring.Clients);
                 Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
 
+                instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
+                instance.Properties.WindowsUsername = WindowsVcapUsers.CreateUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
 
-                ApplicationVariable stagingInfo = new ApplicationVariable();
-                stagingInfo.Name = VcapPluginStagingInfoVariable;
-                stagingInfo.Value = File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup"));
-                appVariables.Add(stagingInfo);
+                appEnvs.Add(VcapWindowsUserVariable, instance.Properties.WindowsUsername);
+                appEnvs.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
+                appEnvs.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
+
+                List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
+                foreach (KeyValuePair<string, string> appEnv in appEnvs)
+                {
+                    ApplicationVariable appVariable = new ApplicationVariable();
+                    appVariable.Name = appEnv.Key;
+                    appVariable.Value = appEnv.Value;
+                    appVariables.Add(appVariable);
+                }
 
                 instance.LoadPlugin();
-
                 instance.Plugin.ConfigureApplication(appVariables.ToArray());
                 instance.Plugin.StartApplication();
 
@@ -1037,9 +1037,6 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapServicesVariable, create_services_for_env(services));
             env.Add(VcapAppHostVariable, Host);
             env.Add(VcapAppPortVariable, instance.Properties.Port.ToString());
-
-            env.Add(VcapWindowsUserVariable, instance.Properties.WindowsUsername);
-            env.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
@@ -1263,7 +1260,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime duStart = DateTime.Now;
 
-            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(AgentStager.AppsDir, "*", true);
+            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(AgentStager.AppsDir, "*", false);
     
             TimeSpan duElapsed = DateTime.Now - duStart;
 
@@ -1300,12 +1297,12 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     catch { }
 
-                    if (instance.Properties.ProcessId != 0 && pidInfo.ContainsKey(instance.Properties.ProcessId))
+                    int pid = instance.Properties.ProcessId;
+                    if ((pid != 0 && pidInfo.ContainsKey(pid)) || instance.IsPortReady)
                     {
-                        int pid = instance.Properties.ProcessId;
 
-                        long mem = (long)pidInfo[pid].WorkingSet;
-                        long cpu = (long)pidInfo[pid].Cpu;
+                        long mem = pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].WorkingSet : 0;
+                        long cpu = pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].Cpu : 0;
                         long disk = duHash.ContainsKey(instance.Properties.Directory) ? duHash[instance.Properties.Directory] : 0;
 
                         instance.AddUsage(mem, cpu, disk);
@@ -1361,10 +1358,6 @@ namespace Uhuru.CloudFoundry.DEA
                             if (!instance.IsPortReady)
                             {
                                 StopDroplet(instance);
-                            }
-                            else
-                            {
-                                instance.AddUsage(0, 0, 0);
                             }
                         }
 
@@ -1448,6 +1441,8 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 if (!instance.Lock.TryEnterWriteLock(10)) return;
 
+                bool removeDroplet = false;
+
                 try
                 {
                     bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
@@ -1484,7 +1479,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                         if (instance.Plugin == null && instance.Properties.Directory == null)
                         {
-                            Droplets.RemoveDropletInstance(instance);
+                            removeDroplet = true;
                         }
 
                     }
@@ -1493,6 +1488,11 @@ namespace Uhuru.CloudFoundry.DEA
                 finally
                 {
                     instance.Lock.ExitWriteLock();
+                }
+
+                if (removeDroplet)
+                {
+                    Droplets.RemoveDropletInstance(instance);
                 }
 
             });

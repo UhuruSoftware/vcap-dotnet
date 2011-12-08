@@ -228,7 +228,7 @@ namespace Uhuru.CloudFoundry.DEA
             string startup = File.ReadAllText(Path.Combine(Properties.Directory, "startup"));
 
             VcapPluginStatingInfo pluginInfo = new VcapPluginStatingInfo();
-            pluginInfo.FromJsonIntermediateObject(startup);
+            pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson( startup));
 
             try
             {
