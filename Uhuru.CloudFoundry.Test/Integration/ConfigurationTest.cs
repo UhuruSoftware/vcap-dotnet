@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.Configuration;
+using System.IO;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
@@ -15,6 +16,8 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC001_TestConfig()
         {
+            if (!File.Exists("uhuruTest.config"))
+                Assert.Fail();
             Assert.AreEqual("c:\\droplets", UhuruSection.GetSection().DEA.BaseDir);
             Assert.AreEqual("iis", UhuruSection.GetSection().DEA.Runtimes["iis"].Name);
             Assert.AreEqual("7.0", UhuruSection.GetSection().DEA.Runtimes["iis"].Environment["iisVersion"].Value);

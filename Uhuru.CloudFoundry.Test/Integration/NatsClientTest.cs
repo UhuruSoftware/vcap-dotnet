@@ -12,13 +12,13 @@ namespace Uhuru.CloudFoundry.Test.Integration
     [TestClass]
     public class NatsClientTest
     {
-        Uri natsEndpoint;
+        static String natsEndpoint = ConfigurationManager.AppSettings["nats"];
 
-        [ClassInitialize]
-        public void TestFixtureSetup()
-        {
-            natsEndpoint = new Uri(ConfigurationManager.AppSettings["nats"]);
-        }
+        //[ClassInitialize]
+        //public static void TestFixtureSetup()
+        //{
+        //    natsEndpoint = new Uri();
+        //}
 
         [TestMethod, Description("should perform basic block start and stop")]
         [TestCategory("Integration")]

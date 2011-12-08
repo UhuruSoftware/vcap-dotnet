@@ -77,6 +77,11 @@ namespace Uhuru.Utilities
 
                         Type propertyType = property.PropertyType;
 
+                        if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        {
+                            propertyType = propertyType.GetGenericArguments()[0];
+                        }
+
                         if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                         {
                             result.Add(jsonPropertyName, ((JsonConvertibleObject)property.GetValue(this, null)).ToJsonIntermediateObject());
@@ -121,6 +126,11 @@ namespace Uhuru.Utilities
                         string jsonPropertyName = nameAttribute.Name;
 
                         Type propertyType = field.FieldType;
+
+                        if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        {
+                            propertyType = propertyType.GetGenericArguments()[0];
+                        }
 
                         if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                         {
@@ -186,9 +196,14 @@ namespace Uhuru.Utilities
 
                             Type propertyType = property.PropertyType;
 
+                            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            {
+                                propertyType = propertyType.GetGenericArguments()[0];
+                            }
+
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (valueAsJObject[jsonPropertyName] != null)
+                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
                                 {
                                     JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
@@ -237,7 +252,7 @@ namespace Uhuru.Utilities
 
                                     if (!foundMatch)
                                     {
-                                        valueToSet = Enum.Parse(propertyType, value as string, true);
+                                        valueToSet = Enum.Parse(propertyType, enumValue as string, true);
                                     }
 
                                     property.SetValue(this, valueToSet, null);
@@ -286,9 +301,14 @@ namespace Uhuru.Utilities
 
                             Type propertyType = field.FieldType;
 
+                            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            {
+                                propertyType = propertyType.GetGenericArguments()[0];
+                            }
+
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (valueAsJObject[jsonPropertyName] != null)
+                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
                                 {
                                     JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
@@ -337,7 +357,7 @@ namespace Uhuru.Utilities
 
                                     if (!foundMatch)
                                     {
-                                        valueToSet = Enum.Parse(propertyType, value as string, true);
+                                        valueToSet = Enum.Parse(propertyType, enumValue as string, true);
                                     }
 
                                     field.SetValue(this, valueToSet);

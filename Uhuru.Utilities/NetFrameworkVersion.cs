@@ -45,6 +45,7 @@ namespace Uhuru.Utilities
             {
                 throw new ArgumentException("Argument null or empty", "assemblyPath");
             }
+
             try
             {
                 string fileName = assemblyPath.Normalize();

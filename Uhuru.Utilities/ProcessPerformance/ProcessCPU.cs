@@ -37,7 +37,7 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// gets the process handle
         /// </summary>
         /// <param name="desiredAccess">the access level we want to obtain</param>
-        /// <param name="inheritHandle"></param>
+        /// <param name="inheritHandle">if this is true, child processes will inherit this handle</param>
         /// <param name="processId">the process ID</param>
         /// <returns>a process handle</returns>
         [DllImport("kernel32.dll")]
