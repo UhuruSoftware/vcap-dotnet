@@ -23,6 +23,7 @@ namespace Uhuru.Utilities
         /// <param name="fileName">The file in which log events will be written.</param>
         public FileLogger(string fileName)
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(fileName));
             this.fileName = fileName;
         }
 

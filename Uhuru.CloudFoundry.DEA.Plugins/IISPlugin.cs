@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.DirectoryServices;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Security.AccessControl;
     using System.Text;
     using System.Threading;
@@ -22,6 +23,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.Reflection;
     using System.Xml;
     using System.Xml.XPath;
+    using Uhuru.CloudFoundry.DEA.AutoWiring;
 
 
     /// <summary>
@@ -276,9 +278,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
                 }
 
-                configFileContents = setApplicationVariables(configFileContents, variables, logFilePath);
+                XmlDocument doc = setApplicationVariables(configFileContents, variables, logFilePath);
 
-                File.WriteAllText(configFile, configFileContents);
+                doc.Save(configFile);
+
+
+                SiteConfig siteConfiguration = new SiteConfig(Path.GetDirectoryName(configFile), true);
+                HealthMonRewire healthMon = new HealthMonRewire();
+                healthMon.Register(siteConfiguration);
+
+                siteConfiguration.Rewire(false);
+                siteConfiguration.CommitChanges();
             }
         }
 
@@ -290,7 +300,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="variables">The variables.</param>
         /// <param name="logFilePath">The log file path.</param>
         /// <returns></returns>
-        string setApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath)
+        XmlDocument setApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath)
         {
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(configFileContents);
@@ -370,12 +380,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     appSettingsNode.AppendChild(n);
             }
 
-            StringBuilder newConfig = new StringBuilder();
-            StringWriter writer = new StringWriter(newConfig);
-
-            doc.Save(writer);
-
-            return newConfig.ToString();
+            
+            return doc;
         }
 
 
@@ -679,7 +685,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
-            DotNetVersion version = DotNetVersion.Two;
+            DotNetVersion version = DotNetVersion.Four;
 
             foreach (string assembly in allAssemblies)
             {

@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA.Autowiring
+namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
 {
     using System;
     using System.Globalization;

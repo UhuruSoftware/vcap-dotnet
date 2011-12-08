@@ -4,11 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA.Autowiring
+namespace Uhuru.CloudFoundry.DEA.AutoWiring
 {
     using System;
     using System.Xml;
     using System.Xml.XPath;
+    using Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging;
     
     public enum ParentSection
     { 
@@ -132,6 +133,9 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
             {
                 throw new NotImplementedException("logging auto-wiring only supports configuration from an external source at this time");
             }
+
+            System.EnterpriseServices.Internal.Publish gacPublisher = new System.EnterpriseServices.Internal.Publish();
+            gacPublisher.GacInstall(typeof(LogFileWebEventProvider).Assembly.Location);
 
             return tempConfig;
         }
