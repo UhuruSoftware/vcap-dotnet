@@ -23,12 +23,12 @@ This project uses the Apache 2 license.  See LICENSE for details.
 Installation Notes
 ------------------
 
-To run .Net on Cloud Foundry, the first thing you need is a Cloud Foundry installation. Refer to [http://www.github.com/CloudFoundry/vcap](http://www.github.com/CloudFoundry/vcap) for details on how to setup that up.
+To run .Net on Cloud Foundry, the first thing you need is a Cloud Foundry installation. Refer to the [http://www.github.com/CloudFoundry/vcap](vcap repo) for details on how to setup that up.
 
 Once you have a Cloud Foundry setup running, you can either:
 
 * get the code and compile it to get the installers (use the vcap-dotnet-installers solution)
-* grab the latest release from here [http://www.uhurusoftware.com/vcap-dotnet/latest](http://www.uhurusoftware.com/vcap-dotnet/latest)
+* grab the latest release from [http://www.uhurusoftware.com/vcap-dotnet/latest](here)
 
 Install "WindowsDEA.msi" and "MSSqlNode.msi" on a box that meets the following prerequisites:
 

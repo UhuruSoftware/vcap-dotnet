@@ -30,11 +30,6 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         public string Password { get; set; }
 
         /// <summary>
-        /// the type of the service (such as RDBMS)
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
         /// the port where the service will be available
         /// </summary>
         public int Port { get; set; }
@@ -55,13 +50,19 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         public string Host { get; set; }
 
         /// <summary>
-        /// the general name of the service (mssql, mysql, etc)
-        /// </summary>
-        public string Vendor { get; set; }
-
-        /// <summary>
         /// Name of the database/key value store/etc.
         /// </summary>
         public string InstanceName { get; set; }
+
+        /// <summary>
+        /// Service type label (mssql-2008, mysql-5.1, etc.).
+        /// </summary>
+        public string ServiceLabel { get; set; }
+
+        /// <summary>
+        /// Service type tags.
+        /// </summary>
+        public string[] ServiceTags { get; set; }
+
     }
 }

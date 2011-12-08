@@ -30,12 +30,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// </summary>
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
+        private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
+
         #region Class Members
 
         private string appName = String.Empty;
         private string appPath = String.Empty;
-        private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
-        
+        private FileLogger startupLogger;
+        private Dictionary<string, string> autoWireTemplates;
+
         //private ServerManager serverMgr = new ServerManager();
         private ApplicationInfo applicationInfo = null;
 
@@ -44,33 +47,35 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         #region Public Interface Methods
 
         /// <summary>
-        /// Sets the initial data for an IIS based application and auto-wires the web.config file with the required configuration settings
-        /// 
+        /// sets the initial data for an application
         /// </summary>
-        /// <param name="appInfo">Basic information about the app ( deployment dir, app name, port , etc )</param>
-        /// <param name="runtime">app's runtime</param>
-        /// <param name="variables">some other variables, if necessary</param>
-        /// <param name="services">the services the app may want to use</param>
-        /// <param name="logFilePath">the file path where the logs will be saved</param>
-        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath)
+        /// <param name="variables">All variables needed to run the application.</param>
+        public void ConfigureApplication(ApplicationVariable[] variables)
         {
-            appName = removeSpecialCharacters(appInfo.Name) + appInfo.Port.ToString(CultureInfo.InvariantCulture);
-            appPath = appInfo.Path;
 
-            applicationInfo = appInfo;
+            ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
+            startupLogger = new FileLogger(parsedData.StartupLogFilePath);
 
-            autowireApp(appInfo, variables, services, logFilePath);
-        }
 
-        public void ConfigureApplication(ApplicationInfo appInfo, Runtime runtime, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, int[] processIds)
-        {
-            throw new NotImplementedException();
+            appName = removeSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+            appPath = parsedData.AppInfo.Path;
+
+            applicationInfo = parsedData.AppInfo;
+
+            autoWireTemplates = parsedData.AutoWireTemplates;
+
+            autowireApp(parsedData.AppInfo, variables, parsedData.Services, parsedData.LogFilePath, parsedData.ErrorLogFilePath);
         }
 
         /// <summary>
-        /// a delegate used to devise a way to cope with a (potential) application crash
+        /// recovers a running application
         /// </summary>
-        public event ApplicationCrashDelegate OnApplicationCrash;
+        /// <param name="applicationPath">the path where the app resides</param>
+        /// <param name="processId">the id of the processes of the currenly running app</param>
+        public void RecoverApplication(string applicationPath, int processId)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// sets the data necessary for debugging the application remotely
@@ -234,8 +239,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="appInfo">The application info structure.</param>
         /// <param name="services">The services.</param>
         /// <param name="logFilePath">The ASP.NET events log file path.</param>
-        private void autowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath)
+        private void autowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
         {
+            startupLogger.Info("Starting application auto-wiring.");
+
             string configFile = Path.Combine(appInfo.Path, "web.config");
 
             if (File.Exists(configFile))
@@ -248,24 +255,24 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     foreach (ApplicationService service in services)
                     {
-                        string key = service.Vendor;
-                        string connectionString = String.Format(CultureInfo.InvariantCulture,
-                            "Data Source={0},{1};Initial Catalog={2};User Id={2};Password={3};MultipleActiveResultSets=true",
-                            service.Host,
-                            service.Port,
-                            service.Name,
-                            service.User,
-                            service.Password);
+                        string key = service.ServiceLabel;
+                        string template = String.Empty;
 
-                        connections.Add(key, connectionString);
+                        if (autoWireTemplates.TryGetValue(key, out template))
+                        {
+                            template = template.Replace("{host}", service.Host);
+                            template = template.Replace("{port}", service.Port.ToString());
+                            template = template.Replace("{name}", service.InstanceName);
+                            template = template.Replace("{user}", service.User);
+                            template = template.Replace("{password}", service.Password);
+
+                            connections[String.Format("{{{0}#{1}}}", key, service.Name)] = template;
+                        }
                     }
-
-
 
                     foreach (string con in connections.Keys)
                     {
-                        string conToReplace = String.Format(CultureInfo.InvariantCulture, "{{mssql#{0}}}", con);
-                        configFileContents = configFileContents.Replace(conToReplace, connections[con]);
+                        configFileContents = configFileContents.Replace(con, connections[con]);
                     }
                 }
 

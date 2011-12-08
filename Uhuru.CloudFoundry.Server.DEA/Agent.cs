@@ -821,27 +821,27 @@ namespace Uhuru.CloudFoundry.DEA
                     StartRequestService pService = new StartRequestService(); 
                     pService.FromJsonIntermediateObject(pmessage.Services[i]);
 
-                    ApplicationService appService = appServices[i] = new ApplicationService();
-                    //"name":"helloservice"
-                    appService.Name = pService.ServiceName;
-                    //"credentials"->"name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
-                    appService.InstanceName = pService.Credentials.InstanceName;
-                    //"vendor":"mssql"
-                    appService.Vendor = pService.Vendor;
-                    //"plan":"free"
-                    appService.Plan = pService.Plan;
-                    //"plan_option":null
-                    appService.PlanOptions = pService.PlanOptions;
-                    //"type":"database"
-                    appService.Type = pService.ServiceType;
-                    //"credentials"->"hostname":"192.168.1.116" (or host)
-                    appService.Host = String.IsNullOrEmpty(pService.Credentials.Hostname) ? pService.Credentials.Host : pService.Credentials.Hostname;
-                    //"credentials"->"user":"US3RkkyIUnYreXC8" (or username)
-                    appService.User = String.IsNullOrEmpty(pService.Credentials.User) ? pService.Credentials.Username : pService.Credentials.User;
-                    //"credentials"->"password":"P4SSJ0jwJTg0ojGx"
-                    appService.Password = pService.Credentials.Password;
-                    //"credentials"->"port":1433
-                    appService.Port = pService.Credentials.Port;
+                    //ApplicationService appService = appServices[i] = new ApplicationService();
+                    ////"name":"helloservice"
+                    //appService.Name = pService.ServiceName;
+                    ////"credentials"->"name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
+                    //appService.InstanceName = pService.Credentials.InstanceName;
+                    ////"vendor":"mssql"
+                    //appService.Vendor = pService.Vendor;
+                    ////"plan":"free"
+                    //appService.Plan = pService.Plan;
+                    ////"plan_option":null
+                    //appService.PlanOptions = pService.PlanOptions;
+                    ////"type":"database"
+                    //appService.Type = pService.ServiceType;
+                    ////"credentials"->"hostname":"192.168.1.116" (or host)
+                    //appService.Host = String.IsNullOrEmpty(pService.Credentials.Hostname) ? pService.Credentials.Host : pService.Credentials.Hostname;
+                    ////"credentials"->"user":"US3RkkyIUnYreXC8" (or username)
+                    //appService.User = String.IsNullOrEmpty(pService.Credentials.User) ? pService.Credentials.Username : pService.Credentials.User;
+                    ////"credentials"->"password":"P4SSJ0jwJTg0ojGx"
+                    //appService.Password = pService.Credentials.Password;
+                    ////"credentials"->"port":1433
+                    //appService.Port = pService.Credentials.Port;
                 }
 
                 AgentMonitoring.AddInstanceResources(instance);
@@ -885,9 +885,9 @@ namespace Uhuru.CloudFoundry.DEA
                 appInfo.LocalIp = Host;
                 instance.PopulateApplicationInfo(appInfo);
 
-                Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
+                //Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
 
-                instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs", "startup.log"));
+                //instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs", "startup.log"));
                 
                 instance.Plugin.StartApplication();
                 

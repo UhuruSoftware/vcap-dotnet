@@ -170,5 +170,40 @@ namespace CloudFoundry.Net.Test.Unit
             testenum asd = JsonConvertibleObject.ObjectToValue<testenum>("enum4");
             Assert.AreEqual(testenum.bar2, asd);
         }
+
+        private class EnumHashNullable : JsonConvertibleObject
+        {
+            [JsonName("foo")]
+            public testenum? foo;
+        }
+
+        [TestMethod()]
+        public void DeserializeEnumNullableJsonTest()
+        {
+            EnumHashNullable nullable = new EnumHashNullable();
+            nullable.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(@"{""foo"":""enum4""}"));
+
+            Assert.AreEqual(testenum.bar2, nullable.foo);
+
+
+            EnumHashNullable nullable2 = new EnumHashNullable();
+            nullable.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(@"{}"));
+
+            Assert.AreEqual(null, nullable2.foo);
+
+        }
+
+        [TestMethod()]
+        public void SerializeEnumNullableJsonTest()
+        {
+            EnumHashNullable nullable = new EnumHashNullable();
+            nullable.foo = testenum.bar2;
+            Assert.AreEqual(@"{""foo"":""enum4""}", nullable.SerializeToJson());
+
+            EnumHashNullable nullable2 = new EnumHashNullable();
+            Assert.AreEqual(@"{}", nullable2.SerializeToJson());
+
+        }
+
     }
 }

@@ -83,15 +83,6 @@ namespace Uhuru.CloudFoundry.DEA
             return true;
         }
 
-        public Runtime GetPluginRuntime(string runtimeName)
-        {
-            Runtime rtime = new Runtime();
-            rtime.Name = runtimeName;
-            rtime.Version = Runtimes[runtimeName].Version;
-            //rtime.Description = Runtimes[runtimeName].
-            return rtime;
-        }
-
         public void GetRuntimeEnvironment()
         {
             throw new System.NotImplementedException();

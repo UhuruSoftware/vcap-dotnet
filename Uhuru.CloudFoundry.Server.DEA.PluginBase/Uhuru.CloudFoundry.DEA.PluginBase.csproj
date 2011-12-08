@@ -54,11 +54,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationInfo.cs" />
+    <Compile Include="ApplicationParsedData.cs" />
     <Compile Include="ApplicationService.cs" />
     <Compile Include="ApplicationVariable.cs" />
     <Compile Include="IAgentPlugin.cs" />
+    <Compile Include="PluginHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Runtime.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
@@ -67,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
+      <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
+      <Name>Uhuru.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
