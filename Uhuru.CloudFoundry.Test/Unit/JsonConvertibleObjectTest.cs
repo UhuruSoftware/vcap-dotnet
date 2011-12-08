@@ -11,6 +11,11 @@ namespace Uhuru.CloudFoundry.Test.Unit
     public class JsonConvertibleObjectTest
     {
 
+    /// <summary>
+    ///This is a test class for JsonConvertibleObjectTest and is intended
+    ///to contain all JsonConvertibleObjectTest Unit Tests
+    ///</summary>
+
 
         private TestContext testContextInstance;
 
@@ -71,7 +76,11 @@ namespace Uhuru.CloudFoundry.Test.Unit
             [JsonName("enum1")]
             foo,
             [JsonName("enum2")]
-            bar
+            bar,
+            [JsonName("enum3")]
+            foo1,
+            [JsonName("enum4")]
+            bar2
         }
 
         private class testclass : JsonConvertibleObject
@@ -87,51 +96,39 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
-        [TestCategory("Unit")]
-        public void TC001_DeserializeFromJsonTest()
+        public void DeserializeFromJsonTest()
         {
-            //Arrange
             string json = @"{""bar"":""foo""}";
             testclass tc = new testclass();
-            //Act
             tc.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(json));
-            //Assert
             Assert.AreEqual("foo", tc.testfield);
         }
 
         [TestMethod()]
-        [TestCategory("Unit")]
-        public void TC002_DeserializeFromArrayJsonTest()
+        public void DeserializeFromArrayJsonTest()
         {
-            //Arrange
             string json = @"[{""bar"":""foo""},1]";
-            object[] objects = JsonConvertibleObject.DeserializeFromJsonArray(json);
-            testclass tc = new testclass();
 
-            //Act
+            object[] objects = JsonConvertibleObject.DeserializeFromJsonArray(json);
+
+            testclass tc = new testclass();
             tc.FromJsonIntermediateObject(objects[0]);
             Assert.AreEqual("foo", tc.testfield);
-            int i = JsonConvertibleObject.ObjectToValue<int>(objects[1]);
 
-            //Assert
+            int i = JsonConvertibleObject.ObjectToValue<int>(objects[1]);
             Assert.AreEqual(1, i);
         }
 
         [TestMethod()]
-        [TestCategory("Unit")]
-        public void TC003_DeserializeFromEnumJsonTest()
+        public void DeserializeFromEnumJsonTest()
         {
-            //Arrange
             string json = @"{""bar"":""foo"",""blah"":""enum2"",""field3"":""yyy""}";
-            testclass tc = new testclass();
 
-            //Act
+            testclass tc = new testclass();
             tc.testfield = "asdasd";
             tc.testfield2 = testenum.foo;
             tc.testfield3 = testenum0.xxx;
             tc.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(json));
-
-            //Assert
             Assert.AreEqual("foo", tc.testfield);
             Assert.AreEqual(testenum.bar, tc.testfield2);
             Assert.AreEqual(testenum0.yyy, tc.testfield3);
@@ -139,14 +136,11 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
-        [TestCategory("Unit")]
-        public void TC004_SerializeEnumJsonTest()
+        public void SerializeEnumJsonTest()
         {
-            //Arrange
             string json = @"{""bar"":""foo"",""blah"":""enum2"",""field3"":""yyy""}";
-            testclass tc = new testclass();
 
-            //Act
+            testclass tc = new testclass();
             tc.testfield = "asdasd";
             tc.testfield2 = testenum.foo;
             tc.testfield3 = testenum0.xxx;
@@ -155,9 +149,57 @@ namespace Uhuru.CloudFoundry.Test.Unit
             Assert.AreEqual(testenum.bar, tc.testfield2);
             Assert.AreEqual(testenum0.yyy, tc.testfield3);
 
-            //Assert
             string json2 = tc.SerializeToJson();
+
             Assert.AreEqual(json, json2);
+        }
+
+
+        private class EnumHash : JsonConvertibleObject
+        {
+            [JsonName("foo")]
+            public HashSet<testenum> foo;
+        }
+
+        [TestMethod()]
+        public void DeserializeEnumHashsetJsonTest()
+        {
+            testenum asd = JsonConvertibleObject.ObjectToValue<testenum>("enum4");
+            Assert.AreEqual(testenum.bar2, asd);
+        }
+
+        private class EnumHashNullable : JsonConvertibleObject
+        {
+            [JsonName("foo")]
+            public testenum? foo;
+        }
+
+        [TestMethod()]
+        public void DeserializeEnumNullableJsonTest()
+        {
+            EnumHashNullable nullable = new EnumHashNullable();
+            nullable.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(@"{""foo"":""enum4""}"));
+
+            Assert.AreEqual(testenum.bar2, nullable.foo);
+
+
+            EnumHashNullable nullable2 = new EnumHashNullable();
+            nullable.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(@"{}"));
+
+            Assert.AreEqual(null, nullable2.foo);
+
+        }
+
+        [TestMethod()]
+        public void SerializeEnumNullableJsonTest()
+        {
+            EnumHashNullable nullable = new EnumHashNullable();
+            nullable.foo = testenum.bar2;
+            Assert.AreEqual(@"{""foo"":""enum4""}", nullable.SerializeToJson());
+
+            EnumHashNullable nullable2 = new EnumHashNullable();
+            Assert.AreEqual(@"{}", nullable2.SerializeToJson());
+
         }
     }
 }
