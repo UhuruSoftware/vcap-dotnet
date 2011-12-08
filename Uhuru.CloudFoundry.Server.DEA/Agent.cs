@@ -63,10 +63,10 @@ namespace Uhuru.CloudFoundry.DEA
                 
                 foreach (Configuration.DEA.DebugElement debugEnv in deaConf.Debug)
                 {
-                    dea.DebugEnv.Add(debugEnv.Name, new List<string>());
+                    dea.DebugEnv.Add(debugEnv.Name, new Dictionary<string, string>());
                     foreach (Configuration.DEA.EnvironmentElement ienv in debugEnv.Environment)
                     {
-                        dea.DebugEnv[debugEnv.Name].Add(ienv.Name + "=" + ienv.Value);
+                        dea.DebugEnv[debugEnv.Name].Add(ienv.Name, ienv.Value);
                     }   
                 }
                
@@ -750,8 +750,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             DeaStartMessageRequest pmessage;
             DropletInstance instance;
-            ApplicationVariable[] appVariables;
-            ApplicationService[] appServices;
+            List<ApplicationVariable> appVariables;
 
             try
             {
@@ -800,48 +799,15 @@ namespace Uhuru.CloudFoundry.DEA
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
 
-                List<string> AppEnv = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+                Dictionary<string, string> appEnvs = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
 
-                appVariables = new ApplicationVariable[AppEnv.Count];
-                for (int i = 0; i < AppEnv.Count; i++)
+                appVariables = new List<ApplicationVariable>();
+                foreach(KeyValuePair<string, string> appEnv in appEnvs)
                 {
-                    string[] envVar = AppEnv[i].Split(new char[]{'='}, 2);
-
-                    appVariables[i] = new ApplicationVariable();
-                    appVariables[i].Name = envVar[0];
-                    appVariables[i].Value = envVar[1];
-                }
-                    
-                //Adding services
-                appServices = new ApplicationService[pmessage.Services.Length];
-                for(int i = 0; i < pmessage.Services.Length; i++)
-                {
-                    Dictionary<string, object> dService = pmessage.Services[i];
-
-                    StartRequestService pService = new StartRequestService(); 
-                    pService.FromJsonIntermediateObject(pmessage.Services[i]);
-
-                    //ApplicationService appService = appServices[i] = new ApplicationService();
-                    ////"name":"helloservice"
-                    //appService.Name = pService.ServiceName;
-                    ////"credentials"->"name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
-                    //appService.InstanceName = pService.Credentials.InstanceName;
-                    ////"vendor":"mssql"
-                    //appService.Vendor = pService.Vendor;
-                    ////"plan":"free"
-                    //appService.Plan = pService.Plan;
-                    ////"plan_option":null
-                    //appService.PlanOptions = pService.PlanOptions;
-                    ////"type":"database"
-                    //appService.Type = pService.ServiceType;
-                    ////"credentials"->"hostname":"192.168.1.116" (or host)
-                    //appService.Host = String.IsNullOrEmpty(pService.Credentials.Hostname) ? pService.Credentials.Host : pService.Credentials.Hostname;
-                    ////"credentials"->"user":"US3RkkyIUnYreXC8" (or username)
-                    //appService.User = String.IsNullOrEmpty(pService.Credentials.User) ? pService.Credentials.Username : pService.Credentials.User;
-                    ////"credentials"->"password":"P4SSJ0jwJTg0ojGx"
-                    //appService.Password = pService.Credentials.Password;
-                    ////"credentials"->"port":1433
-                    //appService.Port = pService.Credentials.Port;
+                    ApplicationVariable appVariable = new ApplicationVariable();
+                    appVariable.Name = appEnv.Key;
+                    appVariable.Value = appEnv.Value;
+                    appVariables.Add(appVariable);
                 }
 
                 AgentMonitoring.AddInstanceResources(instance);
@@ -854,12 +820,12 @@ namespace Uhuru.CloudFoundry.DEA
             //toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
-                StartDropletInstance(instance, appVariables, appServices, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
+                StartDropletInstance(instance, appVariables, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
         }
 
 
-        private void StartDropletInstance(DropletInstance instance, ApplicationVariable[] appVariables, ApplicationService[] appServices, string sha1, string executableFile, string executableUri)
+        private void StartDropletInstance(DropletInstance instance, List<ApplicationVariable> appVariables, string sha1, string executableFile, string executableUri)
         {
             try
             {
@@ -879,50 +845,17 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
 
 
+                ApplicationVariable stagingInfo = new ApplicationVariable();
+                stagingInfo.Name = VcapPluginStagingInfoVariable;
+                stagingInfo.Value = File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup"));
+                appVariables.Add(stagingInfo);
+
                 instance.LoadPlugin();
 
-                ApplicationInfo appInfo = new ApplicationInfo();
-                appInfo.LocalIp = Host;
-                instance.PopulateApplicationInfo(appInfo);
-
-                //Runtime runtime = AgentStager.GetPluginRuntime(instance.Properties.Runtime);
-
-                //instance.Plugin.ConfigureApplication(appInfo, runtime, appVariables, appServices, Path.Combine(instance.Properties.Directory, "logs", "startup.log"));
-                
+                instance.Plugin.ConfigureApplication(appVariables.ToArray());
                 instance.Plugin.StartApplication();
-                
-                /*
-                StreamWriterCallback startOperation = delegate(StreamWriter stdin)
-                {
-                    stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.CdCommand, instance.Properties.Directory));
-                    foreach (String env in AppEnv)
-                    {
-                        stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, Strings.SetCommand, env));
-                    }
-
-                    string runtimeLayer = String.Format(CultureInfo.InvariantCulture, "{0}\\netiis.exe", Directory.GetCurrentDirectory());
-                    
-                    stdin.WriteLine("copy .\\startup .\\startup.ps1");
-                    stdin.WriteLine(String.Format(CultureInfo.InvariantCulture, "powershell.exe -ExecutionPolicy Bypass -InputFormat None -noninteractive -file .\\startup.ps1 \"{0}\"", runtimeLayer));
-                    stdin.WriteLine("exit");
-                };
-
-                ProcessDoneCallback exitOperation = delegate(string output, int status)
-                {
-                    Logger.Info(Strings.CompletedRunningWith, instance.Properties.Name, status);
-                    Logger.Info(Strings.UptimeWas, instance.Properties.Name, DateTime.Now - instance.Properties.StateTimestamp);
-
-                    StopDroplet(instance);
-                };
-
-                //TODO: vladi: this must be done with clean environment variables
-                Utils.ExecuteCommands("cmd", "", startOperation, exitOperation);
-                */
-
 
                 int pid = instance.Plugin.GetApplicationProcessID();
-                    //DetectAppPid(instance);
-                
 
                 try
                 {
@@ -1082,61 +1015,51 @@ namespace Uhuru.CloudFoundry.DEA
             return pid;
         }
 
-        private List<string> SetupInstanceEnv(DropletInstance instance, string[] app_env, Dictionary<string, object>[] services)
-        {
-            List<string> env = new List<string>();
 
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.Home, instance.Properties.Directory));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapApplication, create_instance_for_env(instance)));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapServices, create_services_for_env(services)));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapAppHost, Host));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapAppPort, instance.Properties.Port));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapDebugIp, instance.Properties.DebugIP));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVcapDebugPort, instance.Properties.DebugPort));
-            
+        private const string HomeVariable = "HOME";
+        private const string VcapApplicationVariable = "VCAP_APPLICATION";
+        private const string VcapServicesVariable = "VCAP_SERVICES";
+        private const string VcapAppHostVariable = "VCAP_APP_HOST";
+        private const string VcapAppPortVariable = "VCAP_APP_PORT";
+        private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
+        private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
+        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
+        private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
+        private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
+
+
+        private Dictionary<string, string> SetupInstanceEnv(DropletInstance instance, string[] app_env, Dictionary<string, object>[] services)
+        {
+            Dictionary<string, string> env = new Dictionary<string, string>();
+
+            env.Add(HomeVariable, instance.Properties.Directory);
+            env.Add(VcapApplicationVariable, create_instance_for_env(instance));
+            env.Add(VcapServicesVariable, create_services_for_env(services));
+            env.Add(VcapAppHostVariable, Host);
+            env.Add(VcapAppPortVariable, instance.Properties.Port.ToString());
+
+            env.Add(VcapWindowsUserVariable, instance.Properties.WindowsUsername);
+            env.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
+
+            env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
+            env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
+
             if (instance.Properties.DebugPort != null && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
             {
-                if(AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] != null)
-                    env.AddRange( AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode] );
+                if (AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv.ContainsKey(instance.Properties.DebugMode))
+                {
+                    foreach (KeyValuePair<string, string> debugEnv in AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode])
+                    {
+                        env.Add(debugEnv.Key, debugEnv.Value);
+                    }
+                }
             }
             
-            // LEGACY STUFF
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcDeprecatedWarning));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcServices, create_legacy_services_for_env(services)));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppInstance, instance.Properties.SerializeToJson()));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppName, instance.Properties.Name));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppId, instance.Properties.InstanceId));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppVersion, instance.Properties.Version));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppHost, Host));
-            env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmcAppPort, instance.Properties.Port));
-
-            foreach (Dictionary<string, object> service in services)
-            {
-                string hostname = string.Empty;
-
-                Dictionary<string, object> serviceCredentials =  JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(service["credentials"]);
-
-                if (serviceCredentials.ContainsKey("hostname"))
-                {
-                    hostname = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["hostname"]);
-                }
-                else if (serviceCredentials.ContainsKey("host"))
-                {
-                    hostname = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["host"]);
-                }
-
-                string port = JsonConvertibleObject.ObjectToValue<string>(serviceCredentials["port"]);
-
-                if (!String.IsNullOrEmpty(hostname) && !String.IsNullOrEmpty(port))
-                {
-                    env.Add(String.Format(CultureInfo.InvariantCulture, Strings.VariableVmc, service["vendor"].ToString().ToUpperInvariant(), hostname, port));
-                }
-            }
 
             // Do the runtime environment settings
             foreach (KeyValuePair<string, string> runtimeEnv in AgentStager.Runtimes[instance.Properties.Runtime].Environment)
             {
-                env.Add(runtimeEnv.Key + "=" + runtimeEnv.Value);
+                env.Add(runtimeEnv.Key, runtimeEnv.Value);
             }
 
             // User's environment settings
@@ -1144,8 +1067,8 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 foreach (string appEnv in app_env)
                 {
-                    //string[] envVar = appEnv.Split(new char[] { '=' }, 2);
-                    env.Add(appEnv);
+                    string[] envVar = appEnv.Split(new char[] { '=' }, 2);
+                    env.Add(envVar[0], envVar[1]);
                 }
             }
 
@@ -1155,7 +1078,7 @@ namespace Uhuru.CloudFoundry.DEA
         private string create_instance_for_env(DropletInstance instance)
         {
             List<string> whitelist = new List<string>() { "instance_id", "instance_index", "name", "uris", "users", "version", "start", "runtime", "state_timestamp", "port" };
-            Dictionary<string, object> env_hash = new Dictionary<string, object>();
+            Dictionary<string, object> result = new Dictionary<string, object>();
 
             Dictionary<string, object> jInstance = instance.Properties.ToJsonIntermediateObject();
 
@@ -1163,19 +1086,22 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 if (jInstance[key] != null)
                 {
-                    env_hash[key] = JsonConvertibleObject.ObjectToValue<object>(jInstance[key]);
+                    //result[key] = JsonConvertibleObject.ObjectToValue<object>(jInstance[key]);
+                    result[key] = jInstance[key];
                 }
             }
 
-            env_hash["limits"] = new Dictionary<string, object>() {
+
+            result["host"] = Host;
+            result["limits"] = new Dictionary<string, object>() {
                 {"fds", instance.Properties.FdsQuota},
                 {"mem", instance.Properties.MemoryQuotaBytes},
                 {"disk", instance.Properties.DiskQuotaBytes}
             };
 
-            env_hash["host"] = Host;
+            
 
-            return JsonConvertibleObject.SerializeToJson(env_hash);
+            return JsonConvertibleObject.SerializeToJson(result);
         }
         
         private string create_legacy_services_for_env(Dictionary<string, object>[] services = null)

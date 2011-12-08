@@ -18,14 +18,16 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     /// </summary>
     public static class PluginHelper
     {
-        private const string VcapServicesVariable = "VCAP_SERVICES";
+        private const string HomeVariable = "HOME";
         private const string VcapApplicationVariable = "VCAP_APPLICATION";
+        private const string VcapServicesVariable = "VCAP_SERVICES";
         private const string VcapAppHostVariable = "VCAP_APP_HOST";
-        private const string VcapAppPathVariable = "VCAP_APP_PATH";
         private const string VcapAppPortVariable = "VCAP_APP_PORT";
+        private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
+        private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
+        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
         private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
         private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
-        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
 
         /// <summary>
         /// Gets the parsed data for an application.
@@ -51,7 +53,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             appInfo.InstanceId = vcapApplication.InstanceId;
             appInfo.LocalIp = variablesHash[VcapAppHostVariable];
             appInfo.Name = vcapApplication.Name;
-            appInfo.Path = Path.Combine(variablesHash[VcapAppPathVariable], "app");
+            appInfo.Path = Path.Combine(variablesHash[HomeVariable], "app");
             appInfo.Port = Int32.Parse(variablesHash[VcapAppPortVariable]);
             appInfo.WindowsPassword = variablesHash[VcapWindowsUserPasswordVariable];
             appInfo.WindowsUsername = variablesHash[VcapWindowsUserVariable];
@@ -90,9 +92,9 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             VcapPluginStagingInfo vcapPluginStagingInfo = new VcapPluginStagingInfo();
             vcapPluginStagingInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(variablesHash[VcapPluginStagingInfoVariable]));
 
-            string logFilePath = Path.Combine(variablesHash[VcapAppPathVariable], vcapPluginStagingInfo.Logs.AppLog); ;
-            string errorLogFilePath = Path.Combine(variablesHash[VcapAppPathVariable], vcapPluginStagingInfo.Logs.AppErrorLog); ;
-            string startupLogFilePath = Path.Combine(variablesHash[VcapAppPathVariable], vcapPluginStagingInfo.Logs.StartupLog); ;
+            string logFilePath = Path.Combine(variablesHash[HomeVariable], vcapPluginStagingInfo.Logs.AppLog); ;
+            string errorLogFilePath = Path.Combine(variablesHash[HomeVariable], vcapPluginStagingInfo.Logs.AppErrorLog); ;
+            string startupLogFilePath = Path.Combine(variablesHash[HomeVariable], vcapPluginStagingInfo.Logs.StartupLog); ;
 
 
             return new ApplicationParsedData(appInfo, runtime, variables, services.ToArray(), logFilePath, 
