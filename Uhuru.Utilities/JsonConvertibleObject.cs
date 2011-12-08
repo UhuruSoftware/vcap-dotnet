@@ -203,7 +203,7 @@ namespace Uhuru.Utilities
 
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (valueAsJObject[jsonPropertyName] != null)
+                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
                                 {
                                     JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
@@ -308,7 +308,7 @@ namespace Uhuru.Utilities
 
                             if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                             {
-                                if (valueAsJObject[jsonPropertyName] != null)
+                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
                                 {
                                     JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
