@@ -78,7 +78,7 @@ namespace Uhuru.CloudFoundry.Test
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value=@"65498" },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value=@"password" },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value=@"cfuser" },
-              new ApplicationVariable() { Name = "VCAP_APP_PATH", Value=@"c:\droplets\mydroplet" }
+              new ApplicationVariable() { Name = "HOME", Value=@"c:\droplets\mydroplet" }
             };
             ApplicationParsedData actual;
             actual = PluginHelper.GetParsedData(appVariables);
@@ -94,8 +94,8 @@ namespace Uhuru.CloudFoundry.Test
             Assert.AreEqual(@"c:\droplets\mydroplet\logs/stdout.log", actual.LogFilePath);
             Assert.AreEqual("iis", actual.Runtime);
             Assert.AreEqual("192.168.1.3", actual.Services[0].Host);
-            Assert.AreEqual("", actual.Services[0].InstanceName);
-            Assert.AreEqual("D4Tac4c307851cfe495bb829235cd384f094", actual.Services[0].Name);
+            Assert.AreEqual("D4Tac4c307851cfe495bb829235cd384f094", actual.Services[0].InstanceName);
+            Assert.AreEqual("mssql-b24a2", actual.Services[0].Name);
             Assert.AreEqual("P4SSdCGxh2gYjw54", actual.Services[0].Password);
             Assert.AreEqual("free", actual.Services[0].Plan);
             Assert.AreEqual(1433, actual.Services[0].Port);

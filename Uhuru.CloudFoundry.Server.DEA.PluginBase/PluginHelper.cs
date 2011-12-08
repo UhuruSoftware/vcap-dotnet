@@ -85,6 +85,8 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
                     appService.Port = service.Credentials.Port;                                    
                     appService.ServiceLabel = service.Label;
                     appService.ServiceTags = service.Tags;
+
+                    services.Add(appService);
                 }
             }
 

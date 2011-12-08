@@ -73,31 +73,23 @@
 //        {
 //            //Arrange
 //            IISPlugin target = new IISPlugin();
-//            ApplicationInfo appInfo = new ApplicationInfo();
-//            appInfo.InstanceId = Guid.NewGuid().ToString();
-//            appInfo.LocalIp = TestUtil.GetLocalIp();
-//            appInfo.Name = "MyTestApp";
-//            appInfo.Path =  Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp");
-//            appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-//            appInfo.WindowsUsername = "cfuser";
-//            appInfo.WindowsPassword = "Password1234!";
+//            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+//              new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+//              new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""646c477f54386d8afb279ec2f990a823"",""instance_index"":0,""name"":""sinatra_env_test_app"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+//              new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+//              new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=@"192.168.1.118" },
+//              new ApplicationVariable() { Name = "VCAP_APP_PORT", Value=@"65498" },
+//              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value=@"password" },
+//              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value=@"cfuser" },
+//              new ApplicationVariable() { Name = "HOME", Value=@"c:\droplets\mydroplet" }
+//            };
 
-//            Runtime runtime = new Runtime();
-//            runtime.Name = "iis";
-
-//            ApplicationVariable[] variables = null;
-//            ApplicationVariable var = new ApplicationVariable();
-            
-//            ApplicationService[] services = null;
-//            ApplicationService serv = new ApplicationService();
 //            Exception exception = null;
-
-//            string logFilePath = Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp") + @"\cloudtestapp.log";
 
 //            //Act
 //            try
 //            {
-//                target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
+//                target.ConfigureApplication(appVariables);
 //            }
 //            catch (Exception ex)
 //            {
@@ -105,10 +97,10 @@
 //            }
 
 //            //Assert
-//            Assert.IsNull(exception,"Exception thrown");
+//            Assert.IsNull(exception, "Exception thrown");
 //        }
 
-     
+
 
 
 //        /// <summary>
