@@ -85,6 +85,8 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
                     appService.Port = service.Credentials.Port;                                    
                     appService.ServiceLabel = service.Label;
                     appService.ServiceTags = service.Tags;
+
+                    services.Add(appService);
                 }
             }
 
@@ -174,7 +176,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 
         private class VcapPluginStagingInfoLogs : JsonConvertibleObject
         {
-            [JsonName("app_err")]
+            [JsonName("app_error")]
             public string AppErrorLog
             {
                 get;
