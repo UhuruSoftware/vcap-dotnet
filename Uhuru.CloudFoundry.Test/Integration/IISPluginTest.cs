@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
     {
         string user;
         string password;
-        
+
         [TestInitialize()]
         public void TestInitialize()
         {
@@ -31,7 +31,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             password = "!@#33Pass";
             user = Utilities.WindowsVcapUsers.CreateUser("IISPluginTest", password);
         }
-        
+
         [TestCleanup()]
         public void TestCleanup()
         {
@@ -163,7 +163,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     try
                     {
                         IISPlugin target = plugins[(int)data];
-               
+
                         target.ConfigureApplication(appInfos[(int)data]);
                         target.StartApplication();
                     }
@@ -254,7 +254,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 Directory.Delete(logPath, true);
             }
 
-            
+
             int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
 
             ApplicationVariable[] appVariables = new ApplicationVariable[] {
@@ -272,7 +272,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             //Act
             target.ConfigureApplication(appVariables);
             target.StartApplication();
-         
+
             //Assert
             WebClient client = new WebClient();
 
@@ -282,14 +282,14 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
             catch (WebException wex)
             {
-                 using (StreamReader reader = new StreamReader(wex.Response.GetResponseStream()))
-                 {
-                     string html = reader.ReadToEnd();
-                     Assert.IsTrue(html.Contains("Hello World Exception"));
-                     string logContent = File.ReadAllText(Path.Combine(logPath, "stderr.log"));
-                     Assert.IsTrue(logContent.Contains("Hello World Exception"));
-                                         
-                 }
+                using (StreamReader reader = new StreamReader(wex.Response.GetResponseStream()))
+                {
+                    string html = reader.ReadToEnd();
+                    Assert.IsTrue(html.Contains("Hello World Exception"));
+                    string logContent = File.ReadAllText(Path.Combine(logPath, "stderr.log"));
+                    Assert.IsTrue(logContent.Contains("Hello World Exception"));
+
+                }
             }
 
 
@@ -304,6 +304,63 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 return;
             }
             Assert.Fail();
+        }
+
+        /// <summary>
+        ///A test for Start WebApp
+        ///</summary>
+        [TestMethod()]
+        [TestCategory("Integration")]
+        public void TC005_TestGetProcessId()
+        {
+            //Arrange
+            IISPlugin target = new IISPlugin();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+
+            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+                    new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+                    new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""" + Guid.NewGuid().ToString() + @""",""instance_index"":0,""name"":""MyTestApp"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+                    new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+                    new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=TestUtil.GetLocalIp() },
+                    new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
+                    new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+                    new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+                };
+
+
+            //Act
+            target.ConfigureApplication(appVariables);
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            target.StartApplication();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            //Assert
+            WebClient client = new WebClient();
+            string html = client.DownloadString("http://localhost:" + port.ToString());
+            Assert.IsTrue(html.Contains("My ASP.NET Application"));
+
+            Assert.AreNotEqual(0, target.GetApplicationProcessID());
+
+            target.StopApplication();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            try
+            {
+                html = client.DownloadString("http://localhost:" + port.ToString());
+            }
+            catch
+            {
+                return;
+            }
+            Assert.AreEqual(0, target.GetApplicationProcessID());
         }
     }
 }

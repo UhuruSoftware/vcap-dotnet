@@ -25,6 +25,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.Xml.XPath;
     using Uhuru.CloudFoundry.DEA.AutoWiring;
     using Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging;
+    using System.Runtime.InteropServices;
 
 
     /// <summary>
@@ -68,7 +69,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 autoWireTemplates = parsedData.AutoWireTemplates;
 
-                autowireApp(parsedData.AppInfo, variables, parsedData.Services, parsedData.LogFilePath, parsedData.ErrorLogFilePath);
+                autowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
             }
             catch (Exception ex)
             {
@@ -137,7 +138,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         return 0;
                     }
                     string appPoolName = serverMgr.Sites[appName].Applications["/"].ApplicationPoolName;
-                    
+
                     foreach (WorkerProcess process in serverMgr.WorkerProcesses)
                     {
                         if (process.AppPoolName == appPoolName)
@@ -146,6 +147,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         }
                     }
                 }
+            }
+            catch (COMException)
+            {
+                return 0;
             }
             finally
             {
@@ -210,7 +215,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             string aspNetVersion = getAspDotNetVersion(version);
             string password = appInfo.WindowsPassword;
-            string userName = appInfo.WindowsUsername;
+            string userName = appInfo.WindowsUserName;
 
             try
             {
@@ -264,8 +269,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// Autowires the service connections and ASP.NET health monitoring in the application's web.config
         /// </summary>
         /// <param name="appInfo">The application info structure.</param>
+        /// <param name="variables">All application variables.</param>
         /// <param name="services">The services.</param>
-        /// <param name="logFilePath">The ASP.NET events log file path.</param>
+        /// <param name="logFilePath">The ASP.NET "Heartbeat" and "Lifetime Events" log file path.</param>
+        /// <param name="errorLogFilePath">The ASP.NET "All Errors" events log file path.</param>
         private void autowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
         {
             startupLogger.Info("Starting application auto-wiring.");
@@ -342,13 +349,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
 
                 errorLogDirSecurity.SetAccessRule(
-                    new FileSystemAccessRule(appInfo.WindowsUsername, FileSystemRights.Write | FileSystemRights.Read |
+                    new FileSystemAccessRule(appInfo.WindowsUserName, FileSystemRights.Write | FileSystemRights.Read |
                         FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
                         PropagationFlags.None, AccessControlType.Allow));
 
                 logDirSecurity.SetAccessRule(
-                    new FileSystemAccessRule(appInfo.WindowsUsername, FileSystemRights.Write | FileSystemRights.Read |
+                    new FileSystemAccessRule(appInfo.WindowsUserName, FileSystemRights.Write | FileSystemRights.Read |
                         FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
                         PropagationFlags.None, AccessControlType.Allow));

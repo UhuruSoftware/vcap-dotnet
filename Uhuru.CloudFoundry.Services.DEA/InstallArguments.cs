@@ -34,70 +34,60 @@ using System.Configuration.Install;
         public string BaseDir
         {
             get { return baseDir; }
-            set { baseDir = value; }
         }
         private string localRoute;
 
         public string LocalRoute
         {
             get { return localRoute; }
-            set { localRoute = value; }
         }
         private string filerPort;
 
         public string FilerPort
         {
             get { return filerPort; }
-            set { filerPort = value; }
         }
         private string messageBus;
 
         public string MessageBus
         {
             get { return messageBus; }
-            set { messageBus = value; }
         }
         private string multiTenant;
 
         public string MultiTenant
         {
             get { return multiTenant; }
-            set { multiTenant = value; }
         }
         private string maxMemory;
 
         public string MaxMemory
         {
             get { return maxMemory; }
-            set { maxMemory = value; }
         }
         private string secure;
 
         public string Secure
         {
             get { return secure; }
-            set { secure = value; }
         }
         private string enforceUlimit;
 
         public string EnforceUlimit
         {
             get { return enforceUlimit; }
-            set { enforceUlimit = value; }
         }
         private string heartBeatInterval;
 
         public string HeartBeatInterval
         {
             get { return heartBeatInterval; }
-            set { heartBeatInterval = value; }
         }
         private string forceHttpSharing;
 
         public string ForceHttpSharing
         {
             get { return forceHttpSharing; }
-            set { forceHttpSharing = value; }
         }
 
         private string targetDir;

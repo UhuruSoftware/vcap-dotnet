@@ -51,12 +51,12 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             vcapApplication.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(variablesHash[VcapApplicationVariable]));
 
             appInfo.InstanceId = vcapApplication.InstanceId;
-            appInfo.LocalIp = variablesHash[VcapAppHostVariable];
+            appInfo.LocalIP = variablesHash[VcapAppHostVariable];
             appInfo.Name = vcapApplication.Name;
             appInfo.Path = Path.Combine(variablesHash[HomeVariable], "app");
             appInfo.Port = Int32.Parse(variablesHash[VcapAppPortVariable]);
             appInfo.WindowsPassword = variablesHash[VcapWindowsUserPasswordVariable];
-            appInfo.WindowsUsername = variablesHash[VcapWindowsUserVariable];
+            appInfo.WindowsUserName = variablesHash[VcapWindowsUserVariable];
 
             string runtime = vcapApplication.Runtime;
 
@@ -73,18 +73,9 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
                     VcapProvisionedService service = new VcapProvisionedService();
                     service.FromJsonIntermediateObject(provisionedService);
 
-                    ApplicationService appService = new ApplicationService();
-
-                    appService.Name = service.Name;
-                    appService.InstanceName = service.Credentials.InstanceName;
-                    appService.Plan = service.Plan;
-                    appService.PlanOptions = service.PlanOptions;
-                    appService.Host = String.IsNullOrEmpty(service.Credentials.Hostname) ? service.Credentials.Host : service.Credentials.Hostname;
-                    appService.User = String.IsNullOrEmpty(service.Credentials.User) ? service.Credentials.Username : service.Credentials.User;
-                    appService.Password = service.Credentials.Password;
-                    appService.Port = service.Credentials.Port;                                    
-                    appService.ServiceLabel = service.Label;
-                    appService.ServiceTags = service.Tags;
+                    ApplicationService appService = new ApplicationService(service.Name, String.IsNullOrEmpty(service.Credentials.User) ? service.Credentials.Username : service.Credentials.User,
+                        service.Credentials.Password, service.Credentials.Port, service.Plan, service.PlanOptions, String.IsNullOrEmpty(service.Credentials.Hostname) ? service.Credentials.Host : service.Credentials.Hostname,
+                        service.Credentials.InstanceName, service.Label, service.Tags);
 
                     services.Add(appService);
                 }

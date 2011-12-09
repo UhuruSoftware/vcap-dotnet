@@ -100,9 +100,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
             {
                 string extraInfo = String.Empty;
 
-                if (eventRaised is WebBaseErrorEvent)
+                WebBaseErrorEvent errorEvent = eventRaised as WebBaseErrorEvent;
+
+                if (errorEvent != null)
                 {
-                    extraInfo = ((WebBaseErrorEvent)eventRaised).ErrorException.ToString();
+                    extraInfo = errorEvent.ErrorException.ToString();
                 }
 
                 this.customInfo.AppendLine(String.Format(CultureInfo.InvariantCulture,

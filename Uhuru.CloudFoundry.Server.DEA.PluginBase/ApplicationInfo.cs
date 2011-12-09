@@ -9,13 +9,6 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     using System;
     
     /// <summary>
-    /// a delegate used to define the OnApplicationCrash event
-    /// </summary>
-    /// <param name="instanceId">the id of the application that has crashed</param>
-    /// <param name="exception">the exception thrown upon crashing</param>
-    public delegate void ApplicationCrashDelegate(string instanceId, Exception exception);
-    
-    /// <summary>
     /// a class holding the basic information of an application
     /// </summary>
     public class ApplicationInfo : MarshalByRefObject
@@ -28,7 +21,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// the ip where the app is to be found
         /// </summary>
-        public string LocalIp { get; set; }
+        public string LocalIP { get; set; }
 
         /// <summary>
         /// the port where the app is to be found
@@ -48,7 +41,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// the username to authenticate
         /// </summary>
-        public string WindowsUsername { get; set; }
+        public string WindowsUserName { get; set; }
 
         /// <summary>
         /// the password of the user to authenticate

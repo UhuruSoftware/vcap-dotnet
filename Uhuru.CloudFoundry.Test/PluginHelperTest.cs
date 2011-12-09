@@ -83,25 +83,25 @@ namespace Uhuru.CloudFoundry.Test
             ApplicationParsedData actual;
             actual = PluginHelper.GetParsedData(appVariables);
             Assert.AreEqual("646c477f54386d8afb279ec2f990a823", actual.AppInfo.InstanceId);
-            Assert.AreEqual("192.168.1.118", actual.AppInfo.LocalIp);
+            Assert.AreEqual("192.168.1.118", actual.AppInfo.LocalIP);
             Assert.AreEqual("sinatra_env_test_app", actual.AppInfo.Name);
             Assert.AreEqual(@"c:\droplets\mydroplet\app", actual.AppInfo.Path);
             Assert.AreEqual(65498, actual.AppInfo.Port);
-            Assert.AreEqual("cfuser", actual.AppInfo.WindowsUsername);
+            Assert.AreEqual("cfuser", actual.AppInfo.WindowsUserName);
             Assert.AreEqual("password", actual.AppInfo.WindowsPassword);
             Assert.AreEqual(2, actual.AutoWireTemplates.Count);
             Assert.AreEqual(@"c:\droplets\mydroplet\logs/stderr.log", actual.ErrorLogFilePath);
             Assert.AreEqual(@"c:\droplets\mydroplet\logs/stdout.log", actual.LogFilePath);
             Assert.AreEqual("iis", actual.Runtime);
-            Assert.AreEqual("192.168.1.3", actual.Services[0].Host);
-            Assert.AreEqual("D4Tac4c307851cfe495bb829235cd384f094", actual.Services[0].InstanceName);
-            Assert.AreEqual("mssql-b24a2", actual.Services[0].Name);
-            Assert.AreEqual("P4SSdCGxh2gYjw54", actual.Services[0].Password);
-            Assert.AreEqual("free", actual.Services[0].Plan);
-            Assert.AreEqual(1433, actual.Services[0].Port);
-            Assert.AreEqual("mssql-2008", actual.Services[0].ServiceLabel);
-            Assert.AreEqual(3, actual.Services[0].ServiceTags.Length);
-            Assert.AreEqual("US3RTfqu78UpPM5X", actual.Services[0].User);
+            Assert.AreEqual("192.168.1.3", actual.GetServices()[0].Host);
+            Assert.AreEqual("D4Tac4c307851cfe495bb829235cd384f094", actual.GetServices()[0].InstanceName);
+            Assert.AreEqual("mssql-b24a2", actual.GetServices()[0].Name);
+            Assert.AreEqual("P4SSdCGxh2gYjw54", actual.GetServices()[0].Password);
+            Assert.AreEqual("free", actual.GetServices()[0].Plan);
+            Assert.AreEqual(1433, actual.GetServices()[0].Port);
+            Assert.AreEqual("mssql-2008", actual.GetServices()[0].ServiceLabel);
+            Assert.AreEqual(3, actual.GetServices()[0].ServiceTags.Length);
+            Assert.AreEqual("US3RTfqu78UpPM5X", actual.GetServices()[0].User);
             Assert.AreEqual(@"c:\droplets\mydroplet\logs/startup.log", actual.StartupLogFilePath);
         }
     }
