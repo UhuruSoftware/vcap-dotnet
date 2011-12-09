@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\ConfigurationTest.cs" />
+    <Compile Include="Integration\FileServerTest.cs" />
     <Compile Include="Integration\IISPluginTest.cs" />
     <Compile Include="Integration\NatsClientTest.cs" />
     <Compile Include="PluginHelperTest.cs" />
