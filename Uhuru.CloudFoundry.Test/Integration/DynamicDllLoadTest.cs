@@ -85,24 +85,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Assert.IsTrue(content.Contains("StopApplication")); // file should contain this string
         }
 
-        /// <summary>
-        /// calls the KillApplication method of the test dll and checks that it had the intended effect
-        /// </summary>
-        [TestMethod]
-        [TestCategory("Integration")]
-        public void TC003_CallKillApplication()
-        {
-            //Arrange
-            this.agent.StartApplication();
-
-            //Act
-            this.agent.KillApplication();
-
-            //Assert
-            Assert.IsTrue(File.Exists(ResultFilePath)); // the file should have been created
-            string[] content = File.ReadAllLines(ResultFilePath);
-            Assert.IsTrue(content.Contains("KillApplication")); // the file should contain this string
-        }
 
         /// <summary>
         /// unloads the dynamically loaded .dll and checks that it has called StopApplication prior to closing
@@ -122,30 +104,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Assert.IsTrue(content.Contains("StopApplication")); // file should contain this string, as StopApplication was called on the app
         }
 
-        /// <summary>
-        /// calls the ConfigureDebug method of the test dll and checks that it had the intended effect
-        /// </summary>
-        [TestMethod]
-        [TestCategory("Integration")]
-        public void TC005_CallConfigureDebug()
-        {
-            //Arrange
-            string firstParameter = "param1";
-            string secondParameter = "param2";
-
-            //Act
-            this.agent.ConfigureDebug(firstParameter, secondParameter, null); //// new ApplicationVariable[0]);
-
-            //Assert
-            Assert.IsTrue(File.Exists(ResultFilePath)); // the file should have been created
-            string[] content = File.ReadAllLines(ResultFilePath);
-            string row = content.Where(r => r.StartsWith("ConfigureDebug", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-            Assert.AreNotEqual(row, default(string)); // a row fulfilling the condition should be found
-            string[] parts = row.Split(' ');
-            Assert.AreEqual(parts.Length, 3);
-            Assert.AreEqual(parts[1], firstParameter);
-            Assert.AreEqual(parts[2], secondParameter);
-        }
     }
 }
 

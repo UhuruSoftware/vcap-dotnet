@@ -22,7 +22,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
             bool debug = args.Contains("debug");
 
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             if (!debug)
             {
                 System.ServiceProcess.ServiceBase[] ServicesToRun;
@@ -42,7 +42,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            EventLog.WriteEntry("MsSQL", e.ExceptionObject.ToString(), EventLogEntryType.Error);
+            Uhuru.Utilities.Logger.Fatal(e.ExceptionObject.ToString());
         }
 
     }

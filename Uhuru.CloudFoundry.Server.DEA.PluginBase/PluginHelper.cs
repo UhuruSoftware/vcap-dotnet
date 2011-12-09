@@ -28,6 +28,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
         private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
         private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
+        private const string VcapAppPidVariable = "VCAP_APP_PID";
 
         /// <summary>
         /// Gets the parsed data for an application.

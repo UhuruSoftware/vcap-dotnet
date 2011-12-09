@@ -408,7 +408,7 @@ namespace Uhuru.NatsClient
                 }
                 catch (SocketException soketException)
                 {
-                    EventLog.WriteEntry(Resources.ClientConnection.EventSource, soketException.ToString(), EventLogEntryType.Error);
+                    Logger.Fatal(soketException.ToString());
                 }
 
                 reconnectAttempt++;
@@ -556,37 +556,27 @@ namespace Uhuru.NatsClient
             }
             catch (ArgumentNullException argumentNullException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource,  
-                                    Language.ExceptionMessageBufferParameterNull + argumentNullException.ToString(), 
-                                    EventLogEntryType.Error);
+                Logger.Fatal(Language.ExceptionMessageBufferParameterNull + argumentNullException.ToString());
             }
             catch (ArgumentOutOfRangeException argumentOutOfRangeException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
-                                    Language.ExceptionBufferOffsetOrSizeIncorrect + argumentOutOfRangeException.ToString(), 
-                                    EventLogEntryType.Error);
+                Logger.Fatal(Language.ExceptionBufferOffsetOrSizeIncorrect + argumentOutOfRangeException.ToString());
             }
             catch (ArgumentException argumentException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
-                                    Language.ExceptionAsyncResultParameterNull + argumentException.ToString(), 
-                                    EventLogEntryType.Error);
+                Logger.Fatal(Language.ExceptionAsyncResultParameterNull + argumentException.ToString());
             }
             catch (IOException exception)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
-                                    Language.ExceptionSocketReadProblem + exception.ToString(), 
-                                    EventLogEntryType.Error);
+                Logger.Fatal(Language.ExceptionSocketReadProblem + exception.ToString());
             }
             catch (ObjectDisposedException objectDisposedException)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, 
-                                    Language.ExceptionNetworkStreamClosed + objectDisposedException.ToString(), 
-                                    EventLogEntryType.Error);
+                Logger.Fatal(Language.ExceptionNetworkStreamClosed + objectDisposedException.ToString());
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry(Resources.ClientConnection.EventSource, ex.ToString(), EventLogEntryType.Error);
+                Logger.Fatal(ex.ToString());
             }
         }
        

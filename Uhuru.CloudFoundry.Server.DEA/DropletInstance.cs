@@ -211,7 +211,7 @@ namespace Uhuru.CloudFoundry.DEA
             return appInfo;
         }
 
-        class VcapPluginStatingInfo : JsonConvertibleObject
+        class VcapPluginStagingInfo : JsonConvertibleObject
         {
 
             [JsonName("assembly")]
@@ -219,7 +219,23 @@ namespace Uhuru.CloudFoundry.DEA
 
             [JsonName("class_name")]
             public string ClassName { get; set; }
+            
+            [JsonName("logs")]
+            public VcapPluginStagingInfoLogs Logs
+            {
+                get;
+                set;
+            }
+        }
 
+        class VcapPluginStagingInfoLogs : JsonConvertibleObject
+        {
+            [JsonName("dea_error")]
+            public string DeaErrorLog
+            {
+                get;
+                set;
+            }
         }
 
         public void LoadPlugin()
@@ -227,30 +243,32 @@ namespace Uhuru.CloudFoundry.DEA
             // in startup, we have the classname and assembly to load as a plugin
             string startup = File.ReadAllText(Path.Combine(Properties.Directory, "startup"));
 
-            VcapPluginStatingInfo pluginInfo = new VcapPluginStatingInfo();
+            VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
             pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson( startup));
 
-            try
+            ErrorLog = new Utilities.FileLogger(Path.Combine(properties.Directory, pluginInfo.Logs.DeaErrorLog));
+
+            //check to see if the pluging is in the instance directory
+            if(File.Exists(Path.Combine(Properties.Directory, pluginInfo.Assembly)))
             {
-                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory + pluginInfo.Assembly), pluginInfo.ClassName);
+                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
             }
-            catch { }
-
-            if (Plugin == null)
+            else
+            //if not load the plugin from the dea
             {
                 Guid PluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
             }
         }
 
-        public DropletInstanceUsage AddUsage(long mem, long cpu, long disk)
+        public DropletInstanceUsage AddUsage(long memBytes, long cpu, long diskBytes)
         {
             DropletInstanceUsage curUsage = new DropletInstanceUsage();
             curUsage.Time = DateTime.Now;
             curUsage.Cpu = cpu;
-            curUsage.MemoryKbytes = mem;
-            curUsage.DiskBytes = disk;
+            curUsage.MemoryKbytes = memBytes / 1024;
+            curUsage.DiskBytes = diskBytes;
 
             Usage.Add(curUsage);
             if (Usage.Count > DropletInstance.MaxUsageSamples)
@@ -261,6 +279,8 @@ namespace Uhuru.CloudFoundry.DEA
             Properties.UsageRecent = curUsage;
             return curUsage;
         }
-        
+
+
+        public FileLogger ErrorLog { get; set; }
     }
 }

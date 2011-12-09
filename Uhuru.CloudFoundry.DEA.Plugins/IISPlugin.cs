@@ -81,24 +81,24 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <summary>
         /// recovers a running application
         /// </summary>
-        /// <param name="applicationPath">the path where the app resides</param>
-        /// <param name="processId">the id of the processes of the currenly running app</param>
-        public void RecoverApplication(string applicationPath, int processId)
+        /// <param name="variables">All variables needed to run the application.</param>
+        public void RecoverApplication(ApplicationVariable[] variables)
         {
-            throw new NotImplementedException();
+            try
+            {
+                ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
+                startupLogger = new FileLogger(parsedData.StartupLogFilePath);
+                appName = removeSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                appPath = parsedData.AppInfo.Path;
+                applicationInfo = parsedData.AppInfo;
+                autoWireTemplates = parsedData.AutoWireTemplates;
+            }
+            catch (Exception ex)
+            {
+                startupLogger.Error(ex.ToString());
+                throw ex;
+            }
         }
-
-        /// <summary>
-        /// sets the data necessary for debugging the application remotely
-        /// </summary>
-        /// <param name="debugPort">the port used to reach the app remotely</param>
-        /// <param name="debugIp">the ip where the app cand be reached for debug</param>
-        /// <param name="debugVariables">the variables necessary for debug, if any</param>
-        public void ConfigureDebug(string debugPort, string debugIp, ApplicationVariable[] debugVariables)
-        {
-            throw new NotImplementedException();
-        }
-
 
         /// <summary>
         /// Starts the application
@@ -176,26 +176,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         public void CleanupApplication(string path)
         {
             cleanup(path);
-        }
-
-
-        /// <summary>
-        /// Kills all application processes
-        /// </summary>
-        public void KillApplication()
-        {
-            try
-            {
-                mut.WaitOne();
-                using (ServerManager serverMgr = new ServerManager())
-                {
-                    killApplicationProcesses(serverMgr.Sites[appName].Applications["/"].ApplicationPoolName);
-                }
-            }
-            finally
-            {
-                mut.ReleaseMutex();
-            }
         }
 
         #endregion
@@ -856,5 +836,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         }
 
         #endregion
+
+        /// <summary>
+        /// Implementation for MarshallByRefObject
+        /// </summary>
+        /// <returns>Allways return null, so the plugin is not collected.</returns>
+        public override object InitializeLifetimeService()
+        {
+            return null;
+        }
     }
 }
