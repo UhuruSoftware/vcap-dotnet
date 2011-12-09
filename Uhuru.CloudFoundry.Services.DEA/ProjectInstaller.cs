@@ -14,7 +14,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.Net;
     using System.Reflection;
     using Uhuru.Configuration;
-    using System.Diagnostics;
     using System.Globalization;
 
     [RunInstaller(true)]
@@ -28,8 +27,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
-
-            Debugger.Launch();
 
             InstallArguments arguments = new InstallArguments(this.Context);
             string configFile = Path.Combine(arguments.TargetDir, Assembly.GetExecutingAssembly().Location + ".config");
