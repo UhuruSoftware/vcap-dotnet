@@ -14,7 +14,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.Net;
     using System.Reflection;
     using Uhuru.Configuration;
-    using System.Diagnostics;
+    using System.Globalization;
 
     [RunInstaller(true)]
     public partial class ProjectInstaller : System.Configuration.Install.Installer
@@ -27,8 +27,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
-
-            Debugger.Launch();
 
             InstallArguments arguments = new InstallArguments(this.Context);
             string configFile = Path.Combine(arguments.TargetDir, Assembly.GetExecutingAssembly().Location + ".config");
@@ -49,19 +47,19 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.EnforceUlimit))
             {
-                section.DEA.EnforceUlimit = Convert.ToBoolean(arguments.EnforceUlimit);
+                section.DEA.EnforceUlimit = Convert.ToBoolean(arguments.EnforceUlimit, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.FilerPort))
             {
-                section.DEA.FilerPort = Convert.ToInt32(arguments.FilerPort);
+                section.DEA.FilerPort = Convert.ToInt32(arguments.FilerPort, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.ForceHttpSharing))
             {
-                section.DEA.ForceHttpSharing = Convert.ToBoolean(arguments.ForceHttpSharing);
+                section.DEA.ForceHttpSharing = Convert.ToBoolean(arguments.ForceHttpSharing, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.HeartBeatInterval))
             {
-                section.DEA.HeartBeatInterval = Convert.ToInt32(arguments.HeartBeatInterval);
+                section.DEA.HeartBeatInterval = Convert.ToInt32(arguments.HeartBeatInterval, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.LocalRoute))
             {
@@ -82,7 +80,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.MaxMemory))
             {
-                section.DEA.MaxMemory = Convert.ToInt32(arguments.MaxMemory);
+                section.DEA.MaxMemory = Convert.ToInt32(arguments.MaxMemory, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.MessageBus))
             {
@@ -90,11 +88,11 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.MultiTenant))
             {
-                section.DEA.MultiTenant = Convert.ToBoolean(arguments.MultiTenant);
+                section.DEA.MultiTenant = Convert.ToBoolean(arguments.MultiTenant, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.Secure))
             {
-                section.DEA.Secure = Convert.ToBoolean(arguments.Secure);
+                section.DEA.Secure = Convert.ToBoolean(arguments.Secure, CultureInfo.InvariantCulture);
             }
 
             section.Service = null;

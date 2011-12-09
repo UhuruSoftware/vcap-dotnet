@@ -13,56 +13,34 @@ using System.IO;
 namespace Uhuru.CloudFoundry.Test.Integration
 {
     [TestClass]
+    [DeploymentItem("log4net.config")]
     public class IISPluginTest
     {
-        private TestContext testContextInstance;
+        string user;
+        string password;
 
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [TestInitialize()]
+        public void TestInitialize()
         {
-            get
+            try
             {
-                return testContextInstance;
+                Utilities.WindowsVcapUsers.DeleteUser("IISPluginTest");
             }
-            set
-            {
-                testContextInstance = value;
-            }
+            catch { }
+
+            password = "!@#33Pass";
+            user = Utilities.WindowsVcapUsers.CreateUser("IISPluginTest", password);
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
+        [TestCleanup()]
+        public void TestCleanup()
+        {
+            try
+            {
+                Utilities.WindowsVcapUsers.DeleteUser("IISPluginTest");
+            }
+            catch { }
+        }
 
         /// <summary>
         ///A test for ConfigureApplication
@@ -73,31 +51,23 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             //Arrange
             IISPlugin target = new IISPlugin();
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.InstanceId = Guid.NewGuid().ToString();
-            appInfo.LocalIp = TestUtil.GetLocalIp();
-            appInfo.Name = "MyTestApp";
-            appInfo.Path =  Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp");
-            appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-            appInfo.WindowsUsername = "cfuser";
-            appInfo.WindowsPassword = "Password1234!";
+            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+              new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+              new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""646c477f54386d8afb279ec2f990a823"",""instance_index"":0,""name"":""sinatra_env_test_app"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+              new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+              new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=@"192.168.1.118" },
+              new ApplicationVariable() { Name = "VCAP_APP_PORT", Value=@"65498" },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+              new ApplicationVariable() { Name = "HOME", Value=@"c:\droplets\mydroplet" }
+            };
 
-            Runtime runtime = new Runtime();
-            runtime.Name = "iis";
-
-            ApplicationVariable[] variables = null;
-            ApplicationVariable var = new ApplicationVariable();
-            
-            ApplicationService[] services = null;
-            ApplicationService serv = new ApplicationService();
             Exception exception = null;
-
-            string logFilePath = Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp") + @"\cloudtestapp.log";
 
             //Act
             try
             {
-                target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
+                target.ConfigureApplication(appVariables);
             }
             catch (Exception ex)
             {
@@ -105,10 +75,10 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
 
             //Assert
-            Assert.IsNull(exception,"Exception thrown");
+            Assert.IsNull(exception, "Exception thrown");
         }
 
-     
+
 
 
         /// <summary>
@@ -118,90 +88,38 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC002_StartWebAppTest()
         {
+
             //Arrange
             IISPlugin target = new IISPlugin();
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.InstanceId = Guid.NewGuid().ToString();
-            appInfo.LocalIp = TestUtil.GetLocalIp();
-            appInfo.Name = "MyTestApp";
-            appInfo.Path = Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp");
-            appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-            appInfo.WindowsPassword = "cfuser";
-            appInfo.WindowsPassword = "Password1234!";
 
-            Runtime runtime = new Runtime();
-            runtime.Name = "iis";
+            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
 
-            ApplicationVariable[] variables = null;
-            ApplicationService[] services = null;
+            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+              new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+              new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""" + Guid.NewGuid().ToString() + @""",""instance_index"":0,""name"":""MyTestApp"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+              new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+              new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=TestUtil.GetLocalIp() },
+              new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+            };
 
-            string logFilePath = appInfo.Path + @"\cloudtestapp.log";
 
             //Act
-            target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
+            target.ConfigureApplication(appVariables);
             target.StartApplication();
-            Thread.Sleep(5000);
 
             //Assert
             WebClient client = new WebClient();
-            string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-            Assert.IsTrue(html.Contains("Welcome to ASP.NET!"));
+            string html = client.DownloadString("http://localhost:" + port.ToString());
+            Assert.IsTrue(html.Contains("My ASP.NET Application"));
 
             target.StopApplication();
 
             try
             {
-                html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-            }
-            catch
-            {
-                return;
-            }
-            Assert.Fail();
-        }
-
-
-        /// <summary>
-        ///A test for Start WebSite
-        ///</summary>
-        [TestMethod()]
-        [TestCategory("Integration")]
-        public void TC003_StartWebSiteTest()
-        {
-            //Arrange
-            IISPlugin target = new IISPlugin();
-            ApplicationInfo appInfo = new ApplicationInfo();
-            appInfo.InstanceId = Guid.NewGuid().ToString();
-            appInfo.LocalIp = TestUtil.GetLocalIp();
-            appInfo.Name = "MyTestApp";
-            appInfo.Path = Path.GetFullPath(@"..\..\..\TestApps\CloudTestWebSite");
-            appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-            appInfo.WindowsPassword = "cfuser";
-            appInfo.WindowsPassword = "Password1234!";
-
-            Runtime runtime = new Runtime();
-            runtime.Name = "iis";
-
-            ApplicationVariable[] variables = null;
-            ApplicationService[] services = null;
-
-            string logFilePath = appInfo.Path + @"\cloudtestapp.log";
-
-            //Act
-            target.ConfigureApplication(appInfo, runtime, variables, services, logFilePath);
-            target.StartApplication();
-            Thread.Sleep(5000);
-
-            //Assert
-            WebClient client = new WebClient();
-            string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
-            Assert.IsTrue(html.Contains("Welcome to ASP.NET!"));
-
-            target.StopApplication();
-
-            try
-            {
-                html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                html = client.DownloadString("http://localhost:" + port.ToString());
             }
             catch
             {
@@ -214,24 +132,25 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC003_MultipleWebApps()
         {
-            List<ApplicationInfo> appInfos = new List<ApplicationInfo>();
+            List<ApplicationVariable[]> appInfos = new List<ApplicationVariable[]>();
             List<IISPlugin> plugins = new List<IISPlugin>();
             List<Thread> threadsStart = new List<Thread>();
             List<Thread> threadsStop = new List<Thread>();
 
             for (int i = 0; i < 20; i++)
             {
-                ApplicationInfo appInfo = new ApplicationInfo();
-                appInfo.InstanceId = Guid.NewGuid().ToString();
-                appInfo.LocalIp = TestUtil.GetLocalIp();
-                appInfo.Name = "MyTestApp";
+                int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+                ApplicationVariable[] appInfo = new ApplicationVariable[] {
+              new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+              new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""" + Guid.NewGuid().ToString() + @""",""instance_index"":0,""name"":""MyTestApp"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+              new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+              new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=TestUtil.GetLocalIp() },
+              new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+            };
 
-
-
-                appInfo.Path = TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp"));
-                appInfo.Port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-                appInfo.WindowsPassword = "cfuser";
-                appInfo.WindowsPassword = "Password1234!";
                 appInfos.Add(appInfo);
                 plugins.Add(new IISPlugin());
             }
@@ -244,16 +163,9 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     try
                     {
                         IISPlugin target = plugins[(int)data];
-                        Runtime runtime = new Runtime();
-                        runtime.Name = "iis";
-                        ApplicationVariable[] variables = null;
-                        ApplicationService[] services = null;
-                        string logFilePath = appInfos[(int)data].Path + @"\cloudtestapp.log";
 
-                        target.ConfigureApplication(appInfos[(int)data], runtime, variables, services, logFilePath);
+                        target.ConfigureApplication(appInfos[(int)data]);
                         target.StartApplication();
-
-                        Thread.Sleep(5000);
                     }
                     catch (Exception ex)
                     {
@@ -274,10 +186,10 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
 
 
-            foreach (ApplicationInfo appInfo in appInfos)
+            foreach (ApplicationVariable[] appInfo in appInfos)
             {
                 WebClient client = new WebClient();
-                string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                string html = client.DownloadString("http://localhost:" + appInfo.First(v => v.Name == "VCAP_APP_PORT").Value);
                 Assert.IsTrue(html.Contains("My ASP.NET Application"));
             }
 
@@ -290,7 +202,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     {
                         IISPlugin target = plugins[(int)data];
                         target.StopApplication();
-                        Thread.Sleep(5000);
                     }
                     catch (Exception ex)
                     {
@@ -311,12 +222,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 thread.Join();
             }
 
-            foreach (ApplicationInfo appInfo in appInfos)
+            foreach (ApplicationVariable[] appInfo in appInfos)
             {
                 try
                 {
                     WebClient client = new WebClient();
-                    string html = client.DownloadString("http://localhost:" + appInfo.Port.ToString());
+                    string html = client.DownloadString("http://localhost:" + appInfo.First(v => v.Name == "VCAP_APP_PORT").Value);
                     Assert.Fail();
                 }
                 catch
@@ -325,5 +236,131 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
         }
 
+
+        [TestMethod()]
+        [TestCategory("Integration")]
+        public void TC004_ExceptionWebAppTest()
+        {
+            //Arrange
+            IISPlugin target = new IISPlugin();
+
+
+            string path = TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp"));
+
+            string logPath = Path.Combine(path, "logs");
+
+            if (Directory.Exists(logPath))
+            {
+                Directory.Delete(logPath, true);
+            }
+
+
+            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+
+            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+              new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+              new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""" + Guid.NewGuid().ToString() + @""",""instance_index"":0,""name"":""MyTestApp"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+              new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+              new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=TestUtil.GetLocalIp() },
+              new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+              new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+              new ApplicationVariable() { Name = "HOME", Value=path }
+            };
+
+
+            //Act
+            target.ConfigureApplication(appVariables);
+            target.StartApplication();
+
+            //Assert
+            WebClient client = new WebClient();
+
+            try
+            {
+                client.DownloadString("http://localhost:" + port.ToString() + "/exception.aspx");
+            }
+            catch (WebException wex)
+            {
+                using (StreamReader reader = new StreamReader(wex.Response.GetResponseStream()))
+                {
+                    string html = reader.ReadToEnd();
+                    Assert.IsTrue(html.Contains("Hello World Exception"));
+                    string logContent = File.ReadAllText(Path.Combine(logPath, "stderr.log"));
+                    Assert.IsTrue(logContent.Contains("Hello World Exception"));
+
+                }
+            }
+
+
+            target.StopApplication();
+
+            try
+            {
+                client.DownloadString("http://localhost:" + port.ToString());
+            }
+            catch
+            {
+                return;
+            }
+            Assert.Fail();
+        }
+
+        /// <summary>
+        ///A test for Start WebApp
+        ///</summary>
+        [TestMethod()]
+        [TestCategory("Integration")]
+        public void TC005_TestGetProcessId()
+        {
+            //Arrange
+            IISPlugin target = new IISPlugin();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+
+            ApplicationVariable[] appVariables = new ApplicationVariable[] {
+                    new ApplicationVariable() { Name = "VCAP_PLUGIN_STAGING_INFO", Value=@"{""assembly"":""Uhuru.CloudFoundry.DEA.Plugins.dll"",""class_name"":""Uhuru.CloudFoundry.DEA.Plugins.IISPlugin"",""logs"":{""app_error"":""logs/stderr.log"",""dea_error"":""logs/err.log"",""startup"":""logs/startup.log"",""app"":""logs/stdout.log""},""auto_wire_templates"":{""mssql-2008"":""Data Source={host},{port};Initial Catalog={name};User Id={user};Password={password};MultipleActiveResultSets=true"",""mysql-5.1"":""server={host};port={port};Database={name};Uid={user};Pwd={password};""}}" },
+                    new ApplicationVariable() { Name = "VCAP_APPLICATION", Value=@"{""instance_id"":""" + Guid.NewGuid().ToString() + @""",""instance_index"":0,""name"":""MyTestApp"",""uris"":[""sinatra_env_test_app.uhurucloud.net""],""users"":[""dev@cloudfoundry.org""],""version"":""c394f661a907710b8a8bb70b84ff0c83354dbbed-1"",""start"":""2011-12-07 14:40:12 +0200"",""runtime"":""iis"",""state_timestamp"":1323261612,""port"":51202,""limits"":{""fds"":256,""mem"":67108864,""disk"":2147483648},""host"":""192.168.1.117""}" },
+                    new ApplicationVariable() { Name = "VCAP_SERVICES", Value=@"{""mssql-2008"":[{""name"":""mssql-b24a2"",""label"":""mssql-2008"",""plan"":""free"",""tags"":[""mssql"",""2008"",""relational""],""credentials"":{""name"":""D4Tac4c307851cfe495bb829235cd384f094"",""username"":""US3RTfqu78UpPM5X"",""user"":""US3RTfqu78UpPM5X"",""password"":""P4SSdCGxh2gYjw54"",""hostname"":""192.168.1.3"",""port"":1433,""bind_opts"":{}}}]}" },
+                    new ApplicationVariable() { Name = "VCAP_APP_HOST", Value=TestUtil.GetLocalIp() },
+                    new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
+                    new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
+                    new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
+                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+                };
+
+
+            //Act
+            target.ConfigureApplication(appVariables);
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            target.StartApplication();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            //Assert
+            WebClient client = new WebClient();
+            string html = client.DownloadString("http://localhost:" + port.ToString());
+            Assert.IsTrue(html.Contains("My ASP.NET Application"));
+
+            Assert.AreNotEqual(0, target.GetApplicationProcessID());
+
+            target.StopApplication();
+
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+
+            try
+            {
+                html = client.DownloadString("http://localhost:" + port.ToString());
+            }
+            catch
+            {
+                return;
+            }
+            Assert.AreEqual(0, target.GetApplicationProcessID());
+        }
     }
 }

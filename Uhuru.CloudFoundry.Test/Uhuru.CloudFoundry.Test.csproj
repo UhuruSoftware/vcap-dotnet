@@ -33,13 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TestDLLToLoad, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\TestDLLToLoad.dll</HintPath>
     </Reference>
@@ -55,9 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Integration\ConfigurationTest.cs" />
-    <Compile Include="Integration\DynamicDllLoadTest.cs" />
     <Compile Include="Integration\IISPluginTest.cs" />
     <Compile Include="Integration\NatsClientTest.cs" />
+    <Compile Include="PluginHelperTest.cs" />
     <Compile Include="System\MsSqlServicesTest.cs" />
     <Compile Include="System\UmbracoTest.cs" />
     <Compile Include="Unit\JsonConvertibleObjectTest.cs" />

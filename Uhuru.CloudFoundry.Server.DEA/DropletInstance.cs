@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
 	using Uhuru.CloudFoundry.Server.DEA.PluginBase;
 	using System.Net.Sockets;
     using System.IO;
+    using Uhuru.Utilities;
 	
     public class DropletInstance
     {
@@ -206,28 +207,39 @@ namespace Uhuru.CloudFoundry.DEA
             appInfo.Path = Properties.Directory;
             appInfo.Port = Properties.Port;
             appInfo.WindowsPassword = Properties.WindowsPassword;
-            appInfo.WindowsUsername = Properties.WindowsUsername;
+            appInfo.WindowsUserName = Properties.WindowsUsername;
             return appInfo;
         }
 
+        class VcapPluginStatingInfo : JsonConvertibleObject
+        {
+
+            [JsonName("assembly")]
+            public string Assembly {get; set;}
+
+            [JsonName("class_name")]
+            public string ClassName { get; set; }
+
+        }
 
         public void LoadPlugin()
         {
             // in startup, we have the classname and assembly to load as a plugin
-            string[] startMetadata = File.ReadAllLines(Path.Combine(Properties.Directory, "startup"));
-            string assemblyName = startMetadata[0].Trim();
-            string className = startMetadata[1].Trim();
+            string startup = File.ReadAllText(Path.Combine(Properties.Directory, "startup"));
+
+            VcapPluginStatingInfo pluginInfo = new VcapPluginStatingInfo();
+            pluginInfo.FromJsonIntermediateObject(startup);
 
             try
             {
-                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory + assemblyName), className);
+                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory + pluginInfo.Assembly), pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
             }
             catch { }
 
             if (Plugin == null)
             {
-                Guid PluginId = PluginHost.LoadPlugin(assemblyName, className);
+                Guid PluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
             }
         }

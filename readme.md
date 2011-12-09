@@ -97,18 +97,62 @@ Trying your setup
 
 Running the tests
 -----------------
+All the tests have been implemented using MSTest framework.
 
 ### Unit Tests
-
+Unit tests take the smallest piece of testable software in the application, isolate it from the remainder of the code, and determine whether it behaves correctly.
 #### Configure
+The Unit Tests run out of the box, no additional configuration is needed.
 #### Run
+1. Open Visual studio command prompt
+2. Build vcap-dotnet solution
+msbuild {cloneDirectory}vcap-dotnet.sln
+3. Run tests in the "Unit" category using MSTest
+MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"Unit"
 
 ### Integration Tests
-
+This type of tests ensure that all the functional requirements are met at the component level.
 #### Configure
+This tests require a working NATS Serve deployment.
+To edit the NATS Server used for the tests follow the steps:
+1. Go to Uhuru.CloudFoundtry.Test project
+cd {clonePath}\Uhuru.CloudFoundry.Test\
+2. Edit the App.config file
+notepad App.config 
+3. Set a valid NATS Server for the "nats" key:
+ <add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
 #### Run
+1. Open Visual studio command prompt
+2. Build vcap-dotnet solution
+msbuild {cloneDirectory}vcap-dotnet.sln
+3. Build CloudTestApp solution
+msbuild {cloneDirectory}\TestApps\CloudTestApp\CloudTestApp.sln
+4. Run tests in the "Integration" category using MSTest
+MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"Integration"
 
 ### System Tests
-
+System testing is conducted on the complete, integrated system to evaluate the system’s compliance with the specified requirements.
 #### Configure
+To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
+ 1. Go to Uhuru.CloudFoundtry.Test project
+cd {clonePath}\Uhuru.CloudFoundry.Test\
+2. Edit the App.config file
+notepad App.config 
+3. Set a valid NATS Server for the nats key:
+ <add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
+4. Set the target CloudFoundry deployment
+<add key="target" value="api.uhurucloud.net"/>
+5. Set the user name for the deployment
+<add key="username" value="continuousintegration@uhurusoftware.com"/>
+6. Set the password for the deployment
+<add key="password" value="myPassword"/>
+7. Set the Umbraco root directory
+<add key="umbracoRootDir" value="C:\PathToUmbraco"/>
 #### Run
+1. Open Visual studio command prompt
+2. Build vcap-dotnet solution
+msbuild {cloneDirectory}vcap-dotnet.sln
+3. Build CloudTestApp solution
+msbuild {cloneDirectory}\TestApps\CloudTestApp\CloudTestApp.sln
+4. Run tests in the "Sytem" category using MSTest
+MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"System"

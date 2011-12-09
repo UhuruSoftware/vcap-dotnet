@@ -15,14 +15,29 @@ namespace Uhuru.NatsClient
     {
         public string Subject { get; set; }
 
-        public SubscribeCallback Callback { get; set; } 
+        /// <summary>
+        /// Gets or sets the callback method that will be called when a message is received.
+        /// </summary>
+        public SubscribeCallback Callback { get; set; }
 
+        /// <summary>
+        /// Gets or sets the numbet of received messages.
+        /// </summary>
         public int Received { get; set; }
 
+        /// <summary>
+        /// Gets or sets the number of queued messages.
+        /// </summary>
         public int Queue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the max number of messages.
+        /// </summary>
         public int Max { get; set; }
 
+        /// <summary>
+        /// Gets or sets the max amount of time to wait for a message.
+        /// </summary>
         public Timer Timeout { get; set; }
 
         // public int Expected TODO:Mitza

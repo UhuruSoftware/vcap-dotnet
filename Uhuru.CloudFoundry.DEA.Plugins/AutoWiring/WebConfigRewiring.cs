@@ -4,11 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA.Autowiring
+namespace Uhuru.CloudFoundry.DEA.AutoWiring
 {
     using System;
     using System.Xml;
     using System.Xml.XPath;
+    using Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging;
     
     public enum ParentSection
     { 
