@@ -14,6 +14,8 @@ namespace Uhuru.Utilities
     using System.ServiceModel.Channels;
     using System.ServiceModel.Security;
     using System.ServiceModel.Web;
+    using System.Text;
+    using System.Globalization;
     
     /// <summary>
     /// This class implements an http server that serves files from local storage.
@@ -25,6 +27,8 @@ namespace Uhuru.Utilities
         private string serverVirtualPath;
         private string username;
         private string password;
+
+        private const int tableRowSize = 46;
 
         private WebServiceHost host;
 
@@ -119,27 +123,66 @@ namespace Uhuru.Utilities
             public Message GetFile()
             {
                 string path = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri.PathAndQuery;
-                try
+
+                string fullPath = this.GetFullFilePath(path);
+
+
+
+                if (File.Exists(fullPath))
                 {
-                    return CreateStreamResponse(this.GetFullFilePath(path));
+                    try
+                    {
+                        return CreateStreamResponse(fullPath);
+                    }
+                    catch (IOException exception)
+                    {
+                        WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                        WebOperationContext.Current.OutgoingResponse.StatusDescription = exception.ToString();
+                        return null;
+                    }
                 }
-                catch (IOException exception)
+                else if (Directory.Exists(fullPath))
                 {
-                    WebOperationContext.Current.OutgoingResponse.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                    WebOperationContext.Current.OutgoingResponse.StatusDescription = exception.ToString();
+                    MemoryStream memoryStream = new MemoryStream();
+                    StreamWriter outputStream = new StreamWriter(memoryStream);
+
+                    DirectoryInfo dirInfo = new DirectoryInfo(fullPath);
+
+                    FileInfo [] fileInfos = dirInfo.GetFiles();
+                    DirectoryInfo [] dirInfos = dirInfo.GetDirectories();
+
+                    foreach (DirectoryInfo directory in dirInfos)
+                    {
+                        outputStream.WriteLine(CreateCliLine(directory.Name, "-", tableRowSize, ' '));
+                    }
+
+                    foreach (FileInfo file in fileInfos)
+                    {
+                        
+                        outputStream.WriteLine(CreateCliLine(file.Name, GetReadableForm(file.Length), tableRowSize, ' '));
+                    }
+
+                    outputStream.Flush();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    return WebOperationContext.Current.CreateStreamResponse(memoryStream, "text/plain");                    
+                }
+                else
+                {
                     return null;
                 }
             }
 
             private static Message CreateStreamResponse(string filePath)
             {
-                Stream stream = Stream.Null;
+                MemoryStream memoryStream = null;
+                
                 using (FileStream fileStream = File.OpenRead(filePath))
                 {
-                    fileStream.CopyTo(stream);
+                    memoryStream = new MemoryStream((int)Math.Max(fileStream.Length, 1024 * 1024)); //max 1 MB file
+                    fileStream.CopyTo(memoryStream, memoryStream.Capacity);
                 }
-
-                return WebOperationContext.Current.CreateStreamResponse(stream, "application/octet-stream");
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                return WebOperationContext.Current.CreateStreamResponse(memoryStream, "text/plain");
             }
 
             private string GetFullFilePath(string path)
@@ -155,6 +198,33 @@ namespace Uhuru.Utilities
 
                 return filePath;
             }
+
+            /// <summary>
+            /// converts a numeric file size into a human readable one
+            /// </summary>
+            /// <param name="size">the size to convert (e.g. 800)</param>
+            /// <returns>a nicely formatted string (e.g. 800B)</returns>
+            private static string GetReadableForm(long size)
+            {
+                string[] sizes = { "B", "K", "M", "G" };
+
+                int order = 0;
+                while (size >= 1024 && order + 1 < sizes.Length)
+                {
+                    order++;
+                    size = size / 1024;
+                }
+
+                string result = string.Format(CultureInfo.InvariantCulture, "{0:0.##}{1}", size, sizes[order]);
+
+                return result;
+            }
+
+            private string CreateCliLine(string left, string right, int lineSize, char fillChar)
+            {
+                return left + new string(fillChar, Math.Max(8, lineSize - left.Length - right.Length)) + right;
+            }
+
         }
     }
 }
