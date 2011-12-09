@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA.Autowiring
+namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
 {
     using System;
     using System.Globalization;
@@ -24,8 +24,7 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
         /// </summary>
         public LogFileWebEventProvider()
         {
-            this.logFilePath = ConfigurationManager.AppSettings["UHURU_LOG_FILE"];
-            this.customInfo = new StringBuilder();
+           
         }
         
         /// <summary>
@@ -55,7 +54,6 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
 
         public override void Flush()
         {
-            this.customInfo.AppendLine("Perform custom flush");
         }
 
         /// <summary>
@@ -71,9 +69,16 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
             this.buffer = this.LogFileUseBuffering.ToString();
             this.bufferMode = BufferMode;
 
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "Provider name: {0}", this.providerName));
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "Buffering: {0}", this.buffer));
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "Buffer mode: {0}", this.bufferMode));
+            if (this.Name == "ErrorEventProvider")
+            {
+                this.logFilePath = ConfigurationManager.AppSettings["UHURU_ERROR_LOG_FILE"];
+            }
+            else
+            {
+                this.logFilePath = ConfigurationManager.AppSettings["UHURU_LOG_FILE"];
+            }
+
+            this.customInfo = new StringBuilder();
         }
 
         /// <summary>
@@ -93,8 +98,20 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
             }
             else
             {
-                this.customInfo.AppendLine("*** Buffering disabled ***");
-                this.customInfo.AppendLine(eventRaised.ToString());
+                string extraInfo = String.Empty;
+
+                WebBaseErrorEvent errorEvent = eventRaised as WebBaseErrorEvent;
+
+                if (errorEvent != null)
+                {
+                    extraInfo = errorEvent.ErrorException.ToString();
+                }
+
+                this.customInfo.AppendLine(String.Format(CultureInfo.InvariantCulture,
+                    "Event Time (UTC):[{0}] Event Code:[{1}] Event Id:[{2}] Event Message:[{3}]",
+                    eventRaised.EventTimeUtc, eventRaised.EventCode, eventRaised.EventID,
+                    eventRaised.Message + " " + extraInfo));
+
                 this.StoreToFile(FileMode.Append);
             }
         }
@@ -106,14 +123,20 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
                 throw new ArgumentNullException("flushInfo");
             }
 
-            this.customInfo.AppendLine("LogFileWebEventProvider buffer flush.");
-
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "NotificationType: {0}", this.GetNotificationType(flushInfo)));
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "EventsInBuffer: {0}", this.GetEventsInBuffer(flushInfo)));
-            this.customInfo.AppendLine(string.Format(CultureInfo.InvariantCulture, "EventsDiscardedSinceLastNotification: {0}", this.GetEventsDiscardedSinceLastNotification(flushInfo)));
-
             foreach (WebBaseEvent eventRaised in flushInfo.Events)
-                this.customInfo.AppendLine(eventRaised.ToString());
+            {
+                string extraInfo = String.Empty;
+
+                if (eventRaised is WebBaseErrorEvent)
+                {
+                    extraInfo = ((WebBaseErrorEvent)eventRaised).ErrorException.ToString();
+                }
+
+                this.customInfo.AppendLine(String.Format(CultureInfo.InvariantCulture,
+                    "Event Time (UTC):[{0}] Event Code:[{1}] Event Id:[{2}] Event Message:[{3}]",
+                    eventRaised.EventTimeUtc, eventRaised.EventCode, eventRaised.EventID,
+                    eventRaised.Message + " " + extraInfo));
+            }
 
             this.StoreToFile(FileMode.Append);
         }
@@ -146,7 +169,6 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
 
             writer.BaseStream.Seek(0, SeekOrigin.Current);
             writer.Write(customInfo.ToString());
-            writer.WriteLine(new string('*', SEP_LEN));
             writer.Flush();
 
             logFileStream.Unlock(startIndex, writeBlock);

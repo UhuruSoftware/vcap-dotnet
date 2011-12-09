@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA.Autowiring
+namespace Uhuru.CloudFoundry.DEA.AutoWiring
 {
     using System;
     using System.Collections.Generic;
@@ -82,15 +82,11 @@ namespace Uhuru.CloudFoundry.DEA.Autowiring
                 {
                     string dstCfgFilePath = Path.Combine(this.sitePath, node.ExternalSource);
 
-                    Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("CloudFoundry.Net.IIS.Resources.UhuruAspNetEventProvider.config");
+                    Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.DEA.Plugins.AutoWiring.UhuruAspNetEventProvider.config");
                     byte[] file = new byte[stream.Length];
                     stream.Read(file, 0, (int)stream.Length);
                     File.WriteAllBytes(dstCfgFilePath, file);
                     stream.Close();
-
-                    string srcNetlibPath = Assembly.GetAssembly(typeof(SiteConfig)).Location;
-                    string dstNetLibPath = Path.Combine(this.sitePath, "bin", "CloudFoundry.Net.IIS.dll");
-                    File.Copy(srcNetlibPath, dstNetLibPath);
                 }
             }
         }

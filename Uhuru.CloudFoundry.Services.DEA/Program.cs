@@ -33,13 +33,13 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 			}
 			else
 			{
-				Console.WriteLine("Press enter to stop service...");
-				DeaWindowsService deaService = new DeaWindowsService();
-				deaService.Start(new string[0]);
-				
-				Console.ReadLine();
-				deaService.Stop();
-				//System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+				Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
+				using (DeaWindowsService deaService = new DeaWindowsService())
+				{
+					deaService.Start(new string[0]);
+					Console.ReadLine();
+					deaService.Stop();
+				}
 			}
 		}
 	}

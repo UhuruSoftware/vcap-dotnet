@@ -73,23 +73,19 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// Gets the application variables.
         /// </summary>
-        public ApplicationVariable[] Variables
+        /// <returns>An array of ApplicationVariable objects.</returns>
+        public ApplicationVariable[] GetVariables()
         {
-            get
-            {
-                return variables;
-            }
+            return variables;
         }
 
         /// <summary>
         /// Gets the provisioned services for an app.
         /// </summary>
-        public ApplicationService[] Services
+        /// <returns>An array of ApplicationService objects.</returns>
+        public ApplicationService[] GetServices()
         {
-            get
-            {
-                return services;
-            }
+            return services;
         }
 
         /// <summary>

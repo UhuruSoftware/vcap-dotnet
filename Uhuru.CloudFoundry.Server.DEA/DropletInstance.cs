@@ -207,7 +207,7 @@ namespace Uhuru.CloudFoundry.DEA
             appInfo.Path = Properties.Directory;
             appInfo.Port = Properties.Port;
             appInfo.WindowsPassword = Properties.WindowsPassword;
-            appInfo.WindowsUsername = Properties.WindowsUsername;
+            appInfo.WindowsUserName = Properties.WindowsUsername;
             return appInfo;
         }
 

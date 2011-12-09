@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
-using Uhuru.CloudFoundry.DEA.Autowiring;
+using Uhuru.CloudFoundry.DEA.AutoWiring;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
