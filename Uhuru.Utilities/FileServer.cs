@@ -18,6 +18,7 @@ namespace Uhuru.Utilities
     using System.Globalization;
     using System.ServiceModel.Description;
     using System.ServiceModel.Dispatcher;
+    using System.Reflection;
     
     /// <summary>
     /// This class implements an http server that serves files from local storage.
@@ -44,6 +45,29 @@ namespace Uhuru.Utilities
         /// <param name="serverPassword">Password that is allowed access to the server.</param>
         public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
+            //MethodInfo getSyntax = typeof(UriParser).GetMethod("GetSyntax", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            //FieldInfo flagsField = typeof(UriParser).GetField("m_Flags", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            //if (getSyntax != null && flagsField != null)
+            //{
+            //    foreach (string scheme in new[] { "http", "https" })
+            //    {
+            //        UriParser parser = (UriParser)getSyntax.Invoke(null, new object[] { scheme });
+            //        if (parser != null)
+            //        {
+            //            int flagsValue = (int)flagsField.GetValue(parser);
+            //            // Clear the CanonicalizeAsFilePath attribute
+
+            //            flagsValue = (int)flagsField.GetValue(parser);
+
+            //            if ((flagsValue & 0x800000) != 0)
+            //            {
+            //                flagsField.SetValue(parser, flagsValue & ~0x800000);
+            //            }
+
+            //        }
+            //    }
+            //}
+
             this.serverPort = port;
             this.serverPhysicalPath = physicalPath;
             this.serverVirtualPath = virtualPath;
@@ -61,46 +85,10 @@ namespace Uhuru.Utilities
             /// gets a file from another endpoint
             /// </summary>
             /// <returns></returns>
-            [WebGet(UriTemplate = "/{*path}")]
-            Message GetFile(string path);
+            [WebGet(UriTemplate = "/*")]
+            Message GetFile();
         }
 
-        //public class MyWebHttpDispatchOperationSelector : WebHttpDispatchOperationSelector
-        //{
-        //    public MyWebHttpDispatchOperationSelector(ServiceEndpoint endpoint)
-        //        : base(endpoint) { }
-
-        //    protected override string SelectOperation(ref Message message, out bool uriMatched)
-        //    {
-        //        object prop;
-        //        if (message.Properties.TryGetValue(HttpRequestMessageProperty.Name, out prop))
-        //        {
-        //            HttpRequestMessageProperty httpRequestProp = (HttpRequestMessageProperty)prop;
-        //            if (httpRequestProp.Method == "PUT")
-        //            {
-        //                Uri to = message.Headers.To;
-        //                if (to != null)
-        //                {
-        //                    string path = to.PathAndQuery;
-        //                    if (path.StartsWith("/Service/mystorage"))
-        //                    {
-        //                        uriMatched = true;
-        //                        return "PUTFile";
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        return base.SelectOperation(ref message, out uriMatched);
-        //    }
-        //}
-
-        //public class MyWebHttpBehavior : WebHttpBehavior
-        //{
-        //    protected override WebHttpDispatchOperationSelector GetOperationSelector(ServiceEndpoint endpoint)
-        //    {
-        //        return new MyWebHttpDispatchOperationSelector(endpoint);
-        //    }
-        //}
 
         /// <summary>
         /// Starts the server.
@@ -115,7 +103,7 @@ namespace Uhuru.Utilities
             httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
             
             this.host = new WebServiceHost(service, baseAddress);
-            this.host.AddServiceEndpoint(typeof(IFileServerService), httpBinding, baseAddress).Behaviors.Add(new ConsoleOutputBehavior());
+            this.host.AddServiceEndpoint(typeof(IFileServerService), httpBinding, baseAddress);
 
             this.host.Credentials.UserNameAuthentication.CustomUserNamePasswordValidator = new UserCustomAuthentication(username, password);
             this.host.Credentials.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom; 
@@ -123,55 +111,6 @@ namespace Uhuru.Utilities
             ((FileServerService)this.host.SingletonInstance).Initialize(this.serverPhysicalPath, this.serverVirtualPath);
             this.host.Open();
         }
-
-
-
-
-        public class ConsoleOutputMessageInspector : IDispatchMessageInspector
-        {
-            public object AfterReceiveRequest(ref Message request, IClientChannel channel, InstanceContext instanceContext)
-            {
-                MessageBuffer buffer = request.CreateBufferedCopy(Int32.MaxValue);
-                request = buffer.CreateMessage();
-                Console.WriteLine("Received:\n{0}", buffer.CreateMessage().ToString());
-                return null;
-            }
-
-            public void BeforeSendReply(ref Message reply, object correlationState)
-            {
-                MessageBuffer buffer = reply.CreateBufferedCopy(Int32.MaxValue);
-                reply = buffer.CreateMessage();
-                Console.WriteLine("Sending:\n{0}", buffer.CreateMessage().ToString());
-            }
-        }
-
-
-        public class ConsoleOutputBehavior : IEndpointBehavior
-        {
-            public void AddBindingParameters(ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
-            {
-            }
-
-            public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
-            {
-                throw new Exception("Behavior not supported on the consumer side!");
-            }
-
-            public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)
-            {
-                ConsoleOutputMessageInspector inspector = new ConsoleOutputMessageInspector();
-                endpointDispatcher.DispatchRuntime.MessageInspectors.Add(inspector);
-            }
-
-            public void Validate(ServiceEndpoint endpoint)
-            {
-            }
-        }
-
-
-
-
-
 
         /// <summary>
         /// Stops the server.
@@ -208,18 +147,16 @@ namespace Uhuru.Utilities
                 this.serverVirtualPath = virtualPath;
             }
 
-            public Message GetFile(string path)
+            public Message GetFile()
             {
                 Uri uri = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri;
 
                 string fullPath = this.GetFullFilePath(uri.PathAndQuery);
 
-                 
-
-                //string[] uriSplit = uri.OriginalString.Split(new char[]{'/'});
-
-                //if (!fullPath.Contains(uriSplit[3]) || !fullPath.Contains(uriSplit[4])) return null;
-
+                if (Path.GetDirectoryName(fullPath + "\\") == Path.GetDirectoryName(serverPhysicalPath + "\\"))
+                {
+                    throw new SecurityAccessDeniedException();
+                }
 
                 if (File.Exists(fullPath))
                 {

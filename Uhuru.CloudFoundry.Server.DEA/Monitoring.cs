@@ -145,8 +145,8 @@ namespace Uhuru.CloudFoundry.DEA
 
             // todo: vladi: removed max depth level (6) from call, because netdu does not support it
 
-            DiskUsage.WriteDiskUsageToFile(summary_file, true, appsDirectory, "*", true);
-            DiskUsage.WriteDiskUsageToFile(details_file, true, appsDirectory, "*", false);
+            DiskUsage.WriteDiskUsageToFile(summary_file, appsDirectory, "*", true);
+            DiskUsage.WriteDiskUsageToFile(details_file, appsDirectory, "*", false);
         }
     }
 }

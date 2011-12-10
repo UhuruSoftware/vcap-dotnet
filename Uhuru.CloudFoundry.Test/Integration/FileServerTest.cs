@@ -10,6 +10,7 @@ using Uhuru.Utilities;
 using System.Net;
 using System.IO;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
@@ -17,6 +18,33 @@ namespace Uhuru.CloudFoundry.Test.Integration
     [DeploymentItem("log4net.config")]
     public class FileServerTest
     {
+
+        
+        public FileServerTest()
+        {
+            MethodInfo getSyntax = typeof(UriParser).GetMethod("GetSyntax", BindingFlags.Static | BindingFlags.NonPublic);
+            FieldInfo flagsField = typeof(UriParser).GetField("m_Flags", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (getSyntax != null && flagsField != null)
+            {
+                foreach (string scheme in new[] { "http", "https" })
+                {
+                    UriParser parser = (UriParser)getSyntax.Invoke(null, new object[] { scheme });
+                    if (parser != null)
+                    {
+                        int flagsValue = (int)flagsField.GetValue(parser);
+                        // Clear the CanonicalizeAsFilePath attribute
+
+                        flagsValue = (int)flagsField.GetValue(parser);
+
+                        if ((flagsValue & 0x800000) != 0)
+                        {
+                            flagsField.SetValue(parser, flagsValue & ~0x800000);
+                        }
+
+                    }
+                }
+            }
+        }
 
         /// <summary>
         ///A test for ConfigureApplication
@@ -121,20 +149,21 @@ namespace Uhuru.CloudFoundry.Test.Integration
             client.Credentials = credentials;
 
 
-           // byte[] gooddata = client.DownloadData(String.Format("http://{0}:{1}/foobar/test.txt", "localhost", port));
+            byte[] gooddata = client.DownloadData(String.Format("http://{0}:{1}/foobar/test.txt", "localhost", port));
 
-            //ASCIIEncoding encoding = new ASCIIEncoding();
-          //  string retrievedContents = encoding.GetString(gooddata);
+            ASCIIEncoding encoding = new ASCIIEncoding();
+            string retrievedContents = encoding.GetString(gooddata);
 
-           // Assert.IsTrue(retrievedContents.Contains("this is a test"));
+            Assert.IsTrue(retrievedContents.Contains("this is a test"));
 
-            Trace.WriteLine(String.Format("http://{2}:{3}@{0}:{1}/foobar/../", "localhost", port, user, password));
-
-            Thread.Sleep(123982346);
+            Trace.WriteLine(String.Format("http://{2}:{3}@{0}:{1}/foobar/../", 
+                NetworkInterface.GetLocalIPAddress(), port, user, password));
 
             try
             {
-                byte[] data = client.DownloadData(String.Format("http://{0}:{1}/foobar/../", "localhost", port));
+                Uri dl = new Uri(String.Format("http://{0}:{1}/foobar/useless/../../", "localhost", port));
+
+                byte[] data = client.DownloadData(dl);
             }
             catch
             {

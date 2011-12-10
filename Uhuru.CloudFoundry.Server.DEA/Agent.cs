@@ -1287,7 +1287,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime duStart = DateTime.Now;
 
-            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(AgentStager.AppsDir, "*", false);
+            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(AgentStager.AppsDir, false);
     
             TimeSpan duElapsed = DateTime.Now - duStart;
 
@@ -1304,7 +1304,7 @@ namespace Uhuru.CloudFoundry.DEA
             Dictionary<string, long> duHash = new Dictionary<string, long>();
             foreach (DiskUsageEntry entry in duAll)
             {
-                duHash[entry.Directory] = entry.Size * 1024;
+                duHash[entry.Directory] = entry.SizeKB * 1024;
             }
 
             Dictionary<string, Dictionary<string, Dictionary<string, long>>> metrics = new Dictionary<string, Dictionary<string, Dictionary<string, long>>>() 
