@@ -167,6 +167,7 @@ namespace Uhuru.CloudFoundry.DEA
             base.Run();  // Start the nats client
             
             RecoverExistingDroplets();
+
             DeleteUntrackedInstanceDirs();
             
             TimerHelper.RecurringLongCall(Monitoring.HeartbeatIntervalMilliseconds, delegate
@@ -884,7 +885,7 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Plugin.ConfigureApplication(appVariables.ToArray());
                 instance.Plugin.StartApplication();
 
-                int pid = instance.Plugin.GetApplicationProcessID();
+                int pid = instance.Plugin.GetApplicationProcessId();
 
                 try
                 {
@@ -1325,7 +1326,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                     try
                     {
-                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessID();
+                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessId();
                     }
                     catch (Exception ex)
                     {

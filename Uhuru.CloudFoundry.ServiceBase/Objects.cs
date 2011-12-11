@@ -107,6 +107,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This is a class containing information about a provisioned service.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
     class Handle
     {
         /// <summary>

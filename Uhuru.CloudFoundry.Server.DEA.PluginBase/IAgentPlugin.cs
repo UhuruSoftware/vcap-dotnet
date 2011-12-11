@@ -36,7 +36,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// reads the ids of the processes currently used by the running app
         /// </summary>
         /// <returns>the ids of the processes, as an array</returns>
-        int GetApplicationProcessID();
+        int GetApplicationProcessId();
 
         /// <summary>
         /// shuts down the application

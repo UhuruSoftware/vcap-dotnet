@@ -13,6 +13,9 @@ namespace Uhuru.NatsClient
     /// </summary>
     public class Subscription
     {
+        /// <summary>
+        /// Gets or sets the subject of the message.
+        /// </summary>
         public string Subject { get; set; }
 
         /// <summary>

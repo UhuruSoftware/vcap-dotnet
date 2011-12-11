@@ -59,30 +59,6 @@ namespace Uhuru.Utilities
             }
         }
 
-        public static string[] GetVcapUsers()
-        {
-            List<string> result = new List<string>();
-
-            using (DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
-            {
-                DirectoryEntries users = localDirectory.Children;
-                
-                foreach (DirectoryEntry user in users)
-                {
-                    if (user.SchemaClassName == "User")
-                    {
-                        if(user.Name.Contains(UserDecoration))
-                        {
-                            result.Add(user.Name);
-                        }
-                    }
-                }
-
-            }
-
-            return result.ToArray();
-        }
-
         /// <summary>
         /// Returns a string that is unique for a given user.
         /// </summary>

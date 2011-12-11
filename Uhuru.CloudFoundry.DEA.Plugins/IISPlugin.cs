@@ -126,7 +126,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <returns>
         /// the ids of the processes, as an array
         /// </returns>
-        public int GetApplicationProcessID()
+        public int GetApplicationProcessId()
         {
             try
             {
@@ -291,7 +291,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
                 }
 
-                XmlDocument doc = setApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
+                XmlDocument doc = SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
 
                 doc.Save(configFile);
                 startupLogger.Info("Saved configuration file.");
@@ -352,8 +352,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="configFileContents">The config file contents.</param>
         /// <param name="variables">The variables.</param>
         /// <param name="logFilePath">The log file path.</param>
-        /// <returns></returns>
-        XmlDocument setApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
+        /// <param name="errorLogFilePath">The error log file path.</param>
+        /// <returns>An xml document ready containing the updated configuration file.</returns>
+        XmlDocument SetApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
         {
             startupLogger.Info("Setting up application variables.");
 

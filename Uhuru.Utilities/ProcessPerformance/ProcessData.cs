@@ -29,6 +29,7 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <param name="name">the name of the process</param>
         /// <param name="oldUserTime">the user time</param>
         /// <param name="oldKernelTime">the kernel time</param>
+        /// <param name="workingSetBytes">memory usage for the process</param>
         internal ProcessData(int id, string name, long oldUserTime, long oldKernelTime, long workingSetBytes)
         {
             this.ProcessId = id;

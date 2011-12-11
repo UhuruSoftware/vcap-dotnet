@@ -35,6 +35,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <param name="logFilePath">The log file path.</param>
         /// <param name="errorLogFilePath">The error log file path.</param>
         /// <param name="startupLogFilePath">The startup log file path.</param>
+        /// <param name="autoWireTemplates">A list of connection string templates for services.</param>
         public ApplicationParsedData(ApplicationInfo appInfo, string runtime, ApplicationVariable[] variables, ApplicationService[] services,
             string logFilePath, string errorLogFilePath, string startupLogFilePath, Dictionary<string, string> autoWireTemplates)
         {

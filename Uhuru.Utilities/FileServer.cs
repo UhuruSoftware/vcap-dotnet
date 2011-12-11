@@ -45,29 +45,6 @@ namespace Uhuru.Utilities
         /// <param name="serverPassword">Password that is allowed access to the server.</param>
         public FileServer(int port, string physicalPath, string virtualPath, string serverUserName, string serverPassword)
         {
-            //MethodInfo getSyntax = typeof(UriParser).GetMethod("GetSyntax", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-            //FieldInfo flagsField = typeof(UriParser).GetField("m_Flags", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            //if (getSyntax != null && flagsField != null)
-            //{
-            //    foreach (string scheme in new[] { "http", "https" })
-            //    {
-            //        UriParser parser = (UriParser)getSyntax.Invoke(null, new object[] { scheme });
-            //        if (parser != null)
-            //        {
-            //            int flagsValue = (int)flagsField.GetValue(parser);
-            //            // Clear the CanonicalizeAsFilePath attribute
-
-            //            flagsValue = (int)flagsField.GetValue(parser);
-
-            //            if ((flagsValue & 0x800000) != 0)
-            //            {
-            //                flagsField.SetValue(parser, flagsValue & ~0x800000);
-            //            }
-
-            //        }
-            //    }
-            //}
-
             this.serverPort = port;
             this.serverPhysicalPath = physicalPath;
             this.serverVirtualPath = virtualPath;
@@ -205,13 +182,27 @@ namespace Uhuru.Utilities
             private static Message CreateStreamResponse(string filePath)
             {
                 MemoryStream memoryStream = null;
-                
-                using (FileStream fileStream = File.OpenRead(filePath))
+                MemoryStream tempMemoryStream = null;
+
+                try
                 {
-                    memoryStream = new MemoryStream((int)Math.Max(fileStream.Length, 1024 * 1024)); //max 1 MB file
-                    fileStream.CopyTo(memoryStream, memoryStream.Capacity);
+                    using (FileStream fileStream = File.OpenRead(filePath))
+                    {
+                        tempMemoryStream = new MemoryStream((int)Math.Max(fileStream.Length, 1024 * 1024)); //max 1 MB file
+                        fileStream.CopyTo(tempMemoryStream, tempMemoryStream.Capacity);
+                    }
+                    tempMemoryStream.Seek(0, SeekOrigin.Begin);
+                    memoryStream = tempMemoryStream;
+                    tempMemoryStream = null;
                 }
-                memoryStream.Seek(0, SeekOrigin.Begin);
+                finally
+                {
+                    if (tempMemoryStream != null)
+                    {
+                        tempMemoryStream.Close();
+                    }
+                }
+
                 return WebOperationContext.Current.CreateStreamResponse(memoryStream, "text/plain");
             }
 
@@ -250,7 +241,7 @@ namespace Uhuru.Utilities
                 return result;
             }
 
-            private string CreateCliLine(string left, string right, int lineSize, char fillChar)
+            private static string CreateCliLine(string left, string right, int lineSize, char fillChar)
             {
                 return left + new string(fillChar, Math.Max(8, lineSize - left.Length - right.Length)) + right;
             }

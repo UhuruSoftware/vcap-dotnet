@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     using System.Text;
     using Uhuru.Utilities;
     using System.IO;
+    using System.Globalization;
 
     /// <summary>
     /// This is a helper class that provides easy methods to extract application settings from the variables that are given to a plugin.
@@ -55,7 +56,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             appInfo.LocalIP = variablesHash[VcapAppHostVariable];
             appInfo.Name = vcapApplication.Name;
             appInfo.Path = Path.Combine(variablesHash[HomeVariable], "app");
-            appInfo.Port = Int32.Parse(variablesHash[VcapAppPortVariable]);
+            appInfo.Port = Int32.Parse(variablesHash[VcapAppPortVariable], CultureInfo.InvariantCulture);
             appInfo.WindowsPassword = variablesHash[VcapWindowsUserPasswordVariable];
             appInfo.WindowsUserName = variablesHash[VcapWindowsUserVariable];
 
@@ -99,42 +100,42 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 
         private class VcapProvisionedService : JsonConvertibleObject
         {
-            [JsonName("name")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("name")]
             public string Name
             {
                 get;
                 set;
             }
 
-            [JsonName("label")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("label")]
             public string Label
             {
                 get;
                 set;
             }
 
-            [JsonName("plan")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("plan")]
             public string Plan
             {
                 get;
                 set;
             }
 
-            [JsonName("tags")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("tags")]
             public string[] Tags
             {
                 get;
                 set;
             }
 
-            [JsonName("credentials")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
             public VcapProvisionedServiceCredentials Credentials
             {
                 get;
                 set;
             }
 
-            [JsonName("plan_options")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("plan_options")]
             public Dictionary<string, object> PlanOptions 
             { 
                 get; 
@@ -142,6 +143,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
         private class VcapProvisionedServiceCredentials : JsonConvertibleObject
         {
             [JsonName("name")]
@@ -166,6 +168,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             public string Password { get; set; }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
         private class VcapPluginStagingInfoLogs : JsonConvertibleObject
         {
             [JsonName("app_error")]
@@ -193,34 +196,34 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 
         private class VcapPluginStagingInfo : JsonConvertibleObject
         {
-            [JsonName("logs")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("logs")]
             public VcapPluginStagingInfoLogs Logs
             {
                 get;
                 set;
             }
 
-            [JsonName("auto_wire_templates")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("auto_wire_templates")]
             public Dictionary<string, string> AutoWireTemplates { get; set; }
         }
 
         private class VcapApplication : JsonConvertibleObject
         {
-            [JsonName("instance_id")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("instance_id")]
             public string InstanceId
             {
                 get;
                 set;
             }
 
-            [JsonName("name")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("name")]
             public string Name
             {
                 get;
                 set;
             }
 
-            [JsonName("runtime")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("runtime")]
             public string Runtime
             {
                 get;

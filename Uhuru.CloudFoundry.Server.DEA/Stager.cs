@@ -93,7 +93,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (Runtimes == null || Runtimes.Count == 0)
             {
                 Logger.Fatal(Strings.CannotDetermineApplicationRuntimes);
-                throw new ApplicationException();
+                throw new InvalidOperationException(Strings.CannotDetermineApplicationRuntimes);
             }
 
             Logger.Info(Strings.Checkingruntimes);
@@ -122,7 +122,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 // java prints to stderr, so munch them both..
                 string version_check = Utils.RunCommandAndGetOutputAndErrors(expanded_exec, 
-                    String.Format(CultureInfo.InvariantCulture, "{0}", expanded_exec, version_flag)).Trim();
+                    String.Format(CultureInfo.InvariantCulture, "{0} {1}", expanded_exec, version_flag)).Trim();
 
                 runtime.Executable = expanded_exec;
 
@@ -249,10 +249,14 @@ namespace Uhuru.CloudFoundry.DEA
             string FileSha1;
             using (Stream stream = File.OpenRead(TgzFile))
             {
-                FileSha1 = BitConverter.ToString(SHA1.Create().ComputeHash(stream)).Replace("-", string.Empty);
+                using (SHA1 sha = SHA1.Create())
+                {
+                    FileSha1 = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
+                }
             }
             
-            if(FileSha1.ToUpperInvariant() != Sha1.ToUpperInvariant()){
+            if(FileSha1.ToUpperInvariant() != Sha1.ToUpperInvariant())
+            {
                 Logger.Warning(Strings.DonlodedFileFromIs, BitsUri, FileSha1, Sha1);
                 throw new Exception(Strings.Downlodedfileiscorrupt);
             }

@@ -34,7 +34,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 			{
 				using (DeaWindowsService deaService = new DeaWindowsService())
 				{
-					deaService.Start(new string[0]);
+					deaService.Start();
                     Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
 					Console.ReadLine();
 					deaService.Stop();
