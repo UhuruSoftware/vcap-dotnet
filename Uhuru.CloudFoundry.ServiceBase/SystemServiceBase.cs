@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Base.cs" company="Uhuru Software">
+// <copyright file="SystemServiceBase.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -25,6 +25,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private VcapComponent vcapComponent;
 
         /// <summary>
+        /// Gets the nats reactor used for communicating with the cloud controller.
+        /// </summary>
+        public Reactor NodeNats
+        {
+            get
+            {
+                return this.nodeNats;
+            }
+        }
+        
+        /// <summary>
         /// Gets or sets the orphan instances hash.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -32,15 +43,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return orphanInsHash;
+                return this.orphanInsHash;
             }
 
             set
             {
-                orphanInsHash = value;
+                this.orphanInsHash = value;
             }
         }
-
+        
         /// <summary>
         /// Gets or sets the orphan binding hash.
         /// </summary>
@@ -49,27 +60,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return orphanBindingHash;
+                return this.orphanBindingHash;
             }
 
             set
             {
-                orphanBindingHash = value;
+                this.orphanBindingHash = value;
             }
         }
-
-
-        /// <summary>
-        /// Gets the nats reactor used for communicating with the cloud controller.
-        /// </summary>
-        public Reactor NodeNats
-        {
-            get
-            {
-                return nodeNats;
-            }
-        }
-
 
         /// <summary>
         /// Starts the service using the specified options.
@@ -82,51 +80,59 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 throw new ArgumentNullException("options");
             }
 
-            localIP = NetworkInterface.GetLocalIPAddress();
-            Logger.Info(Strings.InitializingLogMessage, ServiceDescription());
-            OrphanInstancesHash = new Dictionary<string, object>();
-            OrphanBindingHash = new Dictionary<string, object>();
+            this.localIP = NetworkInterface.GetLocalIPAddress();
+            Logger.Info(Strings.InitializingLogMessage, this.ServiceDescription());
+            this.OrphanInstancesHash = new Dictionary<string, object>();
+            this.OrphanBindingHash = new Dictionary<string, object>();
 
-            nodeNats = new Reactor();
-            NodeNats.Start(new Uri(options.Uri));
-            
-            OnConnectNode();
+            this.nodeNats = new Reactor();
+            this.NodeNats.Start(new Uri(options.Uri));
 
-            vcapComponent = new VcapComponent();
+            this.OnConnectNode();
 
-            vcapComponent.Register(
+            this.vcapComponent = new VcapComponent();
+
+            this.vcapComponent.Register(
                 new Dictionary<string, object>
                 {
-                    {"nats", NodeNats},
-                    {"type", ServiceDescription()},
-                    {"host", localIP},
-                    {"index", options.Index},
-                    {"config", options}
+                    { "nats", this.NodeNats },
+                    { "type", this.ServiceDescription() },
+                    { "host", this.localIP },
+                    { "index", options.Index },
+                    { "config", options }
                 });
 
-            int z_interval = options.ZInterval;
+            int zInterval = options.ZInterval;
 
             // give service a chance to wake up
-            TimerHelper.DelayedCall(5000, delegate()
-            {
-                UpdateVarz();
-            });
+            TimerHelper.DelayedCall(
+                5000, 
+                delegate
+                {
+                    this.UpdateVarz();
+                });
 
-            TimerHelper.RecurringCall(z_interval, delegate()
-            {
-                UpdateVarz();
-            });
+            TimerHelper.RecurringCall(
+                zInterval, 
+                delegate
+                {
+                    this.UpdateVarz();
+                });
 
             // give service a chance to wake up
-            TimerHelper.DelayedCall(5000, delegate()
-            {
-                UpdateHealthz();
-            });
+            TimerHelper.DelayedCall(
+                5000, 
+                delegate
+                {
+                    this.UpdateHealthz();
+                });
 
-            TimerHelper.RecurringCall(z_interval, delegate()
-            {
-                UpdateHealthz();
-            });
+            TimerHelper.RecurringCall(
+                zInterval, 
+                delegate
+                {
+                    this.UpdateHealthz();
+                });
         }
 
         /// <summary>
@@ -135,22 +141,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A string containing the service description.</returns>
         public string ServiceDescription()
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}-{1}", ServiceName(), Flavor());
+            return string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.ServiceName(), this.Flavor());
         }
 
-        private void UpdateVarz()
+        /// <summary>
+        /// Implementation of IDisposable.
+        /// </summary>
+        public void Dispose()
         {
-            Dictionary<string, object> details = VarzDetails();
+            this.nodeNats.Dispose();
 
-            details["orphan_instances"] = OrphanInstancesHash;
-            details["orphan_bindings"] = OrphanBindingHash;
-
-            vcapComponent.Varz = details;
-        }
-        
-        private void UpdateHealthz()
-        {
-            vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(HealthzDetails());
+            // Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -158,8 +160,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         public void Shutdown()
         {
-           Logger.Info(Strings.ShuttingDownLogMessage, ServiceDescription());
-            NodeNats.Stop();
+            Logger.Info(Strings.ShuttingDownLogMessage, this.ServiceDescription());
+           this.NodeNats.Stop();
         }
                 
         /// <summary>
@@ -170,7 +172,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets the flavor of the service. Only "Node" for the .net world.
         /// </summary>
-        /// <returns>"Node"</returns>
+        /// <returns>On windows, this always returns the value "Node"</returns>
         protected abstract string Flavor();
         
         /// <summary>
@@ -191,14 +193,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A tring containing the service name.</returns>
         protected abstract string ServiceName();
 
-        /// <summary>
-        /// Implementation of IDisposable.
-        /// </summary>
-        public void Dispose()
+        private void UpdateVarz()
         {
-            nodeNats.Dispose();
-            //Dispose(true);
-            GC.SuppressFinalize(this);
+            Dictionary<string, object> details = this.VarzDetails();
+
+            details["orphan_instances"] = this.OrphanInstancesHash;
+            details["orphan_bindings"] = this.OrphanBindingHash;
+
+            this.vcapComponent.Varz = details;
+        }
+
+        private void UpdateHealthz()
+        {
+            this.vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(this.HealthzDetails());
         }
     }
 }

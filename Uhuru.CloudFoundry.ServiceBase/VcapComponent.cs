@@ -11,14 +11,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
-    
+
     /// <summary>
     /// This is a class used to register vcap components to the Cloud Foundry controller.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Vcap")]
     public class VcapComponent
     {
-        Dictionary<string, object> discover = new Dictionary<string, object>();
+        private Dictionary<string, object> discover = new Dictionary<string, object>();
         private MonitoringServer httpMonitoringServer;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return discover["uuid"].ToString();
+                return this.discover["uuid"].ToString();
             }
         }
 
@@ -62,14 +62,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 throw new ArgumentNullException("options");
             }
-            Varz = new Dictionary<string, object>();
+
+            this.Varz = new Dictionary<string, object>();
             string uuid = Guid.NewGuid().ToString("N");
             object type = options["type"];
             object index = options.ContainsKey("index") ? options["index"] : null;
 
             if (index != null)
             {
-                uuid = String.Format(CultureInfo.InvariantCulture, "{0}-{1}", index, uuid);
+                uuid = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", index, uuid);
             }
 
             string host = options["host"].ToString();
@@ -79,64 +80,64 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             string[] auth = new string[] 
             { 
-                options.ContainsKey("user") ? options["user"].ToString() :String.Empty, 
-                options.ContainsKey("password") ? options["password"].ToString() : String.Empty
+                options.ContainsKey("user") ? options["user"].ToString() : string.Empty, 
+                options.ContainsKey("password") ? options["password"].ToString() : string.Empty
             };
 
             // Discover message limited
-            discover = new Dictionary<string, object>() {
-              {"type", type},
-              {"index", index},
-              {"uuid", uuid},
-              {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", host, port)},
-              {"credentials", auth},
-              {"start", RubyCompatibility.DateTimeToRubyString(DateTime.Now)}
+            this.discover = new Dictionary<string, object>() 
+            {
+              { "type", type },
+              { "index", index },
+              { "uuid", uuid },
+              { "host", string.Format(CultureInfo.InvariantCulture, "{0}:{1}", host, port) },
+              { "credentials", auth },
+              { "start", RubyCompatibility.DateTimeToRubyString(DateTime.Now) }
             };
 
             // Varz is customizable
-            Varz = new Dictionary<string, object>();
-            foreach (string key in discover.Keys)
+            this.Varz = new Dictionary<string, object>();
+            foreach (string key in this.discover.Keys)
             {
-                Varz[key] = discover[key];
+                this.Varz[key] = this.discover[key];
             }
 
-            Varz["num_cores"] = Environment.ProcessorCount;
+            this.Varz["num_cores"] = Environment.ProcessorCount;
 
-            //TODO: vladi: make sure this is not required by anyone else
-            //@varz[:config] = sanitize_config(opts[:config]) if opts[:config]
+            this.Healthz = "ok\n";
 
-            Healthz = "ok\n";
-
-            start_http_server(host, port, auth);
+            this.StartHttpServer(host, port, auth);
 
             // Listen for discovery requests
-            nats.Subscribe("vcap.component.discover", delegate(string msg, string reply, string subject)
-            {
-                update_discover_uptime();
-                nats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(discover));
-            });
+            nats.Subscribe(
+                "vcap.component.discover", 
+                delegate(string msg, string reply, string subject)
+                {
+                    this.UpdateDiscoverUptime();
+                    nats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(this.discover));
+                });
 
             // Also announce ourselves on startup..
-            nats.Publish("vcap.component.announce", null, msg: JsonConvertibleObject.SerializeToJson(discover));
+            nats.Publish("vcap.component.announce", null, msg: JsonConvertibleObject.SerializeToJson(this.discover));
         }
 
-        private void update_discover_uptime()
+        private void UpdateDiscoverUptime()
         {
-            TimeSpan span = DateTime.Now - (DateTime)discover["start"];
-            discover["uptime"] = String.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
+            TimeSpan span = DateTime.Now - (DateTime)this.discover["start"];
+            this.discover["uptime"] = string.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
-        private void start_http_server(string host, int port, string[] auth)
+        private void StartHttpServer(string host, int port, string[] auth)
         {
-            //TODO: vladi: port this again, this will most likely not work
-            httpMonitoringServer = new MonitoringServer(port, host, auth[0], auth[1]);
-            httpMonitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(httpMonitoringServer_HealthzRequested);
-            httpMonitoringServer.Start();
+            // TODO: vladi: port this again, this will most likely not work
+            this.httpMonitoringServer = new MonitoringServer(port, host, auth[0], auth[1]);
+            this.httpMonitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(this.HttpMonitoringServer_HealthzRequested);
+            this.httpMonitoringServer.Start();
         }
 
-        void httpMonitoringServer_HealthzRequested(object sender, HealthzRequestEventArgs e)
+        private void HttpMonitoringServer_HealthzRequested(object sender, HealthzRequestEventArgs e)
         {
-            e.HealthzMessage = Healthz;
+            e.HealthzMessage = this.Healthz;
         }
     }
 }

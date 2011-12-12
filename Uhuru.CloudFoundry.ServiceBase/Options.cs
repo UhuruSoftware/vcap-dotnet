@@ -49,11 +49,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         { 
             get
             {
-                return index;
+                return this.index;
             }
+
             set
             {
-                index = value;
+                this.index = value;
             }
         }
 
@@ -64,11 +65,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             get
             {
-                return zInterval;
+                return this.zInterval;
             }
+
             set
             {
-                zInterval = value;
+                this.zInterval = value;
             }
         }
 
@@ -127,7 +129,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// This is the IP address of a well known server on your network, it
+        /// Gets or sets the IP address of a well known server on your network; it
         /// is used to choose the right ip address (think of hosts that have multiple nics
         /// and IP addresses assigned to them) of the host running the DEA. Default
         /// value of null, should work in most cases.

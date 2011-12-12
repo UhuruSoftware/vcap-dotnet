@@ -9,7 +9,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Collections.Generic;
     using Uhuru.Utilities;
     
-    abstract class MessageWithSuccessStatus : JsonConvertibleObject
+    internal abstract class MessageWithSuccessStatus : JsonConvertibleObject
     {
         public abstract bool Success
         {
@@ -24,17 +24,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class ProvisionRequest : JsonConvertibleObject
+    internal class ProvisionRequest : JsonConvertibleObject
     {
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("plan")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"), 
+        JsonName("plan")]
         public ProvisionedServicePlanType Plan
         {
             get;
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("credentials")]
         public ServiceCredentials Credentials
         {
             get;
@@ -43,7 +44,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     }
 
     // Node --> Provisioner
-    class ProvisionResponse : MessageWithSuccessStatus
+    internal class ProvisionResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
         public override bool Success
@@ -52,7 +53,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"), 
+        JsonName("credentials")]
         public ServiceCredentials Credentials
         {
             get;
@@ -67,16 +69,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class UnprovisionRequest : JsonConvertibleObject
+    internal class UnprovisionRequest : JsonConvertibleObject
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("name")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("name")]
         public string Name
         {
             get;
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("bindings")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("bindings")]
         public ServiceCredentials[] Bindings
         {
             get;
@@ -84,23 +88,26 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class BindRequest : JsonConvertibleObject
+    internal class BindRequest : JsonConvertibleObject
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("name")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("name")]
         public string Name
         {
             get;
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("bind_opts")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("bind_opts")]
         public Dictionary<string, object> BindOptions
         {
             get;
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"), 
+        JsonName("credentials")]
         public ServiceCredentials Credentials
         {
             get;
@@ -108,7 +115,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class BindResponse : MessageWithSuccessStatus
+    internal class BindResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
         public override bool Success
@@ -117,7 +124,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("credentials")]
         public ServiceCredentials Credentials
         {
             get;
@@ -132,7 +140,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class UnbindRequest : JsonConvertibleObject
+    internal class UnbindRequest : JsonConvertibleObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("credentials")]
         public ServiceCredentials Credentials
@@ -142,7 +150,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class SimpleResponse : MessageWithSuccessStatus
+    internal class SimpleResponse : MessageWithSuccessStatus
     {
         [JsonName("success")]
         public override bool Success
@@ -159,7 +167,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class RestoreRequest : JsonConvertibleObject
+    internal class RestoreRequest : JsonConvertibleObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("instance_id")]
         public string InstanceId
@@ -176,7 +184,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class CheckOrphanRequest : JsonConvertibleObject
+    internal class CheckOrphanRequest : JsonConvertibleObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("handles")]
         public Handle[] Handles
@@ -186,9 +194,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class CheckOrphanResponse : MessageWithSuccessStatus
+    internal class CheckOrphanResponse : MessageWithSuccessStatus
     {
-
         [JsonName("success")]
         public override bool Success
         {
@@ -202,18 +209,24 @@ namespace Uhuru.CloudFoundry.ServiceBase
             get;
             set;
         }
-        // A hash for orphan instances
-        // Key: the id of the node with orphans
-        // Value: orphan instances list
+
+        /// <summary>
+        /// Gets or sets a hash for orphan instances;
+        /// Key: the id of the node with orphans
+        /// Value: orphan instances list
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("orphan_instances")]
         public Dictionary<string, object> OrphanInstances
         {
             get;
             set;
         }
-        // A hash for orphan bindings
-        // Key: the id of the node with orphans
-        // Value: orphan bindings list
+
+        /// <summary>
+        /// Gets or sets a hash for orphan bindings;
+        /// Key: the id of the node with orphans
+        /// Value: orphan bindings list
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("orphan_bindings")]
         public Dictionary<string, object> OrphanBindings
         {
@@ -222,9 +235,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
     }
 
-    class PurgeOrphanRequest : JsonConvertibleObject
+    internal class PurgeOrphanRequest : JsonConvertibleObject
     {
-        // A list of orphan instances names
+        /// <summary>
+        /// Gets or sets a list of orphan instances names
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("orphan_ins_list")]
         public string[] OrphanInsList
         {
@@ -232,7 +247,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set;
         }
 
-        // A list of orphan bindings credentials
+        /// <summary>
+        /// Gets or sets a list of orphan bindings credentials
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode"), JsonName("orphan_binding_list")]
         public ServiceCredentials[] OrphanBindingList
         {

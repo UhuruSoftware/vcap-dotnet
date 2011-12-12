@@ -13,7 +13,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
     using Uhuru.Utilities;
-    
+
+    /// <summary>
+    /// Enum detailing service plan types.
+    /// </summary>
+    public enum ProvisionedServicePlanType
+    {
+        /// <summary>
+        /// Free plan.
+        /// </summary>
+        Free
+    }
+
     /// <summary>
     /// This class contains information about service credentials.
     /// </summary>
@@ -99,7 +110,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         { 
             get
             {
-                return bindOptions;
+                return this.bindOptions;
             }
         }
     }
@@ -107,8 +118,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This is a class containing information about a provisioned service.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-    class Handle
+    public class Handle
     {
         /// <summary>
         /// Gets or sets the service ID.
@@ -158,17 +168,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
     }
 
     /// <summary>
-    /// Enum detailing service plan types.
-    /// </summary>
-    public enum ProvisionedServicePlanType
-    {
-        /// <summary>
-        /// Free plan.
-        /// </summary>
-        Free
-    }
-
-    /// <summary>
     /// Class containing information about a provisioned service.
     /// </summary>
     [Serializable]
@@ -176,7 +175,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     {
         private static readonly object collectionLock = new object();
         private static List<ProvisionedService> services;
-        private static string filename = String.Empty;
+        private static string filename = string.Empty;
         
         private string name;
         private string user;
@@ -184,17 +183,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private ProvisionedServicePlanType plan;
         private bool quotaExceeded;
 
-        /// <summary>
-        /// Initializes a local database for provisioned services.
-        /// </summary>
-        /// <param name="dbFileName">Name of the db file.</param>
-        public static void Initialize(string dbFileName)
-        {
-            filename = dbFileName;
-            services = new List<ProvisionedService>();
-            Load(dbFileName);
-        }
-        
         /// <summary>
         /// Initializes a new instance of the <see cref="ProvisionedService"/> class.
         /// Creates a new instance and adds it to a local collection, that is persisted.
@@ -207,20 +195,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 {
                     services = new List<ProvisionedService>();
                 }
+
                 services.Add(this);
             }
         }
-
-        /// <summary>
-        /// Removes this instance from the collection of provisioned services and saves the local database.
-        /// </summary>
-        /// <returns>A boolean value indicating whether the persistance was successful.</returns>
-        public bool Destroy()
-        {
-            services.Remove(this);
-            return Save();
-        }
-                
+        
         /// <summary>
         /// Gets or sets the name of the provisioned service.
         /// </summary>
@@ -231,6 +210,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return this.name;
             }
+
             set
             {
                 this.name = value;
@@ -247,6 +227,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return this.user;
             }
+
             set
             {
                 this.user = value;
@@ -263,6 +244,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return this.password;
             }
+
             set
             {
                 this.password = value;
@@ -279,6 +261,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return this.plan;
             }
+
             set
             {
                 this.plan = value;
@@ -295,10 +278,41 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 return this.quotaExceeded;
             }
+
             set
             {
                 this.quotaExceeded = value;
             }
+        }
+
+        /// <summary>
+        /// Gets the avilable provisioned services.
+        /// </summary>
+        /// <returns>An array containing provisioned services.</returns>
+        public static ProvisionedService[] GetInstances()
+        {
+            return services.ToArray();
+        }
+
+        /// <summary>
+        /// Gets a provisioned service by its name.
+        /// </summary>
+        /// <param name="name">A service name.</param>
+        /// <returns>The provisioned service, or null if the specified service name does not exist.</returns>
+        public static ProvisionedService GetService(string name)
+        {
+            return GetInstances().FirstOrDefault(instance => instance.name == name);
+        }
+
+        /// <summary>
+        /// Initializes a local database for provisioned services.
+        /// </summary>
+        /// <param name="databaseFileName">Name of the db file.</param>
+        public static void Initialize(string databaseFileName)
+        {
+            filename = databaseFileName;
+            services = new List<ProvisionedService>();
+            Load(databaseFileName);
         }
 
         /// <summary>
@@ -318,6 +332,16 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 Logger.Error(Strings.ProvisionedServiceListSaveErrorLogMessage, ex.ToString());
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Removes this instance from the collection of provisioned services and saves the local database.
+        /// </summary>
+        /// <returns>A boolean value indicating whether the persistance was successful.</returns>
+        public bool Destroy()
+        {
+            services.Remove(this);
+            return Save();
         }
 
         private static void SaveFile()
@@ -343,6 +367,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                     {
                         services = (List<ProvisionedService>)serializer.Deserialize(file);
                     }
+
                     return true;
                 }
                 catch (FileNotFoundException)
@@ -354,25 +379,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                     return false;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the avilable provisioned services.
-        /// </summary>
-        /// <returns>An array containing provisioned services.</returns>
-        public static ProvisionedService[] GetInstances()
-        {
-            return services.ToArray();
-        }
-
-        /// <summary>
-        /// Gets a provisioned service by its name.
-        /// </summary>
-        /// <param name="name">A service name.</param>
-        /// <returns>The provisioned service, or null if the specified service name does not exist.</returns>
-        public static ProvisionedService GetService(string name)
-        {
-            return GetInstances().FirstOrDefault(instance => instance.name == name);
         }
     }
 }

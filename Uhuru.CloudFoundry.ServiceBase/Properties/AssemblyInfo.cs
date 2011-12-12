@@ -1,4 +1,9 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+using System;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
