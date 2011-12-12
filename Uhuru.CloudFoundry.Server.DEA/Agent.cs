@@ -92,9 +92,9 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.stager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
 
-            this.enforceUsageLimit = UhuruSection.GetSection().DEA.EnforceUlimit;
+            this.enforceUsageLimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
             this.disableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
-            this.multiTenant = UhuruSection.GetSection().DEA.MultiTenant;
+            this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
             this.secure = UhuruSection.GetSection().DEA.Secure;
 
             this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
