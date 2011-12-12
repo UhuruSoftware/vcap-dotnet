@@ -52,7 +52,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 dea.Executable = deaConf.Executable;
                 dea.Version = deaConf.Version;
-                dea.VersionFlag = deaConf.VersionFlag;
+                dea.VersionFlag = deaConf.VersionArgument;
                 dea.AdditionalChecks = deaConf.AdditionalChecks;
                 dea.Enabled = true;
 
@@ -75,9 +75,9 @@ namespace Uhuru.CloudFoundry.DEA
 
             AgentStager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
 
-            EnforceUlimit = UhuruSection.GetSection().DEA.EnforceUlimit;
+            EnforceUlimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
             DisableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
-            MultiTenant = UhuruSection.GetSection().DEA.MultiTenant;
+            MultiTenant = UhuruSection.GetSection().DEA.Multitenant;
             Secure = UhuruSection.GetSection().DEA.Secure;
 
             AgentMonitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;

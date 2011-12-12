@@ -11,7 +11,8 @@ namespace Uhuru.Configuration.DEA
     /// <summary>
     /// This class is a collection of DebugElement.
     /// </summary>
-    [ConfigurationCollection(typeof(DebugElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "This is a configuration class, no need to implement ICollection"), 
+    ConfigurationCollection(typeof(DebugElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class DebugCollection : ConfigurationElementCollection
     {
         #region Fields
@@ -28,6 +29,7 @@ namespace Uhuru.Configuration.DEA
         /// <summary>
         /// Initializes static members of the DebugCollection class.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static DebugCollection()
         {
             properties = new ConfigurationPropertyCollection();

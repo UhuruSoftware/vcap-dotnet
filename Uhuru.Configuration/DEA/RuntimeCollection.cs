@@ -11,14 +11,19 @@ namespace Uhuru.Configuration.DEA
     /// <summary>
     /// This class is a collection of RuntimeElement.
     /// </summary>
-    [ConfigurationCollection(typeof(RuntimeElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "This is a configuration class, no need to implement ICollection"), 
+    ConfigurationCollection(typeof(RuntimeElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class RuntimeCollection : ConfigurationElementCollection
     {
-        #region Fields
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
-        #endregion
 
-        #region Constructors
+        /// <summary>
+        /// Initializes static members of the <see cref="RuntimeCollection"/> class.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static RuntimeCollection()
         {
             properties = new ConfigurationPropertyCollection();
@@ -31,15 +36,6 @@ namespace Uhuru.Configuration.DEA
         {
         }
 
-        #endregion
-
-        #region Properties
-        /// Defines the configuration properties available for a RuntimeCollection
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
-        }
-
         /// <summary>
         /// Defines the collection type (BasicMap) for RuntimeCollection
         /// </summary>
@@ -49,15 +45,21 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
+        /// Gets the configuration properties available for a RuntimeCollection
+        /// </summary>
+        /// <returns>The <see cref="T:System.Configuration.ConfigurationPropertyCollection"/> of properties for the element.</returns>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
+        }
+
+        /// <summary>
         /// Gets the element name for a RuntimeCollection
         /// </summary>
         protected override string ElementName
         {
             get { return "runtime"; }
         }
-        #endregion
-
-        #region Indexers
 
         /// <summary>
         /// Gets a runtime configuration by index.
@@ -66,14 +68,19 @@ namespace Uhuru.Configuration.DEA
         /// <returns>The RuntimeElement at the specified index.</returns>
         public RuntimeElement this[int index]
         {
-            get { return (RuntimeElement)base.BaseGet(index); }
+            get 
+            { 
+                return (RuntimeElement)this.BaseGet(index); 
+            }
+
             set
             {
-                if (base.BaseGet(index) != null)
+                if (this.BaseGet(index) != null)
                 {
-                    base.BaseRemoveAt(index);
+                    this.BaseRemoveAt(index);
                 }
-                base.BaseAdd(index, value);
+
+                this.BaseAdd(index, value);
             }
         }
 
@@ -84,18 +91,7 @@ namespace Uhuru.Configuration.DEA
         /// <returns>The RuntimeElement with the specified name.</returns>
         public new RuntimeElement this[string name]
         {
-            get { return (RuntimeElement)base.BaseGet(name); }
-        }
-        #endregion
-
-        #region Overrides
-        /// <summary>
-        /// This method creates a new RuntimeElement.
-        /// </summary>
-        /// <returns>A new RuntimeElement.</returns>
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new RuntimeElement();
+            get { return (RuntimeElement)this.BaseGet(name); }
         }
 
         /// <summary>
@@ -107,6 +103,14 @@ namespace Uhuru.Configuration.DEA
         {
             return (element as RuntimeElement).Name;
         }
-        #endregion
+
+        /// <summary>
+        /// This method creates a new RuntimeElement.
+        /// </summary>
+        /// <returns>A new RuntimeElement.</returns>
+        protected override ConfigurationElement CreateNewElement()
+        {
+            return new RuntimeElement();
+        }
     }
 }

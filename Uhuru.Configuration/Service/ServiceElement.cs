@@ -15,19 +15,74 @@ namespace Uhuru.Configuration.Service
     {
         #region Static Fields
 
+        /// <summary>
+        /// Node ID configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyNodeId;
+       
+        /// <summary>
+        /// Migration NFS configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMigrationNfs;
+       
+        /// <summary>
+        /// Message bus configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMBus;
+       
+        /// <summary>
+        /// Index configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyIndex;
+      
+        /// <summary>
+        /// Z-Interval configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyZInterval;
+       
+        /// <summary>
+        /// Maximum DB size configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMaxDbSize;
+       
+        /// <summary>
+        /// Maximum long query configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMaxLongQuery;
+        
+        /// <summary>
+        /// Maximum long transaction configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMaxLongTx;
+        
+        /// <summary>
+        /// Local database configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyLocalDb;
+        
+        /// <summary>
+        /// Base directory configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyBaseDir;
+       
+        /// <summary>
+        /// Local route configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyLocalRoute;
+      
+        /// <summary>
+        /// Available storage configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyAvailableStorage;
+       
+        /// <summary>
+        /// MS SQL Service configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMsSql;
+       
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
 
         #endregion
@@ -37,15 +92,14 @@ namespace Uhuru.Configuration.Service
         /// <summary>
         /// Initializes static members of the ServiceElement class. 
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static ServiceElement()
         {
             propertyNodeId = new ConfigurationProperty(
                 "nodeId",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMigrationNfs = new ConfigurationProperty(
                 "migrationNfs",
@@ -75,15 +129,13 @@ namespace Uhuru.Configuration.Service
                 "maxDbSize",
                 typeof(int),
                 20,
-                ConfigurationPropertyOptions.IsRequired
-           );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMaxLongQuery = new ConfigurationProperty(
                 "maxLongQuery",
                 typeof(int),
                 3,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyMaxLongTx = new ConfigurationProperty(
                 "maxLongTx",
@@ -143,7 +195,7 @@ namespace Uhuru.Configuration.Service
         #region Properties
 
         /// <summary>
-        /// Node id for the service.
+        /// Gets or sets the node id for the service.
         /// </summary>
         [ConfigurationProperty("nodeId", IsRequired = true, DefaultValue = null)]
         public string NodeId
@@ -160,7 +212,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Network file system used for migration.
+        /// Gets or sets the network file system used for migration.
         /// </summary>
         [ConfigurationProperty("migrationNfs", IsRequired = true, DefaultValue = null)]
         public string MigrationNFS
@@ -177,7 +229,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// NATS message bus URI
+        /// Gets or sets the NATS message bus URI
         /// </summary>
         [ConfigurationProperty("mbus", IsRequired = true, DefaultValue = null)]
         public string MBus
@@ -194,7 +246,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Index of the service node.
+        /// Gets or sets the index of the service node.
         /// </summary>
         [ConfigurationProperty("index", IsRequired = true, DefaultValue = 0)]
         public int Index
@@ -211,7 +263,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the interval at which to update the Healthz and Varz
+        /// Gets or sets the interval at which to update the Healthz and Varz
         /// </summary>
         [ConfigurationProperty("zInterval", IsRequired = true, DefaultValue = 30000)]
         public int ZInterval
@@ -228,7 +280,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the maximum database size.
+        /// Gets or sets the maximum database size.
         /// </summary>
         [ConfigurationProperty("maxDbSize", IsRequired = true, DefaultValue = 20)]
         public int MaxDBSize
@@ -245,7 +297,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the maximum duration for a query in seconds.
+        /// Gets or sets the maximum duration for a query in seconds.
         /// </summary>
         [ConfigurationProperty("maxLongQuery", IsRequired = true, DefaultValue = 3)]
         public int MaxLengthyQuery
@@ -262,7 +314,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the maximum duration for a query in seconds.
+        /// Gets or sets the maximum duration for a query in seconds.
         /// </summary>
         [ConfigurationProperty("maxLongTx", IsRequired = true, DefaultValue = 30)]
         public int MaxLengthyTX
@@ -279,7 +331,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the base directory for the service.
+        /// Gets or sets the base directory for the service.
         /// </summary>
         [ConfigurationProperty("baseDir", IsRequired = true, DefaultValue = ".\\")]
         public string BaseDir
@@ -296,7 +348,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the amount of available storage for this service, in megabytes.
+        /// Gets or sets the amount of available storage for this service, in megabytes.
         /// </summary>
         [ConfigurationProperty("availableStorage", IsRequired = true, DefaultValue = 1024)]
         public int AvailableStorage
@@ -313,7 +365,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the local database file in which to save the list of provisioned services.
+        /// Gets or sets the local database file in which to save the list of provisioned services.
         /// </summary>
         [ConfigurationProperty("localDb", IsRequired = true, DefaultValue = "localServiceDb.xml")]
         public string LocalDB
@@ -330,7 +382,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// This is the IP address of a well known server on your network, it
+        /// Gets or sets the IP address of a well known server on your network; it
         /// is used to choose the right ip address (think of hosts that have multiple nics
         /// and IP addresses assigned to them) of the host running the DEA. Default
         /// value of null, should work in most cases.
@@ -350,7 +402,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets configuration settings for an MS Sql Server system service.
+        /// Gets or sets the configuration settings for an MS Sql Server system service.
         /// </summary>
         [ConfigurationProperty("mssql", IsRequired = false, DefaultValue = null)]
         public MSSqlElement MSSql

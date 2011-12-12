@@ -16,8 +16,29 @@ namespace Uhuru.Configuration
     public class UhuruSection : ConfigurationSection
     {
         /// <summary>
-        /// Initializes the static members of the UhuruSection class
+        /// DEA configuration property.
         /// </summary>
+        private static ConfigurationProperty propertyDEA;
+        
+        /// <summary>
+        /// Service configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyService;
+        
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
+        private static ConfigurationPropertyCollection properties;
+        
+        /// <summary>
+        /// Uhuru section.
+        /// </summary>
+        private static UhuruSection section;
+
+        /// <summary>
+        ///  Initializes static members of the <see cref="UhuruSection"/> class.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static UhuruSection()
         {
             propertyDEA = new ConfigurationProperty(
@@ -34,16 +55,6 @@ namespace Uhuru.Configuration
             properties.Add(propertyDEA);
             properties.Add(propertyService);
         }
-
-        #region Static Fields
-        
-        private static ConfigurationProperty propertyDEA;
-        private static ConfigurationProperty propertyService;
-        private static ConfigurationPropertyCollection properties;
-        
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Gets or sets the configuration settings for a DEA.
@@ -79,11 +90,6 @@ namespace Uhuru.Configuration
             }
         }
 
-        #endregion
-
-        #region GetSection Pattern
-        private static UhuruSection section;
-
         /// <summary>
         /// Gets the configuration section using the default element name.
         /// </summary>
@@ -96,6 +102,7 @@ namespace Uhuru.Configuration
         /// <summary>
         /// Gets the configuration section using the specified element name.
         /// </summary>
+        /// <param name="definedName">Name of the section to load.</param>
         /// <returns>the configuration section requested</returns>    
         public static UhuruSection GetSection(string definedName)
         {
@@ -110,7 +117,5 @@ namespace Uhuru.Configuration
 
             return section;
         }
-
-        #endregion
     }
 }

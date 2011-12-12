@@ -11,40 +11,29 @@ namespace Uhuru.Configuration.DEA
     /// <summary>
     /// This class is a collection of EnvironmentElement items.
     /// </summary>
-    [ConfigurationCollection(typeof(EnvironmentElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "This is a configuration class, no need to implement ICollection"), 
+    ConfigurationCollection(typeof(EnvironmentElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
     public class EnvironmentCollection : ConfigurationElementCollection
     {
-        #region Fields
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
-        #endregion
-
-        #region Constructors
 
         /// <summary>
-        /// Initializes static members of EnvironmentCollection class.
+        /// Initializes static members of the <see cref="EnvironmentCollection"/> class.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way.")]
         static EnvironmentCollection()
         {
             properties = new ConfigurationPropertyCollection();
         }
 
         /// <summary>
-        /// Initializes a new instance of the EnvironmentCollection class.
+        /// Initializes a new instance of the <see cref="EnvironmentCollection"/> class.
         /// </summary>
         public EnvironmentCollection()
         {
-        }
-
-        #endregion
-
-        #region Properties
-        
-        /// <summary>
-        /// Defines the configuration properties available for the current object.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
         }
 
         /// <summary>
@@ -63,10 +52,14 @@ namespace Uhuru.Configuration.DEA
             get { return "env"; }
         }
 
-        #endregion
-
-        #region Indexers
-
+        /// <summary>
+        /// Defines the configuration properties available for the current object.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
+        }
+        
         /// <summary>
         /// Gets a environment variable by index.
         /// </summary>
@@ -97,12 +90,8 @@ namespace Uhuru.Configuration.DEA
         /// <returns>The EnvironmentElement with the specified name.</returns>
         public new EnvironmentElement this[string name]
         {
-            get { return (EnvironmentElement)base.BaseGet(name); }
+            get { return (EnvironmentElement)this.BaseGet(name); }
         }
-
-        #endregion
-
-        #region Overrides
 
         /// <summary>
         /// This method creates a new EnvironmentElement.
@@ -122,6 +111,5 @@ namespace Uhuru.Configuration.DEA
         {
             return (element as EnvironmentElement).Name;
         }
-        #endregion
     }
 }
