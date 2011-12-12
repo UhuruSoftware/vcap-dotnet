@@ -6,10 +6,7 @@
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// This class contains structured application information.

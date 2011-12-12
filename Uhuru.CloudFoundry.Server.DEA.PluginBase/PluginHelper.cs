@@ -8,11 +8,9 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using Uhuru.Utilities;
-    using System.IO;
     using System.Globalization;
+    using System.IO;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// This is a helper class that provides easy methods to extract application settings from the variables that are given to a plugin.
