@@ -20,8 +20,8 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
-        JsonName("instances")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"),
+        JsonName("instance_ids")]
         public HashSet<string> InstanceIds
         {
             get;
