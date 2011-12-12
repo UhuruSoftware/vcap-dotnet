@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.NatsClient.Resources
-{
-
-
+namespace Uhuru.NatsClient.Resources {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -63,9 +63,9 @@ namespace Uhuru.NatsClient.Resources
         /// <summary>
         ///   Looks up a localized string similar to \r\n.
         /// </summary>
-        internal static string CR_LF {
+        internal static string CRLF {
             get {
-                return ResourceManager.GetString("CR_LF", resourceCulture);
+                return ResourceManager.GetString("CRLF", resourceCulture);
             }
         }
         
