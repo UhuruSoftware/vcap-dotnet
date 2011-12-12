@@ -259,10 +259,10 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 foldersCreated.Add(targetDir);
             }
-            TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql#" + serviceName + "}");
+            TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
             cl.CreateService(serviceName, "mssql");
-            cl.Push(appName, url, targetDir, 1, "net", "iis", 128, new List<string>(), false, false, false);
+            cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             cl.BindService(appName, serviceName);
             cl.StartApp(appName, true, false);
 
