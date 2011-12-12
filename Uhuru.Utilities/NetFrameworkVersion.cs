@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="NetFrameworkVersion.cs" company="Uhuru Software">
+// <copyright file="NetFrameworkVersion.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -50,20 +50,20 @@ namespace Uhuru.Utilities
             {
                 string fileName = assemblyPath.Normalize();
                 
-                if (!(System.IO.File.Exists(fileName))) 
+                if (!System.IO.File.Exists(fileName))
                 { 
                     return DotNetVersion.Two;
                 }
 
-                //TODO: florind: find a safer way to do this, without loading the assembly in RAM
+                // TODO: florind: find a safer way to do this, without loading the assembly in RAM
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 setup.ApplicationBase = Path.GetDirectoryName(assemblyPath);
                 string domainName = Guid.NewGuid().ToString();
                 AppDomain domain = AppDomain.CreateDomain(domainName, null, setup);
 
-                LoadAssembly obj = (LoadAssembly)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, "Uhuru.Utilities.LoadAssembly");
+                LoadAssemblyHelper obj = (LoadAssemblyHelper)domain.CreateInstanceFromAndUnwrap(Assembly.GetExecutingAssembly().Location, "Uhuru.Utilities.LoadAssemblyHelper");
 
-                string version = obj.GetDotNetVersion(assemblyPath); //a.ImageRuntimeVersion.Split('.')[0].Replace("v", "");
+                string version = obj.GetDotNetVersion(assemblyPath);
 
                 AppDomain.Unload(domain);
                 
@@ -84,17 +84,6 @@ namespace Uhuru.Utilities
             {
                 throw;
             }
-        }
-    }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
-    class LoadAssembly : MarshalByRefObject
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        public string GetDotNetVersion(string assemblyPath)
-        {
-            Assembly a = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-            return a.ImageRuntimeVersion.Split('.')[0].Replace("v", "");
         }
     }
 }

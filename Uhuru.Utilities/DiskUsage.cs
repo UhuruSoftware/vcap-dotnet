@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DiskUsage.cs" company="Uhuru Software">
+// <copyright file="DiskUsage.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,10 +10,10 @@ namespace Uhuru.Utilities
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Linq;
 
     /// <summary>
     /// This class is used to get disk usage information for a directory.
@@ -34,7 +34,6 @@ namespace Uhuru.Utilities
             {
                 string[] allFiles = Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly);
                 string[] allDirectories = Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly);
-
 
                 allObjects = new Dictionary<string, long>(allFiles.Length + allDirectories.Length);
 
@@ -59,8 +58,7 @@ namespace Uhuru.Utilities
 
             foreach (string obj in allObjects.Keys)
             {
-                DiskUsageEntry entry = new DiskUsageEntry(
-                    GetReadableForm(allObjects[obj]), allObjects[obj], obj.Replace(directory, ""));
+                DiskUsageEntry entry = new DiskUsageEntry(GetReadableForm(allObjects[obj]), allObjects[obj], obj.Replace(directory, string.Empty));
                 result.Add(entry);
             }
 
@@ -111,6 +109,7 @@ namespace Uhuru.Utilities
                         objects.Add(fileName, fileSize);
                     }
                 }
+
                 Interlocked.Add(ref size, fileSize);
             }
 
@@ -118,16 +117,19 @@ namespace Uhuru.Utilities
             {
                 string[] subdirEntries = Directory.GetDirectories(directory, "*");
 
-                Parallel.For<double>(0, subdirEntries.Length, () => 0, (i, loop, subtotal) =>
-                {
-                    subtotal += GetDirectorySize(subdirEntries[i], true, objects, objectsLock);
-                    return subtotal;
-                },
+                Parallel.For<double>(
+                    0, 
+                    subdirEntries.Length, 
+                    () => 0, 
+                    (i, loop, subtotal) =>
+                    {
+                        subtotal += GetDirectorySize(subdirEntries[i], true, objects, objectsLock);
+                        return subtotal;
+                    },
                     (x) =>
                     {
                         Interlocked.Add(ref size, (long)x);
-                    }
-                );
+                    });
             }
 
             if (objects != null)
