@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Uhuru.CloudFoundry.Test
+namespace Uhuru.CloudFoundry.Test.Unit
 {
     
     
@@ -68,6 +68,7 @@ namespace Uhuru.CloudFoundry.Test
         ///A test for GetParsedData
         ///</summary>
         [TestMethod()]
+        [TestCategory("Unit")]
         public void GetParsedDataTest()
         {
             ApplicationVariable[] appVariables = new ApplicationVariable[] {

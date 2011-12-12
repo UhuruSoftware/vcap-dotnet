@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.Test.System
         private string password = "password1234!";
         Client cfClient;
 
-        [ClassInitialize]
+        [TestInitialize]
         public void TestFixtureSetup()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -29,7 +29,7 @@ namespace Uhuru.CloudFoundry.Test.System
             cfClient.Login(username, password);
         }
 
-        [ClassCleanup]
+        [TestCleanup]
         public void TestFixtureTeardown()
         {
             foreach (App app in cfClient.Apps())

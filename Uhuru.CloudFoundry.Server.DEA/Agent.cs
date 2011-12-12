@@ -1482,20 +1482,22 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
+                    bool isCrashed = instance.Properties.State == DropletInstanceState.Crashed;
                     bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
                     bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
                     bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
 
-                    if (isOldCrash || isStopped || isDeleted)
+
+                    //Remove the instance system resources, except the instance directory
+                    if (isCrashed || isOldCrash || isStopped || isDeleted)
                     {
-
                         Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-
 
                         if (instance.Plugin != null)
                         {
                             try
                             {
+                                AgentMonitoring.RemoveInstanceResources(instance);
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                 instance.Plugin = null;
                                 WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
@@ -1505,6 +1507,11 @@ namespace Uhuru.CloudFoundry.DEA
                                 instance.ErrorLog.Error(ex.ToString());
                             }
                         }
+                    }
+
+                    //Remove the instance directory, including the logs
+                    if (isOldCrash || isStopped || isDeleted)
+                    {
 
                         if (DisableDirCleanup) instance.Properties.Directory = null;
                         if (instance.Properties.Directory != null && instance.Plugin == null)
@@ -1530,6 +1537,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitWriteLock();
                 }
 
+                //If the remove droplet flag was set, delete the instance form the Dea. The removal is made here to avoid dealocks.
                 if (removeDroplet)
                 {
                     Droplets.RemoveDropletInstance(instance);

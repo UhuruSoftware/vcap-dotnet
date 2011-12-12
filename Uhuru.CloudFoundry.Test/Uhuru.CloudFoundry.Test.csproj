@@ -70,12 +70,12 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiskUsageTest.cs" />
+    <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />
     <Compile Include="Integration\FileServerTest.cs" />
     <Compile Include="Integration\IISPluginTest.cs" />
     <Compile Include="Integration\NatsClientTest.cs" />
-    <Compile Include="PluginHelperTest.cs" />
+    <Compile Include="Unit\PluginHelperTest.cs" />
     <Compile Include="System\MsSqlServicesTest.cs" />
     <Compile Include="System\UmbracoTest.cs" />
     <Compile Include="Unit\JsonConvertibleObjectTest.cs" />

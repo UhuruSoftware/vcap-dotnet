@@ -23,7 +23,7 @@ namespace Uhuru.CloudFoundry.Test.System
         Client client;
         private readonly object lck = new object();
 
-        [ClassInitialize]
+        [TestInitialize]
         public void TestFixtureSetUp()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.Test.System
             client.Login(userName, password);
         }
 
-        [ClassCleanup]
+        [TestCleanup]
         public void TestFixtureTearDown()
         {
             foreach (App app in client.Apps())
@@ -259,10 +259,10 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 foldersCreated.Add(targetDir);
             }
-            TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql#" + serviceName + "}");
+            TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
             cl.CreateService(serviceName, "mssql");
-            cl.Push(appName, url, targetDir, 1, "net", "iis", 128, new List<string>(), false, false, false);
+            cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             cl.BindService(appName, serviceName);
             cl.StartApp(appName, true, false);
 

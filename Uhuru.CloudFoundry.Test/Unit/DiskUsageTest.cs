@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 
-namespace Uhuru.CloudFoundry.Test
+namespace Uhuru.CloudFoundry.Test.Unit
 {
     
     
@@ -69,6 +69,7 @@ namespace Uhuru.CloudFoundry.Test
         ///A test for GetDiskUsage
         ///</summary>
         [TestMethod()]
+        [TestCategory("Unit")]
         public void GetDiskUsageTest()
         {
 

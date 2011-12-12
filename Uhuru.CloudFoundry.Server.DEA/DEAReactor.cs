@@ -85,7 +85,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void SendDeaStart(string message)
         {
-            NatsClient.Publish("dea.start", null,  message);
+            NatsClient.Publish("dea.start", null, message);
         }
 
         public void SendDropletExited(string message)
