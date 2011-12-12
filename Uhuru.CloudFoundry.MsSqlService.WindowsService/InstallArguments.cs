@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="InstallArguments.cs" company="">
+// <copyright file="InstallArguments.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -8,186 +8,356 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
     using System.Configuration.Install;
 
-    class InstallArguments
+    /// <summary>
+    /// Helper class for parsing the arguments received by the installer
+    /// </summary>
+    internal class InstallArguments
     {
-        private class Argument
-        {
-            public const string targetDir = "TARGETDIR";
-            public const string nodeId = "nodeId";
-            public const string migrationNfs = "migrationNfs";
-            public const string mbus = "mbus";
-            public const string index = "index";
-            public const string zInterval = "zInterval";
-            public const string maxDbSize = "maxDbSize";
-            public const string maxLongQuery = "maxLongQuery";
-            public const string maxLongTx = "maxLongTx";
-            public const string localDb = "localDb";
-            public const string baseDir = "baseDir";
-            public const string localRoute = "localRoute";
-            public const string availableStorage = "availableStorage";
-            public const string host = "host";
-            public const string user = "user";
-            public const string password = "password";
-            public const string port = "port";
-        }
-
-        #region Properties
-
+        /// <summary>
+        /// Target Directory
+        /// </summary>
         private string targetDir;
 
-        public string TargetDir
-        {
-            get { return targetDir; }
-            set { targetDir = value; }
-        }
-
+        /// <summary>
+        /// nodeId argument value
+        /// </summary>
         private string nodeId;
 
-        public string NodeId
-        {
-            get { return nodeId; }
-            set { nodeId = value; }
-        }
-
+        /// <summary>
+        /// migrationNfs argument value
+        /// </summary>
         private string migrationNfs;
 
-        public string MigrationNfs
-        {
-            get { return migrationNfs; }
-            set { migrationNfs = value; }
-        }
-
+        /// <summary>
+        /// mbus argument value
+        /// </summary>
         private string mbus;
 
-        public string Mbus
-        {
-            get { return mbus; }
-            set { mbus = value; }
-        }
-
+        /// <summary>
+        /// index argument value
+        /// </summary>
         private string index;
 
-        public string Index
-        {
-            get { return index; }
-            set { index = value; }
-        }
-
+        /// <summary>
+        /// zInterval argument value
+        /// </summary>
         private string zInterval;
 
-        public string ZInterval
-        {
-            get { return zInterval; }
-            set { zInterval = value; }
-        }
-
+        /// <summary>
+        /// maxDbSize argument value
+        /// </summary>
         private string maxDbSize;
 
-        public string MaxDbSize
-        {
-            get { return maxDbSize; }
-            set { maxDbSize = value; }
-        }
-
+        /// <summary>
+        /// maxLongQuery argument value
+        /// </summary>
         private string maxLongQuery;
 
-        public string MaxLongQuery
-        {
-            get { return maxLongQuery; }
-            set { maxLongQuery = value; }
-        }
-
+        /// <summary>
+        /// maxLongTx argument value
+        /// </summary>
         private string maxLongTx;
 
-        public string MaxLongTx
-        {
-            get { return maxLongTx; }
-            set { maxLongTx = value; }
-        }
-
+        /// <summary>
+        /// localDb argument value
+        /// </summary>
         private string localDb;
 
-        public string LocalDb
-        {
-            get { return localDb; }
-            set { localDb = value; }
-        }
+        /// <summary>
+        /// baseDir argument value
+        /// </summary>
         private string baseDir;
 
-        public string BaseDir
-        {
-            get { return baseDir; }
-            set { baseDir = value; }
-        }
-
+        /// <summary>
+        /// localRoute argument value
+        /// </summary>
         private string localRoute;
 
-        public string LocalRoute
-        {
-            get { return localRoute; }
-            set { localRoute = value; }
-        }
-
+        /// <summary>
+        /// availableStorage argument value
+        /// </summary>
         private string availableStorage;
 
-        public string AvailableStorage
-        {
-            get { return availableStorage; }
-            set { availableStorage = value; }
-        }
-
+        /// <summary>
+        /// host argument value
+        /// </summary>
         private string host;
 
-        public string Host
-        {
-            get { return host; }
-            set { host = value; }
-        }
-
+        /// <summary>
+        /// user argument value
+        /// </summary>
         private string user;
 
-        public string User
-        {
-            get { return user; }
-            set { user = value; }
-        }
+        /// <summary>
+        /// password argument value
+        /// </summary>
         private string password;
 
-        public string Password
-        {
-            get { return password; }
-            set { password = value; }
-        }
-
+        /// <summary>
+        /// port argument value
+        /// </summary>
         private string port;
 
-        public string Port
-        {
-            get { return port; }
-            set { port = value; }
-        }
-
-        #endregion
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstallArguments"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public InstallArguments(InstallContext context)
         {
-            targetDir = context.Parameters[Argument.targetDir].TrimEnd('\\');
-            nodeId = context.Parameters[Argument.nodeId];
-            migrationNfs = context.Parameters[Argument.migrationNfs];
-            mbus = context.Parameters[Argument.mbus];
-            index = context.Parameters[Argument.index];
-            zInterval = context.Parameters[Argument.zInterval];
-            maxDbSize = context.Parameters[Argument.maxDbSize];
-            maxLongQuery = context.Parameters[Argument.maxLongQuery];
-            maxLongTx = context.Parameters[Argument.maxLongTx];
-            localDb = context.Parameters[Argument.localDb];
-            baseDir = context.Parameters[Argument.baseDir];
-            localRoute = context.Parameters[Argument.localRoute];
-            availableStorage = context.Parameters[Argument.availableStorage];
-            host = context.Parameters[Argument.host];
-            user = context.Parameters[Argument.user];
-            password = context.Parameters[Argument.password];
-            port = context.Parameters[Argument.port];
+            this.targetDir = context.Parameters[Argument.TargetDir].TrimEnd('\\');
+            this.nodeId = context.Parameters[Argument.NodeId];
+            this.migrationNfs = context.Parameters[Argument.MigrationNfs];
+            this.mbus = context.Parameters[Argument.Mbus];
+            this.index = context.Parameters[Argument.Index];
+            this.zInterval = context.Parameters[Argument.ZInterval];
+            this.maxDbSize = context.Parameters[Argument.MaxDbSize];
+            this.maxLongQuery = context.Parameters[Argument.MaxLongQuery];
+            this.maxLongTx = context.Parameters[Argument.MaxLongTx];
+            this.localDb = context.Parameters[Argument.LocalDb];
+            this.baseDir = context.Parameters[Argument.BaseDir];
+            this.localRoute = context.Parameters[Argument.LocalRoute];
+            this.availableStorage = context.Parameters[Argument.AvailableStorage];
+            this.host = context.Parameters[Argument.Host];
+            this.user = context.Parameters[Argument.User];
+            this.password = context.Parameters[Argument.Password];
+            this.port = context.Parameters[Argument.Port];
+        }
+
+        /// <summary>
+        /// Gets the target dir.
+        /// </summary>
+        public string TargetDir
+        {
+            get { return this.targetDir; }
+        }
+
+        /// <summary>
+        /// Gets the node id.
+        /// </summary>
+        public string NodeId
+        {
+            get { return this.nodeId; }
+        }
+
+        /// <summary>
+        /// Gets the migration NFS.
+        /// </summary>
+        public string MigrationNfs
+        {
+            get { return this.migrationNfs; }
+        }
+
+        /// <summary>
+        /// Gets the mbus.
+        /// </summary>
+        public string Mbus
+        {
+            get { return this.mbus; }
+        }
+
+        /// <summary>
+        /// Gets the index.
+        /// </summary>
+        public string Index
+        {
+            get { return this.index; }
+        }
+
+        /// <summary>
+        /// Gets the Z interval.
+        /// </summary>
+        public string ZInterval
+        {
+            get { return this.zInterval; }
+        }
+
+        /// <summary>
+        /// Gets the size of the max db.
+        /// </summary>
+        /// <value>
+        /// The max size of the db.
+        /// </value>
+        public string MaxDbSize
+        {
+            get { return this.maxDbSize; }
+        }
+
+        /// <summary>
+        /// Gets the max long query.
+        /// </summary>
+        public string MaxLongQuery
+        {
+            get { return this.maxLongQuery; }
+        }
+
+        /// <summary>
+        /// Gets the max long tx.
+        /// </summary>
+        public string MaxLongTx
+        {
+            get { return this.maxLongTx; }
+        }
+
+        /// <summary>
+        /// Gets the local db.
+        /// </summary>
+        public string LocalDb
+        {
+            get { return this.localDb; }
+        }
+
+        /// <summary>
+        /// Gets the base dir.
+        /// </summary>
+        public string BaseDir
+        {
+            get { return this.baseDir; }
+        }
+
+        /// <summary>
+        /// Gets the local route.
+        /// </summary>
+        public string LocalRoute
+        {
+            get { return this.localRoute; }
+        }
+
+        /// <summary>
+        /// Gets the available storage.
+        /// </summary>
+        public string AvailableStorage
+        {
+            get { return this.availableStorage; }
+        }
+
+        /// <summary>
+        /// Gets the host.
+        /// </summary>
+        public string Host
+        {
+            get { return this.host; }
+        }
+
+        /// <summary>
+        /// Gets the user.
+        /// </summary>
+        public string User
+        {
+            get { return this.user; }
+        }
+
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
+        public string Password
+        {
+            get { return this.password; }
+        }
+
+        /// <summary>
+        /// Gets the port.
+        /// </summary>
+        public string Port
+        {
+            get { return this.port; }
+        }
+
+        /// <summary>
+        /// Class defining all argument names
+        /// </summary>
+        private class Argument
+        {
+            /// <summary>
+            /// Target Directory
+            /// </summary>
+            public const string TargetDir = "TARGETDIR";
+
+            /// <summary>
+            /// Parameter name for nodeId
+            /// </summary>
+            public const string NodeId = "nodeId";
+
+            /// <summary>
+            /// Parameter name for migrationNfs
+            /// </summary>
+            public const string MigrationNfs = "migrationNfs";
+
+            /// <summary>
+            /// Parameter name for messageBus
+            /// </summary>
+            public const string Mbus = "mbus";
+
+            /// <summary>
+            /// Parameter name for index
+            /// </summary>
+            public const string Index = "index";
+
+            /// <summary>
+            /// Parameter name for zInterval
+            /// </summary>
+            public const string ZInterval = "zInterval";
+
+            /// <summary>
+            /// Parameter name for maxDbSize
+            /// </summary>
+            public const string MaxDbSize = "maxDbSize";
+
+            /// <summary>
+            /// Parameter name for maxLongQuery
+            /// </summary>
+            public const string MaxLongQuery = "maxLongQuery";
+
+            /// <summary>
+            /// Parameter name for maxLongTx
+            /// </summary>
+            public const string MaxLongTx = "maxLongTx";
+
+            /// <summary>
+            /// Parameter name for localDb
+            /// </summary>
+            public const string LocalDb = "localDb";
+
+            /// <summary>
+            /// Parameter name for baseDir
+            /// </summary>
+            public const string BaseDir = "baseDir";
+
+            /// <summary>
+            /// Parameter name for localRoute
+            /// </summary>
+            public const string LocalRoute = "localRoute";
+
+            /// <summary>
+            /// Parameter name for availableStorage
+            /// </summary>
+            public const string AvailableStorage = "availableStorage";
+
+            /// <summary>
+            /// Parameter name for host
+            /// </summary>
+            public const string Host = "host";
+
+            /// <summary>
+            /// Parameter name for user
+            /// </summary>
+            public const string User = "user";
+
+            /// <summary>
+            /// Parameter name for password
+            /// </summary>
+            public const string Password = "password";
+
+            /// <summary>
+            /// Parameter name for port
+            /// </summary>
+            public const string Port = "port";
+
+            /// <summary>
+            /// Prevents a default instance of the <see cref="Argument"/> class from being created.
+            /// </summary>
+            private Argument()
+            {
+            }
         }
     }
 }

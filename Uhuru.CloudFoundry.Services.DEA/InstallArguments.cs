@@ -186,52 +186,52 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             public const string TargetDir = "TARGETDIR";
 
             /// <summary>
-            /// Paremeter name for BaseDir
+            /// Parameter name for BaseDir
             /// </summary>
             public const string BaseDir = "baseDir";
 
             /// <summary>
-            /// Paremeter name for LocalRoute
+            /// Parameter name for LocalRoute
             /// </summary>
             public const string LocalRoute = "localRoute";
 
             /// <summary>
-            /// Paremeter name for FilerPort
+            /// Parameter name for FilerPort
             /// </summary>
             public const string FilerPort = "filerPort";
 
             /// <summary>
-            /// Paremeter name for MessageBus
+            /// Parameter name for MessageBus
             /// </summary>
             public const string MessageBus = "messageBus";
 
             /// <summary>
-            /// Paremeter name for MultiTenant
+            /// Parameter name for MultiTenant
             /// </summary>
             public const string MultiTenant = "multiTenant";
 
             /// <summary>
-            /// Paremeter name for MaxMemory
+            /// Parameter name for MaxMemory
             /// </summary>
             public const string MaxMemory = "maxMemory";
 
             /// <summary>
-            /// Paremeter name for Secure
+            /// Parameter name for Secure
             /// </summary>
             public const string Secure = "secure";
 
             /// <summary>
-            /// Paremeter name for EnforceUlimit
+            /// Parameter name for EnforceUlimit
             /// </summary>
             public const string EnforceUlimit = "enforceUlimit";
 
             /// <summary>
-            /// Paremeter name for heartbeat
+            /// Parameter name for heartbeat
             /// </summary>
             public const string HeartBeatInterval = "heartBeatInterval";
 
             /// <summary>
-            /// Paremeter name for forceHttpSharing
+            /// Parameter name for forceHttpSharing
             /// </summary>
             public const string ForceHttpSharing = "forceHttpSharing";
 
