@@ -314,7 +314,10 @@ namespace Uhuru.Configuration.DEA
                 base[propertyForceHttpSharing] = value;
             }
         }
-                
+
+        /// <summary>
+        /// Gets the runtimes configuration for the dea.
+        /// </summary>
         [ConfigurationProperty("runtimes", IsRequired = false, DefaultValue = null)]
         public RuntimeCollection Runtimes
         {

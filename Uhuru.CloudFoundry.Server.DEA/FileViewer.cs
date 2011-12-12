@@ -49,7 +49,7 @@ namespace Uhuru.CloudFoundry.DEA
             IsRunning = false;
         }
 
-        public void Start(string DropletsPath)
+        public void Start(string dropletsPath)
         {
             FilerStartTimer = new System.Timers.Timer(1000);
             FilerStartTimer.AutoReset = false;
@@ -59,7 +59,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    FileViewerServer = new FileServer(Port, DropletsPath, @"/droplets", Credentials[0], Credentials[1]);
+                    FileViewerServer = new FileServer(Port, dropletsPath, @"/droplets", Credentials[0], Credentials[1]);
                     FileViewerServer.Start();
 
                     Logger.Info(Strings.FileServiceStartedOnPort, Port);

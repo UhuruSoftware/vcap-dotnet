@@ -221,11 +221,11 @@ namespace Uhuru.CloudFoundry.DEA
                 if (IntPtr.Size == 8)
                 {
                     libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z64.dll");
-                    stream = asm.GetManifestResourceStream("CloudFoundry.Net.lib.7z64.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z64.dll");
                 }
                 else
                 {
-                    stream = asm.GetManifestResourceStream("CloudFoundry.Net.lib.7z86.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z86.dll");
                     libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z86.dll");
                 }
 

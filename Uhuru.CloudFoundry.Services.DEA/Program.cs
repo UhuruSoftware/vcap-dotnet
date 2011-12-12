@@ -18,11 +18,10 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 		/// </summary>
 		static void Main(string[] args)
 		{
-			bool debug = args.Contains("debug");
-
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 
-			if (!debug)
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            if (!Environment.UserInteractive)
 			{
 				System.ServiceProcess.ServiceBase[] ServicesToRun;
 				ServicesToRun = new System.ServiceProcess.ServiceBase[] 
@@ -33,14 +32,21 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 			}
 			else
 			{
-				Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
 				using (DeaWindowsService deaService = new DeaWindowsService())
 				{
-					deaService.Start(new string[0]);
+					deaService.Start();
+                    Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
 					Console.ReadLine();
 					deaService.Stop();
 				}
 			}
 		}
+
+
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Uhuru.Utilities.Logger.Fatal(e.ExceptionObject.ToString());
+        }
+
 	}
 }

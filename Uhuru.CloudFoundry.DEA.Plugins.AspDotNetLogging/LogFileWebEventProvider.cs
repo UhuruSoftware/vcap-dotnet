@@ -12,11 +12,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
     using System.Text;
     using System.Web.Management;
     using System.Configuration;
-    
+
+    /// <summary>
+    /// Event provider for droplet instances. Writes events to a file.
+    /// </summary>
     public class LogFileWebEventProvider : BufferedWebEventProvider
     {
         private string logFilePath;
-        private string providerName, buffer, bufferMode;
         private StringBuilder customInfo;
 
         /// <summary>
@@ -52,6 +54,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
             get { return this.BufferMode; }
         }
 
+        /// <summary>
+        /// Moves the events from the provider's buffer into the event log.
+        /// </summary>
         public override void Flush()
         {
         }
@@ -64,10 +69,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
         public override void Initialize(string name, System.Collections.Specialized.NameValueCollection config)
         {
             base.Initialize(name, config);
-
-            this.providerName = name;
-            this.buffer = this.LogFileUseBuffering.ToString();
-            this.bufferMode = BufferMode;
 
             if (this.Name == "ErrorEventProvider")
             {
@@ -115,7 +116,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
                 this.StoreToFile(FileMode.Append);
             }
         }
-        
+
+        /// <summary>
+        /// Processes the buffered events.
+        /// </summary>
+        /// <param name="flushInfo">A <see cref="T:System.Web.Management.WebEventBufferFlushInfo"/> that contains buffering information.</param>
         public override void ProcessEventFlush(WebEventBufferFlushInfo flushInfo)
         {
             if (flushInfo == null)
@@ -165,47 +170,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
             FileStream logFileStream = new FileStream(logFilePath, fileMode, FileAccess.Write);
             logFileStream.Lock(startIndex, writeBlock);
 
-            StreamWriter writer = new StreamWriter(logFileStream);
+            using (StreamWriter writer = new StreamWriter(logFileStream))
+            {
 
-            writer.BaseStream.Seek(0, SeekOrigin.Current);
-            writer.Write(customInfo.ToString());
-            writer.Flush();
+                writer.BaseStream.Seek(0, SeekOrigin.Current);
+                writer.Write(customInfo.ToString());
+                writer.Flush();
 
-            logFileStream.Unlock(startIndex, writeBlock);
+                logFileStream.Unlock(startIndex, writeBlock);
 
-            writer.Close();
-            logFileStream.Close();
+                writer.Close();
+                logFileStream.Close();
+            }
         }
-
-        private WebBaseEventCollection GetEvents(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.Events;
-        }
-
-        private int GetEventsDiscardedSinceLastNotification(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.EventsDiscardedSinceLastNotification;
-        }
-
-        private int GetEventsInBuffer(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.EventsInBuffer;
-        }
-
-        private DateTime GetLastNotificationTime(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.LastNotificationUtc;
-        }
-
-        private int GetNotificationSequence(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.NotificationSequence;
-        }
-
-        private EventNotificationType GetNotificationType(WebEventBufferFlushInfo flushInfo)
-        {
-            return flushInfo.NotificationType;
-        }
-       
     }
 }

@@ -205,13 +205,13 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         [JsonName("version")]
         public string Version { get; set; }
 
-        [JsonName("tags")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), JsonName("tags")]
         public string[] Tags { get; set; }
 
         [JsonName("plan")]
         public string Plan { get; set; }
 
-        [JsonName("plan_option")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), JsonName("plan_option")]
         public Dictionary<string, object> PlanOptions { get; set; }
 
         [JsonName("credentials")]
@@ -226,7 +226,7 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         public string InstanceName { get; set; }
 
         [JsonName("hostname")]
-        public string Hostname { get; set; }
+        public string HostName { get; set; }
 
         [JsonName("host")]
         public string Host { get; set; }
@@ -238,7 +238,7 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         public string User { get; set; }
 
         [JsonName("username")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [JsonName("password")]
         public string Password { get; set; }

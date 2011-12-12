@@ -20,17 +20,12 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// recovers a running application
         /// </summary>
-        /// <param name="applicationPath">the path where the app resides</param>
-        /// <param name="processId">the id of the processes of the currenly running app</param>
-        void RecoverApplication(string applicationPath, int processId);
-
-        /// <summary>
-        /// sets the data necessary for debugging the app remotely
-        /// </summary>
-        /// <param name="debugPort">the port used to reach the app remotely</param>
-        /// <param name="debugIp">the ip where the app cand be reached for debug</param>
-        /// <param name="debugVariables">the variables necessary for debug, if any</param>
-        void ConfigureDebug(string debugPort, string debugIp, ApplicationVariable[] debugVariables);
+        /// <remarks>
+        /// Note that along with all the variables used in the original call to "ConfigureApplication", a "VCAP_APP_PID" value is added to the variables.
+        /// This is the process id of the lingering process that you are trying to recover.
+        /// </remarks>
+        /// <param name="variables">All variables needed to run the application.</param>
+        void RecoverApplication(ApplicationVariable[] variables);
 
         /// <summary>
         /// starts the application
@@ -41,7 +36,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// reads the ids of the processes currently used by the running app
         /// </summary>
         /// <returns>the ids of the processes, as an array</returns>
-        int GetApplicationProcessID();
+        int GetApplicationProcessId();
 
         /// <summary>
         /// shuts down the application
@@ -49,13 +44,12 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         void StopApplication();
 
         /// <summary>
-        /// kills all application processes
-        /// </summary>
-        void KillApplication();
-
-        /// <summary>
         /// Cleans up an orphan application.
         /// </summary>
+        /// <remarks>
+        /// This method needs to make sure that everything is cleaned up.
+        /// i.e. Kills processes that are not responding and releases any other used resources.
+        /// </remarks>
         void CleanupApplication(string applicationPath);
     }
 }

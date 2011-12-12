@@ -23,7 +23,7 @@ namespace Uhuru.CloudFoundry.Test.System
         Client client;
         private readonly object lck = new object();
 
-        [ClassInitialize]
+        [TestInitialize]
         public void TestFixtureSetUp()
         {
             target = ConfigurationManager.AppSettings["target"];
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.Test.System
             client.Login(userName, password);
         }
 
-        [ClassCleanup]
+        [TestCleanup]
         public void TestFixtureTearDown()
         {
             foreach (App app in client.Apps())

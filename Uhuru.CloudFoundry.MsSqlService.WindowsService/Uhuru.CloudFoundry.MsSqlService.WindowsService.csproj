@@ -95,6 +95,10 @@
       <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
       <Name>Uhuru.Configuration</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
+      <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
+      <Name>Uhuru.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

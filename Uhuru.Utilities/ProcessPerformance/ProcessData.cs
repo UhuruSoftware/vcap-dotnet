@@ -20,7 +20,7 @@ namespace Uhuru.Utilities.ProcessPerformance
         private long oldUserTime;
         private long oldKernelTime;
         private DateTime oldUpdate;
-        private int workingSet;
+        private long workingSetBytes;
 
         /// <summary>
         /// Initializes a new instance of the ProcessData class
@@ -29,13 +29,15 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <param name="name">the name of the process</param>
         /// <param name="oldUserTime">the user time</param>
         /// <param name="oldKernelTime">the kernel time</param>
-        internal ProcessData(int id, string name, long oldUserTime, long oldKernelTime)
+        /// <param name="workingSetBytes">memory usage for the process</param>
+        internal ProcessData(int id, string name, long oldUserTime, long oldKernelTime, long workingSetBytes)
         {
             this.ProcessId = id;
             this.Name = name;
             this.oldUserTime = oldUserTime;
             this.oldKernelTime = oldKernelTime;
             this.oldUpdate = DateTime.Now;
+            this.workingSetBytes = workingSetBytes;
         }
 
         /// <summary>
@@ -68,10 +70,10 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <summary>
         /// Gets or sets the memory amount used by the process.
         /// </summary>
-        public int WorkingSet
+        public long WorkingSetBytes
         {
-            get { return this.workingSet; }
-            set { this.workingSet = value; }
+            get { return this.workingSetBytes; }
+            set { this.workingSetBytes = value; }
         }
 
         /// <summary>

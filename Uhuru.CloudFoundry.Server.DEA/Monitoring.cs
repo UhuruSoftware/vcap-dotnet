@@ -143,10 +143,10 @@ namespace Uhuru.CloudFoundry.DEA
             string summary_file = Path.Combine(AppsDumpDirectory, String.Format(CultureInfo.InvariantCulture, Strings.AppsDuSummary, tsig));
             string details_file = Path.Combine(AppsDumpDirectory, String.Format(CultureInfo.InvariantCulture, Strings.AppsDuDetails, tsig));
 
-            // todo: vladi: removed max depth level (6) from call, because netdu does not support it
+            // todo: vladi: removed max depth level (6) from call
 
-            DiskUsage.WriteDiskUsageToFile(summary_file, true, appsDirectory, "*", true);
-            DiskUsage.WriteDiskUsageToFile(details_file, true, appsDirectory, "*", false);
+            DiskUsage.WriteDiskUsageToFile(summary_file, appsDirectory, true);
+            DiskUsage.WriteDiskUsageToFile(details_file, appsDirectory, false);
         }
     }
 }

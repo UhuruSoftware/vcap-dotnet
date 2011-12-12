@@ -19,7 +19,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
     {
         private Reactor nodeNats;
 
-        private Options configurationOptions;
         private string localIP;
         private Dictionary<string, object> orphanInsHash;
         private Dictionary<string, object> orphanBindingHash;
@@ -83,7 +82,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 throw new ArgumentNullException("options");
             }
 
-            this.configurationOptions = options;
             localIP = NetworkInterface.GetLocalIPAddress();
             Logger.Info(Strings.InitializingLogMessage, ServiceDescription());
             OrphanInstancesHash = new Dictionary<string, object>();
