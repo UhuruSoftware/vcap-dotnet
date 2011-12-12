@@ -96,6 +96,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void DeserializeFromJsonTest()
         {
             string json = @"{""bar"":""foo""}";
@@ -105,6 +106,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void DeserializeFromArrayJsonTest()
         {
             string json = @"[{""bar"":""foo""},1]";
@@ -120,6 +122,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void DeserializeFromEnumJsonTest()
         {
             string json = @"{""bar"":""foo"",""blah"":""enum2"",""field3"":""yyy""}";
@@ -136,6 +139,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void SerializeEnumJsonTest()
         {
             string json = @"{""bar"":""foo"",""blah"":""enum2"",""field3"":""yyy""}";
@@ -162,6 +166,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void DeserializeEnumHashsetJsonTest()
         {
             testenum asd = JsonConvertibleObject.ObjectToValue<testenum>("enum4");
@@ -175,6 +180,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void DeserializeEnumNullableJsonTest()
         {
             EnumHashNullable nullable = new EnumHashNullable();
@@ -191,6 +197,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         }
 
         [TestMethod()]
+        [TestCategory("Unit")]
         public void SerializeEnumNullableJsonTest()
         {
             EnumHashNullable nullable = new EnumHashNullable();
