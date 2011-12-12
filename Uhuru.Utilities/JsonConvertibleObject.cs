@@ -17,15 +17,19 @@ namespace Uhuru.Utilities
     [AttributeUsage(AttributeTargets.Enum | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class JsonNameAttribute : Attribute
     {
+        private string name;
+
         public JsonNameAttribute(string name)
         {
-            Name = name;
+            this.name = name;
         }
         
         public string Name
         {
-            get;
-            set;
+            get
+            {
+                return name;
+            }
         }
     }
 
