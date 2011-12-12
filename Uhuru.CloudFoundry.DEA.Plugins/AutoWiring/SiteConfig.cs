@@ -19,14 +19,44 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
     /// </summary>
     public class SiteConfig : ISiteConfigManager
     {
+        /// <summary>
+        /// The web.config file stream
+        /// </summary>
         private FileStream fileStreamWebSiteConfig;
+
+        /// <summary>
+        /// An XMLDocument containing the whole web.config file
+        /// </summary>
         private XmlDocument xmlConfigRoot;
+
+        /// <summary>
+        /// The root configuration node
+        /// </summary>
         private string rootConfigNode;
+
+        /// <summary>
+        /// The full path to the web.config file
+        /// </summary>
         private string configFilePath;
+
+        /// <summary>
+        /// The application root directory path
+        /// </summary>
         private string sitePath;
+
+        /// <summary>
+        /// If set to <c>true</c>, allow external config file references
+        /// </summary>
         private bool allowExternalSource;
 
+        /// <summary>
+        /// A collection of all the registered configurators. The key is the hash code of the configurator object ( so we don't allow multiple instances per section )
+        /// </summary>
         private Dictionary<int, INodeConfigRewireBase> sectionConfigurators;
+
+        /// <summary>
+        /// A collection of key - value pairs containing the textual name for each parent section
+        /// </summary>
         private SortedDictionary<ParentSection, string> configParents;
 
         /// <summary>
@@ -57,7 +87,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         }
 
         /// <summary>
-        /// Gets a value indicating whether it is allowed to specify an external 'configSource' for any specific section in web.config.
+        /// Gets or sets a value indicating whether it is allowed to specify an external 'configSource' for any specific section in web.config.
         /// </summary>
         /// <value>
         ///   <c>true</c> if it is allowed; otherwise, <c>false</c>.

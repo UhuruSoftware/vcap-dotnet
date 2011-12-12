@@ -33,7 +33,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// </summary>
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
-
         /// <summary>
         /// Mutex for protecting access to the ServerManager
         /// </summary>
@@ -45,14 +44,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// The application name
         /// </summary>
         private string appName = string.Empty;
+
         /// <summary>
         /// The application path
         /// </summary>
         private string appPath = string.Empty;
+
         /// <summary>
         /// The file logger instance
         /// </summary>
         private FileLogger startupLogger;
+
         /// <summary>
         /// A list of connection string templates for services
         /// </summary>
@@ -90,7 +92,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             catch (Exception ex)
             {
                 this.startupLogger.Error(ex.ToString());
-                throw ex;
+                throw;
             }
         }
 
@@ -234,17 +236,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     deploymentDirSecurity.SetAccessRule(
                         new FileSystemAccessRule(
-                            userName, 
-                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, 
-                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, 
-                            PropagationFlags.None, 
+                            userName,
+                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
+                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                            PropagationFlags.None,
                             AccessControlType.Allow));
 
                     deploymentDir.SetAccessControl(deploymentDirSecurity);
 
                     Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
                     mySite.ServerAutoStart = false;
-                    
+
                     ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
                     if (applicationPool == null)
                     {
@@ -350,18 +352,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 errorLogDirSecurity.SetAccessRule(
                     new FileSystemAccessRule(
-                        appInfo.WindowsUserName, 
+                        appInfo.WindowsUserName,
                         FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None, 
+                        PropagationFlags.None,
                         AccessControlType.Allow));
 
                 logDirSecurity.SetAccessRule(
                     new FileSystemAccessRule(
-                        appInfo.WindowsUserName, 
+                        appInfo.WindowsUserName,
                         FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None, 
+                        PropagationFlags.None,
                         AccessControlType.Allow));
 
                 errorLogDir.SetAccessControl(errorLogDirSecurity);
@@ -386,7 +388,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             XmlNode appSettingsNode = doc.SelectSingleNode("configuration/appSettings");
 
-            if(appSettingsNode == null)
+            if (appSettingsNode == null)
             {
                 appSettingsNode = doc.CreateNode(XmlNodeType.Element, "appSettings", string.Empty);
 
@@ -516,7 +518,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 this.startupLogger.Info("Starting IIS site.");
-                
+
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
@@ -541,7 +543,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         }
                     }
 
-                    //ToDo: add configuration for timeout
+                    // ToDo: add configuration for timeout
                     this.WaitApp(ObjectState.Started, 20000);
                 }
             }
@@ -729,7 +731,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             using (ServerManager serverMgr = new ServerManager())
             {
                 Site site = serverMgr.Sites[this.appName];
-                
+
                 int timeout = 0;
                 while (timeout < milliseconds)
                 {
@@ -742,7 +744,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        //TODO log the exception as warning
+                        // TODO log the exception as warning
                     }
 
                     Thread.Sleep(25);
@@ -813,7 +815,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private DotNetVersion GetAppVersion(ApplicationInfo appInfo)
         {
             this.startupLogger.Info("Determining application framework version.");
-            
+
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
             DotNetVersion version = DotNetVersion.Four;

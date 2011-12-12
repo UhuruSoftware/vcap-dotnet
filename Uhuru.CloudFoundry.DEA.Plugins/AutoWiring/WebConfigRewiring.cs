@@ -49,7 +49,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         /// Creates a new configuration section on behalf of an individual configurator
         /// </summary>
         /// <param name="nodeConfig">The configurator.</param>
-        /// <returns></returns>
+        /// <returns>Returns a new configuration section node to the configurator</returns>
         IXPathNavigable CreateNewSection(INodeConfigRewireBase nodeConfig);
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         /// Gets or sets a value indicating whether this configurator references an external config file.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
+        /// <c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
         /// </value>
         bool HasExternalSource
         {
@@ -133,11 +133,18 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
     }
 
     /// <summary>
-    /// 
+    /// A concrete configurator for handling the ASP.NET health monitoring reconfiguration
     /// </summary>
     public class HealthMonRewire : INodeConfigRewireBase
     {
+        /// <summary>
+        /// The name of the external configuration file to be referenced
+        /// </summary>
         private string healthMonExtSource = "UhuruAspNetEventProvider.config";
+
+        /// <summary>
+        /// The configuration manager instance to register with
+        /// </summary>
         private ISiteConfigManager configmanager;
 
         /// <summary>
@@ -168,7 +175,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         /// Gets or sets a value indicating whether this configurator references an external config file.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
+        /// <c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
         /// </value>
         public bool HasExternalSource
         {
