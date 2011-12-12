@@ -20,26 +20,6 @@ namespace Uhuru.Utilities
         private static bool isSourceConfigured = false;
         private static readonly object configureEventLogSourceLock = new object();
 
-        private static void SetEventLogSource()
-        {
-            if (!isSourceConfigured)
-            {
-                lock (configureEventLogSourceLock)
-                {
-                    if (!isSourceConfigured)
-                    {
-                        isSourceConfigured = true;
-                        if (!EventLog.Exists(((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName))
-                        {
-                            EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
-                        }
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Logs a fatal message.
         /// This indicates a really severe error, that will probably make the application crash.
@@ -153,6 +133,26 @@ namespace Uhuru.Utilities
         {
             SetEventLogSource();
             log.DebugFormat(CultureInfo.InvariantCulture, message, args);
+        }
+
+        private static void SetEventLogSource()
+        {
+            if (!isSourceConfigured)
+            {
+                lock (configureEventLogSourceLock)
+                {
+                    if (!isSourceConfigured)
+                    {
+                        isSourceConfigured = true;
+                        if (!EventLog.Exists(((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName))
+                        {
+                            EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
+                        }
+                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
+                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
+                    }
+                }
+            }
         }
     }
 }

@@ -316,7 +316,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             //Arrange
             IISPlugin target = new IISPlugin();
 
-            Assert.AreEqual(0, target.GetApplicationProcessID());
+            Assert.AreEqual(0, target.GetApplicationProcessId());
 
             int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
 
@@ -335,22 +335,22 @@ namespace Uhuru.CloudFoundry.Test.Integration
             //Act
             target.ConfigureApplication(appVariables);
 
-            Assert.AreEqual(0, target.GetApplicationProcessID());
+            Assert.AreEqual(0, target.GetApplicationProcessId());
 
             target.StartApplication();
 
-            Assert.AreEqual(0, target.GetApplicationProcessID());
+            Assert.AreEqual(0, target.GetApplicationProcessId());
 
             //Assert
             WebClient client = new WebClient();
             string html = client.DownloadString("http://localhost:" + port.ToString());
             Assert.IsTrue(html.Contains("My ASP.NET Application"));
 
-            Assert.AreNotEqual(0, target.GetApplicationProcessID());
+            Assert.AreNotEqual(0, target.GetApplicationProcessId());
 
             target.StopApplication();
 
-            Assert.AreEqual(0, target.GetApplicationProcessID());
+            Assert.AreEqual(0, target.GetApplicationProcessId());
 
             try
             {
@@ -360,7 +360,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             {
                 return;
             }
-            Assert.AreEqual(0, target.GetApplicationProcessID());
+            Assert.AreEqual(0, target.GetApplicationProcessId());
         }
     }
 }

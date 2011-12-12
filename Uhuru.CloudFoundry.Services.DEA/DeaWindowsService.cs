@@ -19,7 +19,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
         protected override void OnStart(string[] args)
         {
-            // TODO: Add code here to start your service.
+            Start();
         }
 
         protected override void OnStop()
@@ -27,7 +27,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             this.agent.Shutdown();
         }
 
-        internal void Start(string[] p)
+        internal void Start()
         {
             this.agent = new Agent();
             this.agent.Run();

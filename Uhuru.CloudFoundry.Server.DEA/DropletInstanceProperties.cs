@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using Uhuru.Utilities;
+    using System.Collections.Generic;
 
     /// <summary>
     /// An enum containing the possible states a droplet instance can be in.
@@ -325,5 +326,9 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
+
+        [JsonName("environment_variables")]
+        public Dictionary<string, string> EnvironmentVarialbes;
+
     }
 }

@@ -34,7 +34,7 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public void Fatal(string message)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[FATAL] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
@@ -45,7 +45,7 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public void Error(string message)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[ERROR] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
@@ -56,7 +56,7 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public void Warning(string message)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[WARN] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
@@ -67,7 +67,7 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public void Info(string message)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[INFO] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
@@ -78,7 +78,7 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public void Debug(string message)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[DEBUG] [{0}] {1}\r\n", DateTime.Now, message));
         }
 
@@ -90,7 +90,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public void Fatal(string message, params object[] args)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[FATAL] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
@@ -102,7 +102,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public void Error(string message, params object[] args)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[ERROR] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
@@ -114,7 +114,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public void Warning(string message, params object[] args)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[WARN] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
@@ -126,7 +126,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public void Info(string message, params object[] args)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[INFO] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
 
@@ -138,7 +138,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public void Debug(string message, params object[] args)
         {
-            File.AppendAllText(fileName, String.Format(CultureInfo.InvariantCulture,
+            File.AppendAllText(this.fileName, String.Format(CultureInfo.InvariantCulture,
                 "[DEBUG] [{0}] {1}\r\n", DateTime.Now, String.Format(CultureInfo.InvariantCulture, message, args)));
         }
     }

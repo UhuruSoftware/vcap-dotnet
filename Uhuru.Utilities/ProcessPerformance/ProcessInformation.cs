@@ -62,7 +62,7 @@ namespace Uhuru.Utilities.ProcessPerformance
                         }
                         else
                         {
-                            processes[process.Id] = new ProcessData(process.Id, process.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
+                            processes[process.Id] = new ProcessData(process.Id, process.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks, process.WorkingSet64);
                         }
                     }
                     finally

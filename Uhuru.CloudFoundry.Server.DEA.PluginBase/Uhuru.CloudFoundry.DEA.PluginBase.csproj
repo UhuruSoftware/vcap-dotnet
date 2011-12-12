@@ -57,6 +57,7 @@
     <Compile Include="ApplicationParsedData.cs" />
     <Compile Include="ApplicationService.cs" />
     <Compile Include="ApplicationVariable.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IAgentPlugin.cs" />
     <Compile Include="PluginHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -14,17 +14,30 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     /// </summary>
     public class ApplicationService : MarshalByRefObject
     {
-        public string name;
-        public string user;
-        public string password;
-        public int port;
-        public string plan;
-        public Dictionary<string, object> planOptions;
-        public string host;
-        public string instanceName;
-        public string serviceLabel;
-        public string[] serviceTags;
+        private string name;
+        private string user;
+        private string password;
+        private int port;
+        private string plan;
+        private Dictionary<string, object> planOptions;
+        private string host;
+        private string instanceName;
+        private string serviceLabel;
+        private string[] serviceTags;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplicationService"/> class.
+        /// </summary>
+        /// <param name="name">The name of the provisioned service.</param>
+        /// <param name="user">The user that was provisioned for the service.</param>
+        /// <param name="password">The password for the user.</param>
+        /// <param name="port">The port used to connect to the service.</param>
+        /// <param name="plan">The billing plan.</param>
+        /// <param name="planOptions">The billing plan options.</param>
+        /// <param name="host">The host used to connect to the service.</param>
+        /// <param name="instanceName">Name of the instance (e.g. database name).</param>
+        /// <param name="serviceLabel">The service label (e.g. mssql-2008).</param>
+        /// <param name="serviceTags">The service tags.</param>
         public ApplicationService(string name, string user, string password, int port,  string plan, Dictionary<string, object> planOptions, string host, string instanceName, string serviceLabel, string[] serviceTags)
         {
             this.name = name;

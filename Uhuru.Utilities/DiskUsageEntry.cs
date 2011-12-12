@@ -19,7 +19,7 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Directory size in kilobytes.
         /// </summary>
-        private long size;
+        private long sizeKB;
 
         /// <summary>
         /// The path to the directory.
@@ -35,7 +35,7 @@ namespace Uhuru.Utilities
         public DiskUsageEntry(string readableSize, long size, string directory)
         {
             this.readableSize = readableSize;
-            this.size = size;
+            this.sizeKB = size;
             this.directory = directory;
         }
 
@@ -53,11 +53,11 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Gets the directory size in kilobytes.
         /// </summary>
-        public long Size
+        public long SizeKB
         {
             get
             {
-                return this.size;
+                return this.sizeKB;
             }
         }
 
