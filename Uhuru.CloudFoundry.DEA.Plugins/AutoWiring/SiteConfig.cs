@@ -13,6 +13,10 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
     using System.Xml;
     using System.Xml.XPath;
 
+    /// <summary>
+    /// A class that acts as a config manager and has a one to one mapping with a web.config file
+    /// Individual settings section configurators register with this class
+    /// </summary>
     public class SiteConfig : ISiteConfigManager
     {
         private FileStream fileStreamWebSiteConfig;
@@ -28,8 +32,8 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         /// <summary>
         /// Initializes a new instance of the SiteConfig class
         /// </summary>
-        /// <param name="webConfigPath"></param>
-        /// <param name="allowExternalSource"></param>
+        /// <param name="webConfigPath">The path to the application root folder</param>
+        /// <param name="allowExternalSource">If set to true, each individual configurator can reference an external config file</param>
         public SiteConfig(string webConfigPath, bool allowExternalSource)
         {
             this.sitePath = webConfigPath;
@@ -52,12 +56,22 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
             this.allowExternalSource = allowExternalSource;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether it is allowed to specify an external 'configSource' for any specific section in web.config.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if it is allowed; otherwise, <c>false</c>.
+        /// </value>
         public bool AllowExternalSource
         {
             get { return this.allowExternalSource; }
             set { }
         }
 
+        /// <summary>
+        /// Registers an individual section configurator and add it to the internal collection
+        /// </summary>
+        /// <param name="nodeConfig">The section configurator to register.</param>
         public void RegisterSectionRewire(INodeConfigRewireBase nodeConfig)
         {
             if (nodeConfig == null)
@@ -68,6 +82,10 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
             this.sectionConfigurators.Add(nodeConfig.GetType().GetHashCode(), nodeConfig);
         }
 
+        /// <summary>
+        /// Calls the rewire method on each registered configurator
+        /// </summary>
+        /// <param name="backupOriginal">if set to <c>true</c>, each configurator backs up the original settings.</param>
         public void Rewire(bool backupOriginal)
         {
             if (backupOriginal == true)
@@ -91,6 +109,9 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
             }
         }
 
+        /// <summary>
+        /// Writes the new settings to the web.config file.
+        /// </summary>
         public void CommitChanges()
         {
             this.fileStreamWebSiteConfig = File.Open(this.configFilePath, FileMode.Create, FileAccess.Write);
@@ -114,6 +135,10 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
             return newConfigNode;
         }
 
+        /// <summary>
+        /// Calls an individual configurator to rewire itself
+        /// </summary>
+        /// <param name="node">The configurator.</param>
         private void RewireIndividualSection(INodeConfigRewireBase node)
         {
             XmlNode firstParent = this.xmlConfigRoot.SelectSingleNode(this.rootConfigNode).SelectSingleNode(this.configParents[node.ConfigParent]);

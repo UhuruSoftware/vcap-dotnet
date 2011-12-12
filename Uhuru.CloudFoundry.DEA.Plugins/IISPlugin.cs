@@ -33,15 +33,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// </summary>
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
+
+        /// <summary>
+        /// Mutex for protecting access to the ServerManager
+        /// </summary>
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
 
         #region Class Members
 
+        /// <summary>
+        /// The application name
+        /// </summary>
         private string appName = string.Empty;
+        /// <summary>
+        /// The application path
+        /// </summary>
         private string appPath = string.Empty;
+        /// <summary>
+        /// The file logger instance
+        /// </summary>
         private FileLogger startupLogger;
+        /// <summary>
+        /// A list of connection string templates for services
+        /// </summary>
         private Dictionary<string, string> autoWireTemplates;
 
+        /// <summary>
+        /// The ApplicationInfo structure containing various info about the app ( name, path, port, etc )
+        /// </summary>
         private ApplicationInfo applicationInfo = null;
 
         #endregion
