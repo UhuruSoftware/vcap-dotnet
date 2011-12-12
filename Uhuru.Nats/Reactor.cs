@@ -7,6 +7,7 @@
 using System;
 
 [assembly: CLSCompliant(true)]
+
 namespace Uhuru.NatsClient
 {
     using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace Uhuru.NatsClient
     public delegate void SubscribeCallback(string msg, string reply, string subject);
     
     /// <summary>
-    /// Delegate definition for a method to be called when an unsubscription is complete.
+    /// Delegate definition for a method to be called when an un-subscription is complete.
     /// </summary>
     /// <param name="sid">Subscription id.</param>
     public delegate void UnsubscribeCallback(int sid);
@@ -46,23 +47,105 @@ namespace Uhuru.NatsClient
     /// </summary>
     public sealed class Reactor : IDisposable
     {
+        /// <summary>
+        /// Dictionary containing all subscription 
+        /// </summary>
         private Dictionary<int, Subscription> subscriptions = new Dictionary<int, Subscription>();
+        
+        /// <summary>
+        /// Determines the current receive data state
+        /// </summary>
         private ParseState parseState;
+
+        /// <summary>
+        /// Determines if the connection is pedantic
+        /// </summary>
         private bool pedantic;
+
+        /// <summary>
+        /// Determines if the connection is verbose
+        /// </summary>
         private bool verbose;
+
+        /// <summary>
+        /// Dictionary containing the server info
+        /// </summary>
         private Dictionary<string, object> serverInfo;
+
+        /// <summary>
+        /// Buffer retrieved from the network stream
+        /// </summary>
         private byte[] readBuffer;
+
+        /// <summary>
+        /// Current buffer
+        /// </summary>
+        private List<byte> buf = new List<byte>();
+
+        /// <summary>
+        /// Tcp client used to connect to the NATS Server
+        /// </summary>
         private TcpClient tcpClient;
+
+        /// <summary>
+        /// The uri to the NATS server
+        /// </summary>
         private Uri serverUri;
+
+        /// <summary>
+        /// The status of the connection
+        /// </summary>
         private ConnectionStatus status = ConnectionStatus.Closed;
+
+        /// <summary>
+        /// List containing the pending, not processed commands
+        /// </summary>
         private List<object> pendingCommands = new List<object>();
+
+        /// <summary>
+        /// Queue containing all the pong callbacks
+        /// </summary>
         private Queue<SimpleCallback> pongs = new Queue<SimpleCallback>();
+
+        /// <summary>
+        /// Resource instance containing all the strings from the resx files
+        /// </summary>
         private Resource resource = Resource.Instance;
+
+        /// <summary>
+        /// Current subject id
+        /// </summary>
         private int ssid = 0;
+
+        /// <summary>
+        /// Number of reconnect attempts
+        /// </summary>
         private int reconnectAttempts = 10;
+
+        /// <summary>
+        /// Time to wait between attempts
+        /// </summary>
         private int reconnectTime = 10000;
+
+        /// <summary>
+        /// Locker for the publish method
+        /// </summary>
         private object publishLock = new object();
 
+        /// <summary>
+        /// the total size of the message that must be retrieved
+        /// </summary>
+        private int needed;
+
+        /// <summary>
+        /// The current subscription id 
+        /// </summary>
+        private int subscriptionId;
+
+        /// <summary>
+        /// the current reply
+        /// </summary>
+        private string reply;
 
         /// <summary>
         /// an event raised on connection
@@ -180,7 +263,7 @@ namespace Uhuru.NatsClient
         /// <param name="uri">the uri of the NATS server</param>
         public void Start(string uri)
         {
-            Start(new Uri(uri));  
+            this.Start(new Uri(uri));  
         }
 
         /// <summary>
@@ -197,9 +280,9 @@ namespace Uhuru.NatsClient
             this.serverUri = uri;
 
             this.tcpClient = new TcpClient();
-            this.tcpClient.Connect(serverUri.Host, serverUri.Port);
+            this.tcpClient.Connect(this.serverUri.Host, this.serverUri.Port);
 
-            Connect();
+            this.Connect();
         }
 
         /// <summary>
@@ -211,7 +294,7 @@ namespace Uhuru.NatsClient
         /// <param name="optReply">replay subject</param>
         public void Publish(string subject, SimpleCallback callback, string msg, string optReply)
         {
-            lock (publishLock)
+            lock (this.publishLock)
             {
                 if (msg == null)
                 {
@@ -223,7 +306,7 @@ namespace Uhuru.NatsClient
                     return;
                 }
 
-                this.SendCommand(string.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CR_LF, msg, Resource.CR_LF));
+                this.SendCommand(string.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CRLF, msg, Resource.CRLF));
                 if (callback != null)
                 {
                     this.QueueServer(callback);
@@ -237,7 +320,7 @@ namespace Uhuru.NatsClient
         /// <param name="subject">the subject to publish to</param>
         public void Publish(string subject)
         {
-            Publish(subject, null, Resource.EMPTY_MSG, null);
+            this.Publish(subject, null, Resource.EMPTYMSG, null);
         }
 
         /// <summary>
@@ -247,7 +330,7 @@ namespace Uhuru.NatsClient
         /// <param name="callback">server callback</param>
         public void Publish(string subject, SimpleCallback callback)
         {
-            Publish(subject, callback, Resource.EMPTY_MSG, null);
+            this.Publish(subject, callback, Resource.EMPTYMSG, null);
         }
 
         /// <summary>
@@ -258,20 +341,25 @@ namespace Uhuru.NatsClient
         /// <param name="msg">the message to publish</param>
         public void Publish(string subject, SimpleCallback callback, string msg)
         {
-            Publish(subject, callback, msg, null);
+            this.Publish(subject, callback, msg, null);
         }
 
         /// <summary>
-        /// Subscribe using the client connection.
+        /// Subscribes to the specified subject.
         /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <returns>The subscription id</returns>
         public int Subscribe(string subject)
         {
             return Subscribe(subject, null, null);
         }
 
         /// <summary>
-        /// Subscribe using the client connection.
+        /// Subscribe using the client connection to a specified subject.
         /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="callback">The callback.</param>
+        /// <returns>The subscription id</returns>
         public int Subscribe(string subject, SubscribeCallback callback)
         {
             return Subscribe(subject, callback, null);
@@ -280,6 +368,10 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Subscribe using the client connection.
         /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="opts">Additional options</param>
+        /// <returns>The subscription id</returns>
         public int Subscribe(string subject, SubscribeCallback callback, Dictionary<string, object> opts)
         {
             if (string.IsNullOrEmpty(subject))
@@ -287,7 +379,7 @@ namespace Uhuru.NatsClient
                 return 0;
             }
 
-            int sid = (this.ssid += 1);
+            int sid = this.ssid += 1;
 
             if (opts == null)
             {
@@ -303,11 +395,11 @@ namespace Uhuru.NatsClient
                 Max = opts.ContainsKey("max") ? Convert.ToInt32(opts["max"], CultureInfo.InvariantCulture) : 0
             };
 
-            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "SUB {0} {1} {2}{3}", subject, sub.Queue == 0 ? "" : sub.Queue.ToString(CultureInfo.InvariantCulture), sid, Resource.CR_LF));
+            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "SUB {0} {1} {2}{3}", subject, sub.Queue == 0 ? string.Empty : sub.Queue.ToString(CultureInfo.InvariantCulture), sid, Resource.CRLF));
 
             if (sub.Max > 0)
             {
-                Unsubscribe(sid, sub.Max);
+                this.Unsubscribe(sid, sub.Max);
             }
 
             return sid;
@@ -316,21 +408,23 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Unsubscribe using the client connection.
         /// </summary>
+        /// <param name="sid">The subscription id to witch to un-subscribe</param>
+        /// <param name="optMax">Maximum number of opt</param>
         public void Unsubscribe(int sid, int optMax)
         {
-            string str_opt_max = optMax > 0 ? string.Format(CultureInfo.InvariantCulture, " {0}", optMax) : "";
-            SendCommand(string.Format(CultureInfo.InvariantCulture, "UNSUB {0}{1}{2}", sid, str_opt_max, Resource.CR_LF));
-            if (!subscriptions.ContainsKey(sid))
+            string str_opt_max = optMax > 0 ? string.Format(CultureInfo.InvariantCulture, " {0}", optMax) : string.Empty;
+            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "UNSUB {0}{1}{2}", sid, str_opt_max, Resource.CRLF));
+            if (!this.subscriptions.ContainsKey(sid))
             {
                 return;
             }
             else
             {
-                Subscription sub = subscriptions[sid];
+                Subscription sub = this.subscriptions[sid];
                 sub.Max = optMax;
                 if (sub.Max == 0 || sub.Received >= sub.Max)
                 {
-                    subscriptions.Remove(sid);
+                    this.subscriptions.Remove(sid);
                 }
             }
         }
@@ -338,9 +432,10 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Unsubscribe using the client connection.
         /// </summary>
+        /// <param name="sid">The subscription id of the subscription</param>
         public void Unsubscribe(int sid)
         {
-            Unsubscribe(sid, 0);
+            this.Unsubscribe(sid, 0);
         }
 
         /// <summary>
@@ -348,19 +443,19 @@ namespace Uhuru.NatsClient
         /// </summary>
         public void Stop()
         {
-            Status = ConnectionStatus.Closing;
-            CloseConnection();
-            Status = ConnectionStatus.Closed;
+            this.Status = ConnectionStatus.Closing;
+            this.CloseConnection();
+            this.Status = ConnectionStatus.Closed;
         }
 
         /// <summary>
         /// Send a request.
         /// </summary>
-        /// <param name="subject"></param>
-        /// <returns></returns>
+        /// <param name="subject">The subject of the request</param>
+        /// <returns>returns the subscription id</returns>
         public int Request(string subject)
         {
-            return Request(subject, null, null, Resource.EMPTY_MSG);
+            return Request(subject, null, null, Resource.EMPTYMSG);
         }
 
         /// <summary>
@@ -369,8 +464,8 @@ namespace Uhuru.NatsClient
         /// <param name="subject">the subject </param>
         /// <param name="opts">additional options</param>
         /// <param name="callback">the callback for the response</param>
-        /// <param name="data">data for the requset</param>
-        /// <returns></returns>
+        /// <param name="data">data for the request</param>
+        /// <returns>returns the subscription id</returns>
         public int Request(string subject, Dictionary<string, object> opts, SubscribeCallback callback, string data)
         {
             if (string.IsNullOrEmpty(subject))
@@ -380,18 +475,19 @@ namespace Uhuru.NatsClient
 
             Random rand = new Random();
 
-            string inbox = string.Format(CultureInfo.InvariantCulture, 
+            string inbox = string.Format(
+                                            CultureInfo.InvariantCulture,
                                             "_INBOX.{0:x4}{1:x4}{2:x4}{3:x4}{4:x4}{5:x6}",
-                                            rand.Next(0x0010000), 
-                                            rand.Next(0x0010000), 
                                             rand.Next(0x0010000),
-                                            rand.Next(0x0010000), 
-                                            rand.Next(0x0010000), 
+                                            rand.Next(0x0010000),
+                                            rand.Next(0x0010000),
+                                            rand.Next(0x0010000),
+                                            rand.Next(0x0010000),
                                             rand.Next(0x1000000));
 
             int s = Subscribe(inbox, callback, opts);
 
-            Publish(subject, null, data, inbox);
+            this.Publish(subject, null, data, inbox);
 
             return s;
         }
@@ -402,13 +498,13 @@ namespace Uhuru.NatsClient
         public void AttemptReconnect()
         {
             int reconnectAttempt = 0;
-            while (reconnectAttempt < reconnectAttempts)
+            while (reconnectAttempt < this.reconnectAttempts)
             {
                 try
                 {
-                    tcpClient = new TcpClient();
-                    tcpClient.Connect(serverUri.Host, serverUri.Port);
-                    status = ConnectionStatus.Open;
+                    this.tcpClient = new TcpClient();
+                    this.tcpClient.Connect(this.serverUri.Host, this.serverUri.Port);
+                    this.status = ConnectionStatus.Open;
                     break;
                 }
                 catch (SocketException soketException)
@@ -417,16 +513,17 @@ namespace Uhuru.NatsClient
                 }
 
                 reconnectAttempt++;
-                Thread.Sleep(reconnectTime);
+                Thread.Sleep(this.reconnectTime);
             }
-            if (status == ConnectionStatus.Reconnecting)
+
+            if (this.status == ConnectionStatus.Reconnecting)
             {
-                status = ConnectionStatus.Closed;
-                throw new ReactorException(serverUri, Resources.Language.ERRCanNotConnect);
+                this.status = ConnectionStatus.Closed;
+                throw new ReactorException(this.serverUri, Resources.Language.ERRCanNotConnect);
             }
             else
             {
-                Connect();
+                this.Connect();
             }
         }
 
@@ -439,13 +536,16 @@ namespace Uhuru.NatsClient
             {
                 if (this.tcpClient.Connected)
                 {
-                    CloseConnection();
+                    this.CloseConnection();
                 }
             }
 
             GC.SuppressFinalize(this);
         }
-       
+
+        /// <summary>
+        /// Connects this instance.
+        /// </summary>
         private void Connect()
         {
             this.readBuffer = new byte[this.tcpClient.ReceiveBufferSize];
@@ -453,90 +553,106 @@ namespace Uhuru.NatsClient
 
             Dictionary<string, object> cs = new Dictionary<string, object>()
             {
-               {"verbose", this.verbose},
-               {"pedantic", this.pedantic}
+               { "verbose", this.verbose },
+               { "pedantic", this.pedantic }
             };
 
-            if (!String.IsNullOrEmpty(serverUri.UserInfo))
+            if (!string.IsNullOrEmpty(this.serverUri.UserInfo))
             {
-                string[] credentials = serverUri.UserInfo.Split(':');
-                cs["user"] = credentials.Length > 0 ? credentials[0] : String.Empty;
-                cs["pass"] = credentials.Length > 1 ? credentials[1] : String.Empty;
+                string[] credentials = this.serverUri.UserInfo.Split(':');
+                cs["user"] = credentials.Length > 0 ? credentials[0] : string.Empty;
+                cs["pass"] = credentials.Length > 1 ? credentials[1] : string.Empty;
             }
 
-            Status = ConnectionStatus.Open;
-            parseState = ParseState.AwaitingControlLine;
+            this.status = ConnectionStatus.Open;
+            this.parseState = ParseState.AwaitingControlLine;
 
-            SendCommand(String.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", JsonConvertibleObject.SerializeToJson(cs), Resource.CR_LF));
+            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", JsonConvertibleObject.SerializeToJson(cs), Resource.CRLF));
 
-            if (pendingCommands.Count > 0)
+            if (this.pendingCommands.Count > 0)
             {
-                FlushPendingCommands();
+                this.FlushPendingCommands();
             }
 
-            if (OnError == null)
+            if (this.OnError == null)
             {
-                OnError = new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
+                this.OnError = new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                     {
-                        throw new ReactorException(serverUri, args.Message);
+                        throw new ReactorException(this.serverUri, args.Message);
                     });
             }
 
             // if (OnConnect != null && Status != ConnectionStatus.REConecting)
-            if (OnConnect != null)
+            if (this.OnConnect != null)
             {
                 // We will round trip the server here to make sure all state from any pending commands
                 // has been processed before calling the connect callback.
-                QueueServer(delegate()
+                this.QueueServer(delegate
                 {
-                    OnConnect(this, null);
+                    this.OnConnect(this, null);
                 });
             }
         }
 
+        /// <summary>
+        /// Queues the server.
+        /// </summary>
+        /// <param name="callback">The callback.</param>
         private void QueueServer(SimpleCallback callback)
         {
             if (callback == null)
             {
                 return;
             }
-            pongs.Enqueue(callback);
-            SendCommand(resource.PING_REQUEST);
+
+            this.pongs.Enqueue(callback);
+            this.SendCommand(this.resource.PINGREQUEST);
         }
 
+        /// <summary>
+        /// Sends the command to the server.
+        /// </summary>
+        /// <param name="command">The command.</param>
         private void SendCommand(string command)
         {
-            if (status != ConnectionStatus.Open)
+            if (this.status != ConnectionStatus.Open)
             {
-                if (pendingCommands == null)
+                if (this.pendingCommands == null)
                 {
-                    pendingCommands = new List<object>();
+                    this.pendingCommands = new List<object>();
                 }
 
-                pendingCommands.Add(command);
+                this.pendingCommands.Add(command);
             }
             else
             {
-                SendData(command);
+                this.SendData(command);
             }
         }
 
+        /// <summary>
+        /// Flushes the pending commands.
+        /// </summary>
         private void FlushPendingCommands()
         {
-            if (pendingCommands.Count == 0)
+            if (this.pendingCommands.Count == 0)
             {
                 return;
             }
 
-            foreach (object data in pendingCommands)
+            foreach (object data in this.pendingCommands)
             {
-                SendData(data);
+                this.SendData(data);
             }
 
-            pendingCommands.Clear();
+            this.pendingCommands.Clear();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Reads the TCP data from the NATS server.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Unknown type of error received")]
         private void ReadTCPData(IAsyncResult result)
         {
             try
@@ -547,16 +663,16 @@ namespace Uhuru.NatsClient
                 if (((NetworkStream)result.AsyncState).CanRead)
                 {
                     bytesRead = ((NetworkStream)result.AsyncState).EndRead(result);
-                    localBuffer = new byte[readBuffer.Length];
-                    Array.Copy(readBuffer, localBuffer, readBuffer.Length);
+                    localBuffer = new byte[this.readBuffer.Length];
+                    Array.Copy(this.readBuffer, localBuffer, this.readBuffer.Length);
 
-                    ReceiveData(localBuffer, bytesRead);
+                    this.ReceiveData(localBuffer, bytesRead);
                 }
 
                 // Connection may have been closed, check again
                 if (((NetworkStream)result.AsyncState).CanRead)
                 {
-                    ((NetworkStream)result.AsyncState).BeginRead(readBuffer, 0, readBuffer.Length, ReadTCPData, ((NetworkStream)result.AsyncState));
+                    ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
                 }
             }
             catch (ArgumentNullException argumentNullException)
@@ -584,14 +700,18 @@ namespace Uhuru.NatsClient
                 Logger.Fatal(ex.ToString());
             }
         }
-       
+
+        /// <summary>
+        /// Sends data to the NATS Server
+        /// </summary>
+        /// <param name="data">The data that is sent</param>
         private void SendData(object data)
         {
             ASCIIEncoding ascii = new ASCIIEncoding();
             byte[] objdata = ascii.GetBytes(data.ToString());
             try
             {
-                tcpClient.GetStream().Write(objdata, 0, objdata.Length);
+                this.tcpClient.GetStream().Write(objdata, 0, objdata.Length);
             }
             catch (System.IO.IOException exception)
             {
@@ -600,126 +720,132 @@ namespace Uhuru.NatsClient
                 this.AttemptReconnect();
             }
         }
-        
+
+        /// <summary>
+        /// Receives the data from the NATS server.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="bytesRead">The bytes read.</param>
         private void ReceiveData(byte[] data, int bytesRead)
         {
-            List<byte> buf = new List<byte>();
-            int subscriptionId=0;
-            int needed =0;
-            string reply=string.Empty;
-
-            if (buf == null)
+            if (this.buf == null)
             {
-                buf = new List<byte>();
+                this.buf = new List<byte>(bytesRead);
             }
 
-            byte[] localBuf = new byte[bytesRead];
-            Array.Copy(data, localBuf, bytesRead);
-            buf.AddRange(localBuf);
+            this.buf.AddRange(data.Take(bytesRead));
 
-            while (buf != null)
+            while (this.buf != null)
             {
-                switch (parseState)
+                switch (this.parseState)
                 {
                     case ParseState.AwaitingControlLine:
                         {
                             ASCIIEncoding ascii = new ASCIIEncoding();
-                            string strBuffer = ascii.GetString(buf.ToArray());
+                            string strBuffer = ascii.GetString(this.buf.ToArray());
 
-                            if (resource.MSG.IsMatch(strBuffer))
+                            if (this.resource.MSG.IsMatch(strBuffer))
                             {
-                                Match match = resource.MSG.Match(strBuffer);
-                                strBuffer = resource.MSG.Replace(strBuffer, "");
-                                subscriptionId = Convert.ToInt32(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                                reply = match.Groups[4].Value;
-                                needed = Convert.ToInt32(match.Groups[5].Value, CultureInfo.InvariantCulture);
-                                parseState = ParseState.AwaitingMsgPayload;
+                                Match match = this.resource.MSG.Match(strBuffer);
+                                strBuffer = this.resource.MSG.Replace(strBuffer, string.Empty);
+                                this.subscriptionId = Convert.ToInt32(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                                this.reply = match.Groups[4].Value;
+                                this.needed = Convert.ToInt32(match.Groups[5].Value, CultureInfo.InvariantCulture);
+                                this.parseState = ParseState.AwaitingMsgPayload;
                             }
-                            else if (resource.OK.IsMatch(strBuffer))
+                            else if (this.resource.OK.IsMatch(strBuffer))
                             {
-                                strBuffer = resource.OK.Replace(strBuffer, "");
+                                strBuffer = this.resource.OK.Replace(strBuffer, string.Empty);
                             }
-                            else if (resource.ERR.IsMatch(strBuffer))
+                            else if (this.resource.ERR.IsMatch(strBuffer))
                             {
-                                if (OnError != null)
+                                if (this.OnError != null)
                                 {
-                                   OnError(this, new ReactorErrorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
+                                    this.OnError(this, new ReactorErrorEventArgs(this.resource.ERR.Match(strBuffer).Groups[1].Value));
                                 }
 
-                                strBuffer = resource.ERR.Replace(strBuffer, "");
+                                strBuffer = this.resource.ERR.Replace(strBuffer, string.Empty);
                             }
-                            else if (resource.PING.IsMatch(strBuffer))
+                            else if (this.resource.PING.IsMatch(strBuffer))
                             {
-                                SendCommand(resource.PONG_RESPONSE);
-                                strBuffer = resource.PING.Replace(strBuffer, "");
+                                this.SendCommand(this.resource.PONGRESPONSE);
+                                strBuffer = this.resource.PING.Replace(strBuffer, string.Empty);
                             }
-                            else if (resource.PONG.IsMatch(strBuffer))
+                            else if (this.resource.PONG.IsMatch(strBuffer))
                             {
-                                if (pongs.Count > 0)
+                                if (this.pongs.Count > 0)
                                 {
-                                    SimpleCallback callback = pongs.Dequeue();
+                                    SimpleCallback callback = this.pongs.Dequeue();
                                     callback();
                                 }
 
-                                strBuffer = resource.PONG.Replace(strBuffer, "");
+                                strBuffer = this.resource.PONG.Replace(strBuffer, string.Empty);
                             }
-                            else if (resource.INFO.IsMatch(strBuffer))
+                            else if (this.resource.INFO.IsMatch(strBuffer))
                             {
-                                serverInfo = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(JsonConvertibleObject.DeserializeFromJson(resource.INFO.Match(strBuffer).Groups[1].Value));
-                                strBuffer = resource.INFO.Replace(strBuffer, "");
+                                this.serverInfo = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(JsonConvertibleObject.DeserializeFromJson(this.resource.INFO.Match(strBuffer).Groups[1].Value));
+                                strBuffer = this.resource.INFO.Replace(strBuffer, string.Empty);
                             }
-                            else if (resource.UNKNOWN.IsMatch(strBuffer))
+                            else if (this.resource.UNKNOWN.IsMatch(strBuffer))
                             {
-                                if (OnError != null)
+                                if (this.OnError != null)
                                 {
-                                    OnError(this,new ReactorErrorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
+                                    this.OnError(this, new ReactorErrorEventArgs(Language.ERRUnknownProtocol + this.resource.UNKNOWN.Match(strBuffer).Value));
                                 }
 
-                                strBuffer =  resource.UNKNOWN.Replace(strBuffer, "");
+                                strBuffer = this.resource.UNKNOWN.Replace(strBuffer, string.Empty);
                             }
                             else
                             {
-                                buf = ascii.GetBytes(strBuffer).ToList();
+                                this.buf = ascii.GetBytes(strBuffer).ToList();
                                 return;
                             }
 
-                            buf = ascii.GetBytes(strBuffer).ToList();
-                            if (buf != null && buf.Count == 0)
+                            this.buf = ascii.GetBytes(strBuffer).ToList();
+                            if (this.buf != null && this.buf.Count == 0)
                             {
-                                buf = null;
+                                this.buf = null;
                             }
                         }
+
                         break;
                     case ParseState.AwaitingMsgPayload:
                         {
-                            if (buf.Count < (needed +  Resource.CR_LF.Length))
+                            if (this.buf.Count < (this.needed + Resource.CRLF.Length))
                             {
                                 return;
                             }
 
                             ASCIIEncoding ascii = new ASCIIEncoding();
-                            string strBuffer = ascii.GetString(buf.ToArray());
+                            string strBuffer = ascii.GetString(this.buf.ToArray());
 
-                            OnMessage(subscriptionId, reply, strBuffer.Substring(0, needed));
+                            this.OnMessage(this.subscriptionId, this.reply, strBuffer.Substring(0, this.needed));
 
-                            strBuffer = strBuffer.Substring(needed + Resource.CR_LF.Length);
+                            strBuffer = strBuffer.Substring(this.needed + Resource.CRLF.Length);
 
-                            reply = string.Empty;
-                            subscriptionId = needed = 0;
+                            this.reply = string.Empty;
+                            this.subscriptionId = this.needed = 0;
 
-                            parseState = ParseState.AwaitingControlLine;
+                            this.parseState = ParseState.AwaitingControlLine;
 
-                            buf = ascii.GetBytes(strBuffer).ToList();
-                            if (buf != null && buf.Count == 0)
+                            this.buf = ascii.GetBytes(strBuffer).ToList();
+                            if (this.buf != null && this.buf.Count == 0)
                             {
-                                buf = null;
+                                this.buf = null;
                             }
                         }
+
                         break;
                 }
             }
         }
 
+        /// <summary>
+        /// Called when a message is recived.
+        /// </summary>
+        /// <param name="sid">The subscription ID.</param>
+        /// <param name="replyMessage">The reply message.</param>
+        /// <param name="msg">The message.</param>
         private void OnMessage(int sid, string replyMessage, string msg)
         {
             if (!this.subscriptions.ContainsKey(sid))
@@ -727,14 +853,14 @@ namespace Uhuru.NatsClient
                 return;
             }
 
-            Subscription nantsSubscription = subscriptions[sid];
+            Subscription nantsSubscription = this.subscriptions[sid];
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
             
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
-                Unsubscribe(sid,0);
+                this.Unsubscribe(sid, 0);
                 return;
             }
 
@@ -744,13 +870,16 @@ namespace Uhuru.NatsClient
             }
 
             // Check for a timeout, and cancel if received >= expected
-            if (nantsSubscription.Timeout != null && nantsSubscription.Received >= 0) //>= nantsSubscription.Expected)
+            if (nantsSubscription.Timeout != null && nantsSubscription.Received >= 0)
             {
                 nantsSubscription.Timeout.Enabled = false;
                 nantsSubscription.Timeout = null;
             }
         }
 
+        /// <summary>
+        /// Closes the connection.
+        /// </summary>
         private void CloseConnection()
         {
             this.tcpClient.GetStream().Close();

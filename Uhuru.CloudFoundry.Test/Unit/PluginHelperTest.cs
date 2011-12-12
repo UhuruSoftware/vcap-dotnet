@@ -101,7 +101,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
             Assert.AreEqual("free", actual.GetServices()[0].Plan);
             Assert.AreEqual(1433, actual.GetServices()[0].Port);
             Assert.AreEqual("mssql-2008", actual.GetServices()[0].ServiceLabel);
-            Assert.AreEqual(3, actual.GetServices()[0].ServiceTags.Length);
+            Assert.AreEqual(3, actual.GetServices()[0].GetServiceTags().Length);
             Assert.AreEqual("US3RTfqu78UpPM5X", actual.GetServices()[0].User);
             Assert.AreEqual(@"c:\droplets\mydroplet\logs/startup.log", actual.StartupLogFilePath);
         }

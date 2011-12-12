@@ -4,25 +4,64 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// holds the data related to an application service
     /// </summary>
     public class ApplicationService : MarshalByRefObject
     {
+        /// <summary>
+        /// The name of the provisioned service.
+        /// </summary>
         private string name;
+
+        /// <summary>
+        /// The user that was provisioned for the service.
+        /// </summary>
         private string user;
+
+        /// <summary>
+        /// The password for the user.
+        /// </summary>
         private string password;
+
+        /// <summary>
+        /// The port used to connect to the service.
+        /// </summary>
         private int port;
+
+        /// <summary>
+        /// The billing plan.
+        /// </summary>
         private string plan;
+
+        /// <summary>
+        /// The billing plan options.
+        /// </summary>
         private Dictionary<string, object> planOptions;
+
+        /// <summary>
+        /// The host used to connect to the service.
+        /// </summary>
         private string host;
+
+        /// <summary>
+        /// Name of the instance (e.g. database name).
+        /// </summary>
         private string instanceName;
+
+        /// <summary>
+        /// The service label (e.g. mssql-2008).
+        /// </summary>
         private string serviceLabel;
+
+        /// <summary>
+        /// The service tags.
+        /// </summary>
         private string[] serviceTags;
 
         /// <summary>
@@ -53,111 +92,113 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         }
 
         /// <summary>
-        /// the name of this instance of the service
+        /// Gets the name of this instance of the service
         /// </summary>
         public string Name
         {
             get
             {
-                return name;
+                return this.name;
             }
         }
 
         /// <summary>
-        /// the user to authenticate
+        /// Gets the user to authenticate
         /// </summary>
         public string User
         {
             get
             {
-                return user;
+                return this.user;
             }
         }
 
         /// <summary>
-        /// the password of the user to authenticate
+        /// Gets the password of the user to authenticate
         /// </summary>
         public string Password
         {
             get
             {
-                return password;
+                return this.password;
             }
         }
 
         /// <summary>
-        /// the port where the service will be available
+        /// Gets the port where the service will be available
         /// </summary>
         public int Port
         {
             get
             {
-                return port;
+                return this.port;
             }
         }
 
         /// <summary>
-        /// the usage plan of the service
+        /// Gets the usage plan of the service
         /// </summary>
         public string Plan
         {
             get
             {
-                return plan;
+                return this.plan;
             }
         }
 
         /// <summary>
-        /// details regarding the usage plan of the service
-        /// </summary>
-        public Dictionary<string, object> GetPlanOptions() 
-        { 
-            return planOptions;
-        }
-
-        /// <summary>
-        /// the host where the service will be made available
+        /// Gets the host where the service will be made available
         /// </summary>
         public string Host
         {
             get
             {
-                return host;
+                return this.host;
             }
         }
 
         /// <summary>
-        /// Name of the database/key value store/etc.
+        /// Gets the name of the database/key value store/etc.
         /// </summary>
         public string InstanceName
         {
             get
             {
-                return instanceName;
+                return this.instanceName;
             }
         }
 
         /// <summary>
-        /// Service type label (mssql-2008, mysql-5.1, etc.).
+        /// Gets the service type label (mssql-2008, mysql-5.1, etc.).
         /// </summary>
         public string ServiceLabel
         {
             get
             {
-                return serviceLabel;
+                return this.serviceLabel;
             }
         }
 
         /// <summary>
         /// Service type tags.
         /// </summary>
-        public string[] ServiceTags
+        /// <returns>
+        /// An array of service tags
+        /// </returns>
+        public string[] GetServiceTags()
+        {
+            return this.serviceTags;
+        }
+
+        /// <summary>
+        /// Gets details regarding the usage plan of the service
+        /// </summary>
+        public Dictionary<string, object> PlanOptions
         {
             get
             {
-                return serviceTags;
+                return this.planOptions;
             }
         }
-
     }
 }

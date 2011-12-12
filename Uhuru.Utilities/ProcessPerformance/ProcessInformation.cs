@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ProcessInformation.cs" company="Uhuru Software">
+// <copyright file="ProcessInformation.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -18,6 +18,9 @@ namespace Uhuru.Utilities.ProcessPerformance
     /// </summary>
     public static class ProcessInformation
     {
+        /// <summary>
+        /// Numbet of snapshots to take.
+        /// </summary>
         private const int SnapshotCount = 2;
 
         /// <summary>
@@ -34,7 +37,8 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// Gets process usage information for the processes on the local machine.
         /// </summary>
         /// <returns>An array of ProcessData objects.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands"), SecurityCritical]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Method is marked SecurityCritical, but the warning is still generated"), 
+        SecurityCritical]
         public static ProcessData[] GetProcessUsage()
         {
             Dictionary<int, ProcessData> processes = new Dictionary<int, ProcessData>();

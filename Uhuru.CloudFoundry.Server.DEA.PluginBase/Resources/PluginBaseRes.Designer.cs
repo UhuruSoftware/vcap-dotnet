@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.NatsClient.Resources {
+namespace Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace Uhuru.NatsClient.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ClientConnection {
+    internal class PluginBaseRes {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ClientConnection() {
+        internal PluginBaseRes() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Uhuru.NatsClient.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uhuru.NatsClient.Resources.ClientConnection", typeof(ClientConnection).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources.PluginBaseRes", typeof(PluginBaseRes).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,119 +61,101 @@ namespace Uhuru.NatsClient.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \r\n.
+        ///   Looks up a localized string similar to HOME.
         /// </summary>
-        internal static string CRLF {
+        internal static string HomeVariable {
             get {
-                return ResourceManager.GetString("CRLF", resourceCulture);
+                return ResourceManager.GetString("HomeVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \A-ERR\s+(&apos;.+&apos;)?\r\n.
+        ///   Looks up a localized string similar to VCAP_DEBUG_IP.
         /// </summary>
-        internal static string ERR {
+        internal static string VcapAppDebugIpVariable {
             get {
-                return ResourceManager.GetString("ERR", resourceCulture);
+                return ResourceManager.GetString("VcapAppDebugIpVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reactor.
+        ///   Looks up a localized string similar to VCAP_DEBUG_PORT.
         /// </summary>
-        internal static string EventSource {
+        internal static string VcapAppDebugPortVariable {
             get {
-                return ResourceManager.GetString("EventSource", resourceCulture);
+                return ResourceManager.GetString("VcapAppDebugPortVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \AINFO\s+([^\r\n]+)\r\n.
+        ///   Looks up a localized string similar to VCAP_APP_HOST.
         /// </summary>
-        internal static string INFO {
+        internal static string VcapAppHostVariable {
             get {
-                return ResourceManager.GetString("INFO", resourceCulture);
+                return ResourceManager.GetString("VcapAppHostVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to NatsClient.
+        ///   Looks up a localized string similar to VCAP_APPLICATION.
         /// </summary>
-        internal static string LOGSOURCE {
+        internal static string VcapApplicationVariable {
             get {
-                return ResourceManager.GetString("LOGSOURCE", resourceCulture);
+                return ResourceManager.GetString("VcapApplicationVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.
+        ///   Looks up a localized string similar to VCAP_APP_PID.
         /// </summary>
-        internal static string MAX_RECONNECT_ATTEMPTS {
+        internal static string VcapAppPidVariable {
             get {
-                return ResourceManager.GetString("MAX_RECONNECT_ATTEMPTS", resourceCulture);
+                return ResourceManager.GetString("VcapAppPidVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \AMSG\s+([^\s]+)\s+([^\s]+)\s+(([^\s]+)[^\S\r\n]+)?(\d+)\r\n.
+        ///   Looks up a localized string similar to VCAP_APP_PORT.
         /// </summary>
-        internal static string MSG {
+        internal static string VcapAppPortVariable {
             get {
-                return ResourceManager.GetString("MSG", resourceCulture);
+                return ResourceManager.GetString("VcapAppPortVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \A\+OK\s*\r\n.
+        ///   Looks up a localized string similar to VCAP_PLUGIN_STAGING_INFO.
         /// </summary>
-        internal static string OK {
+        internal static string VcapPluginStagingInfoVariable {
             get {
-                return ResourceManager.GetString("OK", resourceCulture);
+                return ResourceManager.GetString("VcapPluginStagingInfoVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \APING\s*\r\n.
+        ///   Looks up a localized string similar to VCAP_SERVICES.
         /// </summary>
-        internal static string PING {
+        internal static string VcapServicesVariable {
             get {
-                return ResourceManager.GetString("PING", resourceCulture);
+                return ResourceManager.GetString("VcapServicesVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PING{0}.
+        ///   Looks up a localized string similar to VCAP_WINDOWS_USER_PASSWORD.
         /// </summary>
-        internal static string PING_REQUEST {
+        internal static string VcapWindowsUserPasswordVariable {
             get {
-                return ResourceManager.GetString("PING_REQUEST", resourceCulture);
+                return ResourceManager.GetString("VcapWindowsUserPasswordVariable", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \APONG\s*\r\n.
+        ///   Looks up a localized string similar to VCAP_WINDOWS_USER.
         /// </summary>
-        internal static string PONG {
+        internal static string VcapWindowsUserVariable {
             get {
-                return ResourceManager.GetString("PONG", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to PONG{0}.
-        /// </summary>
-        internal static string PONG_RESPONSE {
-            get {
-                return ResourceManager.GetString("PONG_RESPONSE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to \A(.*)\r\n.
-        /// </summary>
-        internal static string UNKNOWN {
-            get {
-                return ResourceManager.GetString("UNKNOWN", resourceCulture);
+                return ResourceManager.GetString("VcapWindowsUserVariable", resourceCulture);
             }
         }
     }

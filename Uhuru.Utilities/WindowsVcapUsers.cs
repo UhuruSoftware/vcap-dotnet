@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="WindowsVcapUsers.cs" company="Uhuru Software">
+// <copyright file="WindowsVcapUsers.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -8,14 +8,15 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.DirectoryServices;
-    using System.Collections.Generic;
-    
+
     /// <summary>
     /// This is a helper class for creating Windows Users.
     /// </summary>
-    public static class WindowsVcapUsers
+    public static class WindowsVCAPUsers
     {
-
+        /// <summary>
+        /// A prefix that is appended to all created Windows users.
+        /// </summary>
         private const string UserDecoration = "UhuruVcap_";
 
         /// <summary>

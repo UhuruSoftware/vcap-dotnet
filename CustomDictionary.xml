@@ -15,6 +15,7 @@
       <word>Plugin</word>
       <word>Plugins</word>
       <word>Renice</word>
+      <word>Ulimit</word>
     </Recognized>
   </Words>
   <Acronyms>
@@ -22,6 +23,7 @@
       <Acronym>DEA</Acronym>
       <Acronym>VMC</Acronym>
       <Acronym>NFS</Acronym>
+      <Acronym>VCAP</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

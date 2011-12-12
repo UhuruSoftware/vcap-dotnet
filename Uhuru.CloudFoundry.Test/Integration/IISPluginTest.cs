@@ -24,12 +24,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Utilities.WindowsVcapUsers.DeleteUser("IISPluginTest");
+                Utilities.WindowsVCAPUsers.DeleteUser("IISPluginTest");
             }
             catch { }
 
             password = "!@#33Pass";
-            user = Utilities.WindowsVcapUsers.CreateUser("IISPluginTest", password);
+            user = Utilities.WindowsVCAPUsers.CreateUser("IISPluginTest", password);
         }
 
         [TestCleanup()]
@@ -37,7 +37,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Utilities.WindowsVcapUsers.DeleteUser("IISPluginTest");
+                Utilities.WindowsVCAPUsers.DeleteUser("IISPluginTest");
             }
             catch { }
         }

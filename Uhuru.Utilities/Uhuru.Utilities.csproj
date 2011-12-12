@@ -13,6 +13,8 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -25,6 +27,9 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>..\..\bin-vcap-dotnet\Uhuru.Utilities.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +40,10 @@
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\..\bin-vcap-dotnet\Uhuru.Utilities.XML</DocumentationFile>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -68,14 +77,16 @@
     <Compile Include="FirewallTools.cs" />
     <Compile Include="DiskUsageEntry.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="HealthzRequestEventArgs.cs" />
     <Compile Include="JsonConvertibleObject.cs" />
+    <Compile Include="JsonNameAttribute.cs" />
     <Compile Include="JsonTools.cs" />
+    <Compile Include="LoadAssemblyHelper.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetFrameworkVersion.cs" />
     <Compile Include="NetworkInterface.cs" />
-    <Compile Include="ProcessPerformance\ProcessCPU.cs" />
+    <Compile Include="ProcessPerformance\NativeMethods.cs" />
     <Compile Include="ProcessPerformance\ProcessData.cs" />
-    <Compile Include="ProcessPerformance\ProcessEntry32.cs" />
     <Compile Include="ProcessPerformance\ProcessTimes.cs" />
     <Compile Include="ProcessPerformance\SystemTime.cs" />
     <Compile Include="DiskUsage.cs" />
@@ -86,6 +97,7 @@
     <Compile Include="RubyCompatibility.cs" />
     <Compile Include="TimerHelper.cs" />
     <Compile Include="UserCustomAuthentication.cs" />
+    <Compile Include="VarzRequestEventArgs.cs" />
     <Compile Include="WindowsVcapUsers.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +126,7 @@
     </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\StyleCop.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

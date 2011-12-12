@@ -13,6 +13,9 @@ namespace Uhuru.NatsClient
     /// </summary>
     public class ReactorErrorEventArgs : EventArgs
     {
+        /// <summary>
+        /// Error message
+        /// </summary>
         private string message;
 
         /// <summary>
