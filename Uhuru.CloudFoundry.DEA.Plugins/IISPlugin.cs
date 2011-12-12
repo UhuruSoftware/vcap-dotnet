@@ -8,25 +8,24 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.DirectoryServices;
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Security.AccessControl;
     using System.Text;
     using System.Threading;
-    using Microsoft.Web.Administration;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
-    using Uhuru.Utilities;
-    using System.Configuration;
-    using System.Reflection;
     using System.Xml;
     using System.Xml.XPath;
+    using Microsoft.Web.Administration;
     using Uhuru.CloudFoundry.DEA.AutoWiring;
     using Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging;
-    using System.Runtime.InteropServices;
-
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// Class implementing the IAgentPlugin interface
@@ -34,16 +33,36 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// </summary>
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
+        /// <summary>
+        /// Mutex for protecting access to the ServerManager
+        /// </summary>
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
 
         #region Class Members
 
-        private string appName = String.Empty;
-        private string appPath = String.Empty;
+        /// <summary>
+        /// The application name
+        /// </summary>
+        private string appName = string.Empty;
+
+        /// <summary>
+        /// The application path
+        /// </summary>
+        private string appPath = string.Empty;
+
+        /// <summary>
+        /// The file logger instance
+        /// </summary>
         private FileLogger startupLogger;
+
+        /// <summary>
+        /// A list of connection string templates for services
+        /// </summary>
         private Dictionary<string, string> autoWireTemplates;
 
-        //private ServerManager serverMgr = new ServerManager();
+        /// <summary>
+        /// The ApplicationInfo structure containing various info about the app ( name, path, port, etc )
+        /// </summary>
         private ApplicationInfo applicationInfo = null;
 
         #endregion
@@ -59,22 +78,21 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
-                startupLogger = new FileLogger(parsedData.StartupLogFilePath);
+                this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
 
+                this.appName = this.RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appPath = parsedData.AppInfo.Path;
 
-                appName = removeSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
-                appPath = parsedData.AppInfo.Path;
+                this.applicationInfo = parsedData.AppInfo;
 
-                applicationInfo = parsedData.AppInfo;
+                this.autoWireTemplates = parsedData.AutoWireTemplates;
 
-                autoWireTemplates = parsedData.AutoWireTemplates;
-
-                autowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
+                this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
             }
             catch (Exception ex)
             {
-                startupLogger.Error(ex.ToString());
-                throw ex;
+                this.startupLogger.Error(ex.ToString());
+                throw;
             }
         }
 
@@ -87,15 +105,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             try
             {
                 ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
-                startupLogger = new FileLogger(parsedData.StartupLogFilePath);
-                appName = removeSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
-                appPath = parsedData.AppInfo.Path;
-                applicationInfo = parsedData.AppInfo;
-                autoWireTemplates = parsedData.AutoWireTemplates;
+                this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
+                this.appName = this.RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appPath = parsedData.AppInfo.Path;
+                this.applicationInfo = parsedData.AppInfo;
+                this.autoWireTemplates = parsedData.AutoWireTemplates;
             }
             catch (Exception ex)
             {
-                startupLogger.Error(ex.ToString());
+                this.startupLogger.Error(ex.ToString());
                 throw ex;
             }
         }
@@ -107,15 +125,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                DotNetVersion version = getAppVersion(applicationInfo);
+                DotNetVersion version = this.GetAppVersion(this.applicationInfo);
 
-                deployApp(applicationInfo, version);
+                this.DeployApp(this.applicationInfo, version);
 
-                startApp();
+                this.StartApp();
             }
             catch (Exception ex)
             {
-                startupLogger.Error(ex.ToString());
+                this.startupLogger.Error(ex.ToString());
                 throw ex;
             }
         }
@@ -133,11 +151,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
-                    if (serverMgr.Sites[appName] == null)
+                    if (serverMgr.Sites[this.appName] == null)
                     {
                         return 0;
                     }
-                    string appPoolName = serverMgr.Sites[appName].Applications["/"].ApplicationPoolName;
+
+                    string appPoolName = serverMgr.Sites[this.appName].Applications["/"].ApplicationPoolName;
 
                     foreach (WorkerProcess process in serverMgr.WorkerProcesses)
                     {
@@ -156,6 +175,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 mut.ReleaseMutex();
             }
+
             return 0;
         }
 
@@ -164,9 +184,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// </summary>
         public void StopApplication()
         {
-            stopApp();
+            this.StopApp();
 
-            cleanup(appPath);
+            this.Cleanup(this.appPath);
         }
 
         /// <summary>
@@ -175,13 +195,21 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="path">The path.</param>
         public void CleanupApplication(string path)
         {
-            cleanup(path);
+            this.Cleanup(path);
+        }
+
+        /// <summary>
+        /// Implementation for MarshallByRefObject
+        /// </summary>
+        /// <returns>Allways return null, so the plugin is not collected.</returns>
+        public override object InitializeLifetimeService()
+        {
+            return null;
         }
 
         #endregion
 
         #region Private Helper Methods
-
 
         /// <summary>
         /// Creates a per application user, sets security access rules for the application deployment directory
@@ -189,11 +217,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// </summary>
         /// <param name="appInfo">Structure that contains parameters required for deploying the application.</param>
         /// <param name="version">The dot net framework version supported by the application.</param>
-        private void deployApp(ApplicationInfo appInfo, DotNetVersion version)
+        private void DeployApp(ApplicationInfo appInfo, DotNetVersion version)
         {
-            startupLogger.Info("Deploying app on IIS.");
+            this.startupLogger.Info("Deploying app on IIS.");
 
-            string aspNetVersion = getAspDotNetVersion(version);
+            string aspNetVersion = this.GetAspDotNetVersion(version);
             string password = appInfo.WindowsPassword;
             string userName = appInfo.WindowsUserName;
 
@@ -207,22 +235,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
 
                     deploymentDirSecurity.SetAccessRule(
-                        new FileSystemAccessRule(userName, FileSystemRights.Write | FileSystemRights.Read | 
-                            FileSystemRights.Delete | FileSystemRights.Modify, 
-                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, 
-                            PropagationFlags.None, AccessControlType.Allow));
+                        new FileSystemAccessRule(
+                            userName,
+                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
+                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                            PropagationFlags.None,
+                            AccessControlType.Allow));
 
                     deploymentDir.SetAccessControl(deploymentDirSecurity);
 
-
-                    Site mySite = serverMgr.Sites.Add(appName, appInfo.Path, appInfo.Port);
+                    Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
                     mySite.ServerAutoStart = false;
-                    
-                    ApplicationPool applicationPool = serverMgr.ApplicationPools[appName];
+
+                    ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
                     if (applicationPool == null)
                     {
-                        serverMgr.ApplicationPools.Add(appName);
-                        applicationPool = serverMgr.ApplicationPools[appName];
+                        serverMgr.ApplicationPools.Add(this.appName);
+                        applicationPool = serverMgr.ApplicationPools[this.appName];
                         applicationPool.ManagedRuntimeVersion = aspNetVersion;
                         applicationPool.ProcessModel.IdentityType = ProcessModelIdentityType.SpecificUser;
                         applicationPool.ProcessModel.UserName = userName;
@@ -230,7 +259,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         applicationPool.Enable32BitAppOnWin64 = true;
                     }
 
-                    mySite.Applications["/"].ApplicationPoolName = appName;
+                    mySite.Applications["/"].ApplicationPoolName = this.appName;
                     FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
                     serverMgr.CommitChanges();
                 }
@@ -238,12 +267,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             finally
             {
                 mut.ReleaseMutex();
-                startupLogger.Info("Finished app deployment on IIS.");
-
+                this.startupLogger.Info("Finished app deployment on IIS.");
             }
         }
-
-
 
         /// <summary>
         /// Autowires the service connections and ASP.NET health monitoring in the application's web.config
@@ -253,9 +279,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="services">The services.</param>
         /// <param name="logFilePath">The ASP.NET "Heartbeat" and "Lifetime Events" log file path.</param>
         /// <param name="errorLogFilePath">The ASP.NET "All Errors" events log file path.</param>
-        private void autowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
+        private void AutowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
         {
-            startupLogger.Info("Starting application auto-wiring.");
+            this.startupLogger.Info("Starting application auto-wiring.");
 
             string configFile = Path.Combine(appInfo.Path, "web.config");
 
@@ -270,9 +296,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     foreach (ApplicationService service in services)
                     {
                         string key = service.ServiceLabel;
-                        string template = String.Empty;
+                        string template = string.Empty;
 
-                        if (autoWireTemplates.TryGetValue(key, out template))
+                        if (this.autoWireTemplates.TryGetValue(key, out template))
                         {
                             template = template.Replace("{host}", service.Host);
                             template = template.Replace("{port}", service.Port.ToString());
@@ -280,23 +306,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             template = template.Replace("{user}", service.User);
                             template = template.Replace("{password}", service.Password);
 
-                            connections[String.Format("{{{0}#{1}}}", key, service.Name)] = template;
+                            connections[string.Format("{{{0}#{1}}}", key, service.Name)] = template;
                         }
                     }
 
                     foreach (string con in connections.Keys)
                     {
-                        startupLogger.Info("Configuring service " + con);
+                        this.startupLogger.Info("Configuring service " + con);
                         configFileContents = configFileContents.Replace(con, connections[con]);
                     }
                 }
 
-                XmlDocument doc = SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
+                XmlDocument doc = this.SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
 
                 doc.Save(configFile);
-                startupLogger.Info("Saved configuration file.");
+                this.startupLogger.Info("Saved configuration file.");
 
-                startupLogger.Info("Setting up logging.");
+                this.startupLogger.Info("Setting up logging.");
 
                 string appDir = Path.GetDirectoryName(configFile);
                 string binDir = Path.Combine(appDir, "bin");
@@ -307,8 +333,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 File.Copy(assemblyFile, destinationAssemblyFile, true);
 
-                startupLogger.Info("Copied logging binaries to bin directory.");
-
+                this.startupLogger.Info("Copied logging binaries to bin directory.");
 
                 SiteConfig siteConfiguration = new SiteConfig(appDir, true);
                 HealthMonRewire healthMon = new HealthMonRewire();
@@ -317,9 +342,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 siteConfiguration.Rewire(false);
                 siteConfiguration.CommitChanges();
 
-                startupLogger.Info("Updated logging configuration settings.");
-
-
+                this.startupLogger.Info("Updated logging configuration settings.");
 
                 DirectoryInfo errorLogDir = new DirectoryInfo(Path.GetDirectoryName(errorLogFilePath));
                 DirectoryInfo logDir = new DirectoryInfo(Path.GetDirectoryName(logFilePath));
@@ -327,24 +350,26 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 DirectorySecurity errorLogDirSecurity = errorLogDir.GetAccessControl();
                 DirectorySecurity logDirSecurity = logDir.GetAccessControl();
 
-
                 errorLogDirSecurity.SetAccessRule(
-                    new FileSystemAccessRule(appInfo.WindowsUserName, FileSystemRights.Write | FileSystemRights.Read |
-                        FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
+                    new FileSystemAccessRule(
+                        appInfo.WindowsUserName,
+                        FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None, AccessControlType.Allow));
+                        PropagationFlags.None,
+                        AccessControlType.Allow));
 
                 logDirSecurity.SetAccessRule(
-                    new FileSystemAccessRule(appInfo.WindowsUserName, FileSystemRights.Write | FileSystemRights.Read |
-                        FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
+                    new FileSystemAccessRule(
+                        appInfo.WindowsUserName,
+                        FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.CreateFiles,
                         InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None, AccessControlType.Allow));
+                        PropagationFlags.None,
+                        AccessControlType.Allow));
 
                 errorLogDir.SetAccessControl(errorLogDirSecurity);
                 logDir.SetAccessControl(logDirSecurity);
             }
         }
-
 
         /// <summary>
         /// Autowires the application variables and the log file path in the web.config file.
@@ -354,36 +379,40 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="logFilePath">The log file path.</param>
         /// <param name="errorLogFilePath">The error log file path.</param>
         /// <returns>An xml document ready containing the updated configuration file.</returns>
-        XmlDocument SetApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
+        private XmlDocument SetApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
         {
-            startupLogger.Info("Setting up application variables.");
+            this.startupLogger.Info("Setting up application variables.");
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(configFileContents);
 
             XmlNode appSettingsNode = doc.SelectSingleNode("configuration/appSettings");
 
-            if( appSettingsNode == null )
+            if (appSettingsNode == null)
             {
-                appSettingsNode = doc.CreateNode( XmlNodeType.Element, "appSettings","");
+                appSettingsNode = doc.CreateNode(XmlNodeType.Element, "appSettings", string.Empty);
 
                 doc.SelectSingleNode("configuration").PrependChild(appSettingsNode);
             }
 
-            bool bExists = false;
+            bool exists = false;
             bool hasUhuruLogFile = false;
             bool hasUhuruErrorLogFile = false;
 
             foreach (ApplicationVariable var in variables)
             {
-                bExists = false;
+                exists = false;
                 if (var.Name == "UHURU_LOG_FILE")
+                {
                     hasUhuruLogFile = true;
+                }
+
                 if (var.Name == "UHURU_ERROR_LOG_FILE")
+                {
                     hasUhuruErrorLogFile = true;
+                }
 
-
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", "");
+                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
 
                 XmlAttribute keyAttr = doc.CreateAttribute("key");
                 keyAttr.Value = var.Name;
@@ -398,25 +427,27 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 while (iter.MoveNext())
                 {
-                    string key = iter.Current.GetAttribute("key", "");
+                    string key = iter.Current.GetAttribute("key", string.Empty);
                     if (key != string.Empty && key == var.Name)
                     {
-                        bExists = true;
+                        exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
                     }
                 }
 
-                if(!bExists)
+                if (!exists)
+                {
                     appSettingsNode.AppendChild(n);
+                }
             }
 
             if (!hasUhuruLogFile)
             {
-                bExists = false;
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", "");
+                exists = false;
+                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
 
                 XmlAttribute keyAttr = doc.CreateAttribute("key");
-                keyAttr.Value = "UHURU_LOG_FILE"; ;
+                keyAttr.Value = "UHURU_LOG_FILE";
 
                 XmlAttribute valueAttr = doc.CreateAttribute("value");
                 valueAttr.Value = logFilePath;
@@ -428,25 +459,27 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 while (iter.MoveNext())
                 {
-                    string key = iter.Current.GetAttribute("key", "");
+                    string key = iter.Current.GetAttribute("key", string.Empty);
                     if (key != string.Empty && key == "UHURU_LOG_FILE")
                     {
-                        bExists = true;
+                        exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
                     }
                 }
 
-                if (!bExists)
+                if (!exists)
+                {
                     appSettingsNode.AppendChild(n);
+                }
             }
 
             if (!hasUhuruErrorLogFile)
             {
-                bExists = false;
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", "");
+                exists = false;
+                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
 
                 XmlAttribute keyAttr = doc.CreateAttribute("key");
-                keyAttr.Value = "UHURU_ERROR_LOG_FILE"; ;
+                keyAttr.Value = "UHURU_ERROR_LOG_FILE";
 
                 XmlAttribute valueAttr = doc.CreateAttribute("value");
                 valueAttr.Value = errorLogFilePath;
@@ -458,39 +491,40 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 while (iter.MoveNext())
                 {
-                    string key = iter.Current.GetAttribute("key", "");
+                    string key = iter.Current.GetAttribute("key", string.Empty);
                     if (key != string.Empty && key == "UHURU_ERROR_LOG_FILE")
                     {
-                        bExists = true;
+                        exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
                     }
                 }
 
-                if (!bExists)
+                if (!exists)
+                {
                     appSettingsNode.AppendChild(n);
+                }
             }
 
-            startupLogger.Info("Done setting up application variables.");
+            this.startupLogger.Info("Done setting up application variables.");
 
             return doc;
         }
 
-
         /// <summary>
         /// Starts the application and blocks until the application is in the started state.
         /// </summary>
-        private void startApp()
+        private void StartApp()
         {
             try
             {
-                startupLogger.Info("Starting IIS site.");
-                
+                this.startupLogger.Info("Starting IIS site.");
+
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
-                    Site site = serverMgr.Sites[appName];
+                    Site site = serverMgr.Sites[this.appName];
 
-                    waitApp(ObjectState.Stopped, 5000);
+                    this.WaitApp(ObjectState.Stopped, 5000);
 
                     if (site.State == ObjectState.Started)
                     {
@@ -500,35 +534,37 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     {
                         if (site.State == ObjectState.Stopping)
                         {
-                            waitApp(ObjectState.Stopped, 5000);
+                            this.WaitApp(ObjectState.Stopped, 5000);
                         }
+
                         if (site.State != ObjectState.Starting)
                         {
                             site.Start();
                         }
                     }
-                    //ToDo: add configuration for timeout
-                    waitApp(ObjectState.Started, 20000);
+
+                    // ToDo: add configuration for timeout
+                    this.WaitApp(ObjectState.Started, 20000);
                 }
             }
             finally
             {
                 mut.ReleaseMutex();
-                startupLogger.Info("Finished starting IIS site.");
+                this.startupLogger.Info("Finished starting IIS site.");
             }
         }
 
         /// <summary>
         /// Stops the application and blocks until the application is in the stopped state.
         /// </summary>
-        private void stopApp()
+        private void StopApp()
         {
             try
             {
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
-                    ObjectState state = serverMgr.Sites[appName].State;
+                    ObjectState state = serverMgr.Sites[this.appName].State;
 
                     if (state == ObjectState.Stopped)
                     {
@@ -536,10 +572,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
                     else if (state == ObjectState.Starting || state == ObjectState.Started)
                     {
-                        waitApp(ObjectState.Started, 5000);
-                        serverMgr.Sites[appName].Stop();
+                        this.WaitApp(ObjectState.Started, 5000);
+                        serverMgr.Sites[this.appName].Stop();
                     }
-                    waitApp(ObjectState.Stopped, 5000);
+
+                    this.WaitApp(ObjectState.Stopped, 5000);
                 }
             }
             finally
@@ -548,12 +585,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
-
         /// <summary>
         /// Cleans up everything associated with the application deployed at the specified path.
         /// </summary>
         /// <param name="path">The application path.</param>
-        private void cleanup(string path)
+        private void Cleanup(string path)
         {
             mut.WaitOne();
             try
@@ -565,23 +601,24 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     foreach (Site site in serverMgr.Sites)
                     {
-
                         string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
                         string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
 
                         if (!Directory.Exists(fullPath))
                         {
-                            delete(site.Bindings[0].EndPoint.Port);
+                            this.Delete(site.Bindings[0].EndPoint.Port);
                         }
+
                         if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
                         {
-                            delete(site.Bindings[0].EndPoint.Port);
+                            this.Delete(site.Bindings[0].EndPoint.Port);
                         }
+
                         foreach (DirectoryInfo di in childDirectories)
                         {
                             if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
                             {
-                                delete(site.Bindings[0].EndPoint.Port);
+                                this.Delete(site.Bindings[0].EndPoint.Port);
                                 break;
                             }
                         }
@@ -594,13 +631,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
-
         /// <summary>
         /// Removes the application - reachable at the specified port - and its application pools from IIS.
         /// Note: Stops the application pools and the application if necessary
         /// </summary>
         /// <param name="port">The port.</param>
-        public void delete(int port)
+        private void Delete(int port)
         {
             mut.WaitOne();
 
@@ -631,6 +667,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             // todo log exception
                         }
                     }
+
                     int time = 0;
                     while (serverMgr.Sites[currentSite.Name].State != ObjectState.Stopped && time < 300)
                     {
@@ -640,8 +677,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     if (time == 300)
                     {
-                        killApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
+                        this.KillApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
                     }
+
                     serverMgr.Sites.Remove(currentSite);
                     serverMgr.CommitChanges();
                     FirewallTools.ClosePort(port);
@@ -653,10 +691,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         Thread.Sleep(100);
                         time++;
                     }
+
                     if (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time == 300)
                     {
-                        killApplicationProcesses(applicationPool.Name);
+                        this.KillApplicationProcesses(applicationPool.Name);
                     }
+
                     serverMgr.ApplicationPools.Remove(applicationPool);
                     serverMgr.CommitChanges();
                     string username = null;
@@ -680,20 +720,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
-
-
         /// <summary>
         /// Blocks until the application is in the specified state or until the timeout expires
         /// Note: If the timeout expires without the state condition being true, the method throws a TimeoutException
         /// </summary>
         /// <param name="waitForState">State to wait on.</param>
         /// <param name="milliseconds">Timeout in milliseconds.</param>
-        private void waitApp(ObjectState waitForState, int milliseconds)
+        private void WaitApp(ObjectState waitForState, int milliseconds)
         {
             using (ServerManager serverMgr = new ServerManager())
             {
-                Site site = serverMgr.Sites[appName];
-                
+                Site site = serverMgr.Sites[this.appName];
+
                 int timeout = 0;
                 while (timeout < milliseconds)
                 {
@@ -706,8 +744,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
                     catch (System.Runtime.InteropServices.COMException)
                     {
-                        //TODO log the exception as warning
+                        // TODO log the exception as warning
                     }
+
                     Thread.Sleep(25);
                     timeout += 25;
                 }
@@ -719,12 +758,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
-
         /// <summary>
         /// Forcefully kills the application processes.
         /// </summary>
         /// <param name="appPoolName">Name of the app pool associated with the application.</param>
-        private void killApplicationProcesses(string appPoolName)
+        private void KillApplicationProcesses(string appPoolName)
         {
             using (ServerManager serverMgr = new ServerManager())
             {
@@ -743,23 +781,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
         }
 
-
         /// <summary>
         /// Gets the ASP dot net version in string format from the dot net framework version
         /// </summary>
         /// <param name="version">The dot net framework version.</param>
-        /// <returns></returns>
-        private String getAspDotNetVersion(DotNetVersion version)
+        /// <returns>Asp.NET version in string format. Returns null if version is not supported</returns>
+        private string GetAspDotNetVersion(DotNetVersion version)
         {
             string dotNetVersion = null;
             switch (version)
             {
-                case (DotNetVersion.Two):
+                case DotNetVersion.Two:
                     {
                         dotNetVersion = "v2.0";
                         break;
                     }
-                case (DotNetVersion.Four):
+
+                case DotNetVersion.Four:
                     {
                         dotNetVersion = "v4.0";
                         break;
@@ -769,16 +807,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return dotNetVersion;
         }
 
-
         /// <summary>
         /// Gets the dot net version that the application runs on.
         /// </summary>
         /// <param name="appInfo">The application info structure.</param>
-        /// <returns></returns>
-        private DotNetVersion getAppVersion(ApplicationInfo appInfo)
+        /// <returns>The .net version supported by the application</returns>
+        private DotNetVersion GetAppVersion(ApplicationInfo appInfo)
         {
-            startupLogger.Info("Determining application framework version.");
-            
+            this.startupLogger.Info("Determining application framework version.");
+
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
             DotNetVersion version = DotNetVersion.Four;
@@ -792,7 +829,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 }
             }
 
-            startupLogger.Info("Detected .Net " + getAspDotNetVersion(version));
+            this.startupLogger.Info("Detected .Net " + this.GetAspDotNetVersion(version));
 
             return version;
         }
@@ -802,13 +839,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// Note: special characters are considered the ones illegal in a Windows account name
         /// </summary>
         /// <param name="input">The input string.</param>
-        /// <returns></returns>
-        private string removeSpecialCharacters(string input)
+        /// <returns>A copy of the input string, with special characters removed</returns>
+        private string RemoveSpecialCharacters(string input)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
             {
                 throw new ArgumentException("Argument null or empty", "input");
             }
+
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < input.Length; i++)
             {
@@ -833,18 +871,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     sb.Append(input[i]);
                 }
             }
+
             return sb.ToString();
         }
 
         #endregion
-
-        /// <summary>
-        /// Implementation for MarshallByRefObject
-        /// </summary>
-        /// <returns>Allways return null, so the plugin is not collected.</returns>
-        public override object InitializeLifetimeService()
-        {
-            return null;
-        }
     }
 }

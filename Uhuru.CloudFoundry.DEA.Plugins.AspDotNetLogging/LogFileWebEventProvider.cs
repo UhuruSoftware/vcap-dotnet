@@ -172,7 +172,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
 
             using (StreamWriter writer = new StreamWriter(logFileStream))
             {
-
                 writer.BaseStream.Seek(0, SeekOrigin.Current);
                 writer.Write(customInfo.ToString());
                 writer.Flush();
