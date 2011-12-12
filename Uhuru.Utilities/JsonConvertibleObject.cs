@@ -127,16 +127,9 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Converts this instance to a Dictionary&lt;string, object&gt; that is ready to be serialized to a Ruby-compatible JSON.
         /// </summary>
-        /// <param name="elementsToInclude">The object members to include in the final JSON object.</param>
         /// <returns>A Dictionary&lt;string, object&gt;</returns>
-        public Dictionary<string, object> ToJsonIntermediateObject(params string[] elementsToInclude)
+        public Dictionary<string, object> ToJsonIntermediateObject()
         {
-            HashSet<string> elementsToIncludeSet = new HashSet<string>();
-            if (elementsToInclude != null && elementsToInclude.Length != 0)
-            {
-                elementsToIncludeSet = new HashSet<string>(elementsToInclude);
-            }
-
             Dictionary<string, object> result = new Dictionary<string, object>();
             Type type = this.GetType();
 
@@ -154,7 +147,7 @@ namespace Uhuru.Utilities
 
                     object memberValue = property == null ? field.GetValue(this) : property.GetValue(this, null);
 
-                    if (nameAttribute != null && memberValue != null && (elementsToIncludeSet == null || elementsToIncludeSet.Contains(nameAttribute.Name)))
+                    if (nameAttribute != null && memberValue != null)
                     {
                         string jsonPropertyName = nameAttribute.Name;
 
