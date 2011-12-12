@@ -13,8 +13,50 @@ namespace Uhuru.Configuration.DEA
     /// </summary>
     public class RuntimeElement : ConfigurationElement
     {
-        #region Constructors
+        /// <summary>
+        /// Name configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyName;
+      
+        /// <summary>
+        /// Executable configuration property. 
+        /// </summary>
+        private static ConfigurationProperty propertyExecutable;
+      
+        /// <summary>
+        /// Version configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyVersion;
+      
+        /// <summary>
+        /// Version argument configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyVersionArgument;
+        
+        /// <summary>
+        /// Additional checks configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyAdditionalChecks;
+       
+        /// <summary>
+        /// Environment configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyEnvironment;
+       
+        /// <summary>
+        /// Debug configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyDebug;
+       
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
+        private static ConfigurationPropertyCollection properties;
 
+        /// <summary>
+        /// Initializes static members of the <see cref="RuntimeElement"/> class.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static RuntimeElement()
         {
             propertyName = new ConfigurationProperty(
@@ -35,7 +77,7 @@ namespace Uhuru.Configuration.DEA
                 null,
                 ConfigurationPropertyOptions.IsRequired);
 
-            propertyVersionFlag = new ConfigurationProperty(
+            propertyVersionArgument = new ConfigurationProperty(
                 "versionFlag",
                 typeof(string),
                 "-v");
@@ -60,31 +102,14 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyName);
             properties.Add(propertyExecutable);
             properties.Add(propertyVersion);
-            properties.Add(propertyVersionFlag);
+            properties.Add(propertyVersionArgument);
             properties.Add(propertyAdditionalChecks);
             properties.Add(propertyEnvironment);
             properties.Add(propertyDebug);
         }
         
-        #endregion
-
-        #region Static Fields
-
-        private static ConfigurationProperty propertyName;
-        private static ConfigurationProperty propertyExecutable;
-        private static ConfigurationProperty propertyVersion;
-        private static ConfigurationProperty propertyVersionFlag;
-        private static ConfigurationProperty propertyAdditionalChecks;
-        private static ConfigurationProperty propertyEnvironment;
-        private static ConfigurationProperty propertyDebug;
-
-        private static ConfigurationPropertyCollection properties;
-        #endregion
-
-        #region Properties
-
         /// <summary>
-        /// Gets the name of the runtime.
+        /// Gets or sets the name of the runtime.
         /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name
@@ -101,7 +126,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the executable for the runtime, used to get the version.
+        /// Gets or sets the executable for the runtime, used to get the version.
         /// </summary>
         [ConfigurationProperty("executable", IsRequired = true, DefaultValue = null)]
         public string Executable
@@ -118,7 +143,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the expected runtime version.
+        /// Gets or sets the expected runtime version.
         /// </summary>
         [ConfigurationProperty("version", IsRequired = true, DefaultValue = null)]
         public string Version
@@ -135,24 +160,24 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the flag that is passed to the runtime executable, to get the version.
+        /// Gets or sets the flag that is passed to the runtime executable, to get the version.
         /// </summary>
         [ConfigurationProperty("versionFlag", IsRequired = false, DefaultValue = "-v")]
-        public string VersionFlag
+        public string VersionArgument
         {
             get
             {
-                return (string)base[propertyVersionFlag];
+                return (string)base[propertyVersionArgument];
             }
 
             set
             {
-                base[propertyVersionFlag] = value;
+                base[propertyVersionArgument] = value;
             }
         }
 
         /// <summary>
-        /// Gets any additional checks to be done for the runtime.
+        /// Gets or sets any additional checks to be done for the runtime.
         /// </summary>
         [ConfigurationProperty("additionalChecks", IsRequired = false, DefaultValue = null)]
         public string AdditionalChecks
@@ -200,10 +225,6 @@ namespace Uhuru.Configuration.DEA
             get { return properties; }
         }
 
-        #endregion
-
-        #region Overrides
-
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
         /// </summary>
@@ -214,7 +235,5 @@ namespace Uhuru.Configuration.DEA
         {
             return false;
         }
-
-        #endregion
     }
 }

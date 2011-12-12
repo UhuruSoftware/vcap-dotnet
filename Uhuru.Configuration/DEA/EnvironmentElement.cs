@@ -13,31 +13,38 @@ namespace Uhuru.Configuration.DEA
     /// </summary>
     public class EnvironmentElement : ConfigurationElement
     {
-        #region Static Fields
-
+        /// <summary>
+        /// Name property collection.
+        /// </summary>
         private static ConfigurationProperty propertyName;
+
+        /// <summary>
+        /// Value property collection.
+        /// </summary>
         private static ConfigurationProperty propertyValue;
 
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
-        #endregion
 
-        #region Constructors
-
+        /// <summary>
+        /// Initializes static members of the <see cref="EnvironmentElement"/> class.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way.")]
         static EnvironmentElement()
         {
             propertyName = new ConfigurationProperty(
                 "name",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             propertyValue = new ConfigurationProperty(
                 "value",
                 typeof(string),
                 null,
-                ConfigurationPropertyOptions.IsRequired
-            );
+                ConfigurationPropertyOptions.IsRequired);
 
             properties = new ConfigurationPropertyCollection();
 
@@ -45,12 +52,8 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyValue);
         }
 
-        #endregion
-        
-        #region Properties
-
         /// <summary>
-        /// Gets the name of a Environment variable.
+        /// Gets or sets the name of a Environment variable.
         /// </summary>
         [ConfigurationProperty("name", IsRequired = true, DefaultValue = null)]
         public string Name
@@ -67,7 +70,7 @@ namespace Uhuru.Configuration.DEA
         }
 
         /// <summary>
-        /// Gets the value of a Environment variable.
+        /// Gets or sets the value of a Environment variable.
         /// </summary>
         [ConfigurationProperty("value", IsRequired = true, DefaultValue = null)]
         public string Value
@@ -91,10 +94,6 @@ namespace Uhuru.Configuration.DEA
             get { return properties; }
         }
 
-        #endregion
-
-        #region Overrides
-
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
         /// </summary>
@@ -105,7 +104,5 @@ namespace Uhuru.Configuration.DEA
         {
             return false;
         }
-
-        #endregion
     }
 }
