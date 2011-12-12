@@ -13,29 +13,75 @@ namespace Uhuru.Configuration.DEA
     /// </summary>
     public class DEAElement : ConfigurationElement
     {
-        #region Static Fields
-
+        /// <summary>
+        /// Base Directory configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyBaseDir;
+
+        /// <summary>
+        /// Local route configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyLocalRoute;
+
+        /// <summary>
+        /// Filer port configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyFilerPort;
+
+        /// <summary>
+        /// Heart beat interval configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyHeartBeatInterval;
+        
+        /// <summary>
+        /// Message bus configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMessageBus;
+       
+        /// <summary>
+        /// Muti-tenant configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMultiTenant;
+       
+        /// <summary>
+        /// Maximum memory configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyMaxMemory;
+      
+        /// <summary>
+        /// "Is secure" configuration property.
+        /// </summary>
         private static ConfigurationProperty propertySecure;
-        private static ConfigurationProperty propertyEnforceUlimit;
+      
+        /// <summary>
+        /// Enforec usage limit configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyEnforceUsageLimit;
+      
+        /// <summary>
+        /// Disable directory cleanup configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyDisableDirCleanup;
+      
+        /// <summary>
+        /// Force http sharing configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyForceHttpSharing;
+      
+        /// <summary>
+        /// Runtimes configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyRuntimes;
-
+        
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Initializes static members of the DEAElement class.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way.")]
         static DEAElement()
         {
             propertyBaseDir = new ConfigurationProperty(
@@ -82,7 +128,7 @@ namespace Uhuru.Configuration.DEA
                 typeof(bool),
                 true);
 
-            propertyEnforceUlimit = new ConfigurationProperty(
+            propertyEnforceUsageLimit = new ConfigurationProperty(
                 "enforceUlimit",
                 typeof(bool),
                 true);
@@ -113,15 +159,11 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyMultiTenant);
             properties.Add(propertyMaxMemory);
             properties.Add(propertySecure);
-            properties.Add(propertyEnforceUlimit);
+            properties.Add(propertyEnforceUsageLimit);
             properties.Add(propertyForceHttpSharing);
             properties.Add(propertyRuntimes);
         }
 
-        #endregion
-
-        #region Properties
-        
         /// <summary>
         /// Gets or sets the base directory where all applications are staged and hosted
         /// </summary>
@@ -181,7 +223,7 @@ namespace Uhuru.Configuration.DEA
         /// Gets or sets the time interval to send heartbeat messages to the message bus, in milliseconds.
         /// </summary>
         [ConfigurationProperty("heartBeatInterval", IsRequired = false, DefaultValue = 10000)]
-        public int HeartBeatInterval
+        public int HeartbeatInterval
         {
             get
             {
@@ -215,7 +257,7 @@ namespace Uhuru.Configuration.DEA
         /// Gets or sets a value indicating whether more than one application is allowed to run per DEA.
         /// </summary>
         [ConfigurationProperty("multiTenant", IsRequired = false, DefaultValue = true)]
-        public bool MultiTenant
+        public bool Multitenant
         {
             get
             {
@@ -266,17 +308,17 @@ namespace Uhuru.Configuration.DEA
         /// <summary>
         /// Gets or sets a value indicating whether ulimit-based resource isolation in a multi tenant setup is provided or not.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Ulimit"), ConfigurationProperty("enforceUlimit", IsRequired = false, DefaultValue = true)]
-        public bool EnforceUlimit
+        [ConfigurationProperty("enforceUlimit", IsRequired = false, DefaultValue = true)]
+        public bool EnforceUsageLimit
         {
             get
             {
-                return (bool)base[propertyEnforceUlimit];
+                return (bool)base[propertyEnforceUsageLimit];
             }
 
             set
             {
-                base[propertyEnforceUlimit] = value;
+                base[propertyEnforceUsageLimit] = value;
             }
         }
 
@@ -335,10 +377,6 @@ namespace Uhuru.Configuration.DEA
             get { return properties; }
         }
 
-        #endregion
-
-        #region Overrides
-
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
         /// </summary>
@@ -349,7 +387,5 @@ namespace Uhuru.Configuration.DEA
         {
             return false;
         }
-
-        #endregion
     }
 }

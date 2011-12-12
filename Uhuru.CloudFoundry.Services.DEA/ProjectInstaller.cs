@@ -47,7 +47,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.EnforceUlimit))
             {
-                section.DEA.EnforceUlimit = Convert.ToBoolean(arguments.EnforceUlimit, CultureInfo.InvariantCulture);
+                section.DEA.EnforceUsageLimit = Convert.ToBoolean(arguments.EnforceUlimit, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.FilerPort))
             {
@@ -59,7 +59,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.HeartBeatInterval))
             {
-                section.DEA.HeartBeatInterval = Convert.ToInt32(arguments.HeartBeatInterval, CultureInfo.InvariantCulture);
+                section.DEA.HeartbeatInterval = Convert.ToInt32(arguments.HeartBeatInterval, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.LocalRoute))
             {
@@ -88,7 +88,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             }
             if (!String.IsNullOrEmpty(arguments.MultiTenant))
             {
-                section.DEA.MultiTenant = Convert.ToBoolean(arguments.MultiTenant, CultureInfo.InvariantCulture);
+                section.DEA.Multitenant = Convert.ToBoolean(arguments.MultiTenant, CultureInfo.InvariantCulture);
             }
             if (!String.IsNullOrEmpty(arguments.Secure))
             {

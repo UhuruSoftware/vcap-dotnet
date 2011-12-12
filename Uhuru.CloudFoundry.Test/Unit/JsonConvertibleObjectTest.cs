@@ -208,5 +208,19 @@ namespace Uhuru.CloudFoundry.Test.Unit
             Assert.AreEqual(@"{}", nullable2.SerializeToJson());
 
         }
+
+        [TestMethod()]
+        [TestCategory("Unit")]
+        public void SerializeDEAHeatbeatJsonTest()
+        {
+            // Arrange
+            Uhuru.CloudFoundry.DEA.HeartbeatMessage message = new DEA.HeartbeatMessage();
+
+            // Act
+            string serializedJson = message.SerializeToJson();
+
+            // Assert
+            Assert.AreEqual(@"{""droplets"":[]}", serializedJson);
+        }
     }
 }

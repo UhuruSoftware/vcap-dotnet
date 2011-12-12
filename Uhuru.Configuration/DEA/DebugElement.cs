@@ -13,19 +13,25 @@ namespace Uhuru.Configuration.DEA
     /// </summary>
     public class DebugElement : ConfigurationElement
     {
-        #region Static Fields
-
+        /// <summary>
+        /// Name configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyName;
+
+        /// <summary>
+        /// Environment configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyEnvironment;
 
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Initializes static members of the DebugElement class.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static DebugElement()
         {
             propertyName = new ConfigurationProperty(
@@ -45,10 +51,6 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyName);
             properties.Add(propertyEnvironment);
         }
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Gets or sets the name of a debug configuration for a runtime.
@@ -87,10 +89,6 @@ namespace Uhuru.Configuration.DEA
             get { return properties; }
         }
 
-        #endregion
-
-        #region Overrides
-
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
         /// </summary>
@@ -101,7 +99,5 @@ namespace Uhuru.Configuration.DEA
         {
             return false;
         }
-
-        #endregion
     }
 }

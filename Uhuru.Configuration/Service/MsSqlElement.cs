@@ -13,20 +13,35 @@ namespace Uhuru.Configuration.Service
     /// </summary>
     public class MSSqlElement : ConfigurationElement
     {
-        #region Static Fields
-
+        /// <summary>
+        /// Host configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyHost;
+
+        /// <summary>
+        /// User configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyUser;
+
+        /// <summary>
+        /// Password configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyPassword;
+
+        /// <summary>
+        /// Port configuration property.
+        /// </summary>
         private static ConfigurationProperty propertyPort;
 
+        /// <summary>
+        /// Configuration properties collection.
+        /// </summary>
         private static ConfigurationPropertyCollection properties;
 
-        #endregion
-        
-        #region Constructors
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
+        /// <summary>
+        /// Initializes static members of the <see cref="MSSqlElement"/> class.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
         static MSSqlElement()
         {
             propertyHost = new ConfigurationProperty(
@@ -61,20 +76,8 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyPort);
         }
 
-        #endregion
-
-        #region Properties
-
         /// <summary>
-        /// Override the Properties collection and return our custom one.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
-        }
-
-        /// <summary>
-        /// Gets the host of the target SQL Server.
+        /// Gets or sets the host of the target SQL Server.
         /// </summary>
         [ConfigurationProperty("host", IsRequired = true, DefaultValue = "(local)")]
         public string Host
@@ -91,7 +94,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the user for connecting to the target SQL Server.
+        /// Gets or sets the user for connecting to the target SQL Server.
         /// </summary>
         [ConfigurationProperty("user", IsRequired = true, DefaultValue = "sa")]
         public string User
@@ -108,7 +111,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the password for connecting to the target SQL Server.
+        /// Gets or sets the password for connecting to the target SQL Server.
         /// </summary>
         [ConfigurationProperty("password", IsRequired = true, DefaultValue = "sa")]
         public string Password
@@ -125,7 +128,7 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets the port for connecting to the target SQL Server.
+        /// Gets or sets the port for connecting to the target SQL Server.
         /// </summary>
         [ConfigurationProperty("port", IsRequired = true, DefaultValue = 1433)]
         public int Port
@@ -141,9 +144,13 @@ namespace Uhuru.Configuration.Service
             }
         }
 
-        #endregion
-
-        #region Overrides
+        /// <summary>
+        /// Override the Properties collection and return our custom one.
+        /// </summary>
+        protected override ConfigurationPropertyCollection Properties
+        {
+            get { return properties; }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
@@ -155,7 +162,5 @@ namespace Uhuru.Configuration.Service
         {
             return false;
         }
-
-        #endregion
     }
 }
