@@ -14,14 +14,13 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     public class ApplicationVariable : MarshalByRefObject
     {
         /// <summary>
-        /// the name of the variable
+        /// Gets or sets the name of the variable
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// the value of the variable
+        /// Gets or sets the value of the variable
         /// </summary>
         public string Value { get; set; }
     }
-
 }

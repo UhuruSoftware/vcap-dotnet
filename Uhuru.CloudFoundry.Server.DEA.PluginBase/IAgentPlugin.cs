@@ -46,6 +46,9 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <summary>
         /// Cleans up an orphan application.
         /// </summary>
+        /// <param name="applicationPath">
+        /// Path to the root folder of the application
+        /// </param>
         /// <remarks>
         /// This method needs to make sure that everything is cleaned up.
         /// i.e. Kills processes that are not responding and releases any other used resources.
