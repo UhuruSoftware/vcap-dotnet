@@ -81,20 +81,25 @@ namespace Uhuru.Utilities
             Dictionary<string, object> result = new Dictionary<string, object>();
             Type type = this.GetType();
 
-            PropertyInfo[] properties = type.GetProperties();
+            MemberInfo[] fieldAndPropertyInfos = type.GetProperties().Select(prop => (MemberInfo)prop).Union(type.GetFields().Select(field => (MemberInfo)field)).ToArray();
 
-            foreach (PropertyInfo property in properties)
+            foreach (MemberInfo member in fieldAndPropertyInfos)
             {
-                object[] allAtributes = property.GetCustomAttributes(true);
+                FieldInfo field = member as FieldInfo;
+                PropertyInfo property = member as PropertyInfo;
+
+                object[] allAtributes = member.GetCustomAttributes(true);
                 if (allAtributes != null)
                 {
                     JsonNameAttribute nameAttribute = allAtributes.FirstOrDefault(attribute => attribute is JsonNameAttribute) as JsonNameAttribute;
 
-                    if (nameAttribute != null && property.GetValue(this, null) != null && (elementsToIncludeSet == null || elementsToIncludeSet.Contains(nameAttribute.Name)))
+                    object memberValue = property == null ? field.GetValue(this) : property.GetValue(this, null);
+
+                    if (nameAttribute != null && memberValue != null && (elementsToIncludeSet == null || elementsToIncludeSet.Contains(nameAttribute.Name)))
                     {
                         string jsonPropertyName = nameAttribute.Name;
 
-                        Type propertyType = property.PropertyType;
+                        Type propertyType = property == null ? field.FieldType : property.PropertyType;
 
                         if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                         {
@@ -103,11 +108,11 @@ namespace Uhuru.Utilities
 
                         if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
                         {
-                            result.Add(jsonPropertyName, ((JsonConvertibleObject)property.GetValue(this, null)).ToJsonIntermediateObject());
+                            result.Add(jsonPropertyName, ((JsonConvertibleObject)memberValue).ToJsonIntermediateObject());
                         }
                         else if (propertyType.IsEnum)
                         {
-                            string value = property.GetValue(this, null).ToString();
+                            string value = memberValue.ToString();
                             JsonNameAttribute[] attributes = (JsonNameAttribute[])propertyType.GetMember(value)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
 
                             if (attributes.Length != 0)
@@ -116,78 +121,33 @@ namespace Uhuru.Utilities
                             }
                             else
                             {
-                                result.Add(jsonPropertyName, property.GetValue(this, null).ToString());
+                                result.Add(jsonPropertyName, memberValue.ToString());
                             }
 
                         }
                         else
                         {
-                            if (property.GetValue(this, null) != null)
+                            if (memberValue != null)
                             {
-                                result.Add(jsonPropertyName, property.GetValue(this, null));
+                                result.Add(jsonPropertyName, memberValue);
                             }
                         }
                     }
                 }
             }
-
-            FieldInfo[] fields = type.GetFields();
-
-            foreach (FieldInfo field in fields)
-            {
-                object[] allAtributes = field.GetCustomAttributes(true);
-                if (allAtributes != null)
-                {
-                    JsonNameAttribute nameAttribute = allAtributes.FirstOrDefault(attribute => attribute is JsonNameAttribute) as JsonNameAttribute;
-
-                    if (nameAttribute != null && field.GetValue(this) != null && (elementsToIncludeSet == null || elementsToIncludeSet.Contains(nameAttribute.Name)))
-                    {
-                        string jsonPropertyName = nameAttribute.Name;
-
-                        Type propertyType = field.FieldType;
-
-                        if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                        {
-                            propertyType = propertyType.GetGenericArguments()[0];
-                        }
-
-                        if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
-                        {
-                            result.Add(jsonPropertyName, ((JsonConvertibleObject)field.GetValue(this)).ToJsonIntermediateObject());
-                        }
-                        else if (propertyType.IsEnum)
-                        {
-                            string value = field.GetValue(this).ToString();
-                            JsonNameAttribute[] attributes = (JsonNameAttribute[])propertyType.GetMember(value)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
-
-                            if (attributes.Length != 0)
-                            {
-                                result.Add(jsonPropertyName, attributes[0].Name);
-                            }
-                            else
-                            {
-                                result.Add(jsonPropertyName, field.GetValue(this).ToString());
-                            }
-                        }
-                        else
-                        {
-                            if (field.GetValue(this) != null)
-                            {
-                                result.Add(jsonPropertyName, field.GetValue(this));
-                            }
-                        }
-                    }
-                }
-            }
-
+      
             return result;
         }
 
+        /// <summary>
+        /// Goes through a deserialized JSON object (a Dictionary&ltstring, object&gt or a newtonsoft JObject) and updates all field an properties of this instance.
+        /// </summary>
+        /// <param name="value">The value.</param>
         public void FromJsonIntermediateObject(object value)
         {
             Type type = this.GetType();
 
-            PropertyInfo[] propertyInfos = type.GetProperties();
+            MemberInfo[] fieldAndPropertyInfos = type.GetProperties().Select(prop => (MemberInfo)prop).Union(type.GetFields().Select(field => (MemberInfo)field)).ToArray();
 
             if (value == null)
             {
@@ -199,210 +159,138 @@ namespace Uhuru.Utilities
             JObject valueAsJObject = value as JObject;
             Dictionary<string, object> valueAsDictionary = value as Dictionary<string, object>;
 
-            foreach (PropertyInfo property in propertyInfos)
+            foreach (MemberInfo member in fieldAndPropertyInfos)
             {
                 try
                 {
-                    object[] allAtributes = property.GetCustomAttributes(true);
+                    FieldInfo field = member as FieldInfo;
+                    PropertyInfo property = member as PropertyInfo;
+                    object[] allAtributes = member.GetCustomAttributes(true);
 
-                    if (allAtributes != null)
+                    if (allAtributes == null)
                     {
-                        JsonNameAttribute nameAttribute = allAtributes.FirstOrDefault(attribute => attribute is JsonNameAttribute) as JsonNameAttribute;
+                        continue;
+                    }
 
-                        if (nameAttribute != null)
+                    JsonNameAttribute nameAttribute = allAtributes.FirstOrDefault(attribute => attribute is JsonNameAttribute) as JsonNameAttribute;
+
+                    if (nameAttribute == null)
+                    {
+                        continue;
+                    }
+
+                    string jsonPropertyName = nameAttribute.Name;
+
+                    Type propertyType = field == null ? property.PropertyType : field.FieldType;
+
+                    if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        propertyType = propertyType.GetGenericArguments()[0];
+                    }
+
+                    if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
+                    {
+                        if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
                         {
-                            string jsonPropertyName = nameAttribute.Name;
+                            JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
 
-                            Type propertyType = property.PropertyType;
-
-                            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            if (value.GetType() == typeof(JObject))
                             {
-                                propertyType = propertyType.GetGenericArguments()[0];
+                                finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
+                            }
+                            else if (value.GetType() == typeof(Dictionary<string, object>))
+                            {
+                                finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
+                            }
+                            else
+                            {
+                                throw new FormatException("Unsupported intermediate format");
                             }
 
-                            if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
+                            if (property != null)
                             {
-                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
+                                property.SetValue(this, finalValue, null);
+                            }
+                            else
+                            {
+                                field.SetValue(this, finalValue);
+                            }
+
+                        }
+                    }
+                    else if (propertyType.IsEnum)
+                    {
+                        object enumValue = null;
+                        if (valueAsJObject != null)
+                        {
+                            enumValue = valueAsJObject[jsonPropertyName].Value<string>();
+                        }
+
+                        if (enumValue is string)
+                        {
+                            object valueToSet = 0;
+                            bool foundMatch = false;
+
+                            foreach (string possibleValue in Enum.GetNames(propertyType))
+                            {
+                                JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
+                                if (jsonNameAttributes.Length != 0 && jsonNameAttributes[0].Name.ToLowerInvariant() == (enumValue as string).ToLowerInvariant())
                                 {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-
-                                    if (value.GetType() == typeof(JObject))
-                                    {
-                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                    }
-                                    else if (value.GetType() == typeof(Dictionary<string, object>))
-                                    {
-                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                    }
-                                    else
-                                    {
-                                        throw new FormatException("Unsupported intermediate format");
-                                    }
-
-                                    property.SetValue(this, finalValue, null);
+                                    foundMatch = true;
+                                    valueToSet = Enum.Parse(propertyType, possibleValue, true);
+                                    break;
                                 }
                             }
-                            else if (propertyType.IsEnum)
+
+                            if (!foundMatch)
                             {
-                                object enumValue = null;
-                                if (valueAsJObject != null)
-                                {
-                                    enumValue = valueAsJObject[jsonPropertyName].Value<string>();
-                                }
-
-                                if (enumValue is string)
-                                {
-                                    object valueToSet = 0;
-                                    bool foundMatch = false;
-
-                                    foreach (string possibleValue in Enum.GetNames(propertyType))
-                                    {
-                                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
-                                        if (jsonNameAttributes.Length != 0)
-                                        {
-                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (enumValue as string).ToLowerInvariant())
-                                            {
-                                                foundMatch = true;
-                                                valueToSet = Enum.Parse(propertyType, possibleValue, true);
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (!foundMatch)
-                                    {
-                                        valueToSet = Enum.Parse(propertyType, enumValue as string, true);
-                                    }
-
-                                    property.SetValue(this, valueToSet, null);
-                                }
+                                valueToSet = Enum.Parse(propertyType, enumValue as string, true);
                             }
-                            else // if (propertyType.IsPrimitive) //we are a primitive type
+
+                            if (property != null)
                             {
-                                if (value.GetType() == typeof(JObject))
-                                {
-                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
-                                    MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    property.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null), null);
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    property.SetValue(this, valueAsDictionary[jsonPropertyName], null);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                property.SetValue(this, valueToSet, null);
+                            }
+                            else
+                            {
+                                field.SetValue(this, valueToSet);
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-
-            FieldInfo[] fields = type.GetFields();
-
-            foreach (FieldInfo field in fields)
-            {
-                try
-                {
-                    object[] allAtributes = field.GetCustomAttributes(true);
-
-                    if (allAtributes != null)
+                    else
                     {
-                        JsonNameAttribute nameAttribute = allAtributes.FirstOrDefault(attribute => attribute is JsonNameAttribute) as JsonNameAttribute;
-
-                        if (nameAttribute != null)
+                        if (value.GetType() == typeof(JObject))
                         {
-                            string jsonPropertyName = nameAttribute.Name;
+                            MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
+                            MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
 
-                            Type propertyType = field.FieldType;
-
-                            if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            if (property != null)
                             {
-                                propertyType = propertyType.GetGenericArguments()[0];
+                                property.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null), null);
                             }
-
-                            if (propertyType.IsSubclassOf(typeof(JsonConvertibleObject)))
+                            else
                             {
-                                if (valueAsJObject[jsonPropertyName] != null || valueAsDictionary[jsonPropertyName] != null)
-                                {
-                                    JsonConvertibleObject finalValue = (JsonConvertibleObject)propertyType.GetConstructor(new Type[0]).Invoke(null);
-
-                                    if (value.GetType() == typeof(JObject))
-                                    {
-                                        finalValue.FromJsonIntermediateObject(valueAsJObject[jsonPropertyName]);
-                                    }
-                                    else if (value.GetType() == typeof(Dictionary<string, object>))
-                                    {
-                                        finalValue.FromJsonIntermediateObject(valueAsDictionary[jsonPropertyName]);
-                                    }
-                                    else
-                                    {
-                                        throw new FormatException("Unsupported intermediate format");
-                                    }
-
-                                    field.SetValue(this, finalValue);
-                                }
+                                field.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null));
                             }
-                            else if (propertyType.IsEnum)
+                        }
+                        else if (value.GetType() == typeof(Dictionary<string, object>))
+                        {
+                            if (property != null)
                             {
-                                object enumValue = null;
-                                if (valueAsJObject != null)
-                                {
-                                    enumValue = valueAsJObject[jsonPropertyName].Value<string>();
-                                }
-
-                                if (enumValue is string)
-                                {
-                                    object valueToSet = 0;
-                                    bool foundMatch = false;
-
-                                    foreach (string possibleValue in Enum.GetNames(propertyType))
-                                    {
-                                        JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])propertyType.GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
-                                        if (jsonNameAttributes.Length != 0)
-                                        {
-                                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (enumValue as string).ToLowerInvariant())
-                                            {
-                                                foundMatch = true;
-                                                valueToSet = Enum.Parse(propertyType, possibleValue, true);
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (!foundMatch)
-                                    {
-                                        valueToSet = Enum.Parse(propertyType, enumValue as string, true);
-                                    }
-
-                                    field.SetValue(this, valueToSet);
-                                }
+                                property.SetValue(this, valueAsDictionary[jsonPropertyName], null);
                             }
-                            else //if (propertyType.IsPrimitive) //we are a primitive type
+                            else
                             {
-                                if (value.GetType() == typeof(JObject))
-                                {
-                                    MethodInfo method = value.GetType().GetMethod("ToObject", new Type[] { });
-                                    MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { propertyType });
-                                    field.SetValue(this, genericMethod.Invoke(valueAsJObject[jsonPropertyName], null));
-                                }
-                                else if (value.GetType() == typeof(Dictionary<string, object>))
-                                {
-                                    field.SetValue(this, valueAsDictionary[jsonPropertyName]);
-                                }
-                                else
-                                {
-                                    throw new FormatException("Unsupported intermediate format");
-                                }
+                                field.SetValue(this, valueAsDictionary[jsonPropertyName]);
                             }
+                        }
+                        else
+                        {
+                            throw new FormatException("Unsupported intermediate format");
                         }
                     }
                 }
-                catch (Exception ex)
+                catch //TODO: this is very very bad, this needs to catch exactly the exceptions we're expecting.
                 {
                 }
             }
@@ -432,9 +320,11 @@ namespace Uhuru.Utilities
                 return jArray.ToObject<T>();
             }
 
+            string stringValue = value as string;
+
             if (typeof(T).IsEnum)
             {
-                if (value is string)
+                if (stringValue != null)
                 {
                     object valueToSet = 0;
                     bool foundMatch = false;
@@ -444,7 +334,7 @@ namespace Uhuru.Utilities
                         JsonNameAttribute[] jsonNameAttributes = (JsonNameAttribute[])typeof(T).GetMember(possibleValue)[0].GetCustomAttributes(typeof(JsonNameAttribute), false);
                         if (jsonNameAttributes.Length != 0)
                         {
-                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == (value as string).ToLowerInvariant())
+                            if (jsonNameAttributes[0].Name.ToLowerInvariant() == stringValue.ToLowerInvariant())
                             {
                                 foundMatch = true;
                                 valueToSet = Enum.Parse(typeof(T), possibleValue, true);
@@ -455,7 +345,7 @@ namespace Uhuru.Utilities
 
                     if (!foundMatch)
                     {
-                        valueToSet = Enum.Parse(typeof(T), value as string, true);
+                        valueToSet = Enum.Parse(typeof(T), stringValue, true);
                     }
 
                     return (T)valueToSet;
@@ -470,42 +360,6 @@ namespace Uhuru.Utilities
             {
                 return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
             }
-        }
-
-        // todo: use in the future for deep transformation
-        private static T TransformIntermediateElment<T>(object obj)
-        {
-            T result;
-            Type toType = typeof(T);
-
-            if (typeof(List<>) == toType.GetGenericTypeDefinition())
-            {
-                MethodInfo method = typeof(JsonConvertibleObject).GetMethod("TransformIntermediateList");
-                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { toType.GetGenericArguments()[0] });
-                result = (T)genericMethod.Invoke(null, new object[] { obj });
-            }
-            else
-            {
-                result = ((JToken)obj).ToObject<T>();
-                // throw new Exception("Unsupported intermediate format");
-            }
-
-            return result;
-        }
-
-        // todo: use in the future for deep transformation
-        private static List<T> TransformIntermediateList<T>(object obj)
-        {
-            Type elemType = typeof(T);
-            List<T> result = new List<T>();
-            foreach (JToken elem in (JArray)obj)
-            {
-                MethodInfo method = obj.GetType().GetMethod("ToObject", new Type[] { });
-                MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { elemType });
-                result.Add((T)genericMethod.Invoke(obj, null));
-            }
-
-            return result;
         }
     }
 }

@@ -94,11 +94,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string password = Credentials.GenerateCredential();
 
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempPath);
+            string dirPath = Path.Combine(tempPath, "testdir");
+            Directory.CreateDirectory(dirPath);
 
-            Directory.CreateDirectory(Path.Combine(tempPath, "testDir"));
-            File.WriteAllText(Path.Combine(tempPath, "test.txt"), "this is a test");
-            File.WriteAllText(Path.Combine(tempPath, "test2.txt"), "this is a test");
+            Directory.CreateDirectory(Path.Combine(dirPath, "testDir2"));
+            File.WriteAllText(Path.Combine(dirPath, "test.txt"), "this is a test");
+            File.WriteAllText(Path.Combine(dirPath, "test2.txt"), "this is a test");
 
 
             int port = NetworkInterface.GrabEphemeralPort();
@@ -110,12 +111,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
             WebClient client = new WebClient();
             NetworkCredential credentials = new NetworkCredential(user, password);
             client.Credentials = credentials;
-            byte[] data = client.DownloadData(String.Format("http://{0}:{1}/foobar/", "localhost", port));
+            byte[] data = client.DownloadData(String.Format("http://{0}:{1}/foobar/testdir", "localhost", port));
 
             ASCIIEncoding encoding = new ASCIIEncoding();
             string retrievedContents = encoding.GetString(data);
 
-            Assert.IsTrue(retrievedContents.Contains("testDir                                      -\r\ntest.txt                                   14B\r\ntest2.txt                                  14B\r\n"));
+            Assert.IsTrue(retrievedContents.Contains("testDir2                                     -\r\ntest.txt                                   14B\r\ntest2.txt                                  14B\r\n"));
 
             fs.Stop();
         }
