@@ -60,6 +60,8 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        object publishLock = new object();
+
         //Runs the DeaReactor in a blocking mode
         public override void Start()
         {
@@ -80,28 +82,43 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void SendDeaHeartbeat(string message)
         {
-            NatsClient.Publish("dea.heartbeat", null, message);
+            lock (publishLock)
+            {
+                NatsClient.Publish("dea.heartbeat", null, message);
+            }
         }
 
         public void SendDeaStart(string message)
         {
-            NatsClient.Publish("dea.start", null,  message);
+            lock (publishLock)
+            {
+                NatsClient.Publish("dea.start", null, message);
+            }
         }
 
         public void SendDropletExited(string message)
         {
-            NatsClient.Publish("droplet.exited", null, message);
-            Logger.Debug(Strings.SentDropletExited, message);
+            lock (publishLock)
+            {
+                NatsClient.Publish("droplet.exited", null, message);
+                Logger.Debug(Strings.SentDropletExited, message);
+            }
         }
 
         public void SendRouterRegister(string message)
         {
-            NatsClient.Publish("router.register", null, message);
+            lock (publishLock)
+            {
+                NatsClient.Publish("router.register", null, message);
+            }
         }
 
         public void SendRouterUnregister(string message)
         {
-            NatsClient.Publish("router.unregister", null, message);
+            lock (publishLock)
+            {
+                NatsClient.Publish("router.unregister", null, message);
+            }
         }
     }
 }
