@@ -143,7 +143,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         [JsonName("fds")]
-        public long? Fds
+        public long? FileDescriptors
         {
             get;
             set;

@@ -51,7 +51,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public void Start(string dropletsPath)
         {
-            FilerStartTimer = new System.Timers.Timer(1000);
+            FilerStartTimer = new System.Timers.Timer(500);
             FilerStartTimer.AutoReset = false;
             FilerStartTimer.Elapsed += new System.Timers.ElapsedEventHandler(delegate(object sender, System.Timers.ElapsedEventArgs args)
             {
@@ -73,7 +73,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (StartAttempts >= 5)
                     {
                         Logger.Fatal(Strings.GivingUpOnTryingToStartFiler);
-                        throw new ApplicationException();
+                        OnStartError(null, null);
                     }
                 }
 
