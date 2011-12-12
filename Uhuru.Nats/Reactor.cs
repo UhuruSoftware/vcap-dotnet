@@ -61,7 +61,9 @@ namespace Uhuru.NatsClient
         private int ssid = 0;
         private int reconnectAttempts = 10;
         private int reconnectTime = 10000;
-        
+        private object publishLock = new object();
+
+
         /// <summary>
         /// an event raised on connection
         /// </summary>
@@ -209,20 +211,23 @@ namespace Uhuru.NatsClient
         /// <param name="optReply">replay subject</param>
         public void Publish(string subject, SimpleCallback callback, string msg, string optReply)
         {
-            if (msg == null)
+            lock (publishLock)
             {
-                throw new ArgumentNullException("msg");
-            }
+                if (msg == null)
+                {
+                    throw new ArgumentNullException("msg");
+                }
 
-            if (string.IsNullOrEmpty(subject))
-            {
-                return;
-            }
+                if (string.IsNullOrEmpty(subject))
+                {
+                    return;
+                }
 
-            this.SendCommand(string.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CR_LF, msg, Resource.CR_LF));
-            if (callback != null)
-            {
-                this.QueueServer(callback);
+                this.SendCommand(string.Format(CultureInfo.InvariantCulture, "PUB {0} {1} {2}{3}{4}{5}", subject, optReply, msg.Length, Resource.CR_LF, msg, Resource.CR_LF));
+                if (callback != null)
+                {
+                    this.QueueServer(callback);
+                }
             }
         }
 
