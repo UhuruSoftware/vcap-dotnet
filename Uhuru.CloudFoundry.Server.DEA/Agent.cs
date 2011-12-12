@@ -799,6 +799,7 @@ namespace Uhuru.CloudFoundry.DEA
                 if (!AgentStager.RuntimeSupported(pmessage.Runtime))
                 {
                     Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                    return;
                 }
 
 
@@ -861,7 +862,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.EnterWriteLock();
 
                     instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
-                    instance.Properties.WindowsUsername = WindowsVcapUsers.CreateUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
+                    instance.Properties.WindowsUsername = WindowsVCAPUsers.CreateUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
 
                     instance.Properties.EnvironmentVarialbes.Add(VcapWindowsUserVariable, instance.Properties.WindowsUsername);
                     instance.Properties.EnvironmentVarialbes.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -891,7 +892,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Lock.EnterWriteLock();
 
-                    if (pid != 0 && !instance.Properties.StopProcessed)
+                    if (!instance.Properties.StopProcessed)
                     {
                         Logger.Info(Strings.PidAssignedToDroplet, pid, instance.Properties.LoggingId);
                         instance.Properties.ProcessId = pid;
@@ -1497,7 +1498,7 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                 instance.Plugin = null;
-                                WindowsVcapUsers.DeleteUser(instance.Properties.InstanceId);
+                                WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
                             }
                             catch (Exception ex)
                             {

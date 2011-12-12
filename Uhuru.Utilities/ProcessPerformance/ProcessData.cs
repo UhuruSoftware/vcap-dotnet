@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ProcessData.cs" company="Uhuru Software">
+// <copyright file="ProcessData.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -14,12 +14,39 @@ namespace Uhuru.Utilities.ProcessPerformance
     /// </summary>
     public class ProcessData
     {
+        /// <summary>
+        /// The ID of the process.
+        /// </summary>
         private int processId;
+
+        /// <summary>
+        /// The name of the process.
+        /// </summary>
         private string name;
+
+        /// <summary>
+        /// The CPU usage of the process.
+        /// </summary>
         private int cpu;
+
+        /// <summary>
+        /// The number of user cycles of the process on the last snapshot.
+        /// </summary>
         private long oldUserTime;
+
+        /// <summary>
+        /// The number of kernel cycles of the process on the last snapshot.
+        /// </summary>
         private long oldKernelTime;
+
+        /// <summary>
+        /// The time of the last snapshot.
+        /// </summary>
         private DateTime oldUpdate;
+
+        /// <summary>
+        /// The memory usage of the process.
+        /// </summary>
         private long workingSetBytes;
 
         /// <summary>

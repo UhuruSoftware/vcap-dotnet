@@ -1,5 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="UserCustomAuthentication.cs" company="Uhuru Software">
+// <copyright file="UserCustomAuthentication.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -15,7 +16,14 @@ namespace Uhuru.Utilities
     /// </summary>
     public class UserCustomAuthentication : UserNamePasswordValidator
     {
+        /// <summary>
+        /// The username that passes the validation check.
+        /// </summary>
         private string validUsername;
+
+        /// <summary>
+        /// The password that passes the validation check.
+        /// </summary>
         private string validPassword;
 
         /// <summary>
