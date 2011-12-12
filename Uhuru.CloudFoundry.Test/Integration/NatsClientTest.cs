@@ -616,51 +616,53 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Assert.IsTrue(errorThrown);
         }
 
-        //[TestMethod, Description("should call error handler for double unsubscribe if in pedantic mode")]
-        //[TestCategory("Integration")]
-        //public void TC021_PublishThreadSafe()
-        //{
-        //    bool errorThrown = false;
-        //    //AutoResetEvent resetEvent = new AutoResetEvent(false);
-        //    int callbackNr = 0;
-        //    int sid = 0;
+        [TestMethod, Description("should call error handler for double unsubscribe if in pedantic mode")]
+        [TestCategory("Integration")]
+        public void TC021_PublishThreadSafe()
+        {
 
-        //    using (Reactor natsClient = new Reactor())
-        //    {
-        //        natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
-        //        {
-        //            errorThrown = true;
-        //            //resetEvent.Set();
-        //        });
-        //        for (int i = 0; i < 40; i++)
-        //        {
-        //            string subject = Guid.NewGuid().ToString();
-        //            Thread workerThread = new Thread(new ParameterizedThreadStart(delegate
-        //                {
-        //                    for (int j = 0; j < 100; j++)
-        //                        natsClient.Publish(subject);
-        //                }));
+            bool errorThrown = false;
+            object locker = new object();
+            int callbackNr = 0;
+            int sid = 0;
+
+            using (Reactor natsClient = new Reactor())
+            {
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
+                {
+                    errorThrown = true;
+
+                });
+                for (int i = 0; i < 40; i++)
+                {
+                    string subject = Guid.NewGuid().ToString();
+                    Thread workerThread = new Thread(new ParameterizedThreadStart(delegate(object data)
+                        {
+                            natsClient.Publish((string)data);
+                        }));
                   
 
-        //            sid = natsClient.Subscribe(subject, delegate(string msg, string reply, string subj)
-        //            {
-        //                callbackNr++;
-        //                natsClient.Unsubscribe(sid);
-        //            });
+                    sid = natsClient.Subscribe(subject, delegate(string msg, string reply, string subj)
+                    {
+                        lock (locker)
+                        {
+                            callbackNr++;
+                        }
+                    });
+                    workerThread.Start(subject);
+                }
 
-        //            workerThread.Start();
-        //        }
-        //        natsClient.Start(natsEndpoint);
+                natsClient.Start(natsEndpoint);
+                while (callbackNr != 40 || errorThrown)
+                {
+                    Thread.Sleep(1000);
+                }
 
-        //        while (callbackNr != 4000 || errorThrown)
-        //        {
-        //            Thread.Sleep(1000);
-        //        }
 
-        //        natsClient.Stop();
-        //    }
-        //    Assert.IsFalse(errorThrown);
-        //}
+                natsClient.Stop();
+            }
+            Assert.IsFalse(errorThrown);
+        }
 
         [TestMethod, Description("should receive a huge message")]
         [TestCategory("Integration")]
