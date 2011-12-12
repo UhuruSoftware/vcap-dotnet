@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Credentials.cs" company="Uhuru Software">
+// <copyright file="Credentials.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -34,13 +34,13 @@ namespace Uhuru.Utilities
             // the characters that are non-alphanumeric will be replaced with letters/numbers
             Dictionary<char, char> unwantedCharacterMap = new Dictionary<char, char>() 
                                                                     {
-                                                                        {'!', '0'}, {'@', '1'}, {'#', '2'}, {'$', '3'},
-                                                                        {'%', '4'}, {'^', '5'}, {'&', '6'}, {'*', '7'},
-                                                                        {'(', '8'}, {')', '9'}, {'_', 'a'}, {'-', 'b'},
-                                                                        {'+', 'c'}, {'=', 'd'}, {'[', 'e'}, {'{', 'f'},
-                                                                        {']', 'g'}, {'}', 'h'}, {';', 'i'}, {':', 'j'},
-                                                                        {'<', 'k'}, {'>', 'l'}, {'|', 'm'}, {'.', 'n'},
-                                                                        {'/', 'o'}, {'?', 'p'}
+                                                                        { '!', '0' }, { '@', '1' }, { '#', '2' }, { '$', '3' },
+                                                                        { '%', '4' }, { '^', '5' }, { '&', '6' }, { '*', '7' },
+                                                                        { '(', '8' }, { ')', '9' }, { '_', 'a' }, { '-', 'b' },
+                                                                        { '+', 'c' }, { '=', 'd' }, { '[', 'e' }, { '{', 'f' },
+                                                                        { ']', 'g' }, { '}', 'h' }, { ';', 'i' }, { ':', 'j' },
+                                                                        { '<', 'k' }, { '>', 'l' }, { '|', 'm' }, { '.', 'n' },
+                                                                        { '/', 'o' }, { '?', 'p' }
                                                                     };
 
             string credential = Membership.GeneratePassword(length, 0);

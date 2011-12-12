@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ProcessCPU.cs" company="Uhuru Software">
+// <copyright file="NativeMethods.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -19,16 +19,17 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// This tells OpenProcess that we want all possible access rights for a process object.
         /// </summary>
         public const int ProcessAllAccess = 0x1F0FFF;
+
         /// <summary>
         /// This is an IntPtr that looks like an error response. We use it for comparison.
         /// </summary>
         public static readonly IntPtr ProcessHandleError = new IntPtr(-1);
         
         /// <summary>
-        /// closes handles
+        /// Closes handles.
         /// </summary>
-        /// <param name="handle"></param>
-        /// <returns></returns>
+        /// <param name="handle">The handle to close.</param>
+        /// <returns>A boolean value indicating whether the operation was successful.</returns>
         [DllImport("KERNEL32.DLL")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr handle);
@@ -52,7 +53,8 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <param name="kernelTime">the kernel time</param>
         /// <param name="userTime">the user time</param>
         /// <returns>True if the operation was successful</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters"), DllImport("kernel32.dll")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", Justification = "No other way to do this."), 
+        DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetProcessTimes(IntPtr processHandle, out ComType.FILETIME creationTime, out ComType.FILETIME exitTime, out ComType.FILETIME kernelTime, out ComType.FILETIME userTime);
     }

@@ -22,6 +22,7 @@
       <Acronym>DEA</Acronym>
       <Acronym>VMC</Acronym>
       <Acronym>NFS</Acronym>
+      <Acronym>VCAP</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

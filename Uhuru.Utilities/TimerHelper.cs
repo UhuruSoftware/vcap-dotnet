@@ -1,13 +1,13 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="TimerHelper.cs" company="Uhuru Software">
+// <copyright file="TimerHelper.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace Uhuru.Utilities
 {
-    using System.Timers;
     using System;
+    using System.Timers;
     
     /// <summary>
     /// Delegate definition that refers to a method to be called when a timer tick occurs.

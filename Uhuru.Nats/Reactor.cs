@@ -52,6 +52,7 @@ namespace Uhuru.NatsClient
         private bool verbose;
         private Dictionary<string, object> serverInfo;
         private byte[] readBuffer;
+        List<byte> buf = new List<byte>(); 
         private TcpClient tcpClient;
         private Uri serverUri;
         private ConnectionStatus status = ConnectionStatus.Closed;
@@ -73,6 +74,9 @@ namespace Uhuru.NatsClient
         /// This event is raised when an error message is received from the NATS server.
         /// </summary>
         public event EventHandler<ReactorErrorEventArgs> OnError;
+        private int needed;
+        private int subscriptionId;
+        private string reply;
         
         /// <summary>
         /// Gets or sets the reconnect attempts if the tcp connection is lost
@@ -600,22 +604,16 @@ namespace Uhuru.NatsClient
                 this.AttemptReconnect();
             }
         }
-        
+
         private void ReceiveData(byte[] data, int bytesRead)
         {
-            List<byte> buf = new List<byte>();
-            int subscriptionId=0;
-            int needed =0;
-            string reply=string.Empty;
-
             if (buf == null)
             {
-                buf = new List<byte>();
+                buf = new List<byte>(bytesRead);
             }
 
-            byte[] localBuf = new byte[bytesRead];
-            Array.Copy(data, localBuf, bytesRead);
-            buf.AddRange(localBuf);
+            buf.AddRange(data.Take(bytesRead));
+
 
             while (buf != null)
             {
@@ -643,7 +641,7 @@ namespace Uhuru.NatsClient
                             {
                                 if (OnError != null)
                                 {
-                                   OnError(this, new ReactorErrorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
+                                    OnError(this, new ReactorErrorEventArgs(resource.ERR.Match(strBuffer).Groups[1].Value));
                                 }
 
                                 strBuffer = resource.ERR.Replace(strBuffer, "");
@@ -672,10 +670,10 @@ namespace Uhuru.NatsClient
                             {
                                 if (OnError != null)
                                 {
-                                    OnError(this,new ReactorErrorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
+                                    OnError(this, new ReactorErrorEventArgs(Language.ERRUnknownProtocol + resource.UNKNOWN.Match(strBuffer).Value));
                                 }
 
-                                strBuffer =  resource.UNKNOWN.Replace(strBuffer, "");
+                                strBuffer = resource.UNKNOWN.Replace(strBuffer, "");
                             }
                             else
                             {
@@ -692,7 +690,7 @@ namespace Uhuru.NatsClient
                         break;
                     case ParseState.AwaitingMsgPayload:
                         {
-                            if (buf.Count < (needed +  Resource.CR_LF.Length))
+                            if (buf.Count < (needed + Resource.CR_LF.Length))
                             {
                                 return;
                             }

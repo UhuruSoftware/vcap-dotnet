@@ -615,5 +615,121 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
             Assert.IsTrue(errorThrown);
         }
+
+        [TestMethod, Description("should call error handler for double unsubscribe if in pedantic mode")]
+        [TestCategory("Integration")]
+        public void TC021_PublishThreadSafe()
+        {
+
+            bool errorThrown = false;
+            object locker = new object();
+            int callbackNr = 0;
+            int sid = 0;
+
+            using (Reactor natsClient = new Reactor())
+            {
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
+                {
+                    errorThrown = true;
+
+                });
+                for (int i = 0; i < 40; i++)
+                {
+                    string subject = Guid.NewGuid().ToString();
+                    Thread workerThread = new Thread(new ParameterizedThreadStart(delegate(object data)
+                        {
+                            natsClient.Publish((string)data);
+                        }));
+                  
+
+                    sid = natsClient.Subscribe(subject, delegate(string msg, string reply, string subj)
+                    {
+                        lock (locker)
+                        {
+                            callbackNr++;
+                        }
+                    });
+                    workerThread.Start(subject);
+                }
+
+                natsClient.Start(natsEndpoint);
+                while (callbackNr != 40 || errorThrown)
+                {
+                    Thread.Sleep(1000);
+                }
+
+
+                natsClient.Stop();
+            }
+            Assert.IsFalse(errorThrown);
+        }
+
+        [TestMethod, Description("should receive a huge message")]
+        [TestCategory("Integration")]
+        public void TC022_ReciveHugeMessageForSubscription()
+        {
+            bool errorThrown = false;
+            string receivedMessage = "";
+            AutoResetEvent resetEvent = new AutoResetEvent(false);
+
+            using (Reactor natsClient = new Reactor())
+            {
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
+                {
+                    errorThrown = true;
+                    resetEvent.Set();
+                });
+
+                natsClient.Start(natsEndpoint);
+
+                natsClient.Subscribe("foo", delegate(string msg, string reply, string subject)
+                {
+                    receivedMessage = msg;
+                    resetEvent.Set();
+                });
+
+                ASCIIEncoding ascii = new ASCIIEncoding();
+
+                natsClient.Publish("foo", null, ascii.GetString(new byte[9000]));
+                resetEvent.WaitOne(10000);
+                natsClient.Stop();
+            }
+            Assert.IsFalse(errorThrown);
+            Assert.AreEqual(receivedMessage.Length, 9000);
+        }
+
+        [TestMethod, Description("should receive a giant message")]
+        [TestCategory("Integration")]
+        public void TC023_ReciveGiantMessageForSubscription()
+        {
+            bool errorThrown = false;
+            string receivedMessage = "";
+            AutoResetEvent resetEvent = new AutoResetEvent(false);
+
+            using (Reactor natsClient = new Reactor())
+            {
+                natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
+                {
+                    errorThrown = true;
+                    resetEvent.Set();
+                });
+
+                natsClient.Start(natsEndpoint);
+
+                natsClient.Subscribe("foo", delegate(string msg, string reply, string subject)
+                {
+                    receivedMessage = msg;
+                    resetEvent.Set();
+                });
+
+                ASCIIEncoding ascii = new ASCIIEncoding();
+
+                natsClient.Publish("foo", null, ascii.GetString(new byte[90000]));
+                resetEvent.WaitOne(10000);
+                natsClient.Stop();
+            }
+            Assert.IsFalse(errorThrown);
+            Assert.AreEqual(receivedMessage.Length, 90000);
+        }
     }
 }
