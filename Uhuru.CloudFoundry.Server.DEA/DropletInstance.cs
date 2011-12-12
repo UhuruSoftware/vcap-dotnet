@@ -6,23 +6,37 @@
 
 namespace Uhuru.CloudFoundry.DEA
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Threading;
-	using Uhuru.Utilities.ProcessPerformance;
-	using Uhuru.CloudFoundry.Server.DEA.PluginBase;
-	using System.Net.Sockets;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using Uhuru.Utilities.ProcessPerformance;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using System.Net.Sockets;
     using System.IO;
     using Uhuru.Utilities;
-	
+
     public class DropletInstance
     {
         public const int MaxUsageSamples = 30;
 
+        /// <summary>
+        /// The lock for the droplet instance.
+        /// </summary>
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        /// <summary>
+        /// Properties for the droplet instance which are saved when snapshoting the applications.
+        /// </summary>
         private DropletInstanceProperties properties = new DropletInstanceProperties();
+
+        /// <summary>
+        /// The history of resource usage of the instance.
+        /// </summary>
         private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
 
+        /// <summary>
+        /// The plugin associated with the instance.
+        /// </summary>
         public IAgentPlugin Plugin;
 
         public ReaderWriterLockSlim Lock
@@ -64,13 +78,18 @@ namespace Uhuru.CloudFoundry.DEA
                 usage = value;
             }
         }
-
-        public bool IsRunning
+        
+        /// <summary>
+        /// Detect if the Pid is still valid and running
+        /// </summary>
+        public bool IsPidRunning
         {
             get
             {
                 if (Properties.ProcessId == 0)
+                {
                     return false;
+                }
 
                 return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
             }
@@ -96,18 +115,18 @@ namespace Uhuru.CloudFoundry.DEA
                 return false;
             }
         }
-        
-		/// <summary>
-		/// Returns the heartbeat info of the current droplet instance.
-		/// </summary>
-		/// <returns>The requested heartbeat info.</returns>
+
+        /// <summary>
+        /// Returns the heartbeat info of the current droplet instance.
+        /// </summary>
+        /// <returns>The requested heartbeat info.</returns>
         public HeartbeatMessage.InstanceHeartbeat GenerateInstanceHeartbeat()
         {
             HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
             try
             {
                 Lock.EnterReadLock();
-                
+
                 beat.DropletId = Properties.DropletId;
                 beat.Version = Properties.Version;
                 beat.InstanceId = Properties.InstanceId;
@@ -159,10 +178,10 @@ namespace Uhuru.CloudFoundry.DEA
 
         }
 
-		/// <summary>
-		/// Generates a status message reflecting the properties of the current droplet instance.
-		/// </summary>
-		/// <returns>The generated status message.</returns>
+        /// <summary>
+        /// Generates a status message reflecting the properties of the current droplet instance.
+        /// </summary>
+        /// <returns>The generated status message.</returns>
         public DropletStatusMessageResponse GenerateDropletStatusMessage()
         {
             DropletStatusMessageResponse response = new DropletStatusMessageResponse();
@@ -190,53 +209,28 @@ namespace Uhuru.CloudFoundry.DEA
             return response;
         }
 
-		/// <summary>
-		/// Updates an ApplicationInfo object with the information of the current droplet instance.
-		/// </summary>
-		/// <param name="appInfo">The object whose info is to be updated (if this is null a new ApplicationInfo object will be used instead).</param>
-		/// <returns>The updated ApplicationInfo object.</returns>
+        /// <summary>
+        /// Updates an ApplicationInfo object with the information of the current droplet instance.
+        /// </summary>
+        /// <param name="appInfo">The object whose info is to be updated (if this is null a new ApplicationInfo object will be used instead).</param>
+        /// <returns>The updated ApplicationInfo object.</returns>
         public ApplicationInfo PopulateApplicationInfo(ApplicationInfo appInfo)
         {
-			if (appInfo == null)
-			{
-				appInfo = new ApplicationInfo();
-			}
+            if (appInfo == null)
+            {
+                appInfo = new ApplicationInfo();
+            }
 
-            appInfo.InstanceId = Properties.InstanceId;
-            appInfo.Name = Properties.Name;
-            appInfo.Path = Properties.Directory;
-            appInfo.Port = Properties.Port;
-            appInfo.WindowsPassword = Properties.WindowsPassword;
-            appInfo.WindowsUserName = Properties.WindowsUsername;
+            appInfo.InstanceId = this.Properties.InstanceId;
+            appInfo.Name = this.Properties.Name;
+            appInfo.Path = this.Properties.Directory;
+            appInfo.Port = this.Properties.Port;
+            appInfo.WindowsPassword = this.Properties.WindowsPassword;
+            appInfo.WindowsUserName = this.Properties.WindowsUsername;
             return appInfo;
         }
 
-        class VcapPluginStagingInfo : JsonConvertibleObject
-        {
 
-            [JsonName("assembly")]
-            public string Assembly {get; set;}
-
-            [JsonName("class_name")]
-            public string ClassName { get; set; }
-            
-            [JsonName("logs")]
-            public VcapPluginStagingInfoLogs Logs
-            {
-                get;
-                set;
-            }
-        }
-
-        class VcapPluginStagingInfoLogs : JsonConvertibleObject
-        {
-            [JsonName("dea_error")]
-            public string DeaErrorLog
-            {
-                get;
-                set;
-            }
-        }
 
         public void LoadPlugin()
         {
@@ -244,18 +238,18 @@ namespace Uhuru.CloudFoundry.DEA
             string startup = File.ReadAllText(Path.Combine(Properties.Directory, "startup"));
 
             VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
-            pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson( startup));
+            pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(startup));
 
             ErrorLog = new Utilities.FileLogger(Path.Combine(properties.Directory, pluginInfo.Logs.DeaErrorLog));
 
-            //check to see if the pluging is in the instance directory
-            if(File.Exists(Path.Combine(Properties.Directory, pluginInfo.Assembly)))
+            // check to see if the pluging is in the instance directory
+            if (File.Exists(Path.Combine(Properties.Directory, pluginInfo.Assembly)))
             {
                 Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
             }
             else
-            //if not load the plugin from the dea
+            // if not load the plugin from the dea
             {
                 Guid PluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
                 Plugin = PluginHost.CreateInstance(PluginId);
@@ -276,11 +270,40 @@ namespace Uhuru.CloudFoundry.DEA
                 Usage.RemoveAt(0);
             }
 
-            Properties.UsageRecent = curUsage;
+            Properties.LastUsage = curUsage;
             return curUsage;
         }
 
 
         public FileLogger ErrorLog { get; set; }
+
+
+        class VcapPluginStagingInfo : JsonConvertibleObject
+        {
+
+            [JsonName("assembly")]
+            public string Assembly { get; set; }
+
+            [JsonName("class_name")]
+            public string ClassName { get; set; }
+
+            [JsonName("logs")]
+            public VcapPluginStagingInfoLogs Logs
+            {
+                get;
+                set;
+            }
+        }
+
+        class VcapPluginStagingInfoLogs : JsonConvertibleObject
+        {
+            [JsonName("dea_error")]
+            public string DeaErrorLog
+            {
+                get;
+                set;
+            }
+        }
+
     }
 }

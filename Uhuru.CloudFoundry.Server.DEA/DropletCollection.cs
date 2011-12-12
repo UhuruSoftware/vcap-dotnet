@@ -22,6 +22,12 @@ namespace Uhuru.CloudFoundry.DEA
         private Dictionary<int, Droplet> droplets = new Dictionary<int,Droplet>();
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+
+        /// <summary>
+        /// If the snapshot has been scheduled to avoid savaing it two times with the same value.
+        /// </summary>
+        private volatile bool SnapshotScheduled;
+
         /// <summary>
         /// Exposes the collection members, organized by IDs.
         /// </summary>
@@ -60,7 +66,7 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        private volatile bool SnapshotScheduled;
+        
 
         public HeartbeatMessage GenerateHeartbeatMessage()
         {

@@ -24,26 +24,43 @@ namespace Uhuru.CloudFoundry.DEA
 
     public class Agent : VcapComponent
     {
+
         private const decimal Version = 0.99m;
-        
-        private DropletCollection Droplets = new DropletCollection();
-        private Stager AgentStager = new Stager();
 
-        private FileViewer AgentFileViewer = new FileViewer();
-        private Monitoring AgentMonitoring = new Monitoring();
+        private const string HomeVariable = "HOME";
+        private const string VcapApplicationVariable = "VCAP_APPLICATION";
+        private const string VcapServicesVariable = "VCAP_SERVICES";
+        private const string VcapAppHostVariable = "VCAP_APP_HOST";
+        private const string VcapAppPortVariable = "VCAP_APP_PORT";
+        private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
+        private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
+        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
+        private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
+        private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
+        private const string VcapAppPidVariable = "VCAP_APP_PID";
 
-        private bool DisableDirCleanup;
-        private bool EnforceUlimit;
-        private bool MultiTenant;
-        private bool Secure;
+
+        private DropletCollection droplets = new DropletCollection();
+        private Stager stager = new Stager();
+
+        private FileViewer fileViewer = new FileViewer();
+        private Monitoring monitoring = new Monitoring();
+
+        private bool disableDirCleanup;
+        private bool enforceUsageLimit;
+        private bool multiTenant;
+        private bool secure;
         
         private DeaReactor deaReactor;
 
-        private HelloMessage HelloMessage = new HelloMessage(); 
+        private HelloMessage helloMessage = new HelloMessage(); 
         //private Dictionary<string, object> HelloMessage;
-        private volatile bool ShuttingDown = false;
-        private int EvacuationDelayMs = 30 * 1000;
+        private volatile bool shuttingDown = false;
+        private int evacuationDelayMs = 30 * 1000;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuaration and initializes the members.
+        /// </summary>
         public Agent()
         {
             foreach (Configuration.DEA.RuntimeElement deaConf in UhuruSection.GetSection().DEA.Runtimes)
@@ -69,68 +86,76 @@ namespace Uhuru.CloudFoundry.DEA
                         dea.DebugEnv[debugEnv.Name].Add(ienv.Name, ienv.Value);
                     }   
                 }
-               
-                AgentStager.Runtimes.Add(deaConf.Name, dea);
+
+                this.stager.Runtimes.Add(deaConf.Name, dea);
             }
 
-            AgentStager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
+            this.stager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
 
-            EnforceUlimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
-            DisableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
-            MultiTenant = UhuruSection.GetSection().DEA.Multitenant;
-            Secure = UhuruSection.GetSection().DEA.Secure;
+            this.enforceUsageLimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
+            this.disableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
+            this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
+            this.secure = UhuruSection.GetSection().DEA.Secure;
 
-            AgentMonitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
+            this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
 
-            AgentFileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
-            
-            AgentStager.ForeHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
+            this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
 
-            ComponentType = "DEA";
+            this.stager.ForeHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
+
+            this.ComponentType = "DEA";
 
             //apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
-            AgentMonitoring.AppsDumpDirectory = Path.GetTempPath();
+            this.monitoring.AppsDumpDirectory = Path.GetTempPath();
 
             //heartbeat_interval = UhuruSection.GetSection().DEA.HeartBeatInterval;
 
-            AgentMonitoring.MaxClients = MultiTenant ? Monitoring.DefaultMaxClients : 1;
+            this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
-            AgentStager.StagedDir = Path.Combine(AgentStager.DropletDir, "staged");
-            AgentStager.AppsDir = Path.Combine(AgentStager.DropletDir, "apps");
-            AgentStager.DbDir = Path.Combine(AgentStager.DropletDir, "db");
+            this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");
+            this.stager.AppsDir = Path.Combine(this.stager.DropletDir, "apps");
+            this.stager.DbDir = Path.Combine(this.stager.DropletDir, "db");
 
-            Droplets.AppStateFile = Path.Combine(AgentStager.DropletDir, "applications.json");
-            
-            deaReactor.Uuid = Uuid;
+            this.droplets.AppStateFile = Path.Combine(stager.DropletDir, "applications.json");
 
-            HelloMessage.Id = Uuid;
-            HelloMessage.Host = Host;
-            HelloMessage.FileViewerPort = AgentFileViewer.Port;
-            HelloMessage.Version = Version;
+            this.deaReactor.Uuid = Uuid;
+
+            this.helloMessage.Id = this.Uuid;
+            this.helloMessage.Host = this.Host;
+            this.helloMessage.FileViewerPort = this.fileViewer.Port;
+            this.helloMessage.Version = Version;
         }
 
+        /// <summary>
+        /// Constructs the needed reactor. In this case a DeaReactor is needed.
+        /// </summary>
         protected override void ConstructReactor()
         {
-            if (deaReactor == null)
+            if (this.deaReactor == null)
             {
-                deaReactor = new DeaReactor();
-                VcapReactor = deaReactor;
+                this.deaReactor = new DeaReactor();
+                this.VcapReactor = this.deaReactor;
             }
         }
 
 
+
+        /// <summary>
+        /// Runs the DEA.
+        /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
+        /// </summary>
         public override void Run()
         {
 
             Logger.Info(Strings.StartingVcapDea, Version);
 
-            AgentStager.SetupRuntimes();
+            this.stager.SetupRuntimes();
 
-            Logger.Info(Strings.UsingNetwork, Host);
-            Logger.Info(Strings.MaxMemorySetTo, AgentMonitoring.MaxMemoryMbytes);
+            Logger.Info(Strings.UsingNetwork, this.Host);
+            Logger.Info(Strings.MaxMemorySetTo, this.monitoring.MaxMemoryMbytes);
             Logger.Info(Strings.UtilizingCpuCores, Utils.NumberOfCores());
 
-            if (MultiTenant)
+            if (this.multiTenant)
             {
                 Logger.Info(Strings.Allowingmultitenancy);
             }
@@ -139,69 +164,73 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info(Strings.RestrictingToSingleTenant);
             }
 
-            Logger.Info(Strings.UsingDirectory, AgentStager.DropletDir);
-            
-            AgentStager.CreateDirectories();
-            Droplets.AppStateFile = Path.Combine(AgentStager.DbDir, "applications.json");
+            Logger.Info(Strings.UsingDirectory, this.stager.DropletDir);
+
+            this.stager.CreateDirectories();
+            this.droplets.AppStateFile = Path.Combine(this.stager.DbDir, "applications.json");
 
             //Clean everything in the staged directory
-            AgentStager.CleanCacheDirectory();
-            
-            
-            AgentFileViewer.Start(AgentStager.AppsDir);
+            this.stager.CleanCacheDirectory();
 
-            VcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
 
-            deaReactor.OnDeaStatus += new SubscribeCallback(DeaStatusHandler);
-            deaReactor.OnDropletStatus += new SubscribeCallback(DropletStatusHandler);
-            deaReactor.OnDeaDiscover += new SubscribeCallback(DeaDiscoverHandler);
-            deaReactor.OnDeaFindDroplet += new SubscribeCallback(DeaFindDropletHandler);
-            deaReactor.OnDeaUpdate += new SubscribeCallback(DeaUpdateHandler);
+            this.fileViewer.Start(stager.AppsDir);
 
-            deaReactor.OnDeaStop += new SubscribeCallback(DeaStopHandler);
-            deaReactor.OnDeaStart += new SubscribeCallback(DeaStartHandler);
+            this.VcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(NatsErrorHandler);
 
-            deaReactor.OnRouterStart += new SubscribeCallback(RouterStartHandler);
-            deaReactor.OnHealthManagerStart += new SubscribeCallback(HealthmanagerStartHandler);
+            this.deaReactor.OnDeaStatus += new SubscribeCallback(DeaStatusHandler);
+            this.deaReactor.OnDropletStatus += new SubscribeCallback(DropletStatusHandler);
+            this.deaReactor.OnDeaDiscover += new SubscribeCallback(DeaDiscoverHandler);
+            this.deaReactor.OnDeaFindDroplet += new SubscribeCallback(DeaFindDropletHandler);
+            this.deaReactor.OnDeaUpdate += new SubscribeCallback(DeaUpdateHandler);
+
+            this.deaReactor.OnDeaStop += new SubscribeCallback(DeaStopHandler);
+            this.deaReactor.OnDeaStart += new SubscribeCallback(DeaStartHandler);
+
+            this.deaReactor.OnRouterStart += new SubscribeCallback(RouterStartHandler);
+            this.deaReactor.OnHealthManagerStart += new SubscribeCallback(HealthmanagerStartHandler);
             
             base.Run();  // Start the nats client
-            
-            RecoverExistingDroplets();
 
-            DeleteUntrackedInstanceDirs();
+            this.RecoverExistingDroplets();
+
+            this.DeleteUntrackedInstanceDirs();
             
             TimerHelper.RecurringLongCall(Monitoring.HeartbeatIntervalMilliseconds, delegate
             {
-                SendHeartbeat();
+                this.SendHeartbeat();
             });
 
             TimerHelper.RecurringLongCall(Monitoring.MonitorIntervalMilliseconds, delegate
             {
-                MonitorApps();
+                this.MonitorApps();
             });
 
             TimerHelper.RecurringLongCall(Monitoring.CrashesReaperIntervalMilliseconds, delegate
             {
-                TheReaper();
+                this.TheReaper();
             });
             
             TimerHelper.RecurringLongCall(Monitoring.VarzUpdateIntervalMilliseconds, delegate
             {
-                SnapshotVarz();
+                this.SnapshotVarz();
             });
-            
-            deaReactor.SendDeaStart(HelloMessage.SerializeToJson());
+
+            this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
         }
 
+
+        /// <summary>
+        /// Loads the saved droplet instances the last dea process has saved using the ShanpShotAppState method. 
+        /// </summary>
         public void RecoverExistingDroplets()
         {
-            if (!File.Exists(Droplets.AppStateFile))
+            if (!File.Exists(droplets.AppStateFile))
             {
-                Droplets.RecoveredDroplets = true;
+                droplets.RecoveredDroplets = true;
                 return;
             }
             
-            object[] instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(Droplets.AppStateFile));
+            object[] instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(droplets.AppStateFile));
 
             foreach (object obj in instances)
             {
@@ -212,7 +241,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.FromJsonIntermediateObject(obj);
                     instance.Properties.Orphaned = true;
                     instance.Properties.ResourcesTracked = false;
-                    AgentMonitoring.AddInstanceResources(instance);
+                    monitoring.AddInstanceResources(instance);
                     instance.Properties.StopProcessed = false;
 
                     try
@@ -243,7 +272,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     
                     
-                    Droplets.AddDropletInstance(instance);
+                    droplets.AddDropletInstance(instance);
                 }
                 catch (Exception ex)
                 {
@@ -251,32 +280,35 @@ namespace Uhuru.CloudFoundry.DEA
                 }
             }
             
-            Droplets.RecoveredDroplets = true;
+            droplets.RecoveredDroplets = true;
 
-            if (AgentMonitoring.Clients > 0)
+            if (monitoring.Clients > 0)
             {
-                Logger.Info(Strings.DeaRecoveredApplications, AgentMonitoring.Clients);
+                Logger.Info(Strings.DeaRecoveredApplications, monitoring.Clients);
             }
 
             MonitorApps();
-            Droplets.ForEach(delegate(DropletInstance instance)
+            droplets.ForEach(delegate(DropletInstance instance)
             {
                 RegisterInstanceWithRouter(instance);
             });
             SendHeartbeat();
-            Droplets.ScheduleSnapshotAppState();
+            droplets.ScheduleSnapshotAppState();
         }
 
+        /// <summary>
+        /// If there are lingering instance directories in the application directory, delete them. 
+        /// </summary>
         private void DeleteUntrackedInstanceDirs()
         {
             HashSet<string> trackedInstanceDirs = new HashSet<string>();
 
-            Droplets.ForEach(delegate(DropletInstance instance)
+            droplets.ForEach(delegate(DropletInstance instance)
             {
                 trackedInstanceDirs.Add(instance.Properties.Directory);
             });
                         
-            List<string> allInstanceDirs = Directory.GetDirectories(AgentStager.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
+            List<string> allInstanceDirs = Directory.GetDirectories(stager.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
 
             List<string> to_remove = (from dir in allInstanceDirs
                                       where !trackedInstanceDirs.Contains(dir)
@@ -287,19 +319,21 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Warning(Strings.RemovingInstanceDoesn, dir);
                 try
                 {
-                    // todo: vladi: this must be completed with cleaning up IIS sites
-                    //Clean up the instance, including the IIS Web Site and the Windows User Accoung
-                    //netiis is slow on cleanup
-                    //Utils.ExecuteCommand(String.Format("netiis -cleanup={0}", dir));
                     Directory.Delete(dir, true);
                 }
-                catch (Exception e)
+                catch (System.UnauthorizedAccessException e)
                 {
                     Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
                 }
             }
         }
 
+
+        /// <summary>
+        /// Nats the error handler.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
         private void NatsErrorHandler(object sender,ReactorErrorEventArgs args)
         {
             string errorThrown = args.Message == null ? String.Empty : args.Message;
@@ -307,21 +341,26 @@ namespace Uhuru.CloudFoundry.DEA
 
             // Only snapshot app state if we had a chance to recover saved state. This prevents a connect error
             // that occurs before we can recover state from blowing existing data away.
-            if (Droplets.RecoveredDroplets)
+            if (droplets.RecoveredDroplets)
             {
-                Droplets.SnapshotAppState();
+                droplets.SnapshotAppState();
             }
 
             throw new Exception(String.Format(CultureInfo.InvariantCulture, Strings.NatsError, errorThrown));
         }
 
+
+
+        /// <summary>
+        /// First evacuates the Instances and after a delay it's calling the shutdown.
+        /// </summary>
         public void EvacuateAppsThenQuit()
         {
-            ShuttingDown = true;
+            shuttingDown = true;
 
             Logger.Info(Strings.Evacuatingapplications);
 
-            Droplets.ForEach(delegate(DropletInstance instance)
+            droplets.ForEach(delegate(DropletInstance instance)
             {
                 try
                 {
@@ -341,23 +380,26 @@ namespace Uhuru.CloudFoundry.DEA
                 }
             });
 
-            Logger.Info(Strings.SchedulingShutdownIn, EvacuationDelayMs);
+            Logger.Info(Strings.SchedulingShutdownIn, evacuationDelayMs);
 
-            Droplets.ScheduleSnapshotAppState();
+            droplets.ScheduleSnapshotAppState();
 
-            TimerHelper.DelayedCall(EvacuationDelayMs, delegate
+            TimerHelper.DelayedCall(evacuationDelayMs, delegate
             {
                 Shutdown();
             });
 
         }
 
+        /// <summary>
+        /// Shuts down the DEA. First it stops all the instances and then the Nats client.
+        /// </summary>
         public void Shutdown()
         {
-            ShuttingDown = true;
+            shuttingDown = true;
             Logger.Info(Strings.ShuttingDownMessage);
 
-            Droplets.ForEach(true, delegate(DropletInstance instance)
+            droplets.ForEach(true, delegate(DropletInstance instance)
             {
                 try
                 {
@@ -375,41 +417,38 @@ namespace Uhuru.CloudFoundry.DEA
             });
 
             // Allows messages to get out.
-            TimerHelper.DelayedCall(250, delegate
-            {
-                Droplets.SnapshotAppState();
-                AgentFileViewer.Stop();
-                deaReactor.NatsClient.Stop();
-                Logger.Info(Strings.ByeMessage);
-            });
+            Thread.Sleep(250);
+
+            droplets.SnapshotAppState();
+            fileViewer.Stop();
+            deaReactor.NatsClient.Stop();
+            Logger.Info(Strings.ByeMessage);
 
         }
 
-        //todo: do this the right way
-        public void WaitForExit()
-        {
-            while (deaReactor.NatsClient.Status == ConnectionStatus.Open)
-            {
-                Thread.Sleep(100);
-            }
-        }
 
+        /// <summary>
+        /// Sends the heartbeat of every droplet instnace the DEA is aware of.
+        /// </summary>
         private void SendHeartbeat()
         {
-            string response = Droplets.GenerateHeartbeatMessage().SerializeToJson();
+            string response = droplets.GenerateHeartbeatMessage().SerializeToJson();
             deaReactor.SendDeaHeartbeat(response);
         }
 
+        /// <summary>
+        /// Snapshots the varz with basic resource information.
+        /// </summary>
         void SnapshotVarz()
         {
             try
             {
                 VarzLock.EnterWriteLock();
-                Varz["apps_max_memory"] = AgentMonitoring.MaxMemoryMbytes;
-                Varz["apps_reserved_memory"] = AgentMonitoring.MemoryReservedMbytes;
-                Varz["apps_used_memory"] = AgentMonitoring.MemoryUsageKbytes / 1024;
-                Varz["num_apps"] = AgentMonitoring.MaxClients;
-                if (ShuttingDown)
+                Varz["apps_max_memory"] = monitoring.MaxMemoryMbytes;
+                Varz["apps_reserved_memory"] = monitoring.MemoryReservedMbytes;
+                Varz["apps_used_memory"] = monitoring.MemoryUsageKbytes / 1024;
+                Varz["num_apps"] = monitoring.MaxClients;
+                if (shuttingDown)
                     Varz["state"] = "SHUTTING_DOWN";
             }
             finally
@@ -425,26 +464,28 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = Uuid;
             response.Host = Host;
-            response.FileViewerPort = AgentFileViewer.Port;
+            response.FileViewerPort = this.fileViewer.Port;
             response.Version = Version;
-            response.MaxMemoryMbytes = AgentMonitoring.MaxMemoryMbytes;
-            response.MemoryReservedMbytes = AgentMonitoring.MemoryReservedMbytes; ;
-            response.MemoryUsageKbytes = AgentMonitoring.MemoryUsageKbytes;
-            response.NumberOfClients = AgentMonitoring.Clients;
-            if (ShuttingDown)
+            response.MaxMemoryMbytes = this.monitoring.MaxMemoryMbytes;
+            response.MemoryReservedMbytes = this.monitoring.MemoryReservedMbytes; ;
+            response.MemoryUsageKbytes = this.monitoring.MemoryUsageKbytes;
+            response.NumberOfClients = this.monitoring.Clients;
+            if (this.shuttingDown)
                 response.State = "SHUTTING_DOWN";
 
-            deaReactor.SendReply(reply, response.SerializeToJson());
+            this.deaReactor.SendReply(reply, response.SerializeToJson());
         }
 
         void DropletStatusHandler(string message, string reply, string subject)
         {
-            if (ShuttingDown)
+            if (this.shuttingDown)
+            {
                 return;
+            }
 
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
 
-            Droplets.ForEach(delegate(DropletInstance instance)
+            this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 try
                 {
@@ -453,7 +494,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         DropletStatusMessageResponse response = instance.GenerateDropletStatusMessage();
                         response.Host = Host;
-                        deaReactor.SendReply(reply, response.SerializeToJson());
+                        this.deaReactor.SendReply(reply, response.SerializeToJson());
                     }
                 }
                 finally
@@ -466,7 +507,7 @@ namespace Uhuru.CloudFoundry.DEA
         void DeaDiscoverHandler(string message, string reply, string subject)
         {
             Logger.Debug(Strings.DeaReceivedDiscoveryMessage, message);
-            if (ShuttingDown || AgentMonitoring.Clients >= AgentMonitoring.MaxClients || AgentMonitoring.MemoryReservedMbytes > AgentMonitoring.MaxMemoryMbytes)
+            if (shuttingDown || this.monitoring.Clients >= monitoring.MaxClients || this.monitoring.MemoryReservedMbytes > this.monitoring.MaxMemoryMbytes)
             {
                 Logger.Debug(Strings.IgnoringRequest);
                 return;
@@ -475,13 +516,13 @@ namespace Uhuru.CloudFoundry.DEA
             DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-            if (!AgentStager.RuntimeSupported(pmessage.Runtime))
+            if (!this.stager.RuntimeSupported(pmessage.Runtime))
             {
                 Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
                 return;
             }
 
-            if (AgentMonitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > AgentMonitoring.MaxMemoryMbytes)
+            if (this.monitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > this.monitoring.MaxMemoryMbytes)
             {
                 Logger.Debug(Strings.IgnoringRequestNotEnoughMemory);
                 return;
@@ -491,40 +532,40 @@ namespace Uhuru.CloudFoundry.DEA
 
             try
             {
-                Droplets.Lock.EnterReadLock();
+                this.droplets.Lock.EnterReadLock();
 
-                if(Droplets.Droplets.ContainsKey(pmessage.DropletId))
+                if (this.droplets.Droplets.ContainsKey(pmessage.DropletId))
                 {
-                    taintMs += Droplets.Droplets[pmessage.DropletId].DropletInstances.Count * Monitoring.TaintPerAppMilliseconds;
+                    taintMs += this.droplets.Droplets[pmessage.DropletId].DropletInstances.Count * Monitoring.TaintPerAppMilliseconds;
                 }
             }
             finally
             {
-                Droplets.Lock.ExitReadLock();
+                this.droplets.Lock.ExitReadLock();
             }
 
             try
             {
-                AgentMonitoring.Lock.EnterReadLock();
-                taintMs += Monitoring.TaintForMemoryMilliseconds * (AgentMonitoring.MemoryReservedMbytes / AgentMonitoring.MaxMemoryMbytes);
+                this.monitoring.Lock.EnterReadLock();
+                taintMs += Monitoring.TaintForMemoryMilliseconds * (this.monitoring.MemoryReservedMbytes / this.monitoring.MaxMemoryMbytes);
                 taintMs = Math.Min(taintMs, Monitoring.TaintMaxMilliseconds);
             }
             finally
             {
-                AgentMonitoring.Lock.ExitReadLock();
+                this.monitoring.Lock.ExitReadLock();
             }
 
             Logger.Debug(Strings.SendingDeaDiscoverResponse, taintMs);
             TimerHelper.DelayedCall(taintMs, delegate()
             {
-                deaReactor.SendReply(reply, HelloMessage.SerializeToJson());
+                this.deaReactor.SendReply(reply, this.helloMessage.SerializeToJson());
             });
         }
 
 
         void DeaFindDropletHandler(string message, string reply, string subject)
         {
-            if (ShuttingDown)
+            if (this.shuttingDown)
                 return;
 
             DeaFindDropletMessageRequest pmessage = new DeaFindDropletMessageRequest();
@@ -532,7 +573,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedFindDroplet, message);
 
-            Droplets.ForEach(delegate(DropletInstance instance)
+            this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 try
                 {
@@ -555,8 +596,8 @@ namespace Uhuru.CloudFoundry.DEA
                         response.Index = instance.Properties.InstanceIndex;
                         response.State = instance.Properties.State;
                         response.StateTimestamp = instance.Properties.StateTimestamp;
-                        response.FileUri = String.Format(CultureInfo.InvariantCulture, Strings.HttpDroplets, Host, AgentFileViewer.Port);
-                        response.FileAuth = AgentFileViewer.Credentials;
+                        response.FileUri = String.Format(CultureInfo.InvariantCulture, Strings.HttpDroplets, Host, this.fileViewer.Port);
+                        response.FileAuth = this.fileViewer.Credentials;
                         response.Staged = instance.Properties.Staged;
                         response.DebugIP = instance.Properties.DebugIP;
                         response.DebugPort = instance.Properties.DebugPort;
@@ -568,7 +609,7 @@ namespace Uhuru.CloudFoundry.DEA
                             response.Stats.Cores = Utils.NumberOfCores();
                         }
 
-                        deaReactor.SendReply(reply, response.SerializeToJson());
+                        this.deaReactor.SendReply(reply, response.SerializeToJson());
                     }
                 }
                 finally
@@ -580,7 +621,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         void DeaUpdateHandler(string message, string replay, string subject)
         {
-            if (ShuttingDown)
+            if (this.shuttingDown)
                 return;
 
             DeaUpdateMessageRequest pmessage = new DeaUpdateMessageRequest();
@@ -588,7 +629,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedUpdateMessage, message);
 
-            Droplets.ForEach(delegate(DropletInstance instance)
+            this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.DropletId == pmessage.DropletId)
                 {
@@ -603,10 +644,10 @@ namespace Uhuru.CloudFoundry.DEA
                         List<string> toRegister = new List<string>(pmessage.Uris.Except(instance.Properties.Uris));
 
                         instance.Properties.Uris = toUnregister.ToArray();
-                        UnregisterInstanceFromRouter(instance);
+                        this.UnregisterInstanceFromRouter(instance);
 
                         instance.Properties.Uris = toRegister.ToArray();
-                        RegisterInstanceWithRouter(instance);
+                        this.RegisterInstanceWithRouter(instance);
 
                         instance.Properties.Uris = pmessage.Uris.ToArray();
                     }
@@ -620,7 +661,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         void DeaStopHandler(string message, string replay, string subject)
         {
-            if (ShuttingDown)
+            if (this.shuttingDown)
                 return;
 
             DeaStopMessageRequest pmessage = new DeaStopMessageRequest();
@@ -628,7 +669,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedStopMessage, message);
 
-            Droplets.ForEach(true, delegate(DropletInstance instance)
+            this.droplets.ForEach(true, delegate(DropletInstance instance)
             {
                 try
                 {
@@ -652,7 +693,7 @@ namespace Uhuru.CloudFoundry.DEA
                             instance.Properties.StopProcessed = false;
                         }
 
-                        StopDroplet(instance);
+                        this.StopDroplet(instance);
                     }
                 }
                 finally
@@ -675,20 +716,20 @@ namespace Uhuru.CloudFoundry.DEA
                 // Unplug us from the system immediately, both the routers and health managers.
                 if (!instance.Properties.NotifiedExited)
                 {
-                    UnregisterInstanceFromRouter(instance);
+                    this.UnregisterInstanceFromRouter(instance);
 
                     if (instance.Properties.ExitReason == null)
                     {
                         instance.Properties.ExitReason = DropletExitReason.Crashed;
                         instance.Properties.State = DropletInstanceState.Crashed;
                         instance.Properties.StateTimestamp = DateTime.Now;
-                        if (!instance.IsRunning)
+                        if (!instance.IsPidRunning)
                         {
                             instance.Properties.ProcessId = 0;
                         }
                     }
 
-                    deaReactor.SendDropletExited(instance.GenerateDropletExitedMessage().SerializeToJson());
+                    this.deaReactor.SendDropletExited(instance.GenerateDropletExitedMessage().SerializeToJson());
 
                     instance.Properties.NotifiedExited = true;
                 }
@@ -714,54 +755,17 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 }
 
-                AgentMonitoring.RemoveInstanceResources(instance);
+                this.monitoring.RemoveInstanceResources(instance);
                 instance.Properties.StopProcessed = true;
 
             }
             catch (Exception ex)
             {
-                Logger.Error("Error stoping droplet: {0}, instance: {1}, exception:", instance.Properties.DropletId, instance.Properties.InstanceId, ex.ToString());
+                Logger.Error("Error stopping droplet: {0}, instance: {1}, exception:", instance.Properties.DropletId, instance.Properties.InstanceId, ex.ToString());
             }
             finally
             {
                 instance.Lock.ExitWriteLock();
-            }
-        }
-
-        private void CleanupDroplet(DropletInstance instance)
-        {
-            // Drop usage and resource tracking regardless of state
-            AgentMonitoring.RemoveInstanceResources(instance);
-
-            // clean up the in memory instance and directory only if the instance didn't crash
-            if (instance.Properties.State != DropletInstanceState.Crashed)
-            {
-                Droplets.RemoveDropletInstance(instance);
-                Droplets.ScheduleSnapshotAppState();
-
-                if (!DisableDirCleanup)
-                {
-
-                    for (int retryAttempts = 5; retryAttempts > 0; retryAttempts--)
-                    {
-                        try
-                        {
-                            Directory.Delete(instance.Properties.Directory, true);
-                            Logger.Debug(Strings.CleandUpDir, instance.Properties.Name, instance.Properties.Directory);
-                            break;
-                        }
-                        catch (UnauthorizedAccessException e)
-                        {
-                            Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
-                            Thread.Sleep(300);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Warning(Strings.UnableToDeleteDirectory, instance.Properties.Directory, e.ToString());
-                            break;
-                        }
-                    }
-                }
             }
         }
 
@@ -772,9 +776,9 @@ namespace Uhuru.CloudFoundry.DEA
 
             try
             {
-                Droplets.Lock.EnterWriteLock();
+                this.droplets.Lock.EnterWriteLock();
   
-                if (ShuttingDown) return;
+                if (this.shuttingDown) return;
                 Logger.Debug(Strings.DeaReceivedStartMessage, message);
 
                 pmessage = new DeaStartMessageRequest();
@@ -782,9 +786,9 @@ namespace Uhuru.CloudFoundry.DEA
 
                 long MemoryMbytes = pmessage.Limits != null && pmessage.Limits.MemoryMbytes != null ? pmessage.Limits.MemoryMbytes.Value : Monitoring.DefaultAppMemoryMbytes;
                 long DiskMbytes = pmessage.Limits != null && pmessage.Limits.DiskMbytes != null ? pmessage.Limits.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
-                long Fds = pmessage.Limits != null && pmessage.Limits.Fds != null ? pmessage.Limits.Fds.Value : Monitoring.DefaultAppFds;
+                long Fds = pmessage.Limits != null && pmessage.Limits.FileDescriptors != null ? pmessage.Limits.FileDescriptors.Value : Monitoring.DefaultAppFds;
 
-                if (AgentMonitoring.MemoryReservedMbytes + MemoryMbytes > AgentMonitoring.MaxMemoryMbytes || AgentMonitoring.Clients >= AgentMonitoring.MaxClients)
+                if (this.monitoring.MemoryReservedMbytes + MemoryMbytes > this.monitoring.MaxMemoryMbytes || this.monitoring.Clients >= this.monitoring.MaxClients)
                 {
                     Logger.Info(Strings.Donothaveroomforthisclient);
                     return;
@@ -796,20 +800,20 @@ namespace Uhuru.CloudFoundry.DEA
                     return;
                 }
 
-                if (!AgentStager.RuntimeSupported(pmessage.Runtime))
+                if (!this.stager.RuntimeSupported(pmessage.Runtime))
                 {
                     Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
                     return;
                 }
 
 
-                instance = Droplets.CreateDropletInstance(pmessage);
+                instance = this.droplets.CreateDropletInstance(pmessage);
 
                 instance.Properties.MemoryQuotaBytes = MemoryMbytes * 1024 * 1024;
                 instance.Properties.DiskQuotaBytes = DiskMbytes * 1024 * 1024;
                 instance.Properties.FdsQuota = Fds;
                 instance.Properties.Staged = instance.Properties.Name + "-" + instance.Properties.InstanceIndex + "-" + instance.Properties.InstanceId;
-                instance.Properties.Directory = Path.Combine(AgentStager.AppsDir, instance.Properties.Staged);
+                instance.Properties.Directory = Path.Combine(this.stager.AppsDir, instance.Properties.Staged);
 
                 if (!String.IsNullOrEmpty(instance.Properties.DebugMode))
                 {
@@ -819,29 +823,36 @@ namespace Uhuru.CloudFoundry.DEA
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
 
-                instance.Properties.EnvironmentVarialbes = SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+                instance.Properties.EnvironmentVarialbes = this.SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
 
-                AgentMonitoring.AddInstanceResources(instance);
+                this.monitoring.AddInstanceResources(instance);
             }
             finally
             {
-                Droplets.Lock.ExitWriteLock();    
+                this.droplets.Lock.ExitWriteLock();    
             }
              
             //toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
-                StartDropletInstance(instance, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
+                this.StartDropletInstance(instance, pmessage.Sha1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
         }
 
 
+        /// <summary>
+        /// Starts the droplet instance after the basic initalization is done.
+        /// </summary>
+        /// <param name="instance">The instance to be started.</param>
+        /// <param name="sha1">The sha1 of the droplet file.</param>
+        /// <param name="executableFile">The path to the droplet file.</param>
+        /// <param name="executableUri">The URI to the droplet file.</param>
         private void StartDropletInstance(DropletInstance instance, string sha1, string executableFile, string executableUri)
         {
             try
             {
-                string TgzFile = Path.Combine(AgentStager.StagedDir, sha1 + ".tgz");
-                AgentStager.StageAppDirectory(executableFile, executableUri, sha1, TgzFile, instance);
+                string TgzFile = Path.Combine(this.stager.StagedDir, sha1 + ".tgz");
+                this.stager.StageAppDirectory(executableFile, executableUri, sha1, TgzFile, instance);
 
                 Logger.Debug(Strings.Downloadcompleate);
 
@@ -852,8 +863,8 @@ namespace Uhuru.CloudFoundry.DEA
                 else
                     Logger.Info(starting);
 
-                Logger.Debug(Strings.Clients, AgentMonitoring.Clients);
-                Logger.Debug(Strings.ReservedMemoryUsageMb, AgentMonitoring.MemoryReservedMbytes, AgentMonitoring.MaxMemoryMbytes);
+                Logger.Debug(Strings.Clients, this.monitoring.Clients);
+                Logger.Debug(Strings.ReservedMemoryUsageMb, this.monitoring.MemoryReservedMbytes, this.monitoring.MaxMemoryMbytes);
 
 
                 List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
@@ -882,11 +893,16 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitWriteLock();
                 }
 
+                DateTime start = DateTime.Now;
+
                 instance.LoadPlugin();
                 instance.Plugin.ConfigureApplication(appVariables.ToArray());
                 instance.Plugin.StartApplication();
 
                 int pid = instance.Plugin.GetApplicationProcessId();
+
+                Logger.Debug("Took {0} to load the plugin, configure the application, and start it.", (DateTime.Now - start).TotalSeconds);
+
 
                 try
                 {
@@ -896,7 +912,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         Logger.Info(Strings.PidAssignedToDroplet, pid, instance.Properties.LoggingId);
                         instance.Properties.ProcessId = pid;
-                        Droplets.ScheduleSnapshotAppState();
+                        this.droplets.ScheduleSnapshotAppState();
                     }
                 }
                 finally
@@ -905,7 +921,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
 
-                DetectAppReady(instance);
+                this.DetectAppReady(instance);
             }
             catch(Exception ex)
             {
@@ -918,7 +934,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.ExitReason = DropletExitReason.Crashed;
                     instance.Properties.StateTimestamp = DateTime.Now;
                                         
-                    StopDroplet(instance);
+                    this.StopDroplet(instance);
 
                 }
                 finally
@@ -928,6 +944,11 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+
+        /// <summary>
+        /// Detects if an droplet instance is ready, so that it can be set to a Running state and registerd with the router.
+        /// </summary>
+        /// <param name="instance">The instance do be detected.</param>
         private void DetectAppReady(DropletInstance instance)
         {
             ThreadPool.QueueUserWorkItem(delegate
@@ -946,15 +967,15 @@ namespace Uhuru.CloudFoundry.DEA
                                         instance.Properties.State = DropletInstanceState.Running;
                                         instance.Properties.StateTimestamp = DateTime.Now;
 
-                                        deaReactor.SendDeaHeartbeat(instance.GenerateHeartbeat().SerializeToJson());
-                                        RegisterInstanceWithRouter(instance);
-                                        Droplets.ScheduleSnapshotAppState();
+                                        this.deaReactor.SendDeaHeartbeat(instance.GenerateHeartbeat().SerializeToJson());
+                                        this.RegisterInstanceWithRouter(instance);
+                                        this.droplets.ScheduleSnapshotAppState();
                                     }
                                 }
                                 else
                                 {
                                     Logger.Warning(Strings.GivingUpOnConnectingApp);
-                                    StopDroplet(instance);
+                                    this.StopDroplet(instance);
                                 }
                             }
                             finally
@@ -966,21 +987,23 @@ namespace Uhuru.CloudFoundry.DEA
             });
         }
 
+        /// <summary>
+        /// Detects the if an app is ready and run the callback.
+        /// </summary>
+        /// <param name="instance">The instance to be checked.</param>
+        /// <param name="callBack">The call back.</param>
         private void DetectAppReady(DropletInstance instance, BoolStateBlockCallback callBack)
         {
-            //string state_file = manifest.ContainsKey("state_file") ? manifest["state_file"] : null;
-            //if (state_file != null && state_file != String.Empty)
-            //{
-            //    state_file = Path.Combine(instance.Dir, state_file);
-            //    detect_state_ready(instance, state_file, block);
-            //}
-            //else
-            //{
             DetectPortReady(instance, callBack);
-            //}
         }
 
-        private void DetectPortReady(DropletInstance instance, BoolStateBlockCallback callBack)
+
+        /// <summary>
+        /// Detects if an application has the port ready and then invoke the call back.
+        /// </summary>
+        /// <param name="instance">The instance to be checked.</param>
+        /// <param name="callBack">The call back.</param>
+        private static void DetectPortReady(DropletInstance instance, BoolStateBlockCallback callBack)
         {
             int port = instance.Properties.Port;
 
@@ -1007,74 +1030,31 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
 
-        //todo: stefi: consider removing this method
-        private int DetectAppPid(DropletInstance instance)
-        {
-            int detect_attempts = 0;
-            int pid = 0;
-
-            while(true)
-            {
-                try
-                {
-                    string pid_file = Path.Combine(instance.Properties.Directory, "run.pid");
-                    if (File.Exists(pid_file))
-                    {
-                        pid = Convert.ToInt32(File.ReadAllText(pid_file), CultureInfo.InvariantCulture);
-                        break;
-                    }
-                    else
-                    {
-                        detect_attempts++;
-                        if (detect_attempts > 300 || !(instance.Properties.State == DropletInstanceState.Starting || instance.Properties.State == DropletInstanceState.Running))
-                        {
-                            Logger.Warning(Strings.GivingUpDetectingStopFile);
-                            break;
-                        }
-                    }
-                }
-                catch 
-                {
-                }
-
-                Thread.Sleep(500);
-            }
-            
-            return pid;
-        }
-
-
-        private const string HomeVariable = "HOME";
-        private const string VcapApplicationVariable = "VCAP_APPLICATION";
-        private const string VcapServicesVariable = "VCAP_SERVICES";
-        private const string VcapAppHostVariable = "VCAP_APP_HOST";
-        private const string VcapAppPortVariable = "VCAP_APP_PORT";
-        private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
-        private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
-        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
-        private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
-        private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
-        private const string VcapAppPidVariable = "VCAP_APP_PID";
-
-
-        private Dictionary<string, string> SetupInstanceEnv(DropletInstance instance, string[] app_env, Dictionary<string, object>[] services)
+        /// <summary>
+        /// Setups the instance environment variables to be passed when configuring the plugin of an instance.
+        /// </summary>
+        /// <param name="instance">The instance for which to generate the variables.</param>
+        /// <param name="appVars">The application variables.</param>
+        /// <param name="services">The services to be bound to the instance.</param>
+        /// <returns>The application variables.</returns>
+        private Dictionary<string, string> SetupInstanceEnv(DropletInstance instance, string[] appVars, Dictionary<string, object>[] services)
         {
             Dictionary<string, string> env = new Dictionary<string, string>();
 
             env.Add(HomeVariable, instance.Properties.Directory);
-            env.Add(VcapApplicationVariable, create_instance_for_env(instance));
-            env.Add(VcapServicesVariable, create_services_for_env(services));
+            env.Add(VcapApplicationVariable, CreateInstanceVariable(instance));
+            env.Add(VcapServicesVariable, CreateServicesApplicationVariable(services));
             env.Add(VcapAppHostVariable, Host);
             env.Add(VcapAppPortVariable, instance.Properties.Port.ToString());
 
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
 
-            if (instance.Properties.DebugPort != null && AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
+            if (instance.Properties.DebugPort != null && stager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
             {
-                if (AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv.ContainsKey(instance.Properties.DebugMode))
+                if (stager.Runtimes[instance.Properties.Runtime].DebugEnv.ContainsKey(instance.Properties.DebugMode))
                 {
-                    foreach (KeyValuePair<string, string> debugEnv in AgentStager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode])
+                    foreach (KeyValuePair<string, string> debugEnv in stager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode])
                     {
                         env.Add(debugEnv.Key, debugEnv.Value);
                     }
@@ -1083,15 +1063,15 @@ namespace Uhuru.CloudFoundry.DEA
             
 
             // Do the runtime environment settings
-            foreach (KeyValuePair<string, string> runtimeEnv in AgentStager.Runtimes[instance.Properties.Runtime].Environment)
+            foreach (KeyValuePair<string, string> runtimeEnv in stager.Runtimes[instance.Properties.Runtime].Environment)
             {
                 env.Add(runtimeEnv.Key, runtimeEnv.Value);
             }
 
             // User's environment settings
-            if (app_env != null)
+            if (appVars != null)
             {
-                foreach (string appEnv in app_env)
+                foreach (string appEnv in appVars)
                 {
                     string[] envVar = appEnv.Split(new char[] { '=' }, 2);
                     env.Add(envVar[0], envVar[1]);
@@ -1101,7 +1081,12 @@ namespace Uhuru.CloudFoundry.DEA
             return env;
         }
 
-        private string create_instance_for_env(DropletInstance instance)
+        /// <summary>
+        /// Creates the application variable for an instance. Is is used for the plugin configuration.
+        /// </summary>
+        /// <param name="instance">The instance for which the application variable is to be generated.</param>
+        /// <returns>The application variable.</returns>
+        private string CreateInstanceVariable(DropletInstance instance)
         {
             List<string> whitelist = new List<string>() { "instance_id", "instance_index", "name", "uris", "users", "version", "start", "runtime", "state_timestamp", "port" };
             Dictionary<string, object> result = new Dictionary<string, object>();
@@ -1129,33 +1114,14 @@ namespace Uhuru.CloudFoundry.DEA
 
             return JsonConvertibleObject.SerializeToJson(result);
         }
-        
-        private string create_legacy_services_for_env(Dictionary<string, object>[] services = null)
-        {
-            List<string> whitelist = new List<string>() { "name", "type", "vendor", "version" };
 
-            List<Dictionary<string, object>> as_legacy = new List<Dictionary<string, object>>();
 
-            foreach (Dictionary<string, object> svc in services)
-            {
-                Dictionary<string, object> leg_svc = new Dictionary<string, object>();
-                foreach (string key in whitelist)
-                {
-                    if (svc.ContainsKey(key))
-                    {
-                        leg_svc[key] = svc[key];
-                    }
-                }
-                leg_svc["tier"] = svc["plan"];
-                leg_svc["options"] = svc["credentials"];
-
-                as_legacy.Add(leg_svc);
-            }
-
-            return JsonConvertibleObject.SerializeToJson(as_legacy);
-        }
-
-        private string create_services_for_env(Dictionary<string, object>[] services = null)
+        /// <summary>
+        /// Creates the services application variable used when configuring the plugin.
+        /// </summary>
+        /// <param name="services">The services recieved from the Cloud Controller.</param>
+        /// <returns>The services application variable</returns>
+        private static string CreateServicesApplicationVariable(Dictionary<string, object>[] services = null)
         {
             List<string> whitelist = new List<string>() { "name", "label", "plan", "tags", "plan_option", "credentials" };
             Dictionary<string, List<Dictionary<string, object>>> svcs_hash = new Dictionary<string, List<Dictionary<string, object>>>();
@@ -1183,14 +1149,21 @@ namespace Uhuru.CloudFoundry.DEA
             return JsonConvertibleObject.SerializeToJson(svcs_hash);
         }
 
-        void RouterStartHandler(string message, string reply, string subject)
+
+        /// <summary>
+        /// Handler for router.start Nats messages.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="reply">The reply token.</param>
+        /// <param name="subject">The message subject.</param>
+        private void RouterStartHandler(string message, string reply, string subject)
         {
-            if (ShuttingDown)
+            if (shuttingDown)
                 return;
 
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
             
-            Droplets.ForEach(delegate(DropletInstance instance)
+            droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
                 {
@@ -1199,7 +1172,13 @@ namespace Uhuru.CloudFoundry.DEA
             });
         }
 
-        void RegisterInstanceWithRouter(DropletInstance instance)
+
+
+        /// <summary>
+        /// Registers the instance with the Vcap router. Called when the application is running and ready.
+        /// </summary>
+        /// <param name="instance">The instance to be registerd.</param>
+        private void RegisterInstanceWithRouter(DropletInstance instance)
         {
             RouterMessage response = new RouterMessage();
             try
@@ -1225,7 +1204,12 @@ namespace Uhuru.CloudFoundry.DEA
             deaReactor.SendRouterRegister(response.SerializeToJson());
         }
 
-        void UnregisterInstanceFromRouter(DropletInstance instance)
+
+        /// <summary>
+        /// Unregisters the instance from the Vcap router. Called when the applicatoin is not in a running state any more.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        private void UnregisterInstanceFromRouter(DropletInstance instance)
         {
             RouterMessage response = new RouterMessage();
             try
@@ -1251,9 +1235,16 @@ namespace Uhuru.CloudFoundry.DEA
             deaReactor.SendRouterUnregister(response.SerializeToJson());
         }
 
-        void HealthmanagerStartHandler(string message, string replay, string subject)
+
+        /// <summary>
+        /// The handler for healthmanager.start Nats message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="replay">The replay token.</param>
+        /// <param name="subject">The message subject.</param>
+        private void HealthmanagerStartHandler(string message, string replay, string subject)
         {
-            if (ShuttingDown)
+            if (shuttingDown)
                 return;
 
             Logger.Debug(Strings.DeaReceivedHealthmanagerStart, message);
@@ -1261,23 +1252,28 @@ namespace Uhuru.CloudFoundry.DEA
             SendHeartbeat();
         }
 
-        void MonitorApps()
+        /// <summary>
+        /// Checks the system resource usage (cpu, memeory, disk size) and associate the respective counters to each instance.
+        /// Stop an instance if it's usage is above its quota.
+        /// Update the varz with resouce usage.
+        /// </summary>
+        private void MonitorApps()
         {
             //AgentMonitoring.MemoryUsageKbytes = 0;
             long memoryUsageKbytes = 0;
             List<object> runningApps = new List<object>();
 
-            if (Droplets.NoMonitorableApps())
+            if (droplets.NoMonitorableApps())
             {
-                AgentMonitoring.MemoryUsageKbytes = 0;
+                monitoring.MemoryUsageKbytes = 0;
                 return;
             }
                         
-            DateTime start = DateTime.Now;
+            DateTime processInfoStart = DateTime.Now;
 
             ProcessData[] processStatuses = ProcessInformation.GetProcessUsage();
 
-            TimeSpan elapsed = DateTime.Now - start;
+            TimeSpan elapsed = DateTime.Now - processInfoStart;
             if (elapsed.TotalMilliseconds > 800) 
                 Logger.Warning(Strings.TookXSecondsToExecutePs, elapsed.TotalSeconds, processStatuses.Length);
 
@@ -1287,26 +1283,26 @@ namespace Uhuru.CloudFoundry.DEA
                 pidInfo[processStatus.ProcessId] = processStatus;
             }
 
-            DateTime duStart = DateTime.Now;
+            DateTime diskUsageStart = DateTime.Now;
 
-            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(AgentStager.AppsDir, false);
+            DiskUsageEntry[] duAll = DiskUsage.GetDiskUsage(stager.AppsDir, false);
     
-            TimeSpan duElapsed = DateTime.Now - duStart;
+            TimeSpan diskUsageElapsed = DateTime.Now - diskUsageStart;
 
-            if (duElapsed.TotalMilliseconds > 800)
+            if (diskUsageElapsed.TotalMilliseconds > 800)
             {
-                Logger.Warning(Strings.TookXSecondsToExecuteDu, duElapsed.TotalSeconds);
-                if ((duElapsed.TotalSeconds > 10) && ((DateTime.Now - AgentMonitoring.LastAppDump).TotalSeconds > Monitoring.AppsDumpIntervalMilliseconds))
+                Logger.Warning(Strings.TookXSecondsToExecuteDu, diskUsageElapsed.TotalSeconds);
+                if ((diskUsageElapsed.TotalSeconds > 10) && ((DateTime.Now - monitoring.LastAppDump).TotalSeconds > Monitoring.AppsDumpIntervalMilliseconds))
                 {
-                    AgentMonitoring.DumpAppsDirDiskUsage(AgentStager.AppsDir);
-                    AgentMonitoring.LastAppDump = DateTime.Now;
+                    monitoring.DumpAppsDirDiskUsage(stager.AppsDir);
+                    monitoring.LastAppDump = DateTime.Now;
                 }
             }
 
-            Dictionary<string, long> duHash = new Dictionary<string, long>();
+            Dictionary<string, long> diskUsageHash = new Dictionary<string, long>();
             foreach (DiskUsageEntry entry in duAll)
             {
-                duHash[entry.Directory] = entry.SizeKB * 1024;
+                diskUsageHash[entry.Directory] = entry.SizeKB * 1024;
             }
 
             Dictionary<string, Dictionary<string, Dictionary<string, long>>> metrics = new Dictionary<string, Dictionary<string, Dictionary<string, long>>>() 
@@ -1315,7 +1311,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {"runtime", new Dictionary<string, Dictionary<string, long>>()}
             };
             
-            Droplets.ForEach(true, delegate(DropletInstance instance)
+            droplets.ForEach(true, delegate(DropletInstance instance)
             {
 
                 if (!instance.Lock.TryEnterWriteLock(10)) return;
@@ -1340,14 +1336,13 @@ namespace Uhuru.CloudFoundry.DEA
 
                         long memBytes = pid != 0 && pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].WorkingSetBytes : 0;
                         long cpu = pid != 0 && pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].Cpu : 0;
-                        long diskBytes = duHash.ContainsKey(instance.Properties.Directory) ? duHash[instance.Properties.Directory] : 0;
+                        long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
 
                         instance.AddUsage(memBytes, cpu, diskBytes);
 
-                        if (Secure)
+                        if (secure)
                         {
-                            //todo: after the monitorapps is working properly, enable checkusage
-                            //CheckUsage(instance, curUsage);
+                            CheckUsage(instance);
                         }
 
                         memoryUsageKbytes += memBytes / 1024;
@@ -1407,39 +1402,55 @@ namespace Uhuru.CloudFoundry.DEA
             });
 
             // export running app information to varz
-            Varz["running_apps"] = runningApps;
-            Varz["frameworks"] = metrics["framework"];
-            Varz["runtimes"] = metrics["runtime"];
+            try
+            {
+                VarzLock.EnterWriteLock();
+                Varz["running_apps"] = runningApps;
+                Varz["frameworks"] = metrics["framework"];
+                Varz["runtimes"] = metrics["runtime"];
+            }
+            finally
+            {
+                VarzLock.ExitWriteLock();
+            }
 
-            TimeSpan ttlog = DateTime.Now - start;
+            TimeSpan ttlog = DateTime.Now - processInfoStart;
             if (ttlog.TotalMilliseconds > 1000)
             {
                 Logger.Warning(Strings.TookXSecondsToProcessPsAndDu, ttlog.TotalSeconds);
             }
         }
 
-        // This is only called when in secure mode, cur_usage is in kb, quota is in bytes.
-        private void CheckUsage(DropletInstance instance, DropletInstanceUsage usage)
+
+
+        /// <summary>
+        /// Checks the usage of the instance. If it has a usage above the quota and the DEA is in secure mode, the instance will be stopped.
+        /// </summary>
+        /// <param name="instance">The instance to checks.</param>
+        private void CheckUsage(DropletInstance instance)
         {
-            if (instance == null || usage == null)
+            DropletInstanceUsage curUsage = instance.Properties.LastUsage;
+            if (curUsage == null) return;
+
+            if (instance == null || curUsage == null)
                 return;
 
             // Check Mem
-            if (usage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024))
+            if (curUsage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024))
             {
                 FileLogger logger = new FileLogger(Path.Combine(instance.Properties.Directory, "logs\\err.log"));
 
                 logger.Fatal(Strings.MemoryLimitOfExceeded, instance.Properties.MemoryQuotaBytes / 1024 / 1024);
-                logger.Fatal(Strings.ActualUsageWasProcessTerminated, usage.MemoryKbytes / 1024);
+                logger.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.MemoryKbytes / 1024);
                 StopDroplet(instance);
             }
 
             // Check Disk
-            if (usage.DiskBytes > instance.Properties.DiskQuotaBytes)
+            if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes)
             {
                 FileLogger logger = new FileLogger(Path.Combine(instance.Properties.Directory, "logs\\err.log"));
                 logger.Fatal(Strings.DiskUsageLimitOf, instance.Properties.DiskQuotaBytes / 1024 / 1024);
-                logger.Fatal(Strings.ActualUsageWasProcessTerminated, usage.DiskBytes / 1024 / 1024);
+                logger.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.DiskBytes / 1024 / 1024);
                 StopDroplet(instance);
             }
 
@@ -1449,7 +1460,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
             }
 
-            if (usage.Cpu > Monitoring.BeginReniceCpuThreshold)
+            if (curUsage.Cpu > Monitoring.BeginReniceCpuThreshold)
             {
                 int nice = instance.Properties.Nice + 1;
                 if (nice < Monitoring.MaxReniceValue)
@@ -1471,10 +1482,14 @@ namespace Uhuru.CloudFoundry.DEA
             // pegged_cpus = @num_cores * 100
         }
 
+
+        /// <summary>
+        /// Does all the cleaning that is needed for an instance if stopped gracefully or has crashed
+        /// </summary>
         private void TheReaper()
         {
 
-            Droplets.ForEach(true, delegate(DropletInstance instance)
+            droplets.ForEach(true, delegate(DropletInstance instance)
             {
                 if (!instance.Lock.TryEnterWriteLock(10)) return;
 
@@ -1497,7 +1512,7 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             try
                             {
-                                AgentMonitoring.RemoveInstanceResources(instance);
+                                monitoring.RemoveInstanceResources(instance);
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                 instance.Plugin = null;
                                 WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
@@ -1513,7 +1528,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (isOldCrash || isStopped || isDeleted)
                     {
 
-                        if (DisableDirCleanup) instance.Properties.Directory = null;
+                        if (disableDirCleanup) instance.Properties.Directory = null;
                         if (instance.Properties.Directory != null && instance.Plugin == null)
                         {
                             try
@@ -1540,7 +1555,7 @@ namespace Uhuru.CloudFoundry.DEA
                 //If the remove droplet flag was set, delete the instance form the Dea. The removal is made here to avoid dealocks.
                 if (removeDroplet)
                 {
-                    Droplets.RemoveDropletInstance(instance);
+                    droplets.RemoveDropletInstance(instance);
                 }
 
             });

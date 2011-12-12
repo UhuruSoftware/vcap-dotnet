@@ -61,6 +61,11 @@
     <Compile Include="IAgentPlugin.cs" />
     <Compile Include="PluginHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\PluginBaseRes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PluginBaseRes.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
@@ -75,6 +80,12 @@
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
       <Name>Uhuru.Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\PluginBaseRes.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PluginBaseRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

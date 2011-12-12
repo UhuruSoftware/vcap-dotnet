@@ -10,20 +10,33 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.Collections;
     using System.ComponentModel;
     using System.Configuration;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Reflection;
     using Uhuru.Configuration;
-    using System.Globalization;
 
+    /// <summary>
+    /// Installer Class for Windows DEA Service
+    /// </summary>
     [RunInstaller(true)]
     public partial class ProjectInstaller : System.Configuration.Install.Installer
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProjectInstaller"/> class.
+        /// </summary>
         public ProjectInstaller()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// When overridden in a derived class, performs the installation.
+        /// </summary>
+        /// <param name="stateSaver">An <see cref="T:System.Collections.IDictionary"/> used to save information needed to perform a commit, rollback, or uninstall operation.</param>
+        /// <exception cref="T:System.ArgumentException">The <paramref name="stateSaver"/> parameter is null. </exception>
+        /// Custom install method. Writes configuration values to uhuru.config
+        /// <exception cref="T:System.Exception">An exception occurred in the <see cref="E:System.Configuration.Install.Installer.BeforeInstall"/> event handler of one of the installers in the collection.-or- An exception occurred in the <see cref="E:System.Configuration.Install.Installer.AfterInstall"/> event handler of one of the installers in the collection. </exception>
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
@@ -41,33 +54,38 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             });
 
             UhuruSection section = (UhuruSection)config.GetSection("uhuru");
-            if (!String.IsNullOrEmpty(arguments.BaseDir))
+            if (!string.IsNullOrEmpty(arguments.BaseDir))
             {
                 section.DEA.BaseDir = arguments.BaseDir;
             }
-            if (!String.IsNullOrEmpty(arguments.EnforceUlimit))
+
+            if (!string.IsNullOrEmpty(arguments.EnforceUlimit))
             {
                 section.DEA.EnforceUsageLimit = Convert.ToBoolean(arguments.EnforceUlimit, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.FilerPort))
+
+            if (!string.IsNullOrEmpty(arguments.FilerPort))
             {
                 section.DEA.FilerPort = Convert.ToInt32(arguments.FilerPort, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.ForceHttpSharing))
+
+            if (!string.IsNullOrEmpty(arguments.ForceHttpSharing))
             {
                 section.DEA.ForceHttpSharing = Convert.ToBoolean(arguments.ForceHttpSharing, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.HeartBeatInterval))
+
+            if (!string.IsNullOrEmpty(arguments.HeartBeatInterval))
             {
                 section.DEA.HeartbeatInterval = Convert.ToInt32(arguments.HeartBeatInterval, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.LocalRoute))
+
+            if (!string.IsNullOrEmpty(arguments.LocalRoute))
             {
                 section.Service.LocalRoute = arguments.LocalRoute;
             }
             else
             {
-                string ip = "";
+                string ip = string.Empty;
                 foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
                 {
                     if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
@@ -76,21 +94,26 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
                         break;
                     }
                 }
+
                 section.Service.LocalRoute = ip;
             }
-            if (!String.IsNullOrEmpty(arguments.MaxMemory))
+
+            if (!string.IsNullOrEmpty(arguments.MaxMemory))
             {
                 section.DEA.MaxMemory = Convert.ToInt32(arguments.MaxMemory, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.MessageBus))
+
+            if (!string.IsNullOrEmpty(arguments.MessageBus))
             {
                 section.DEA.MessageBus = arguments.MessageBus;
             }
-            if (!String.IsNullOrEmpty(arguments.MultiTenant))
+
+            if (!string.IsNullOrEmpty(arguments.MultiTenant))
             {
                 section.DEA.Multitenant = Convert.ToBoolean(arguments.MultiTenant, CultureInfo.InvariantCulture);
             }
-            if (!String.IsNullOrEmpty(arguments.Secure))
+
+            if (!string.IsNullOrEmpty(arguments.Secure))
             {
                 section.DEA.Secure = Convert.ToBoolean(arguments.Secure, CultureInfo.InvariantCulture);
             }

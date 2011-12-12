@@ -6,23 +6,51 @@
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// This class contains structured application information.
     /// </summary>
     public class ApplicationParsedData
     {
+        /// <summary>
+        /// ApplicationInfo structure containing structured information about an application
+        /// </summary>
         private ApplicationInfo appInfo;
+
+        /// <summary>
+        /// The name of the runtime the application runs on
+        /// </summary>
         private string runtime;
+
+        /// <summary>
+        /// Array of specific application variables
+        /// </summary>
         private ApplicationVariable[] variables;
+
+        /// <summary>
+        /// Array of structures containing info about application services
+        /// </summary>
         private ApplicationService[] services;
+
+        /// <summary>
+        /// The path of the file to which various web events will be redirected
+        /// </summary>
         private string logFilePath;
+
+        /// <summary>
+        /// The path for the stderr log file
+        /// </summary>
         private string errorLogFilePath;
+
+        /// <summary>
+        /// Application startup events log file path
+        /// </summary>
         private string startupLogFilePath;
+
+        /// <summary>
+        /// A list of connection string templates for services
+        /// </summary>
         private Dictionary<string, string> autoWireTemplates;
 
         /// <summary>
@@ -36,8 +64,15 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <param name="errorLogFilePath">The error log file path.</param>
         /// <param name="startupLogFilePath">The startup log file path.</param>
         /// <param name="autoWireTemplates">A list of connection string templates for services.</param>
-        public ApplicationParsedData(ApplicationInfo appInfo, string runtime, ApplicationVariable[] variables, ApplicationService[] services,
-            string logFilePath, string errorLogFilePath, string startupLogFilePath, Dictionary<string, string> autoWireTemplates)
+        public ApplicationParsedData(
+            ApplicationInfo appInfo, 
+            string runtime, 
+            ApplicationVariable[] variables, 
+            ApplicationService[] services,
+            string logFilePath, 
+            string errorLogFilePath, 
+            string startupLogFilePath, 
+            Dictionary<string, string> autoWireTemplates)
         {
             this.appInfo = appInfo;
             this.runtime = runtime;
@@ -56,7 +91,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         {
             get
             {
-                return appInfo;
+                return this.appInfo;
             }
         }
 
@@ -67,26 +102,8 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         {
             get
             {
-                return runtime;
+                return this.runtime;
             }
-        }
-
-        /// <summary>
-        /// Gets the application variables.
-        /// </summary>
-        /// <returns>An array of ApplicationVariable objects.</returns>
-        public ApplicationVariable[] GetVariables()
-        {
-            return variables;
-        }
-
-        /// <summary>
-        /// Gets the provisioned services for an app.
-        /// </summary>
-        /// <returns>An array of ApplicationService objects.</returns>
-        public ApplicationService[] GetServices()
-        {
-            return services;
         }
 
         /// <summary>
@@ -96,7 +113,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         {
             get
             {
-                return logFilePath;
+                return this.logFilePath;
             }
         }
 
@@ -107,7 +124,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         {
             get
             {
-                return errorLogFilePath;
+                return this.errorLogFilePath;
             }
         }
 
@@ -119,7 +136,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         {
             get
             {
-                return startupLogFilePath;
+                return this.startupLogFilePath;
             }
         }
 
@@ -129,9 +146,27 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         public Dictionary<string, string> AutoWireTemplates
         {
             get 
-            { 
-                return autoWireTemplates; 
+            {
+                return this.autoWireTemplates; 
             }
+        }
+
+        /// <summary>
+        /// Gets the application variables.
+        /// </summary>
+        /// <returns>An array of ApplicationVariable objects.</returns>
+        public ApplicationVariable[] GetVariables()
+        {
+            return this.variables;
+        }
+
+        /// <summary>
+        /// Gets the provisioned services for an app.
+        /// </summary>
+        /// <returns>An array of ApplicationService objects.</returns>
+        public ApplicationService[] GetServices()
+        {
+            return this.services;
         }
     }
 }

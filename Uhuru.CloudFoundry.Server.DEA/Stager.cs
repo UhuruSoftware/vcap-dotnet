@@ -83,10 +83,7 @@ namespace Uhuru.CloudFoundry.DEA
             return true;
         }
 
-        public void GetRuntimeEnvironment()
-        {
-            throw new System.NotImplementedException();
-        }
+
 
         public void SetupRuntimes()
         {
@@ -245,6 +242,7 @@ namespace Uhuru.CloudFoundry.DEA
             string PendingTgzFile = Path.Combine(StagedDir, String.Format(CultureInfo.InvariantCulture, Strings.Pending, Sha1));
             client.DownloadFile(BitsUri, PendingTgzFile);
             File.Move(PendingTgzFile, TgzFile);
+            client.Dispose();
 
             string FileSha1;
             using (Stream stream = File.OpenRead(TgzFile))
@@ -262,6 +260,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+
+        /// <summary>
+        /// Create the necessary directories for the DEA process
+        /// </summary>
         public void CreateDirectories()
         {
             try
@@ -274,7 +276,7 @@ namespace Uhuru.CloudFoundry.DEA
             catch (Exception e)
             {
                 Logger.Fatal(Strings.CannotCreateSupported, e.ToString());
-                throw e;
+                throw;
             }
         }
     }

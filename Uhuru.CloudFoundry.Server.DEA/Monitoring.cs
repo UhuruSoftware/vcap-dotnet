@@ -14,44 +14,69 @@ namespace Uhuru.CloudFoundry.DEA
     
     public class Monitoring
     {
+
+        /// <summary>
+        /// Lock for resource tracking.
+        /// </summary>
         public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        /// <summary>
+        /// Where to dump the applications disk usage.
+        /// </summary>
         public string AppsDumpDirectory 
         {
             get; 
             set; 
         }
         
+        /// <summary>
+        /// When was the last dump made.
+        /// </summary>
         public DateTime LastAppDump
         {
             get;
             set;
         }
 
-        //total memory allocead to instances
+        /// <summary>
+        /// Total memory allocead to instances
+        /// </summary>
         public long MemoryReservedMbytes
         {
             get;
             set;
         }
-        //total memory used by apps
+
+        /// <summary>
+        /// Total memory used by apps
+        /// </summary>
         public long MemoryUsageKbytes
         {
             get;
             set;
         }
-        //number of instances that have resources allocated
+
+        /// <summary>
+        /// Number of instances that have resources allocated
+        /// </summary>
         public long Clients
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Maximum memory that can be allocated
+        /// </summary>
         public long MaxMemoryMbytes
         {
             get;
             set;
         }
+
+        /// <summary>
+        /// Maximum number of instances that can run
+        /// </summary>
         public long MaxClients
         {
             get;
@@ -84,6 +109,10 @@ namespace Uhuru.CloudFoundry.DEA
         public const int MaxReniceValue = 20;
 
 
+        /// <summary>
+        /// Add the instance memeory to the total memory usage and flags the instance as tracked.
+        /// </summary>
+        /// <param name="instance">The instance to be tracked.</param>
         public void AddInstanceResources(DropletInstance instance)
         {
             if (instance == null)
@@ -109,6 +138,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Untracks the memory used by the instance and flags it/
+        /// </summary>
+        /// <param name="instance">The instance to be untracked.</param>
         public void RemoveInstanceResources(DropletInstance instance)
         {
             if (instance == null)
@@ -135,8 +168,12 @@ namespace Uhuru.CloudFoundry.DEA
 
         }
 
-        // Logs out the directory structure of the apps dir. This produces both a summary
-        // (top level view) of the directory, as well as a detailed view.
+
+        /// <summary>
+        /// Logs out the directory structure of the apps dir. This produces both a summary
+        /// (top level view) of the directory, as well as a detailed view.
+        /// </summary>
+        /// <param name="appsDirectory">The directory to be analyzed.</param>
         public void DumpAppsDirDiskUsage(string appsDirectory)
         {
             string tsig = DateTime.Now.ToString("yyyyMMdd_hhmm", CultureInfo.InvariantCulture);

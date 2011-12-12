@@ -173,12 +173,22 @@ namespace Uhuru.CloudFoundry.DEA
 
             MonitoringServer.VarzRequested += delegate(object sender, VarzRequestEventArgs response)
             {
-                response.VarzMessage = JsonConvertibleObject.SerializeToJson(Varz);
+                try
+                {
+                    VarzLock.ExitWriteLock();
+                    response.VarzMessage = JsonConvertibleObject.SerializeToJson(Varz);
+                }
+                finally
+                { 
+                    VarzLock.ExitReadLock();
+                }
             };
+
             MonitoringServer.HealthzRequested += delegate(object sender, HealthzRequestEventArgs response)
             {
                 response.HealthzMessage = Healthz;
             };
+
             MonitoringServer.Start();
         }
 

@@ -307,7 +307,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         [JsonName("usage")]
-        public DropletInstanceUsage UsageRecent
+        public DropletInstanceUsage LastUsage
         {
             get;
             set;
