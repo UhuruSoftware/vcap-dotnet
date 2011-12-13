@@ -8,48 +8,78 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using Uhuru.NatsClient;
-    
+
+    /// <summary>
+    /// The reactor for the the common VCAP Component.
+    /// </summary>
     public class VcapReactor
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VcapReactor"/> class.
+        /// </summary>
+        public VcapReactor()
+        {
+            this.NatsClient = new Reactor();
+            this.NatsClient.OnError += this.OnNatsError;
+        }
+
+        /// <summary>
+        /// Occurs when the component.dicover message is received.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "These are special events coming from the NATS client.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Code is more understandable this way.")]
         public event SubscribeCallback OnComponentDiscover;
 
+        /// <summary>
+        /// Occurs when NATS fails.
+        /// </summary>
         public event EventHandler<ReactorErrorEventArgs> OnNatsError;
 
+        /// <summary>
+        /// Gets or sets the NATS client.
+        /// </summary>
         public Reactor NatsClient
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the URI of the NATS client.
+        /// </summary>
         public Uri Uri
         {
             get;
             set;
         }
 
-        public VcapReactor()
-        {
-            NatsClient = new Reactor();
-            NatsClient.OnError += OnNatsError;
-        }
-
+        /// <summary>
+        /// Starts this the reactor, by starting the NATS client and subscribing to the message bus.
+        /// </summary>
         public virtual void Start()
         {
-            NatsClient.Start(Uri);
+            this.NatsClient.Start(Uri);
 
-            NatsClient.Subscribe(Strings.NatsSubjectVcapComponentDiscover, OnComponentDiscover);
+            this.NatsClient.Subscribe(Strings.NatsSubjectVcapComponentDiscover, this.OnComponentDiscover);
         }
 
+        /// <summary>
+        /// Sends the VCAP component announce.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void SendVcapComponentAnnounce(string message)
         {
-            NatsClient.Publish(Strings.NatsSubjectVcapComponentAnnounce, null, message);
+            this.NatsClient.Publish(Strings.NatsSubjectVcapComponentAnnounce, null, message);
         }
 
+        /// <summary>
+        /// Send a reply to a NATS message.
+        /// </summary>
+        /// <param name="reply">The reply token.</param>
+        /// <param name="message">The actual reply.</param>
         public void SendReply(string reply, string message)
         {
-            NatsClient.Publish(reply, null, message);
+            this.NatsClient.Publish(reply, null, message);
         }
     }
 }

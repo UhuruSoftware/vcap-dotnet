@@ -11,50 +11,80 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
 
+    /// <summary>
+    /// The reactor for the DEA. It is basically a wrapper for the NATS client. It inherits the common VCAP reactor which belongs to the VcapComponent.
+    /// </summary>
     public class DeaReactor : VcapReactor
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnRouterStart;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnHealthManagerStart;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaStart;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaStop;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaStatus;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDropletStatus;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaDiscover;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaFindDroplet;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
-        public event SubscribeCallback OnDeaUpdate;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DeaReactor"/> class.
         /// </summary>
         public DeaReactor()
         {
         }
+
+        /// <summary>
+        /// Occurs when router.start message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnRouterStart;
+
+        /// <summary>
+        /// Occurs when healthmanager.start message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnHealthManagerStart;
+
+        /// <summary>
+        /// Occurs when dea.{vcapguid}.start message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaStart;
+
+        /// <summary>
+        /// Occurs when dea.stop message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaStop;
+
+        /// <summary>
+        /// Occurs when the dea.status message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaStatus;
+
+        /// <summary>
+        /// Occurs when the droplet.status message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDropletStatus;
+
+        /// <summary>
+        /// Occurs when the dea.discover message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaDiscover;
+
+        /// <summary>
+        /// Occurs when dea.find.droplet message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaFindDroplet;
+
+        /// <summary>
+        /// Occurs when dea.update message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        public event SubscribeCallback OnDeaUpdate;
 
         /// <summary>
         /// Gets or sets the UUID of the vcap component.
@@ -66,7 +96,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Runs the Dea Reacot. This function is not blocking.
+        /// Runs the Dea Reactor. This function is not blocking.
         /// </summary>
         public override void Start()
         {
@@ -86,7 +116,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Sends the dea heartbeat to the message bus.
+        /// Sends the DEA heartbeat to the message bus.
         /// </summary>
         /// <param name="message">The message.</param>
         public void SendDeaHeartbeat(string message)
@@ -95,7 +125,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Sends the dea start to the message bus.
+        /// Sends the DEA start to the message bus.
         /// </summary>
         /// <param name="message">The message.</param>
         public void SendDeaStart(string message)

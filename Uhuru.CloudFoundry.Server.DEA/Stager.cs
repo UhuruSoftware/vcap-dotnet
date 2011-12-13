@@ -17,49 +17,82 @@ namespace Uhuru.CloudFoundry.DEA
 
     class Stager
     {
-        private object Lock = new object();
+        /// <summary>
+        /// The stager lock.
+        /// </summary>
+        private object stagerLock = new object();
 
-        public Dictionary<string, DeaRuntime> Runtimes { get; set; }
+        /// <summary>
+        /// Gets or sets the supported runtimes.
+        /// </summary>
+        public Dictionary<string, DeaRuntime> runtimes { get; set; }
 
-        public string DropletDir { get; set; }
+        /// <summary>
+        /// Gets or sets the droplet directory. 
+        /// </summary>
+        public string dropletDir { get; set; }
 
-        public string StagedDir { get; set; }
+        /// <summary>
+        /// Gets or sets the staged directory.
+        /// </summary>
+        public string stagedDir { get; set; }
 
-        public string AppsDir { get; set; }
+        /// <summary>
+        /// Gets or sets the apps directory.
+        /// </summary>
+        public string appsDir { get; set; }
 
-        public string DbDir { get; set; }
-            
-        public bool ForceHttpFileSharing { get; set; }
+        /// <summary>
+        /// Gets or sets the database directory. It is where the snapshot app state saves the instances.
+        /// </summary>
+        public string dbDir { get; set; }
 
-        public bool DisableDirCleanup
+        /// <summary>
+        /// Gets or sets a value indicating whether only http should be used to get the application file.
+        /// </summary>
+        public bool forceHttpFileSharing { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether not to clean up the directory cleanup.
+        /// </summary>
+        public bool disableDirCleanup
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Stager"/> class.
+        /// </summary>
         public Stager()
         {
-            this.Runtimes = new Dictionary<string, DeaRuntime>();
-            if (!this.DisableDirCleanup)
+            this.runtimes = new Dictionary<string, DeaRuntime>();
+            if (!this.disableDirCleanup)
             {
                 TimerHelper.RecurringCall(CleanCacheIntervalMs, delegate { this.CleanCacheDirectory(); });
             }
         }
 
+        /// <summary>
+        /// The timer to cleanup the application files cached.
+        /// </summary>
         public const int CleanCacheIntervalMs = 20000;
 
+        /// <summary>
+        /// Cleans the cache directory.
+        /// </summary>
         public void CleanCacheDirectory()
         {
-            if (this.DisableDirCleanup)
+            if (this.disableDirCleanup)
             {
                 return;
             }
 
-            lock (this.Lock)
+            lock (this.stagerLock)
             {
                 try
                 {
-                    DirectoryInfo directory = new DirectoryInfo(this.StagedDir);
+                    DirectoryInfo directory = new DirectoryInfo(this.stagedDir);
                     foreach (System.IO.FileInfo file in directory.GetFiles())
                     {
                         file.Delete();
@@ -77,15 +110,20 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Checks weather the runtime is supported.
+        /// </summary>
+        /// <param name="runtime">The runtime.</param>
+        /// <returns>True if the runtime is supported.</returns>
         public bool RuntimeSupported(string runtime)
         {
-            if (string.IsNullOrEmpty(runtime) || !this.Runtimes.ContainsKey(runtime))
+            if (string.IsNullOrEmpty(runtime) || !this.runtimes.ContainsKey(runtime))
             {
                 Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, runtime);
                 return false;
             }
 
-            if (!this.Runtimes[runtime].Enabled)
+            if (!this.runtimes[runtime].Enabled)
             {
                 Logger.Debug(Strings.IgnoringRequestRuntimeNot, runtime);
                 return false;
@@ -94,9 +132,12 @@ namespace Uhuru.CloudFoundry.DEA
             return true;
         }
 
+        /// <summary>
+        /// Setups the runtimes.
+        /// </summary>
         public void SetupRuntimes()
         {
-            if (this.Runtimes == null || this.Runtimes.Count == 0)
+            if (this.runtimes == null || this.runtimes.Count == 0)
             {
                 Logger.Fatal(Strings.CannotDetermineApplicationRuntimes);
                 throw new InvalidOperationException(Strings.CannotDetermineApplicationRuntimes);
@@ -104,7 +145,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Info(Strings.Checkingruntimes);
 
-            foreach (KeyValuePair<string, DeaRuntime> kvp in this.Runtimes)
+            foreach (KeyValuePair<string, DeaRuntime> kvp in this.runtimes)
             {
                 string name = kvp.Key;
                 DeaRuntime runtime = kvp.Value;
@@ -161,6 +202,14 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Stages the app directory.
+        /// </summary>
+        /// <param name="bitsFile">The bits file.</param>
+        /// <param name="bitsUri">The bits URI.</param>
+        /// <param name="sha1">The sha1.</param>
+        /// <param name="tgzFile">The TGZ file.</param>
+        /// <param name="instance">The instance.</param>
         public void StageAppDirectory(string bitsFile, string bitsUri, string sha1, string tgzFile, DropletInstance instance)
         {
             // What we do here, in order of preference..
@@ -169,7 +218,7 @@ namespace Uhuru.CloudFoundry.DEA
             // 3. Pull from http if needed.
             string InstanceDir = instance.Properties.Directory;
 
-            lock (this.Lock)
+            lock (this.stagerLock)
             {
                 // check before dowloading
                 if (instance.Properties.StopProcessed)
@@ -183,7 +232,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     // If we have a shared volume from the CloudController we can see the bits directly, just link into our staged version.
                     DateTime start = DateTime.Now;
-                    if (!this.ForceHttpFileSharing && File.Exists(bitsFile))
+                    if (!this.forceHttpFileSharing && File.Exists(bitsFile))
                     {
                         Logger.Debug(Strings.SharingCloudControllerStagingDirectory);
                         File.Copy(bitsFile, tgzFile);
@@ -217,45 +266,30 @@ namespace Uhuru.CloudFoundry.DEA
                 Utils.UnzipFile(InstanceDir, Path.Combine(InstanceDir, tarFileName)); // Untar
                 File.Delete(Path.Combine(InstanceDir, tarFileName));
 
-                // consider: maybe not needed because of the new plugin system
-                this.BindLocalRuntimes(InstanceDir, instance.Properties.Runtime);
-
                 Logger.Debug(Strings.TookXSecondsToStageTheApp, DateTime.Now - startStageing);
             }
         }
 
-        private void BindLocalRuntimes(string instanceDir, string runtime)
-        {
-            if (string.IsNullOrEmpty(instanceDir) || runtime != null)
-            {
-                return;
-            }
-
-            string startup = Path.GetFullPath(Path.Combine(instanceDir, "startup"));
-
-            if (!File.Exists(startup))
-            {
-                return;
-            }
-
-            string startup_contents = File.ReadAllText(startup);
-            string newStartup = startup_contents.Replace("%VCAP_LOCAL_RUNTIME%", this.Runtimes[runtime].Executable);
-
-            if (string.IsNullOrEmpty(newStartup))
-            {
-                return;
-            }
-
-            File.WriteAllText(startup, newStartup);
-        }
-
+        /// <summary>
+        /// Downloads the app bits.
+        /// </summary>
+        /// <param name="BitsUri">The bits URI.</param>
+        /// <param name="Sha1">The sha1 of the download.</param>
+        /// <param name="TgzFile">The TGZ file.</param>
         private void DownloadAppBits(string BitsUri, string Sha1, string TgzFile)
         {
             WebClient client = new WebClient();
-            string PendingTgzFile = Path.Combine(this.StagedDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, Sha1));
-            client.DownloadFile(BitsUri, PendingTgzFile);
-            File.Move(PendingTgzFile, TgzFile);
-            client.Dispose();
+
+            try
+            {
+                string PendingTgzFile = Path.Combine(this.stagedDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, Sha1));
+                client.DownloadFile(BitsUri, PendingTgzFile);
+                File.Move(PendingTgzFile, TgzFile);
+            }
+            finally
+            { 
+                client.Dispose();
+                }
 
             string FileSha1;
             using (Stream stream = File.OpenRead(TgzFile))
@@ -269,7 +303,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (FileSha1.ToUpperInvariant() != Sha1.ToUpperInvariant())
             {
                 Logger.Warning(Strings.DonlodedFileFromIs, BitsUri, FileSha1, Sha1);
-                throw new Exception(Strings.Downlodedfileiscorrupt);
+                throw new InvalidOperationException(Strings.Downlodedfileiscorrupt);
             }
         }
 
@@ -280,10 +314,10 @@ namespace Uhuru.CloudFoundry.DEA
         {
             try
             {
-                Directory.CreateDirectory(this.DropletDir);
-                Directory.CreateDirectory(this.StagedDir);
-                Directory.CreateDirectory(this.AppsDir);
-                Directory.CreateDirectory(this.DbDir);
+                Directory.CreateDirectory(this.dropletDir);
+                Directory.CreateDirectory(this.stagedDir);
+                Directory.CreateDirectory(this.appsDir);
+                Directory.CreateDirectory(this.dbDir);
             }
             catch (Exception e)
             {

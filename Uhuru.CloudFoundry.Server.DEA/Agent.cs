@@ -18,11 +18,22 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.ProcessPerformance;
-    
+
+    /// <summary>
+    /// Callback with a Boolean parameter.
+    /// </summary>
+    /// <param name="state">if set to <c>true</c> [state].</param>
     public delegate void BoolStateBlockCallback(bool state);
 
+    /// <summary>
+    /// The Agent class is the DEA engine. It handles all the messages it receives on the message bus and send appropriate messages when it is requested to do so,
+    /// or some external event happened.
+    /// </summary>
     public class Agent : VcapComponent
     {
+        /// <summary>
+        /// The DEA version.
+        /// </summary>
         private const decimal Version = 0.99m;
 
         private const string HomeVariable = "HOME";
@@ -37,26 +48,64 @@ namespace Uhuru.CloudFoundry.DEA
         private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
         private const string VcapAppPidVariable = "VCAP_APP_PID";
 
+        /// <summary>
+        /// The the droplets the DEA manages.
+        /// </summary>
         private DropletCollection droplets = new DropletCollection();
+
+        /// <summary>
+        /// The application stager.
+        /// </summary>
         private Stager stager = new Stager();
 
+        /// <summary>
+        /// The DEA's HTTP droplet file viewer. Helps receive the logs.
+        /// </summary>
         private FileViewer fileViewer = new FileViewer();
+
+        /// <summary>
+        /// The monitoring resource.
+        /// </summary>
         private Monitoring monitoring = new Monitoring();
 
-        private bool disableDirCleanup;
+        /// <summary>
+        /// Enforce the usage limit.
+        /// </summary>
         private bool enforceUsageLimit;
+
+        /// <summary>
+        /// Set to true when more applications are allowed to be hosted on the DEA.
+        /// </summary>
         private bool multiTenant;
+
+        /// <summary>
+        /// If secure mode is enabled.
+        /// </summary>
         private bool secure;
+
+        /// <summary>
+        /// The DEA reactor. Is is the middleware to the message bus. 
+        /// </summary>
         private DeaReactor deaReactor;
 
-        private HelloMessage helloMessage = new HelloMessage(); 
+        /// <summary>
+        /// The hello message send to the message bus.
+        /// </summary>
+        private HelloMessage helloMessage = new HelloMessage();
 
-        // private Dictionary<string, object> HelloMessage;
+        /// <summary>
+        /// Flag set to true when the system is shutting down. It used to avoiding processing some routines when the DEA is preparing to shut down.
+        /// </summary>
         private volatile bool shuttingDown = false;
+
+
+        /// <summary>
+        /// The delay
+        /// </summary>
         private int evacuationDelayMs = 30 * 1000;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuaration and initializes the members.
+        /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
         public Agent()
         {
@@ -84,13 +133,13 @@ namespace Uhuru.CloudFoundry.DEA
                     }   
                 }
 
-                this.stager.Runtimes.Add(deaConf.Name, dea);
+                this.stager.runtimes.Add(deaConf.Name, dea);
             }
 
-            this.stager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
+            this.stager.dropletDir = UhuruSection.GetSection().DEA.BaseDir;
 
             this.enforceUsageLimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
-            this.disableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
+            this.stager.disableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
             this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
             this.secure = UhuruSection.GetSection().DEA.Secure;
 
@@ -98,7 +147,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
 
-            this.stager.ForceHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
+            this.stager.forceHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
 
             this.ComponentType = "DEA";
 
@@ -108,11 +157,11 @@ namespace Uhuru.CloudFoundry.DEA
             // heartbeat_interval = UhuruSection.GetSection().DEA.HeartBeatInterval;
             this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
-            this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");
-            this.stager.AppsDir = Path.Combine(this.stager.DropletDir, "apps");
-            this.stager.DbDir = Path.Combine(this.stager.DropletDir, "db");
+            this.stager.stagedDir = Path.Combine(this.stager.dropletDir, "staged");
+            this.stager.appsDir = Path.Combine(this.stager.dropletDir, "apps");
+            this.stager.dbDir = Path.Combine(this.stager.dropletDir, "db");
 
-            this.droplets.AppStateFile = Path.Combine(this.stager.DropletDir, "applications.json");
+            this.droplets.AppStateFile = Path.Combine(this.stager.dropletDir, "applications.json");
 
             this.deaReactor.Uuid = Uuid;
 
@@ -157,15 +206,15 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info(Strings.RestrictingToSingleTenant);
             }
 
-            Logger.Info(Strings.UsingDirectory, this.stager.DropletDir);
+            Logger.Info(Strings.UsingDirectory, this.stager.dropletDir);
 
             this.stager.CreateDirectories();
-            this.droplets.AppStateFile = Path.Combine(this.stager.DbDir, "applications.json");
+            this.droplets.AppStateFile = Path.Combine(this.stager.dbDir, "applications.json");
 
             // Clean everything in the staged directory
             this.stager.CleanCacheDirectory();
 
-            this.fileViewer.Start(this.stager.AppsDir);
+            this.fileViewer.Start(this.stager.appsDir);
 
             this.VcapReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
 
@@ -305,7 +354,7 @@ namespace Uhuru.CloudFoundry.DEA
                 trackedInstanceDirs.Add(instance.Properties.Directory);
             });
 
-            List<string> allInstanceDirs = Directory.GetDirectories(this.stager.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
+            List<string> allInstanceDirs = Directory.GetDirectories(this.stager.appsDir, "*", SearchOption.TopDirectoryOnly).ToList();
 
             List<string> to_remove = (from dir in allInstanceDirs
                                       where !trackedInstanceDirs.Contains(dir)
@@ -825,7 +874,7 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Properties.DiskQuotaBytes = diskMbytes * 1024 * 1024;
                 instance.Properties.FdsQuota = fds;
                 instance.Properties.Staged = instance.Properties.Name + "-" + instance.Properties.InstanceIndex + "-" + instance.Properties.InstanceId;
-                instance.Properties.Directory = Path.Combine(this.stager.AppsDir, instance.Properties.Staged);
+                instance.Properties.Directory = Path.Combine(this.stager.appsDir, instance.Properties.Staged);
 
                 if (!string.IsNullOrEmpty(instance.Properties.DebugMode))
                 {
@@ -862,7 +911,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             try
             {
-                string TgzFile = Path.Combine(this.stager.StagedDir, sha1 + ".tgz");
+                string TgzFile = Path.Combine(this.stager.stagedDir, sha1 + ".tgz");
                 this.stager.StageAppDirectory(executableFile, executableUri, sha1, TgzFile, instance);
 
                 Logger.Debug(Strings.Downloadcompleate);
@@ -1057,11 +1106,11 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
 
-            if (instance.Properties.DebugPort != null && this.stager.Runtimes[instance.Properties.Runtime].DebugEnv != null)
+            if (instance.Properties.DebugPort != null && this.stager.runtimes[instance.Properties.Runtime].DebugEnv != null)
             {
-                if (this.stager.Runtimes[instance.Properties.Runtime].DebugEnv.ContainsKey(instance.Properties.DebugMode))
+                if (this.stager.runtimes[instance.Properties.Runtime].DebugEnv.ContainsKey(instance.Properties.DebugMode))
                 {
-                    foreach (KeyValuePair<string, string> debugEnv in this.stager.Runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode])
+                    foreach (KeyValuePair<string, string> debugEnv in this.stager.runtimes[instance.Properties.Runtime].DebugEnv[instance.Properties.DebugMode])
                     {
                         env.Add(debugEnv.Key, debugEnv.Value);
                     }
@@ -1069,7 +1118,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
             
             // Do the runtime environment settings
-            foreach (KeyValuePair<string, string> runtimeEnv in this.stager.Runtimes[instance.Properties.Runtime].Environment)
+            foreach (KeyValuePair<string, string> runtimeEnv in this.stager.runtimes[instance.Properties.Runtime].Environment)
             {
                 env.Add(runtimeEnv.Key, runtimeEnv.Value);
             }
@@ -1296,7 +1345,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime diskUsageStart = DateTime.Now;
 
-            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, false);
+            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.appsDir, false);
     
             TimeSpan diskUsageElapsed = DateTime.Now - diskUsageStart;
 
@@ -1305,7 +1354,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Warning(Strings.TookXSecondsToExecuteDu, diskUsageElapsed.TotalSeconds);
                 if ((diskUsageElapsed.TotalSeconds > 10) && ((DateTime.Now - this.monitoring.LastAppDump).TotalSeconds > Monitoring.AppsDumpIntervalMilliseconds))
                 {
-                    this.monitoring.DumpAppsDirDiskUsage(this.stager.AppsDir);
+                    this.monitoring.DumpAppsDirDiskUsage(this.stager.appsDir);
                     this.monitoring.LastAppDump = DateTime.Now;
                 }
             }
@@ -1548,7 +1597,7 @@ namespace Uhuru.CloudFoundry.DEA
                         // Remove the instance directory, including the logs
                         if (isOldCrash || isStopped || isDeleted)
                         {
-                            if (this.disableDirCleanup)
+                            if (this.stager.disableDirCleanup)
                             {
                                 instance.Properties.Directory = null;
                             }

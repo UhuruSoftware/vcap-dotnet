@@ -16,76 +16,129 @@ namespace Uhuru.CloudFoundry.DEA
     
     public class VcapComponent
     {
+        /// <summary>
+        /// Gets or sets the varz lock for the varz property.
+        /// </summary>
         public ReaderWriterLockSlim VarzLock { get; set; }
 
+        /// <summary>
+        /// Gets or sets the varz value to be published.
+        /// </summary>
         public Dictionary<string, object> Varz { get; set; }
 
+        /// <summary>
+        /// Gets or sets the discover.
+        /// </summary>
         protected Dictionary<string, object> Discover { get; set; }
 
+        /// <summary>
+        /// Gets or sets the timestamp the component started.
+        /// </summary>
         protected DateTime StartedAt
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the UUID of the VCAP component.
+        /// </summary>
         protected string Uuid
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the type of the VCAP component (DEA, CloudControlser, Node, Healthmanager, etc.).
+        /// </summary>
         protected string ComponentType
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the index.
+        /// </summary>
         protected string Index
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the NATS server URI.
+        /// </summary>
         protected Uri NatsUri
         {
             get;
             set;
         }
-        
+
+        /// <summary>
+        /// Gets or sets the host address of the VCAP component to be announced.
+        /// </summary>
         protected string Host
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the monitoring server port.
+        /// </summary>
         protected int Port
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the monitoring server authentication.
+        /// </summary>
         protected string[] Authentication
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the healthz value to be published.
+        /// </summary>
         public string Healthz
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the VCAP reactor.
+        /// </summary
         protected VcapReactor VcapReactor
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the monitoring server used for healthz and varz.
+        /// </summary>
         protected MonitoringServer MonitoringServer
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Constructs the reactor for the VCAP component.
+        /// </summary>
+        protected virtual void ConstructReactor()
+        {
+            if (VcapReactor == null)
+            {
+                VcapReactor = new VcapReactor();
+            }
         }
 
         /// <summary>
@@ -116,14 +169,9 @@ namespace Uhuru.CloudFoundry.DEA
             this.Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
         }
 
-        protected virtual void ConstructReactor()
-        {
-            if (VcapReactor == null)
-            {
-                VcapReactor = new VcapReactor();
-            }
-        }
-
+        /// <summary>
+        /// Runs this the VCAP component. This method is non-blocking.
+        /// </summary>
         public virtual void Run()
         {
             VcapReactor.Start();
@@ -162,12 +210,18 @@ namespace Uhuru.CloudFoundry.DEA
             VcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(this.Discover)); 
         }
 
+        /// <summary>
+        /// Updates the discover uptime.
+        /// </summary>
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - this.StartedAt;
             this.Discover["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
+        /// <summary>
+        /// Starts the HTTP server used for healthz and varz.
+        /// </summary>
         private void StartHttpServer()
         {
             MonitoringServer = new MonitoringServer(this.Port, this.Host, this.Authentication[0], this.Authentication[1]);
@@ -193,6 +247,10 @@ namespace Uhuru.CloudFoundry.DEA
             MonitoringServer.Start();
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="VcapComponent"/> is reclaimed by garbage collection.
+        /// </summary>
         ~VcapComponent()
         {
             MonitoringServer.Stop();

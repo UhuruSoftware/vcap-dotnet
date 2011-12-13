@@ -13,9 +13,14 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public class Droplet
     {
-        // InstanceId -> DropletInstance
+        /// <summary>
+        /// The hash table of droplet instances. The Instance ID key points to the Instance.
+        /// </summary>
         private Dictionary<string, DropletInstance> dropletInstances = new Dictionary<string, DropletInstance>();
 
+        /// <summary>
+        /// Gets or sets the droplet instances.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public Dictionary<string, DropletInstance> DropletInstances
         {

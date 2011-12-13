@@ -16,7 +16,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
-		static void Main(string[] args)
+		static void Main()
 		{
 			Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 

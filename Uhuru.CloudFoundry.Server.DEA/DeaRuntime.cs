@@ -7,9 +7,22 @@
 namespace Uhuru.CloudFoundry.DEA
 {
     using System.Collections.Generic;
-    
+
+    /// <summary>
+    /// The runtime description supported by the DEA.
+    /// </summary>
     public class DeaRuntime
     {
+
+        /// <summary>
+        /// Initializes a new instance of the DeaRuntime class.
+        /// </summary>
+        public DeaRuntime()
+        {
+            this.DebugEnv = new Dictionary<string, Dictionary<string, string>>();
+            this.Environment = new Dictionary<string, string>();
+        }
+
         /// <summary>
         /// Gets or sets the executable of the runtime.
         /// </summary>
@@ -44,14 +57,5 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets a value indicating whether this <see cref="DeaRuntime"/> is enabled.
         /// </summary>
         public bool Enabled { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the DeaRuntime class.
-        /// </summary>
-        public DeaRuntime()
-        {
-            this.DebugEnv = new Dictionary<string, Dictionary<string, string>>();
-            this.Environment = new Dictionary<string, string>();
-        }
     }
 }

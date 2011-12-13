@@ -15,14 +15,33 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public enum DropletInstanceState
     {
+        /// <summary>
+        /// The instance is in a starting state.
+        /// </summary>
         [JsonName("STARTING")]
         Starting,
+
+        /// <summary>
+        /// The instance is healthy and running.
+        /// </summary>
         [JsonName("RUNNING")]
         Running,
+
+        /// <summary>
+        /// The instance is stopped gracefully.
+        /// </summary>
         [JsonName("STOPPED")]
         Stopped,
+
+        /// <summary>
+        /// A crashed instance was deleted.
+        /// </summary>
         [JsonName("DELETED")]
         Deleted,
+
+        /// <summary>
+        /// The instance crashed after starting or running.
+        /// </summary>
         [JsonName("CRASHED")]
         Crashed
     }
@@ -32,22 +51,43 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public enum DropletExitReason
     {
+        /// <summary>
+        /// The instance is evacuated. Set when the evacuate routine is invoked.
+        /// </summary>
         [JsonName("DEA_EVACUATION")]
         DeaEvacuation,
+
+        /// <summary>
+        /// The instance was stopped because the DEA is shutting down.
+        /// </summary>
         [JsonName("DEA_SHUTDOWN")]
         DeaShutdown,
+
+
+        /// <summary>
+        /// The instance was gracefully stopped.
+        /// </summary>
         [JsonName("STOPPED")]
         Stopped,
+
+        /// <summary>
+        /// The instance is not running because it crashed.
+        /// </summary>
         [JsonName("CRASHED")]
         Crashed
     }
-    
+
+
+    /// <summary>
+    /// JSON serializable instance properties.
+    /// </summary>
     public class DropletInstanceProperties : JsonConvertibleObject
     {
-        private DropletInstanceState state;
-        private readonly object stateLock = new object();
 
-        private readonly object stopProcessedLock = new object();
+
+        /// <summary>
+        /// Indicated if the StopDroplet routine was completely invoked on this instance.
+        /// </summary>
         private bool stopProcessed;
 
         /// <summary>
@@ -56,17 +96,13 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("state")]
         public DropletInstanceState State
         {
-            get
-            {
-                return this.state;
-            }
-
-            set
-            {
-                this.state = value;
-            }
+            get;
+            set;
         }
 
+        /// <summary>
+        /// Gets or sets the exit reason.
+        /// </summary>
         [JsonName("exit_reason")]
         public DropletExitReason? ExitReason
         {
@@ -74,6 +110,12 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="DropletInstanceProperties"/> is orphaned. It is set when a running instance is recoverd.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if orphaned; otherwise, <c>false</c>.
+        /// </value>
         [JsonName("orphaned")]
         public bool Orphaned
         {
@@ -81,6 +123,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the instance start timestamp in ruby format.
+        /// </summary>
         [JsonName("start")]
         public string StartInterchangeableFormat
         {
@@ -88,12 +133,18 @@ namespace Uhuru.CloudFoundry.DEA
             set { this.Start = RubyCompatibility.DateTimeFromRubyString(value); }
         }
 
+        /// <summary>
+        /// The instance start timestamp.
+        /// </summary>
         public DateTime Start
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the state timestamp interchangeable format. The state timestamp is updated when the instance state is changed.
+        /// </summary>
         [JsonName("state_timestamp")]
         public int StateTimestampInterchangeableFormat
         {
@@ -101,39 +152,48 @@ namespace Uhuru.CloudFoundry.DEA
             set { this.StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
+        /// <summary>
+        /// Gets or sets the state timestamp. The state timestamp is updated when the instance state is changed.
+        /// </summary>
         public DateTime StateTimestamp
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [resources tracked]. Flag if the instance resources have been accounted to avoid tracking or untracking them several times.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [resources tracked]; otherwise, <c>false</c>.
+        /// </value>
         [JsonName("resources_tracked")]
         public bool ResourcesTracked
         {
             get;
             set;
         }
-        
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [stop processed]. Indicated if the StopDroplet routine was completely invoked on this instance.
+        /// </summary>
         [JsonName("stop_processed")]
         public bool StopProcessed
         {
             get
             {
-                lock (this.stopProcessedLock)
-                {
-                    return this.stopProcessed;
-                }
+                return this.stopProcessed;
             }
 
             set
             {
-                lock (this.stopProcessedLock)
-                {
-                    this.stopProcessed = value;
-                }
+                this.stopProcessed = value;
             }
         }
 
+        /// <summary>
+        /// Gets or sets the debug mode. This is received from the start message.
+        /// </summary>
         [JsonName("debug_mode")]
         public string DebugMode
         {
@@ -141,6 +201,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the port the application is listening on.
+        /// </summary>
         [JsonName("port")]
         public int Port
         {
@@ -148,6 +211,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the debug port the application is listening on.
+        /// </summary>
         [JsonName("debug_port")]
         public int? DebugPort
         {
@@ -155,6 +221,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the debug IP to connect to.
+        /// </summary>
         [JsonName("debug_ip")]
         public string DebugIP
         {
@@ -162,6 +231,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the runtime the application is using.
+        /// </summary>
         [JsonName("runtime")]
         public string Runtime
         {
@@ -169,6 +241,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the framework the application is using.
+        /// </summary>
         [JsonName("framework")]
         public string Framework
         {
@@ -176,6 +251,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the File Descriptors Quota.
+        /// </summary>
         [JsonName("fds_quota")]
         public long FdsQuota
         {
@@ -183,6 +261,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the disk memory quota.
+        /// </summary>
         [JsonName("disk_quota")]
         public long DiskQuotaBytes
         {
@@ -190,6 +271,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the RAM quota.
+        /// </summary>
         [JsonName("mem_quota")]
         public long MemoryQuotaBytes
         {
@@ -197,6 +281,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the application/droplet.
+        /// </summary>
         [JsonName("name")]
         public string Name
         {
@@ -204,6 +291,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the unique instance id.
+        /// </summary>
         [JsonName("instance_id")]
         public string InstanceId
         {
@@ -211,6 +301,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the version of the application/droplet.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -218,6 +311,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the droplet/application id.
+        /// </summary>
         [JsonName("droplet_id")]
         public int DropletId
         {
@@ -225,6 +321,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the index of the instance respective to a specific droplet/application.
+        /// </summary>
         [JsonName("instance_index")]
         public int InstanceIndex
         {
@@ -232,6 +331,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the directory the instance is stored.
+        /// </summary>
         [JsonName("dir")]
         public string Directory
         {
@@ -239,6 +341,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the uris the application/droplet is assigned.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("uris")]
         public string[] Uris
@@ -247,6 +352,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the VCAP users that are associated to the application/droplet.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("users")]
         public string[] Users
@@ -255,6 +363,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the ID used for logging events for the instance.
+        /// </summary>
         [JsonName("log_id")]
         public string LoggingId
         {
@@ -262,6 +373,12 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="DropletInstanceProperties"/> is evacuated.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if evacuated; otherwise, <c>false</c>.
+        /// </value>
         [JsonName("evacuated")]
         public bool Evacuated
         {
@@ -269,6 +386,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the process id associated to the instance. Used to track the application resource usage.
+        /// </summary>
         [JsonName("pid")]
         public int ProcessId
         {
@@ -276,6 +396,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the droplet.exited is sent through the message bus.
+        /// </summary>
         [JsonName("notified")]
         public bool NotifiedExited
         {
@@ -283,6 +406,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the nice/priority value of the process associated to the instance.
+        /// </summary>
         [JsonName("nice")]
         public int Nice
         {
@@ -290,6 +416,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the secure user.
+        /// </summary>s
         [JsonName("secure_user")]
         public string SecureUser
         {
@@ -297,6 +426,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the staged directory.
+        /// </summary>
         [JsonName("staged")]
         public string Staged
         {
@@ -304,6 +436,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the last usage
+        /// </summary>
         [JsonName("usage")]
         public DropletInstanceUsage LastUsage
         {
@@ -311,6 +446,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the windows username used for the instance.
+        /// </summary>
         [JsonName("windows_username")]
         public string WindowsUsername
         {
@@ -318,6 +456,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the windows password associated with the windows user.
+        /// </summary>
         [JsonName("windows_password")]
         public string WindowsPassword
         {
@@ -325,6 +466,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// All the application variables used to start the instance. Also used when trying to recover the instance.
+        /// </summary>
         [JsonName("environment_variables")]
         public Dictionary<string, string> EnvironmentVarialbes;
     }

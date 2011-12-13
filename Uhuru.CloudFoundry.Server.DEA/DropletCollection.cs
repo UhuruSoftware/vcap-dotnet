@@ -12,7 +12,11 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Threading;
     using Uhuru.Utilities;
-    
+
+    /// <summary>
+    /// Callback used to iterate all droplet instances.
+    /// </summary>
+    /// <param name="instance">The instance.</param>
     public delegate void ForEachCallback(DropletInstance instance);
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
