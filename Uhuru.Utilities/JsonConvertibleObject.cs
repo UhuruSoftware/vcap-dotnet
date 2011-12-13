@@ -257,9 +257,12 @@ namespace Uhuru.Utilities
 
                 if (memberType.IsSubclassOf(typeof(JsonConvertibleObject)))
                 {
-                    JsonConvertibleObject finalValue = (JsonConvertibleObject)memberType.GetConstructor(new Type[0]).Invoke(null);
-                    finalValue.FromJsonIntermediateObject(memberValue);
-                    this.SetMemberValue(member, finalValue);
+                    if (memberValue != null)
+                    {
+                        JsonConvertibleObject finalValue = (JsonConvertibleObject)memberType.GetConstructor(new Type[0]).Invoke(null);
+                        finalValue.FromJsonIntermediateObject(memberValue);
+                        this.SetMemberValue(member, finalValue);
+                    }
                 }
                 else if (memberType.IsEnum)
                 {

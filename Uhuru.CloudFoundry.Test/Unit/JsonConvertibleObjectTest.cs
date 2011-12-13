@@ -222,5 +222,75 @@ namespace Uhuru.CloudFoundry.Test.Unit
             // Assert
             Assert.AreEqual(@"{""droplets"":[]}", serializedJson);
         }
+
+
+        class parenttest : JsonConvertibleObject
+        {
+            public class childtest : JsonConvertibleObject
+            {
+                [JsonName("x")]
+                public int x;
+            }
+
+            [JsonName("v1")]
+            public int v1;
+
+            [JsonName("nv1")]
+            public int? nv1;
+
+            [JsonName("nv2")]
+            public int? nv2;
+
+            [JsonName("child")]
+            public childtest ct;
+
+            [JsonName("child2")]
+            public childtest ct2;
+        }
+
+        [TestMethod()]
+        [TestCategory("Unit")]
+        public void SerializeComplicatedJsonTest()
+        {
+            //Arrange
+
+            parenttest a = new parenttest();
+            a.v1 = 1;
+            a.nv1 = 1;
+            a.nv2 = null;
+            a.ct = new parenttest.childtest();
+            a.ct.x = 1;
+            a.ct2 = null;
+
+            //Act
+            string jString = a.SerializeToJson();
+
+
+            //Assert
+            Assert.AreEqual(@"{""v1"":1,""nv1"":1,""child"":{""x"":1}}", jString);
+        }
+
+
+        [TestMethod()]
+        [TestCategory("Unit")]
+        public void DeserializeComplicatedJsonTest()
+        {
+            //Arrange
+            string jString = @"{""v1"":1,""nv1"":1,""child"":{""x"":1}}";
+
+            //Act
+            parenttest a = new parenttest();
+            a.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(jString));
+
+            //Assert
+            Assert.AreEqual(a.v1, 1);
+            Assert.AreEqual(a.nv1, 1);
+            Assert.AreEqual(a.nv2, null);
+            Assert.AreNotEqual(a.ct, null);
+            Assert.AreEqual(a.ct.x, 1);
+            Assert.AreEqual(a.ct2, null);
+
+        }
+
     }
 }
