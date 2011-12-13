@@ -13,13 +13,12 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public class DeaRuntime
     {
-
         /// <summary>
         /// Initializes a new instance of the DeaRuntime class.
         /// </summary>
         public DeaRuntime()
         {
-            this.DebugEnv = new Dictionary<string, Dictionary<string, string>>();
+            this.DebugEnvironmentVariables = new Dictionary<string, Dictionary<string, string>>();
             this.Environment = new Dictionary<string, string>();
         }
 
@@ -36,7 +35,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the version flag.
         /// </summary>
-        public string VersionFlag { get; set; }
+        public string VersionArgument { get; set; }
 
         /// <summary>
         /// Gets or sets the additional checks for the runtime.
@@ -46,11 +45,14 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the debug environment of the runtime. Passed to the appliction instance as needed.
         /// </summary>
-        public Dictionary<string, Dictionary<string, string>> DebugEnv { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures", Justification = "It is used for JSON (de)serialization."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization.")]
+        public Dictionary<string, Dictionary<string, string>> DebugEnvironmentVariables { get; set; }
 
         /// <summary>
         /// Gets or sets the environment variables for the runtime. Passed to the application instance when started.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization.")]
         public Dictionary<string, string> Environment { get; set; }
 
         /// <summary>

@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
 

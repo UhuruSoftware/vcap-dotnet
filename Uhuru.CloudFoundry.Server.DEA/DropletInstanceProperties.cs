@@ -63,7 +63,6 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("DEA_SHUTDOWN")]
         DeaShutdown,
 
-
         /// <summary>
         /// The instance was gracefully stopped.
         /// </summary>
@@ -77,21 +76,18 @@ namespace Uhuru.CloudFoundry.DEA
         Crashed
     }
 
-
     /// <summary>
     /// JSON serializable instance properties.
     /// </summary>
     public class DropletInstanceProperties : JsonConvertibleObject
     {
-
-
         /// <summary>
         /// Indicated if the StopDroplet routine was completely invoked on this instance.
         /// </summary>
         private bool stopProcessed;
 
         /// <summary>
-        /// The state of a droplet instance at a given time.
+        /// Gets or sets the state of a droplet instance at a given time.
         /// </summary>
         [JsonName("state")]
         public DropletInstanceState State
@@ -134,7 +130,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The instance start timestamp.
+        /// Gets or sets the instance start timestamp.
         /// </summary>
         public DateTime Start
         {
@@ -255,7 +251,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the File Descriptors Quota.
         /// </summary>
         [JsonName("fds_quota")]
-        public long FdsQuota
+        public long FDSQuota
         {
             get;
             set;
@@ -344,7 +340,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the uris the application/droplet is assigned.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "It is used for JSON (de)serialization."), 
         JsonName("uris")]
         public string[] Uris
         {
@@ -355,7 +351,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the VCAP users that are associated to the application/droplet.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "It is used for JSON (de)serialization."), 
         JsonName("users")]
         public string[] Users
         {
@@ -450,7 +446,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the windows username used for the instance.
         /// </summary>
         [JsonName("windows_username")]
-        public string WindowsUsername
+        public string WindowsUserName
         {
             get;
             set;
@@ -467,9 +463,14 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// All the application variables used to start the instance. Also used when trying to recover the instance.
+        /// Gets or sets the application variables used to start the instance. Also used when trying to recover the instance.
         /// </summary>
-        [JsonName("environment_variables")]
-        public Dictionary<string, string> EnvironmentVarialbes;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization."), 
+        JsonName("environment_variables")]
+        public Dictionary<string, string> EnvironmentVariables
+        {
+            get;
+            set;
+        }
     }
 }

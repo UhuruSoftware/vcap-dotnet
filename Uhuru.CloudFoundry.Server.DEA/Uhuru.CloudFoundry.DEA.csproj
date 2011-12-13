@@ -70,11 +70,14 @@
     <Compile Include="Messages\DeaStartMessageRequest.cs" />
     <Compile Include="Messages\DeaStatusMessageResponse.cs" />
     <Compile Include="Messages\DropletExitedMessage.cs" />
+    <Compile Include="Messages\DropletLimits.cs" />
     <Compile Include="Messages\DropletStatusMessageResponse.cs" />
     <Compile Include="Messages\HeartbeatMessage.cs" />
     <Compile Include="Messages\HelloMessage.cs" />
     <Compile Include="Messages\RouterMessage.cs" />
+    <Compile Include="Messages\StartRequestDropletLimits.cs" />
     <Compile Include="Monitoring.cs" />
+    <Compile Include="PluginData.cs" />
     <Compile Include="PluginHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stager.cs" />
@@ -83,7 +86,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Utils.cs" />
+    <Compile Include="DEAUtilities.cs" />
     <Compile Include="VcapComponent.cs" />
     <Compile Include="VcapReactor.cs" />
   </ItemGroup>

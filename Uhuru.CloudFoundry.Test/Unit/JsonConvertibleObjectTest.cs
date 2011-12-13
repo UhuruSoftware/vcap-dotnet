@@ -214,7 +214,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         public void SerializeDEAHeatbeatJsonTest()
         {
             // Arrange
-            Uhuru.CloudFoundry.DEA.HeartbeatMessage message = new DEA.HeartbeatMessage();
+            Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage message = new DEA.Messages.HeartbeatMessage();
 
             // Act
             string serializedJson = message.SerializeToJson();

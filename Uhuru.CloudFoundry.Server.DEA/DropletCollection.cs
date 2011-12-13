@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Globalization;
     using System.IO;
     using System.Threading;
+    using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
 
     /// <summary>
@@ -19,22 +20,32 @@ namespace Uhuru.CloudFoundry.DEA
     /// <param name="instance">The instance.</param>
     public delegate void ForEachCallback(DropletInstance instance);
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix")]
-    public class DropletCollection
+    /// <summary>
+    /// The collection of droplets.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Suitable for this context.")]
+    public class DropletCollection : IDisposable
     {
-        // DropletId -> Droplet
+        /// <summary>
+        /// Where the droplet collection is stored, keyed with the droplet ID.
+        /// DropletId -> Droplet
+        /// </summary>
         private Dictionary<int, Droplet> droplets = new Dictionary<int, Droplet>();
+
+        /// <summary>
+        /// The collection's lock.
+        /// </summary>
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         /// <summary>
-        /// If the snapshot has been scheduled to avoid savaing it two times with the same value.
+        /// If the snapshot has been scheduled to avoid saving it two times with the same value.
         /// </summary>
-        private volatile bool SnapshotScheduled;
+        private volatile bool snapshotScheduled;
 
         /// <summary>
-        /// Exposes the collection members, organized by IDs.
+        /// Gets or sets the collection members, organized by IDs.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context.")]
         public Dictionary<int, Droplet> Droplets
         {
             get
@@ -48,6 +59,9 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets or sets the lock.
+        /// </summary>
         public ReaderWriterLockSlim Lock
         {
             get
@@ -61,14 +75,24 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets or sets the app state file. This is where the recovery is made from.
+        /// </summary>
         public string AppStateFile { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the droplets have been recovered so that there a snapshot is not made only after the recovery.
+        /// </summary>
         public bool RecoveredDroplets
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Generates the heartbeat message.
+        /// </summary>
+        /// <returns>Return the heartbeat message</returns>
         public HeartbeatMessage GenerateHeartbeatMessage()
         {
             HeartbeatMessage response = new HeartbeatMessage();
@@ -84,6 +108,10 @@ namespace Uhuru.CloudFoundry.DEA
             return response;
         }
 
+        /// <summary>
+        /// Checks if there are applications to me monitored.
+        /// </summary>
+        /// <returns>Return true if there are no applications to be monitored.</returns>
         public bool NoMonitorableApps()
         {
             bool result = true;
@@ -97,6 +125,11 @@ namespace Uhuru.CloudFoundry.DEA
             return result;
         }
 
+        /// <summary>
+        /// Iterates through all the droplet instances.
+        /// </summary>
+        /// <param name="upgradableReadLock">Set it to true if a write lock on the Droplet Collection.</param>
+        /// <param name="doThat">The code to execute on each instance.</param>
         public void ForEach(bool upgradableReadLock, ForEachCallback doThat)
         {
             if (doThat == null)
@@ -149,11 +182,18 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// For each with upgradableReadLock set to false.
+        /// </summary>
+        /// <param name="doThat">The callback for each instance.</param>
         public void ForEach(ForEachCallback doThat)
         {
             this.ForEach(false, doThat);
         }
 
+        /// <summary>
+        /// Snapshots the state of the applications.
+        /// </summary>
         public void SnapshotAppState()
         {
             List<object> instances = new List<object>();
@@ -190,18 +230,21 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.TookXSecondsToSnapshotApplication, DateTime.Now - start);
 
-            this.SnapshotScheduled = false;
+            this.snapshotScheduled = false;
         }
 
+        /// <summary>
+        /// Schedules snapshot application state.
+        /// </summary>
         public void ScheduleSnapshotAppState()
         {
-            if (!this.SnapshotScheduled)
+            if (!this.snapshotScheduled)
             {
-                this.SnapshotScheduled = true;
+                this.snapshotScheduled = true;
                 ThreadPool.QueueUserWorkItem(delegate(object data)
                 {
                     this.SnapshotAppState();
-                    this.SnapshotScheduled = false;
+                    this.snapshotScheduled = false;
                 });
             }
         }
@@ -277,8 +320,9 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Creates a new droplet instance.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="message">The NATS message</param>
+        /// <returns>The DropletInstance generated.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Object is properly disposed on failure.")]
         public DropletInstance CreateDropletInstance(DeaStartMessageRequest message)
         {
             if (message == null)
@@ -286,30 +330,67 @@ namespace Uhuru.CloudFoundry.DEA
                 throw new ArgumentNullException("message");
             }
 
-            DropletInstance instance = new DropletInstance();
-            
-            // stefi: consider changing the format
-            string instanceId = Guid.NewGuid().ToString("N");
-            
-            instance.Properties.State = DropletInstanceState.Starting;
-            instance.Properties.StateTimestamp = DateTime.Now;
-            instance.Properties.Start = DateTime.Now;
+            DropletInstance instance = null;
 
-            instance.Properties.InstanceId = instanceId;
+            try
+            {
+                instance = new DropletInstance();
 
-            instance.Properties.DropletId = message.DropletId;
-            instance.Properties.InstanceIndex = message.Index;
-            instance.Properties.Name = message.Name;
-            instance.Properties.Uris = message.Uris;
-            instance.Properties.Users = message.Users;
-            instance.Properties.Version = message.Version;
-            instance.Properties.Framework = message.Framework;
-            instance.Properties.Runtime = message.Runtime;
-            instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
+                // stefi: consider changing the format
+                string instanceId = Guid.NewGuid().ToString("N");
 
-            this.AddDropletInstance(instance);
-            
+                instance.Properties.State = DropletInstanceState.Starting;
+                instance.Properties.StateTimestamp = DateTime.Now;
+                instance.Properties.Start = DateTime.Now;
+
+                instance.Properties.InstanceId = instanceId;
+
+                instance.Properties.DropletId = message.DropletId;
+                instance.Properties.InstanceIndex = message.Index;
+                instance.Properties.Name = message.Name;
+                instance.Properties.Uris = message.Uris;
+                instance.Properties.Users = message.Users;
+                instance.Properties.Version = message.Version;
+                instance.Properties.Framework = message.Framework;
+                instance.Properties.Runtime = message.Runtime;
+                instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
+
+                this.AddDropletInstance(instance);
+                instance = null;
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    instance.Dispose();
+                }
+            }
+
             return instance;
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.readerWriterLock != null)
+                {
+                    this.readerWriterLock.Dispose();
+                }
+            }
         }
     }
 }

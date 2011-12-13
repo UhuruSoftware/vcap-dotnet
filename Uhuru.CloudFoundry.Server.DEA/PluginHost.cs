@@ -12,29 +12,84 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     
-    // the basic data related to a plugin
-    struct PluginData
-    {
-        /// <summary>
-        /// the name of the class implementing the IAgentPlugin interface
-        /// </summary>
-        public string ClassName;
-
-        // the path of the library containing the class that implements the IAgentPlugin interface
-        public string FilePath;
-    }
-
     /// <summary>
     /// the class through which the plugins are consumed
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
     public static class PluginHost
     {
-        // offers an easier way to access a filePath/className pair later on
+        /// <summary>
+        /// offers an easier way to access a filePath/className pair later on
+        /// </summary>
         private static Dictionary<Guid, PluginData> knownPluginData = new Dictionary<Guid, PluginData>();
+        
+        /// <summary>
+        /// Contains all the app domains that have been registered. The key is an IAgentPlugin's hash.
+        /// </summary>
         private static Dictionary<int, AppDomain> runningInstances = new Dictionary<int, AppDomain>();
         
+        /// <summary>
+        /// A mutex used to synchronize access to plugin data across multiple app domains.
+        /// </summary>
         private static Mutex mutexPluginData = new Mutex();
+        
+        /// <summary>
+        /// A mutex used to synchronize access to instance data across multiple app domains.
+        /// </summary>
         private static Mutex mutexInstanceData = new Mutex();
+
+        /// <summary>
+        /// creates a new instance of the plugin
+        /// </summary>
+        /// <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
+        /// <returns>a plugin object</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "plugin", Justification = "Word is in dictionary, but warning is still generated.")]
+        public static IAgentPlugin CreateInstance(Guid pluginId)
+        {
+            PluginData data = GetPluginData(pluginId);
+            if (data.Equals(default(PluginData)))
+            {
+                throw new KeyNotFoundException("There is no data associated with the given unique key");
+            }
+
+            AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
+
+            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
+
+            // save data to the dictionary
+            mutexInstanceData.WaitOne();
+            runningInstances[agentPlugin.GetHashCode()] = domain;
+            mutexInstanceData.ReleaseMutex();
+
+            return agentPlugin;
+        }
+
+        /// <summary>
+        /// stops a running application and frees the resources used by it 
+        /// </summary>
+        /// <param name="agent">the plugin running the app</param>
+        public static void RemoveInstance(IAgentPlugin agent)
+        {
+            if (agent == null)
+            {
+                throw new ArgumentNullException("agent");
+            }
+
+            int hash = agent.GetHashCode();
+            AppDomain domain = GetInstanceData(hash);
+            if (domain.Equals(default(AppDomain)))
+            {
+                return; // looks like the data has already been removed
+            }
+
+            // throw new KeyNotFoundException("There is no data associated with the given key");
+            agent.StopApplication();
+            AppDomain.Unload(domain);
+
+            mutexInstanceData.WaitOne();
+            runningInstances.Remove(hash);
+            mutexInstanceData.ReleaseMutex();
+        }
 
         /// <summary>
         /// saves the plugin data for later reference
@@ -42,6 +97,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="pathToPlugin">the path to the plugin</param>
         /// <param name="className">the name of the class implementing the IAgentPlugin interface</param>
         /// <returns>an unique key used later to retrieve the saved data</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
         public static Guid LoadPlugin(string pathToPlugin, string className)
         {
             // check if the path & className have a guid already assigned
@@ -70,6 +126,11 @@ namespace Uhuru.CloudFoundry.DEA
             return guid;
         }
 
+        /// <summary>
+        /// Gets the plugin data based on a plugin GUID.
+        /// </summary>
+        /// <param name="guid">The plugin GUID.</param>
+        /// <returns>An instance of PluginData that contains the assembly name and the class name associated with the GUID.</returns>
         private static PluginData GetPluginData(Guid guid)
         {
             PluginData result = default(PluginData);
@@ -87,6 +148,11 @@ namespace Uhuru.CloudFoundry.DEA
             return result;
         }
 
+        /// <summary>
+        /// Gets the app domain of a plugin instance.
+        /// </summary>
+        /// <param name="hash">The hash of the plugin instance.</param>
+        /// <returns>The app domain that is used to sandbox the plugin instance.</returns>
         private static AppDomain GetInstanceData(int hash)
         {
             AppDomain result = default(AppDomain);
@@ -102,56 +168,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// creates a new instance of the plugin
-        /// </summary>
-        /// <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
-        /// <returns>a plugin object</returns>
-        public static IAgentPlugin CreateInstance(Guid pluginId)
-        {
-            PluginData data = GetPluginData(pluginId);
-            if (data.Equals(default(PluginData)))
-            {
-                throw new KeyNotFoundException("There is no data associated with the given unique key");
-            }
-
-            AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
-            
-            // typeof(IAgentPlugin).FullName);
-            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
-            
-            // save data to the dictionary
-            mutexInstanceData.WaitOne();
-            runningInstances[agentPlugin.GetHashCode()] = domain;
-            mutexInstanceData.ReleaseMutex();
-
-            return agentPlugin;
-        }
-
-        /// <summary>
-        /// stops a running application and frees the resources used by it 
-        /// </summary>
-        /// <param name="agent">the plugin running the app</param>
-        public static void RemoveInstance(IAgentPlugin agent)
-        {
-            if (agent == null)
-            {
-                throw new ArgumentNullException("agent");
-            }
-
-            int hash = agent.GetHashCode();
-            AppDomain domain = GetInstanceData(hash);
-            if (domain.Equals(default(AppDomain))) return; // looks like the data has already been removed
-            
-            // throw new KeyNotFoundException("There is no data associated with the given key");
-            agent.StopApplication();
-            AppDomain.Unload(domain);
-
-            mutexInstanceData.WaitOne();
-            runningInstances.Remove(hash);
-            mutexInstanceData.ReleaseMutex();
         }
     }
 }

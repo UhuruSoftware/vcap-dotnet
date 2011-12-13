@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using Uhuru.Utilities;
@@ -96,7 +96,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the URI to the file server that can serve the droplet instance.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for the current context"), 
         JsonName("file_uri")]
         public string FileUri
         {
@@ -107,7 +107,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the authentication credentials for the file server.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for the current context"), 
         JsonName("credentials")]
         public string[] FileAuth
         {

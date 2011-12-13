@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using Uhuru.Utilities;
@@ -15,7 +15,7 @@ namespace Uhuru.CloudFoundry.DEA
     public class DropletExitedMessage : JsonConvertibleObject
     {
         /// <summary>
-        /// The id of the droplet the instance belongs to.
+        /// Gets or sets the id of the droplet the instance belongs to.
         /// </summary>
         [JsonName("droplet")]
         public int DropletId
@@ -25,7 +25,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The droplet version.
+        /// Gets or sets the droplet version.
         /// </summary>
         [JsonName("version")]
         public string Version
@@ -35,7 +35,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The id of the droplet instance.
+        /// Gets or sets the id of the droplet instance.
         /// </summary>
         [JsonName("instance")]
         public string InstanceId
@@ -45,7 +45,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The index of the droplet instance.
+        /// Gets or sets the index of the droplet instance.
         /// </summary>
         [JsonName("index")]
         public int Index
@@ -55,7 +55,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The reason, if known, why the droplet instance has exited.
+        /// Gets or sets the reason, if known, why the droplet instance has exited.
         /// </summary>
         [JsonName("reason")]
         public DropletExitReason? ExitReason
@@ -65,7 +65,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The timestamp corresponding to the moment the instance has crashed (if that is what happened), in interchangeable format.
+        /// Gets or sets the timestamp corresponding to the moment the instance has crashed (if that is what happened), in interchangeable format.
         /// </summary>
         [JsonName("crash_timestamp")]
         public int? StateTimestampInterchangeableFormat
@@ -75,7 +75,7 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The timestamp corresponding to the moment the instance has crashed (if that is what happened).
+        /// Gets or sets the timestamp corresponding to the moment the instance has crashed (if that is what happened).
         /// </summary>
         public DateTime? CrashedTimestamp
         {

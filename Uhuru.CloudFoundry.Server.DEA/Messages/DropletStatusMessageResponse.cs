@@ -4,7 +4,7 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
     
@@ -13,6 +13,9 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public class DropletStatusMessageResponse : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the name of the droplet.
+        /// </summary>
         [JsonName("name")]
         public string Name
         {
@@ -20,6 +23,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the host of the DEA service hosting the droplet.
+        /// </summary>
         [JsonName("host")]
         public string Host
         {
@@ -27,6 +33,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the port that the droplet instance uses.
+        /// </summary>
         [JsonName("port")]
         public int Port
         {
@@ -34,13 +43,20 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        [JsonName("uris")]
+        /// <summary>
+        /// Gets or sets the mapped URLs of the droplet.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "It is used for JSON (de)serialization."), 
+        JsonName("uris")]
         public string[] Uris
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the uptime of the droplet.
+        /// </summary>
         [JsonName("uptime")]
         public double Uptime
         {
@@ -48,6 +64,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the memory quota in bytes.
+        /// </summary>
         [JsonName("mem_quota")]
         public long MemoryQuotaBytes
         {
@@ -55,6 +74,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the disk quota in bytes.
+        /// </summary>
         [JsonName("disk_quota")]
         public long DiskQuotaBytes
         {
@@ -62,13 +84,19 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the quota files and sockets.
+        /// </summary>
         [JsonName("fds_quota")]
-        public long FdsQuota
+        public long FDSQuota
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the resource usage for a droplet instance.
+        /// </summary>
         [JsonName("usage")]
         public DropletInstanceUsage Usage
         {
@@ -76,6 +104,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the number of cores available to the droplet instance.
+        /// </summary>
         [JsonName("cores")]
         public int? Cores
         {

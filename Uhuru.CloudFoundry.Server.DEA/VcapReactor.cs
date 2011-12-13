@@ -12,12 +12,12 @@ namespace Uhuru.CloudFoundry.DEA
     /// <summary>
     /// The reactor for the the common VCAP Component.
     /// </summary>
-    public class VcapReactor
+    public class VCAPReactor
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="VcapReactor"/> class.
+        /// Initializes a new instance of the <see cref="VCAPReactor"/> class.
         /// </summary>
-        public VcapReactor()
+        public VCAPReactor()
         {
             this.NatsClient = new Reactor();
             this.NatsClient.OnError += this.OnNatsError;
@@ -67,7 +67,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Sends the VCAP component announce.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void SendVcapComponentAnnounce(string message)
+        public void SendVCAPComponentAnnounce(string message)
         {
             this.NatsClient.Publish(Strings.NatsSubjectVcapComponentAnnounce, null, message);
         }

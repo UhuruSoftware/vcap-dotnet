@@ -9,8 +9,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using Uhuru.Utilities;
 
+    /// <summary>
+    /// This class encapsulates all resource usage for a droplet instance.
+    /// </summary>
     public class DropletInstanceUsage : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the used memory kbytes.
+        /// </summary>
         [JsonName("mem")]
         public long MemoryKbytes
         {
@@ -18,6 +24,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the cpu.
+        /// </summary>
         [JsonName("cpu")]
         public long Cpu
         {
@@ -25,6 +34,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the disk bytes.
+        /// </summary>
         [JsonName("disk")]
         public long DiskBytes
         {
@@ -32,13 +44,19 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the running time of the droplet instance as a ruby compatible string.
+        /// </summary>
         [JsonName("time")]
         public int TimeInterchangeableFormat
         {
-            get { return RubyCompatibility.DateTimeToEpochSeconds(Time); }
-            set { Time = RubyCompatibility.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToEpochSeconds(this.Time); }
+            set { this.Time = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
+        /// <summary>
+        /// Gets or sets the running time of the droplet instance.
+        /// </summary>
         public DateTime Time
         {
             get;

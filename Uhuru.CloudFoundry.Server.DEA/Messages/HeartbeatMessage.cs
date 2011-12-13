@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using System.Collections.Generic;
@@ -16,12 +16,39 @@ namespace Uhuru.CloudFoundry.DEA
     public class HeartbeatMessage : JsonConvertibleObject
     {
         /// <summary>
+        /// All the droplets in the DEA.
+        /// </summary>
+        private List<Dictionary<string, object>> droplets = new List<Dictionary<string, object>>();
+
+        /// <summary>
+        /// Gets or sets all the droplets hosted in the DEA.
+        /// TODO: stefi: change the type when json helper class can go deep into generic collections
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures", Justification = "It is used for JSON (de)serialization."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "It is used for JSON (de)serialization."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization."),
+        JsonName("droplets")]
+        public List<Dictionary<string, object>> Droplets
+        {
+            get
+            {
+                return this.droplets;
+            }
+
+            set
+            {
+                this.droplets = value;
+            }
+        }
+
+        /// <summary>
         /// A class that encapsulates a message containing a set of droplet instance properties.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Code is cleaner this way.")]
         public class InstanceHeartbeat : JsonConvertibleObject
         {
             /// <summary>
-            /// The id of the droplet the instance belongs to.
+            /// Gets or sets the id of the droplet the instance belongs to.
             /// </summary>
             [JsonName("droplet")]
             public int DropletId
@@ -31,7 +58,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The version of the droplet.
+            /// Gets or sets the version of the droplet.
             /// </summary>
             [JsonName("version")]
             public string Version
@@ -41,7 +68,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The id of the current instance.
+            /// Gets or sets the id of the current instance.
             /// </summary>
             [JsonName("instance")]
             public string InstanceId
@@ -51,7 +78,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The index of the current instance.
+            /// Gets or sets the index of the current instance.
             /// </summary>
             [JsonName("index")]
             public int InstanceIndex
@@ -61,7 +88,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The state of the droplet instance.
+            /// Gets or sets the state of the droplet instance.
             /// </summary>
             [JsonName("state")]
             public DropletInstanceState State
@@ -71,7 +98,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The timestamp corresponding to the moment the state was read, in interchangeable format.
+            /// Gets or sets the timestamp corresponding to the moment the state was read, in interchangeable format.
             /// </summary>
             [JsonName("state_timestamp")]
             public int StateTimestampInterchangeableFormat
@@ -81,7 +108,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             /// <summary>
-            /// The timestamp corresponding to the moment the state was read.
+            /// Gets or sets the timestamp corresponding to the moment the state was read.
             /// </summary>
             public DateTime StateTimestamp
             {
@@ -89,12 +116,5 @@ namespace Uhuru.CloudFoundry.DEA
                 set;
             }
         }
-
-        // todo: stefi: change the type when json helper class can go deep into generic collections
-        /// <summary>
-        /// All the droplets hosted in the DEA.
-        /// </summary>
-        [JsonName("droplets")]
-        public List<Dictionary<string, object>> Droplets = new List<Dictionary<string, object>>();
     }
 }

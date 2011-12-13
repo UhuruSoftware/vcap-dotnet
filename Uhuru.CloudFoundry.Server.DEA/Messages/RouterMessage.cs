@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
 
@@ -46,8 +46,19 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the URLs of the running droplet.
         /// </summary>
-        [JsonName("uris")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "It is used for JSON (de)serialization."), 
+        JsonName("uris")]
         public string[] Uris
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the framework and runtime tags.
+        /// </summary>
+        [JsonName("tags")]
+        public TagsObject Tags
         {
             get;
             set;
@@ -56,6 +67,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// This class contains tags for the runtime and framework.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Code is cleaner this way.")]
         public class TagsObject : JsonConvertibleObject
         {
             /// <summary>
@@ -77,16 +89,6 @@ namespace Uhuru.CloudFoundry.DEA
                 get;
                 set;
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the framework and runtime tags.
-        /// </summary>
-        [JsonName("tags")]
-        public TagsObject Tags
-        {
-            get;
-            set;
         }
     }
 }

@@ -11,12 +11,19 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Net.Sockets;
     using System.Threading;
+    using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.ProcessPerformance;
 
-    public class DropletInstance
+    /// <summary>
+    /// Represents a droplet instance.
+    /// </summary>
+    public class DropletInstance : IDisposable
     {
+        /// <summary>
+        /// The total usage history samples to store.
+        /// </summary>
         public const int MaxUsageSamples = 30;
 
         /// <summary>
@@ -25,7 +32,7 @@ namespace Uhuru.CloudFoundry.DEA
         private ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         /// <summary>
-        /// Properties for the droplet instance which are saved when snapshoting the applications.
+        /// Properties for the droplet instance which are saved when snapshooting the applications.
         /// </summary>
         private DropletInstanceProperties properties = new DropletInstanceProperties();
 
@@ -35,10 +42,18 @@ namespace Uhuru.CloudFoundry.DEA
         private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
 
         /// <summary>
-        /// The plugin associated with the instance.
+        /// Gets or sets the plugin associated with the instance.
         /// </summary>
-        public IAgentPlugin Plugin;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
+        public IAgentPlugin Plugin
+        {
+            get;
+            set;
+        }
 
+        /// <summary>
+        /// Gets or sets the instances lock.
+        /// </summary>
         public ReaderWriterLockSlim Lock
         {
             get
@@ -52,6 +67,9 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets or sets the instance properties.
+        /// </summary>
         public DropletInstanceProperties Properties
         {
             get
@@ -65,7 +83,11 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        /// <summary>
+        /// Gets or sets usage history for the droplet instance.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "It is used for JSON (de)serialization."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context.")]
         public List<DropletInstanceUsage> Usage
         {
             get
@@ -80,9 +102,9 @@ namespace Uhuru.CloudFoundry.DEA
         }
         
         /// <summary>
-        /// Detect if the Pid is still valid and running
+        /// Gets a value indicating whether the Pid is still valid and running
         /// </summary>
-        public bool IsPidRunning
+        public bool IsProcessIdRunning
         {
             get
             {
@@ -95,6 +117,12 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance has opened up a port and it's listening on it.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance is port ready; otherwise, <c>false</c>.
+        /// </value>
         public bool IsPortReady
         {
             get
@@ -116,6 +144,11 @@ namespace Uhuru.CloudFoundry.DEA
                 return false;
             }
         }
+
+        /// <summary>
+        /// Gets or sets the error log of the instance.
+        /// </summary>
+        public FileLogger ErrorLog { get; set; }
 
         /// <summary>
         /// Returns the heartbeat info of the current droplet instance.
@@ -143,6 +176,10 @@ namespace Uhuru.CloudFoundry.DEA
             return beat;
         }
 
+        /// <summary>
+        /// Generates the heartbeat of the instance ready to be sent to the message bus.
+        /// </summary>
+        /// <returns>The heartbeat.</returns>
         public HeartbeatMessage GenerateHeartbeat()
         {
             HeartbeatMessage response = new HeartbeatMessage();
@@ -153,6 +190,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// returns the instances exited message
         /// </summary>
+        /// <returns>A DropletExitedMessage instance that has all members initialized.</returns>
         public DropletExitedMessage GenerateDropletExitedMessage()
         {
             DropletExitedMessage response = new DropletExitedMessage();
@@ -196,7 +234,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uptime = (DateTime.Now - this.Properties.Start).TotalSeconds;
                 response.MemoryQuotaBytes = this.Properties.MemoryQuotaBytes;
                 response.DiskQuotaBytes = this.Properties.DiskQuotaBytes;
-                response.FdsQuota = this.Properties.FdsQuota;
+                response.FDSQuota = this.Properties.FDSQuota;
                 if (this.Usage.Count > 0)
                 {
                     response.Usage = this.Usage[this.Usage.Count - 1];
@@ -227,10 +265,14 @@ namespace Uhuru.CloudFoundry.DEA
             appInfo.Path = this.Properties.Directory;
             appInfo.Port = this.Properties.Port;
             appInfo.WindowsPassword = this.Properties.WindowsPassword;
-            appInfo.WindowsUserName = this.Properties.WindowsUsername;
+            appInfo.WindowsUserName = this.Properties.WindowsUserName;
             return appInfo;
         }
 
+        /// <summary>
+        /// Loads the plugin associated with this droplet.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
         public void LoadPlugin()
         {
             // in startup, we have the classname and assembly to load as a plugin
@@ -250,17 +292,24 @@ namespace Uhuru.CloudFoundry.DEA
             else
             {
                 // if not load the plugin from the dea
-                Guid PluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(PluginId);
+                Guid pluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
+                this.Plugin = PluginHost.CreateInstance(pluginId);
             }
         }
 
-        public DropletInstanceUsage AddUsage(long memBytes, long cpu, long diskBytes)
+        /// <summary>
+        /// Updates the usage and adds it to the usage history.
+        /// </summary>
+        /// <param name="memoryBytes">The memory bytes.</param>
+        /// <param name="cpu">The cpu.</param>
+        /// <param name="diskBytes">The disk memory in bytes.</param>
+        /// <returns>A droplet instance usage instance containing all the usage information.</returns>
+        public DropletInstanceUsage AddUsage(long memoryBytes, long cpu, long diskBytes)
         {
             DropletInstanceUsage curUsage = new DropletInstanceUsage();
             curUsage.Time = DateTime.Now;
             curUsage.Cpu = cpu;
-            curUsage.MemoryKbytes = memBytes / 1024;
+            curUsage.MemoryKbytes = memoryBytes / 1024;
             curUsage.DiskBytes = diskBytes;
 
             this.Usage.Add(curUsage);
@@ -273,28 +322,73 @@ namespace Uhuru.CloudFoundry.DEA
             return curUsage;
         }
 
-        public FileLogger ErrorLog { get; set; }
-
-        class VcapPluginStagingInfo : JsonConvertibleObject
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
         {
-            [JsonName("assembly")]
-            public string Assembly { get; set; }
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            [JsonName("class_name")]
-            public string ClassName { get; set; }
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.readerWriterLock != null)
+                {
+                    this.readerWriterLock.Dispose();
+                }
+            }
+        }
 
-            [JsonName("logs")]
-            public VcapPluginStagingInfoLogs Logs
+        /// <summary>
+        /// This class contains information about which type of plugin to load, and how to configure it.
+        /// Information comes from the cloud controller stager, more specifically a framework plugin.rb file.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "It is used for JSON (de)serialization.")]
+        internal class VcapPluginStagingInfoLogs : JsonConvertibleObject
+        {
+            /// <summary>
+            /// Gets or sets the DEA error log.
+            /// </summary>
+            [JsonName("dea_error")]
+            public string DeaErrorLog
             {
                 get;
                 set;
             }
         }
 
-        class VcapPluginStagingInfoLogs : JsonConvertibleObject
+        /// <summary>
+        /// The staging information sent by the cloud controller with the droplet bits.
+        /// </summary>
+        internal class VcapPluginStagingInfo : JsonConvertibleObject
         {
-            [JsonName("dea_error")]
-            public string DeaErrorLog
+            /// <summary>
+            /// Gets or sets the assembly of the plug-in.
+            /// </summary>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It is used for JSON (de)serialization."),
+            JsonName("assembly")]
+            public string Assembly { get; set; }
+
+            /// <summary>
+            /// Gets or sets the name of the class name of the plug-in.
+            /// </summary>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It is used for JSON (de)serialization."),
+            JsonName("class_name")]
+            public string ClassName { get; set; }
+
+            /// <summary>
+            /// Gets or sets the logs.
+            /// </summary>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It is used for JSON (de)serialization."),
+            JsonName("logs")]
+            public VcapPluginStagingInfoLogs Logs
             {
                 get;
                 set;

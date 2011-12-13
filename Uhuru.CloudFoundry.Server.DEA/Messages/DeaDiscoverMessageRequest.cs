@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
-    
-    // example: {"droplet":198,"limits":{"mem":128,"disk":2048,"fds":256},"name":"helloworld","runtime":"iis","sha":"98b1159c7d3539dd450fd86f92647d3902a0067b
+
     /// <summary>
     /// This class encapsulates a request message to discover a DEA that can run a droplet.
+    /// example: {"droplet":198,"limits":{"mem":128,"disk":2048,"fds":256},"name":"helloworld","runtime":"iis","sha":"98b1159c7d3539dd450fd86f92647d3902a0067b
     /// </summary>
     public class DeaDiscoverMessageRequest : JsonConvertibleObject
     {
@@ -56,7 +56,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets a hash that uniquely identifies the droplet.
         /// </summary>
         [JsonName("sha")]
-        public string Sha
+        public string SHA
         {
             get;
             set;
@@ -67,42 +67,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         [JsonName("limits")]
         public DropletLimits Limits
-        {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
-    /// This class contains information about the resource limits of a droplet.
-    /// </summary>
-    public class DropletLimits : JsonConvertibleObject
-    {
-        /// <summary>
-        /// Gets or sets the maximum memory in megabytes.
-        /// </summary>
-        [JsonName("mem")]
-        public long MemoryMbytes
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum disk usage in megabytes.
-        /// </summary>
-        [JsonName("disk")]
-        public long DiskMbytes
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum number of open files and sockets.
-        /// </summary>
-        [JsonName("fds")]
-        public long Fds
         {
             get;
             set;

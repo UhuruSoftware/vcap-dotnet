@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Utils.cs" company="Uhuru Software">
+// <copyright file="DEAUtilities.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,31 +10,42 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
-    using System.Net;
-    using System.Net.Sockets;
     using System.Reflection;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Formatters.Binary;
-    using System.Text;
     using System.Threading;
     using SevenZip;
 
+    /// <summary>
+    /// Callback for the process stream.
+    /// </summary>
+    /// <param name="stream">The stream.</param>
     public delegate void StreamWriterCallback(StreamWriter stream);
 
+    /// <summary>
+    /// The callback that is executed after a process stopped.
+    /// </summary>
+    /// <param name="output">The output stream.</param>
+    /// <param name="statusCode">The status code.</param>
     public delegate void ProcessDoneCallback(string output, int statusCode);
 
     /// <summary>
     /// A class containing a set of file- and process-related methods. 
     /// </summary>
-    public sealed class Utils
+    public sealed class DEAUtilities
     {
-        private static readonly object zLibLock = new object();
-        private static bool zLibInitalized = false;
+        /// <summary>
+        /// The lock for SevenZipSharp initialization
+        /// </summary>
+        private static readonly object zlibLock = new object();
 
         /// <summary>
-        /// Private constructor, to supress the need of the compiler to auto-create a public one.
+        /// Flag if the SevenZipShparp library as initalized.
         /// </summary>
-        private Utils()
+        private static bool zlibInitalized = false;
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="DEAUtilities"/> class from being created.
+        /// </summary>
+        private DEAUtilities()
         { 
         }
 
@@ -73,7 +84,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="command"> The command to execute. </param>
         /// <param name="arguments"> The arguments of the command. </param>
         /// <returns>The output of the executed command.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
         public static string RunCommandAndGetOutput(string command, string arguments)
         {
             return RunCommandAndGetOutput(command, arguments, false);
@@ -85,7 +96,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="command"> The command to execute. </param>
         /// <param name="arguments"> The arguments of the command. </param>
         /// <returns>The output of the executed command, including errors.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
         public static string RunCommandAndGetOutputAndErrors(string command, string arguments)
         {
             return RunCommandAndGetOutput(command, arguments, true);
@@ -135,7 +146,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         /// <param name="command">The command to be executed.</param>
         /// <returns>The process' exit code.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
         public static int ExecuteCommand(string command)
         {
             ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + command);
@@ -186,7 +197,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="arguments"> The arguments of the command. </param>
         /// <param name="outputIncludesErrors"> A value indicated whether the errors are to be included in output or not. </param>
         /// <returns>The output of the executed command.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "More suitable for the current situation.")]
         private static string RunCommandAndGetOutput(string command, string arguments, bool outputIncludesErrors)
         {
             ProcessStartInfo start = new ProcessStartInfo();
@@ -209,16 +220,19 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Setups the zlib library; gets the proper 32 or 64 bit library as a stream from a resource, and loads it.
+        /// </summary>
         private static void SetupZlib()
         {
-            if (zLibInitalized)
+            if (zlibInitalized)
             {
                 return;
             }
 
-            lock (zLibLock)
+            lock (zlibLock)
             {
-                if (zLibInitalized)
+                if (zlibInitalized)
                 {
                     return;
                 }
@@ -249,7 +263,7 @@ namespace Uhuru.CloudFoundry.DEA
                 SevenZipCompressor.SetLibraryPath(libraryPath);
                 SevenZipExtractor.SetLibraryPath(libraryPath);
 
-                zLibInitalized = true;
+                zlibInitalized = true;
             }
         }
     }

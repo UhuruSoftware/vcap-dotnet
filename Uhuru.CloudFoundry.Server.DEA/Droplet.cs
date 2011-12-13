@@ -21,7 +21,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the droplet instances.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context.")]
         public Dictionary<string, DropletInstance> DropletInstances
         {
             get

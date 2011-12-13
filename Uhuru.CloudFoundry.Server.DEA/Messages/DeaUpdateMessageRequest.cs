@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
 
@@ -22,7 +22,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the new uris of the droplet.
         /// </summary>
-        [JsonName("uris")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "It is used for JSON (de)serialization."), 
+        JsonName("uris")]
         public string[] Uris { get; set; }
     }
 }

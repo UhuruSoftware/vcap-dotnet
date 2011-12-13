@@ -27,6 +27,8 @@
       <Acronym>UUID</Acronym>
       <Acronym>Plugin</Acronym>
       <Acronym>IIS</Acronym>
+      <Acronym>SHA</Acronym>
+      <Acronym>FDS</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

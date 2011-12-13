@@ -452,4 +452,13 @@
   <data name="SharingCloudControllerStagingDirectory" xml:space="preserve">
     <value>Sharing cloud controller's staging directory</value>
   </data>
+  <data name="ErrorRecoveringDropletWarningMessage" xml:space="preserve">
+    <value>Error recovering droplet {0}. Exception: {1}</value>
+  </data>
+  <data name="ErrorStoppingDropletErrorMessage" xml:space="preserve">
+    <value>Error stopping droplet: {0}, instance: {1}, exception:</value>
+  </data>
+  <data name="TookXTimeToLoadConfigureAndStartDebugMessage" xml:space="preserve">
+    <value>Took {0} to load the plugin, configure the application, and start it.</value>
+  </data>
 </root>

@@ -6,7 +6,6 @@
 
 namespace Uhuru.CloudFoundry.DEA
 {
-    using System;
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
@@ -14,7 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
     /// <summary>
     /// The reactor for the DEA. It is basically a wrapper for the NATS client. It inherits the common VCAP reactor which belongs to the VcapComponent.
     /// </summary>
-    public class DeaReactor : VcapReactor
+    public class DeaReactor : VCAPReactor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DeaReactor"/> class.
@@ -26,70 +25,70 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Occurs when router.start message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnRouterStart;
 
         /// <summary>
         /// Occurs when healthmanager.start message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnHealthManagerStart;
 
         /// <summary>
         /// Occurs when dea.{vcapguid}.start message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaStart;
 
         /// <summary>
         /// Occurs when dea.stop message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaStop;
 
         /// <summary>
         /// Occurs when the dea.status message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaStatus;
 
         /// <summary>
         /// Occurs when the droplet.status message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDropletStatus;
 
         /// <summary>
         /// Occurs when the dea.discover message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaDiscover;
 
         /// <summary>
         /// Occurs when dea.find.droplet message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaFindDroplet;
 
         /// <summary>
         /// Occurs when dea.update message is received on the message bus.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
         public event SubscribeCallback OnDeaUpdate;
 
         /// <summary>
         /// Gets or sets the UUID of the vcap component.
         /// </summary>
-        public string Uuid
+        public string UUID
         {
             get;
             set;
@@ -109,7 +108,7 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
 
             NatsClient.Subscribe("dea.stop", this.OnDeaStop);
-            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.Uuid), this.OnDeaStart);
+            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.UUID), this.OnDeaStart);
 
             NatsClient.Subscribe("router.start", this.OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", this.OnHealthManagerStart);

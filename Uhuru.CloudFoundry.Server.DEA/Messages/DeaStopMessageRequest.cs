@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the instance IDs that have to be stopped.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization."), 
         JsonName("instances")]
         public HashSet<string> InstanceIds
         {
@@ -49,7 +49,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the indexes of the instances that have to be stopped.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization."), 
         JsonName("indices")]
         public HashSet<int> Indexes
         {
@@ -60,7 +60,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the states of the instances; this property is used for (de)serialization only.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization."), 
         JsonName("states")]
         public HashSet<string> StatesInterchangeableFormat
         {
@@ -93,7 +93,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the states of the instances.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization.")]
         public HashSet<DropletInstanceState> States
         {
             get;

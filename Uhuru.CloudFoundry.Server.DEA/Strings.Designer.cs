@@ -340,6 +340,24 @@ namespace Uhuru.CloudFoundry.DEA
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error recovering droplet {0}. Exception: {1}.
+        /// </summary>
+        internal static string ErrorRecoveringDropletWarningMessage {
+            get {
+                return ResourceManager.GetString("ErrorRecoveringDropletWarningMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error stopping droplet: {0}, instance: {1}, exception:.
+        /// </summary>
+        internal static string ErrorStoppingDropletErrorMessage {
+            get {
+                return ResourceManager.GetString("ErrorStoppingDropletErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Evacuating app {0}.
         /// </summary>
         internal static string EvacuatingApp {
@@ -869,6 +887,15 @@ namespace Uhuru.CloudFoundry.DEA
         internal static string TookXSecondsToStageTheApp {
             get {
                 return ResourceManager.GetString("TookXSecondsToStageTheApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Took {0} to load the plugin, configure the application, and start it..
+        /// </summary>
+        internal static string TookXTimeToLoadConfigureAndStartDebugMessage {
+            get {
+                return ResourceManager.GetString("TookXTimeToLoadConfigureAndStartDebugMessage", resourceCulture);
             }
         }
         
