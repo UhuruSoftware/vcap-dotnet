@@ -1358,7 +1358,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Registers the instance with the Vcap router. Called when the application is running and ready.
         /// </summary>
-        /// <param name="instance">The instance to be registerd.</param>
+        /// <param name="instance">The instance to be registered.</param>
         private void RegisterInstanceWithRouter(DropletInstance instance)
         {
             RouterMessage response = new RouterMessage();
@@ -1373,7 +1373,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 response.DeaId = UUID;
                 response.Host = Host;
-                response.Port = Port;
+                response.Port = instance.Properties.Port;
                 response.Uris = new List<string>(instance.Properties.Uris).ToArray();
 
                 response.Tags = new RouterMessage.TagsObject();
