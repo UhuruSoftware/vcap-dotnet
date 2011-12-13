@@ -1406,7 +1406,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 response.DeaId = UUID;
                 response.Host = Host;
-                response.Port = Port;
+                response.Port = instance.Properties.Port;
                 response.Uris = instance.Properties.Uris;
 
                 response.Tags = new RouterMessage.TagsObject();
