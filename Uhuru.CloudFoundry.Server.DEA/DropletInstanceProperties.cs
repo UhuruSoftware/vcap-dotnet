@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Droplet.cs" company="Uhuru Software">
+// <copyright file="DropletInstanceProperties.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -7,8 +7,8 @@
 namespace Uhuru.CloudFoundry.DEA
 {
     using System;
-    using Uhuru.Utilities;
     using System.Collections.Generic;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// An enum containing the possible states a droplet instance can be in.
@@ -50,8 +50,6 @@ namespace Uhuru.CloudFoundry.DEA
         private readonly object stopProcessedLock = new object();
         private bool stopProcessed;
 
-    
-        
         /// <summary>
         /// The state of a droplet instance at a given time.
         /// </summary>
@@ -60,15 +58,14 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return state;
+                return this.state;
             }
 
             set
             {
-                state = value;
+                this.state = value;
             }
         }
-
 
         [JsonName("exit_reason")]
         public DropletExitReason? ExitReason
@@ -87,8 +84,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("start")]
         public string StartInterchangeableFormat
         {
-            get { return RubyCompatibility.DateTimeToRubyString(Start); }
-            set { Start = RubyCompatibility.DateTimeFromRubyString(value); }
+            get { return RubyCompatibility.DateTimeToRubyString(this.Start); }
+            set { this.Start = RubyCompatibility.DateTimeFromRubyString(value); }
         }
 
         public DateTime Start
@@ -100,8 +97,8 @@ namespace Uhuru.CloudFoundry.DEA
         [JsonName("state_timestamp")]
         public int StateTimestampInterchangeableFormat
         {
-            get { return RubyCompatibility.DateTimeToEpochSeconds(StateTimestamp); }
-            set { StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToEpochSeconds(this.StateTimestamp); }
+            set { this.StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
         public DateTime StateTimestamp
@@ -122,16 +119,17 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                lock (stopProcessedLock)
+                lock (this.stopProcessedLock)
                 {
-                    return stopProcessed;
+                    return this.stopProcessed;
                 }
             }
+
             set
             {
-                lock (stopProcessedLock)
+                lock (this.stopProcessedLock)
                 {
-                    stopProcessed = value;
+                    this.stopProcessed = value;
                 }
             }
         }
@@ -329,6 +327,5 @@ namespace Uhuru.CloudFoundry.DEA
 
         [JsonName("environment_variables")]
         public Dictionary<string, string> EnvironmentVarialbes;
-
     }
 }

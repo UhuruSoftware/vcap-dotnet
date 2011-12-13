@@ -95,8 +95,8 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        //todo: stefi: change the type when json helper class can go deep into generic collections
+        // todo: stefi: change the type when json helper class can go deep into generic collections
         [JsonName("droplets")]
-        public List<Dictionary<string, object>> Droplets = new List<Dictionary<string,object>>();
+        public List<Dictionary<string, object>> Droplets = new List<Dictionary<string, object>>();
     }
 }

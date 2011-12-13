@@ -1,33 +1,33 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ProjectInstaller.cs" company="Uhuru Software">
+// <copyright file="ProjectInstaller.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
+namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
     using System;
     using System.Collections;
     using System.ComponentModel;
     using System.Configuration;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Reflection;
-    using Uhuru.CloudFoundry.MSSqlService.WindowsService;
     using Uhuru.Configuration;
 
     /// <summary>
     /// InstallerClass for MSSQLNode Service
     /// </summary>
     [RunInstaller(true)]
-    public partial class ProjectInstaller : System.Configuration.Install.Installer
+    internal partial class ProjectInstaller : System.Configuration.Install.Installer
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProjectInstaller"/> class.
         /// </summary>
         public ProjectInstaller()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>
@@ -37,6 +37,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
         /// <exception cref="T:System.ArgumentException">The <paramref name="stateSaver"/> parameter is null. </exception>
         /// Custom install method. Writes configuration values to uhuru.config
         /// <exception cref="T:System.Exception">An exception occurred in the <see cref="E:System.Configuration.Install.Installer.BeforeInstall"/> event handler of one of the installers in the collection.-or- An exception occurred in the <see cref="E:System.Configuration.Install.Installer.AfterInstall"/> event handler of one of the installers in the collection. </exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile", Justification = "We need Assembly.Load to parse the uhuru configuration section.")]
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
@@ -57,7 +58,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(arguments.AvailableStorage))
             {
-                section.Service.AvailableStorage = int.Parse(arguments.AvailableStorage);
+                section.Service.AvailableStorage = int.Parse(arguments.AvailableStorage, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.BaseDir))
@@ -67,7 +68,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(arguments.Index))
             {
-                section.Service.Index = int.Parse(arguments.Index);
+                section.Service.Index = int.Parse(arguments.Index, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.LocalDb))
@@ -96,17 +97,17 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(arguments.MaxDbSize))
             {
-                section.Service.MaxDBSize = int.Parse(arguments.MaxDbSize);
+                section.Service.MaxDBSize = int.Parse(arguments.MaxDbSize, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.MaxLongQuery))
             {
-                section.Service.MaxLengthyQuery = int.Parse(arguments.MaxLongQuery);
+                section.Service.MaxLengthyQuery = int.Parse(arguments.MaxLongQuery, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.MaxLongTx))
             {
-                section.Service.MaxLengthyTX = int.Parse(arguments.MaxLongTx);
+                section.Service.MaxLengthyTX = int.Parse(arguments.MaxLongTx, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.Mbus))
@@ -126,7 +127,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(arguments.ZInterval))
             {
-                section.Service.ZInterval = int.Parse(arguments.ZInterval);
+                section.Service.ZInterval = int.Parse(arguments.ZInterval, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.Host))
@@ -141,7 +142,7 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(arguments.Port))
             {
-                section.Service.MSSql.Port = int.Parse(arguments.Port);
+                section.Service.MSSql.Port = int.Parse(arguments.Port, CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(arguments.User))

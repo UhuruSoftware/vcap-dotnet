@@ -71,20 +71,19 @@ namespace Uhuru.CloudFoundry.DEA
         public override void Start()
         {
             base.Start();
-            
-            NatsClient.Subscribe("dea.status", OnDeaStatus);
-            NatsClient.Subscribe("droplet.status", OnDropletStatus);
-            NatsClient.Subscribe("dea.discover", OnDeaDiscover);
-            NatsClient.Subscribe("dea.find.droplet", OnDeaFindDroplet);
-            NatsClient.Subscribe("dea.update", OnDeaUpdate);
 
-            NatsClient.Subscribe("dea.stop", OnDeaStop);
-            NatsClient.Subscribe(String.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, Uuid), OnDeaStart);
+            NatsClient.Subscribe("dea.status", this.OnDeaStatus);
+            NatsClient.Subscribe("droplet.status", this.OnDropletStatus);
+            NatsClient.Subscribe("dea.discover", this.OnDeaDiscover);
+            NatsClient.Subscribe("dea.find.droplet", this.OnDeaFindDroplet);
+            NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
 
-            NatsClient.Subscribe("router.start", OnRouterStart);
-            NatsClient.Subscribe("healthmanager.start", OnHealthManagerStart);
+            NatsClient.Subscribe("dea.stop", this.OnDeaStop);
+            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.Uuid), this.OnDeaStart);
+
+            NatsClient.Subscribe("router.start", this.OnRouterStart);
+            NatsClient.Subscribe("healthmanager.start", this.OnHealthManagerStart);
         }
-
 
         /// <summary>
         /// Sends the dea heartbeat to the message bus.

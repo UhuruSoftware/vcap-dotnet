@@ -1,8 +1,14 @@
-﻿using System;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaFindDropletMessageResponse.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using Uhuru.Utilities;
+
     public class DeaFindDropletMessageResponse : JsonConvertibleObject
     {
         [JsonName("dea")]
@@ -40,7 +46,6 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-
         /*
         public string StateInterchangeableFormat
         {
@@ -55,12 +60,11 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-
         [JsonName("state_timestamp")]
         public int StateTimestampInterchangeableFormat
         {
-            get { return RubyCompatibility.DateTimeToEpochSeconds(StateTimestamp); }
-            set { StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToEpochSeconds(this.StateTimestamp); }
+            set { this.StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
         public DateTime StateTimestamp
@@ -68,7 +72,6 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings"), 
         JsonName("file_uri")]

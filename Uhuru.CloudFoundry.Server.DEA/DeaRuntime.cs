@@ -25,7 +25,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public string VersionFlag { get; set; }
 
-
         /// <summary>
         /// Gets or sets the additional checks for the runtime.
         /// </summary>
@@ -36,12 +35,10 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public Dictionary<string, Dictionary<string, string>> DebugEnv { get; set; }
 
-
         /// <summary>
         /// Gets or sets the environment variables for the runtime. Passed to the application instance when started.
         /// </summary>
         public Dictionary<string, string> Environment { get; set; }
-
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="DeaRuntime"/> is enabled.
@@ -54,9 +51,7 @@ namespace Uhuru.CloudFoundry.DEA
         public DeaRuntime()
         {
             this.DebugEnv = new Dictionary<string, Dictionary<string, string>>();
-            this.Environment = new Dictionary<string,string>();
+            this.Environment = new Dictionary<string, string>();
         }
-
     }
 }
-

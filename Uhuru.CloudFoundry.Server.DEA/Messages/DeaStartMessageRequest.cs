@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
-using Uhuru.Utilities;
-
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaStartMessageRequest.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System.Collections.Generic;
+    using Uhuru.Utilities;
 
-    //Sample:
+    // Sample:
     /*
      * [#10005] Received on [dea.2134fafa645b42278f96cb619067a1e0.start] : '
      * {"droplet" :198,"name" :"helloworld","uris" :["helloworld.uhurucloud.net"],"runtime" :"iis","framework" :"net","sha1" :"98b1159c7d3539dd450fd86f92647d3902a0067b",
@@ -15,7 +19,6 @@ namespace Uhuru.CloudFoundry.DEA
      */
     public class DeaStartMessageRequest : JsonConvertibleObject
     {
-
         [JsonName("droplet")]
         public int DropletId
         {
@@ -121,13 +124,12 @@ namespace Uhuru.CloudFoundry.DEA
 
         public DeaStartMessageRequest()
         {
-            Limits = new StartRequestDropletLimits();
+            this.Limits = new StartRequestDropletLimits();
         }
     }
 
     public class StartRequestDropletLimits : JsonConvertibleObject
     {
-
         [JsonName("mem")]
         public long? MemoryMbytes
         {
@@ -149,7 +151,6 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
     }
-
 
     /*
      * Example:
@@ -187,7 +188,7 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
     {
         public StartRequestService()
         {
-            Credentials = new StartRequestServiceCredentials();
+            this.Credentials = new StartRequestServiceCredentials();
         }
 
         [JsonName("name")]
@@ -215,10 +216,8 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         public Dictionary<string, object> PlanOptions { get; set; }
 
         [JsonName("credentials")]
-        public StartRequestServiceCredentials Credentials {get; set; }
-
+        public StartRequestServiceCredentials Credentials { get; set; }
     }
-
 
     public class StartRequestServiceCredentials : JsonConvertibleObject
     {
@@ -243,5 +242,4 @@ relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f7
         [JsonName("password")]
         public string Password { get; set; }
     }
-
 }

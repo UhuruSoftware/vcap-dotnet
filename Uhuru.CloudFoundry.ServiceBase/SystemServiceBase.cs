@@ -11,18 +11,36 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
-    
+
     /// <summary>
     /// This is the service base for all Cloud Foundry system services.
     /// </summary>
     public abstract class SystemServiceBase : IDisposable
     {
+        /// <summary>
+        /// This is the NATS client used for communication with the rest of CLoud Foundry.
+        /// </summary>
         private Reactor nodeNats;
 
+        /// <summary>
+        /// The local IP that we use to publish stuff.
+        /// </summary>
         private string localIP;
-        private Dictionary<string, object> orphanInsHash;
+
+        /// <summary>
+        /// A dictionary containing orphaned services.
+        /// </summary>
+        private Dictionary<string, object> orphanInstancesHash;
+
+        /// <summary>
+        /// A dictionary containing service bindings that are orphaned.
+        /// </summary>
         private Dictionary<string, object> orphanBindingHash;
-        private VcapComponent vcapComponent;
+
+        /// <summary>
+        /// The VCAP component that we use to register ourselves to the Cloud Controller
+        /// </summary>
+        private VCAPComponent vcapComponent;
 
         /// <summary>
         /// Gets the nats reactor used for communicating with the cloud controller.
@@ -38,24 +56,24 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the orphan instances hash.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "This is needed for JSON (de)serialization")]
         protected Dictionary<string, object> OrphanInstancesHash
         {
             get
             {
-                return this.orphanInsHash;
+                return this.orphanInstancesHash;
             }
 
             set
             {
-                this.orphanInsHash = value;
+                this.orphanInstancesHash = value;
             }
         }
         
         /// <summary>
         /// Gets or sets the orphan binding hash.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "This is needed for JSON (de)serialization")]
         protected Dictionary<string, object> OrphanBindingHash
         {
             get
@@ -86,11 +104,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.OrphanBindingHash = new Dictionary<string, object>();
 
             this.nodeNats = new Reactor();
-            this.NodeNats.Start(new Uri(options.Uri));
+            this.NodeNats.Start(options.Uri);
 
             this.OnConnectNode();
 
-            this.vcapComponent = new VcapComponent();
+            this.vcapComponent = new VCAPComponent();
 
             this.vcapComponent.Register(
                 new Dictionary<string, object>
@@ -149,9 +167,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         public void Dispose()
         {
-            this.nodeNats.Dispose();
-
-            // Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -162,6 +178,20 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Logger.Info(Strings.ShuttingDownLogMessage, this.ServiceDescription());
            this.NodeNats.Stop();
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.nodeNats.Stop();
+                this.nodeNats.Dispose();
+                this.vcapComponent.Dispose();
+            }
         }
                 
         /// <summary>
@@ -193,6 +223,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A tring containing the service name.</returns>
         protected abstract string ServiceName();
 
+        /// <summary>
+        /// Updates the varz message.
+        /// </summary>
         private void UpdateVarz()
         {
             Dictionary<string, object> details = this.VarzDetails();
@@ -203,6 +236,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.vcapComponent.Varz = details;
         }
 
+        /// <summary>
+        /// Updates the healthz message.
+        /// </summary>
         private void UpdateHealthz()
         {
             this.vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(this.HealthzDetails());

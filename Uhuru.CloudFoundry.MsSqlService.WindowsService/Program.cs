@@ -1,10 +1,10 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Program.cs" company="">
+// <copyright file="Program.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
+namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
     using System;
     using System.Diagnostics;
@@ -12,38 +12,46 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
     using System.Linq;
     using System.Reflection;
 
-    static class Program
+    /// <summary>
+    /// This is where it all starts.
+    /// </summary>
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] args)
+        internal static void Main()
         {
-            bool debug = args.Contains("debug");
-
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            if (!debug)
+            if (!Environment.UserInteractive)
             {
-                System.ServiceProcess.ServiceBase[] ServicesToRun;
-                ServicesToRun = new System.ServiceProcess.ServiceBase[] 
-			    { 
-				    new MsSqlWindowsService() 
-			    };
-                System.ServiceProcess.ServiceBase.Run(ServicesToRun);
+                System.ServiceProcess.ServiceBase[] servicesToRun;
+                servicesToRun = new System.ServiceProcess.ServiceBase[] 
+                {
+                    new MSSqlWindowsService() 
+                };
+                System.ServiceProcess.ServiceBase.Run(servicesToRun);
             }
             else
             {
-                MsSqlWindowsService msSqlService = new MsSqlWindowsService();
-                msSqlService.Start(new string[0]);
-                System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+                using (MSSqlWindowsService sqlService = new MSSqlWindowsService())
+                {
+                    sqlService.Start();
+                    System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+                }
             }
         }
 
-        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        /// <summary>
+        /// Handles the UnhandledException event of the CurrentDomain control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.UnhandledExceptionEventArgs"/> instance containing the event data.</param>
+        internal static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Uhuru.Utilities.Logger.Fatal(e.ExceptionObject.ToString());
         }
-
     }
 }

@@ -1,36 +1,38 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MsSqlWindowsService.cs" company="">
+// <copyright file="MsSqlWindowsService.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
+namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
     using Uhuru.CloudFoundry.Server.MSSqlNode;
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Configuration;
     using Uhuru.Configuration.Service;
-    
-    public partial class MsSqlWindowsService : System.ServiceProcess.ServiceBase
+
+    /// <summary>
+    /// This is the Windows Service class that hosts an MS SQL Node.
+    /// </summary>
+    internal partial class MSSqlWindowsService : System.ServiceProcess.ServiceBase
     {
+        /// <summary>
+        /// The MS Sql Server Node.
+        /// </summary>
         private Node node;
 
-        public MsSqlWindowsService()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MSSqlWindowsService"/> class.
+        /// </summary>
+        public MSSqlWindowsService()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
-        protected override void OnStart(string[] args)
-        {
-            Start(args);
-        }
-
-        protected override void OnStop()
-        {
-            this.node.Shutdown();
-        }
-
-        internal void Start(string[] args)
+        /// <summary>
+        /// Starts the MS SQL Node using the specified arguments.
+        /// </summary>
+        internal void Start()
         {
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
@@ -44,18 +46,35 @@ namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
             options.MaxLengthyTX = serviceConfig.MaxLengthyTX;
             options.MigrationNFS = serviceConfig.MigrationNFS;
             options.NodeId = serviceConfig.NodeId;
-            options.Uri = serviceConfig.MBus;
+            options.Uri = new System.Uri(serviceConfig.MBus);
             options.ZInterval = serviceConfig.ZInterval;
             options.LocalRoute = serviceConfig.LocalRoute;
 
-            MSSqlOptions msSqlOptions = new MSSqlOptions();
-            msSqlOptions.Host = serviceConfig.MSSql.Host;
-            msSqlOptions.User = serviceConfig.MSSql.User;
-            msSqlOptions.Port = serviceConfig.MSSql.Port;
-            msSqlOptions.Password = serviceConfig.MSSql.Password;
+            MSSqlOptions sqlServerOptions = new MSSqlOptions();
+            sqlServerOptions.Host = serviceConfig.MSSql.Host;
+            sqlServerOptions.User = serviceConfig.MSSql.User;
+            sqlServerOptions.Port = serviceConfig.MSSql.Port;
+            sqlServerOptions.Password = serviceConfig.MSSql.Password;
 
             this.node = new Node();
-            this.node.Start(options, msSqlOptions);
+            this.node.Start(options, sqlServerOptions);
+        }
+
+        /// <summary>
+        /// When implemented in a derived class, executes when a Start command is sent to the service by the Service Control Manager (SCM) or when the operating system starts (for a service that starts automatically). Specifies actions to take when the service starts.
+        /// </summary>
+        /// <param name="args">Data passed by the start command.</param>
+        protected override void OnStart(string[] args)
+        {
+            this.Start();
+        }
+
+        /// <summary>
+        /// When implemented in a derived class, executes when a Stop command is sent to the service by the Service Control Manager (SCM). Specifies actions to take when a service stops running.
+        /// </summary>
+        protected override void OnStop()
+        {
+            this.node.Shutdown();
         }
     }
 }

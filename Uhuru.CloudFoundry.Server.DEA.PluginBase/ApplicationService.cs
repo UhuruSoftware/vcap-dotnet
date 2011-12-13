@@ -180,17 +180,6 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         }
 
         /// <summary>
-        /// Service type tags.
-        /// </summary>
-        /// <returns>
-        /// An array of service tags
-        /// </returns>
-        public string[] GetServiceTags()
-        {
-            return this.serviceTags;
-        }
-
-        /// <summary>
         /// Gets details regarding the usage plan of the service
         /// </summary>
         public Dictionary<string, object> PlanOptions
@@ -199,6 +188,17 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
             {
                 return this.planOptions;
             }
+        }
+
+        /// <summary>
+        /// Service type tags.
+        /// </summary>
+        /// <returns>
+        /// An array of service tags
+        /// </returns>
+        public string[] GetServiceTags()
+        {
+            return this.serviceTags;
         }
     }
 }

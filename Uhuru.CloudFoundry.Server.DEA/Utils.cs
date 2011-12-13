@@ -20,6 +20,7 @@ namespace Uhuru.CloudFoundry.DEA
     using SevenZip;
 
     public delegate void StreamWriterCallback(StreamWriter stream);
+
     public delegate void ProcessDoneCallback(string output, int statusCode);
 
     /// <summary>
@@ -109,7 +110,7 @@ namespace Uhuru.CloudFoundry.DEA
                 start.RedirectStandardOutput = true;
                 start.RedirectStandardInput = true;
 
-                string result = String.Empty;
+                string result = string.Empty;
 
                 using (Process process = Process.Start(start))
                 {
@@ -122,6 +123,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         result = reader.ReadToEnd();
                     }
+
                     process.WaitForExit();
                     doneCallback(result, process.ExitCode);
                 }
@@ -162,7 +164,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <returns>The number of cores on the current machine.</returns>
         public static int NumberOfCores()
         {
-            //todo: stefi: maybe this is not a precise way to get the number of physical cores of a machine
+            // todo: stefi: maybe this is not a precise way to get the number of physical cores of a machine
             return Environment.ProcessorCount;
         }
         
@@ -172,8 +174,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="directory"> The directory to write in.</param>
         public static void EnsureWritableDirectory(string directory)
         {
-            string testFile = Path.Combine(directory, String.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaSentinel, Process.GetCurrentProcess().Id));
-            File.WriteAllText(testFile, "");
+            string testFile = Path.Combine(directory, string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaSentinel, Process.GetCurrentProcess().Id));
+            File.WriteAllText(testFile, string.Empty);
             File.Delete(testFile);
         }
 
@@ -209,14 +211,21 @@ namespace Uhuru.CloudFoundry.DEA
 
         private static void SetupZlib()
         {
-            if (zLibInitalized) return;
+            if (zLibInitalized)
+            {
+                return;
+            }
+
             lock (zLibLock)
             {
-                if (zLibInitalized) return;
+                if (zLibInitalized)
+                {
+                    return;
+                }
 
                 Stream stream = null;
                 Assembly asm = Assembly.GetExecutingAssembly();
-                string libraryPath = "";
+                string libraryPath = string.Empty;
 
                 if (IntPtr.Size == 8)
                 {

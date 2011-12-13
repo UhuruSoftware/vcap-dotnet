@@ -15,16 +15,22 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This is a class used to register vcap components to the Cloud Foundry controller.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Vcap")]
-    public class VcapComponent
+    public class VCAPComponent : IDisposable
     {
+        /// <summary>
+        /// Discover information for the node.
+        /// </summary>
         private Dictionary<string, object> discover = new Dictionary<string, object>();
+
+        /// <summary>
+        /// The http monitoring server that server varz and healthz information.
+        /// </summary>
         private MonitoringServer httpMonitoringServer;
 
         /// <summary>
         /// Gets or sets the varz information for the component.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Outside objects need to be able to set a new instance of this property")]
         public Dictionary<string, object> Varz
         {
             get;
@@ -43,8 +49,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets the UUID of the component.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Uuid")]
-        public string Uuid
+        public string UUID
         {
             get
             {
@@ -121,12 +126,46 @@ namespace Uhuru.CloudFoundry.ServiceBase
             nats.Publish("vcap.component.announce", null, msg: JsonConvertibleObject.SerializeToJson(this.discover));
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.httpMonitoringServer != null)
+                {
+                    this.httpMonitoringServer.Stop();
+                    this.httpMonitoringServer.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the discovery uptime.
+        /// </summary>
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - (DateTime)this.discover["start"];
             this.discover["uptime"] = string.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
+        /// <summary>
+        /// Starts the HTTP server used for monitoring.
+        /// </summary>
+        /// <param name="host">The host that publishes the monitoring server.</param>
+        /// <param name="port">The port on which the server will listen.</param>
+        /// <param name="auth">The user and password used for basic http authentication.</param>
         private void StartHttpServer(string host, int port, string[] auth)
         {
             // TODO: vladi: port this again, this will most likely not work
@@ -135,6 +174,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.httpMonitoringServer.Start();
         }
 
+        /// <summary>
+        /// Handles the HealthzRequested event of the HttpMonitoringServer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="Uhuru.Utilities.HealthzRequestEventArgs"/> instance containing the event data.</param>
         private void HttpMonitoringServer_HealthzRequested(object sender, HealthzRequestEventArgs e)
         {
             e.HealthzMessage = this.Healthz;

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Objects.cs" company="Uhuru Software">
+// <copyright file="ProvisionedService.cs" company="Uhuru Software">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -26,161 +26,49 @@ namespace Uhuru.CloudFoundry.ServiceBase
     }
 
     /// <summary>
-    /// This class contains information about service credentials.
-    /// </summary>
-    public class ServiceCredentials : JsonConvertibleObject
-    {
-        private Dictionary<string, object> bindOptions = new Dictionary<string, object>();
-
-        /// <summary>
-        /// Gets or sets the Node ID.
-        /// </summary>
-        [JsonName("node_id")]
-        public string NodeId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the provisioned service name.
-        /// </summary>
-        [JsonName("name")]
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the username.
-        /// </summary>
-        [JsonName("username")]
-        public string UserName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the username.
-        /// </summary>
-        [JsonName("user")]
-        public string User
-        { 
-            get; 
-            set; 
-        }
-
-        /// <summary>
-        /// Gets or sets the password.
-        /// </summary>
-        [JsonName("password")]
-        public string Password
-        { 
-            get; 
-            set; 
-        }
-
-        /// <summary>
-        /// Gets or sets the hostname of the provisioned service.
-        /// </summary>
-        [JsonName("hostname")]
-        public string HostName
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the port of the provisioned service.
-        /// </summary>
-        [JsonName("port")]
-        public int Port
-        { 
-            get; 
-            set; 
-        }
-
-        /// <summary>
-        /// Gets the bind options for the provisioned service.
-        /// </summary>
-        [JsonName("bind_opts")]
-        public Dictionary<string, object> BindOptions
-        { 
-            get
-            {
-                return this.bindOptions;
-            }
-        }
-    }
-
-    /// <summary>
-    /// This is a class containing information about a provisioned service.
-    /// </summary>
-    public class Handle
-    {
-        /// <summary>
-        /// Gets or sets the service ID.
-        /// </summary>
-        [JsonName("service_id")]
-        public string ServiceId
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the service credentials.
-        /// </summary>
-        [JsonName("credentials")]
-        public ServiceCredentials Credentials
-        {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
-    /// This class contains announcement information for a service.
-    /// </summary>
-    public class Announcement : JsonConvertibleObject
-    {
-        /// <summary>
-        /// Gets or sets the id of the service.
-        /// </summary>
-        [JsonName("id")]
-        public string Id
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the available storage for the service.
-        /// </summary>
-        [JsonName("available_storage")]
-        public int AvailableStorage
-        {
-            get;
-            set;
-        }
-    }
-
-    /// <summary>
     /// Class containing information about a provisioned service.
     /// </summary>
     [Serializable]
     public class ProvisionedService : JsonConvertibleObject
     {
+        /// <summary>
+        /// This is a lock object used to synchronize add/remove operations of this collection.
+        /// </summary>
         private static readonly object collectionLock = new object();
-        private static List<ProvisionedService> services;
-        private static string filename = string.Empty;
         
+        /// <summary>
+        /// This is the internal list of provisioned services.
+        /// </summary>
+        private static List<ProvisionedService> services;
+        
+        /// <summary>
+        /// The path to the file where the information about the provisioned services is saved.
+        /// </summary>
+        private static string filename = string.Empty;
+
+        /// <summary>
+        /// Name of the service.
+        /// </summary>
         private string name;
+        
+        /// <summary>
+        /// User used to connect to the service.
+        /// </summary>
         private string user;
+        
+        /// <summary>
+        /// Password for the service user.
+        /// </summary>
         private string password;
+        
+        /// <summary>
+        /// Billing plan for the service.
+        /// </summary>
         private ProvisionedServicePlanType plan;
+        
+        /// <summary>
+        /// Indicates whether quota has been exceeded.
+        /// </summary>
         private bool quotaExceeded;
 
         /// <summary>
@@ -319,7 +207,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// Saves this instance into the local database.
         /// </summary>
         /// <returns>A boolean value indicating whther persistance was successful.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; caller is notified through return value.")]
         public static bool Save()
         {
             try
@@ -344,6 +232,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
             return Save();
         }
 
+        /// <summary>
+        /// Saves the provisioned services local database file.
+        /// </summary>
         private static void SaveFile()
         {
             lock (collectionLock)
@@ -356,6 +247,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        /// <summary>
+        /// Loads saved provisioned information the specified filename.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns>A value indicating whether the load was successful.</returns>
         private static bool Load(string filename)
         {
             lock (collectionLock)

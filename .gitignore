@@ -12,4 +12,3 @@ StyleCop.Cache
 *.testsettings
 *.trx
 !/TestApps/CloudTestApp/App/bin
-*.StyleCop

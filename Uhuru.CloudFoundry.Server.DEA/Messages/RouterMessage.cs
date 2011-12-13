@@ -1,10 +1,15 @@
-﻿using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="RouterMessage.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using Uhuru.Utilities;
+
     public class RouterMessage : JsonConvertibleObject
     {
-
         [JsonName("dea")]
         public string DeaId
         {
@@ -48,7 +53,6 @@ namespace Uhuru.CloudFoundry.DEA
                 get;
                 set;
             }
-
         }
 
         [JsonName("tags")]
@@ -57,6 +61,5 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-
     }
 }

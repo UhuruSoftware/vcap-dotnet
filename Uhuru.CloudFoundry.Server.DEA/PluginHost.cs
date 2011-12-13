@@ -12,7 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     
-    //the basic data related to a plugin
+    // the basic data related to a plugin
     struct PluginData
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public string ClassName;
 
-        //the path of the library containing the class that implements the IAgentPlugin interface
+        // the path of the library containing the class that implements the IAgentPlugin interface
         public string FilePath;
     }
 
@@ -29,7 +29,7 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public static class PluginHost
     {
-        //offers an easier way to access a filePath/className pair later on
+        // offers an easier way to access a filePath/className pair later on
         private static Dictionary<Guid, PluginData> knownPluginData = new Dictionary<Guid, PluginData>();
         private static Dictionary<int, AppDomain> runningInstances = new Dictionary<int, AppDomain>();
         
@@ -44,12 +44,13 @@ namespace Uhuru.CloudFoundry.DEA
         /// <returns>an unique key used later to retrieve the saved data</returns>
         public static Guid LoadPlugin(string pathToPlugin, string className)
         {
-            //check if the path & className have a guid already assigned
+            // check if the path & className have a guid already assigned
             if (knownPluginData.Any(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin))
             {
                 mutexPluginData.WaitOne();
                 KeyValuePair<Guid, PluginData> keyValue = knownPluginData.Where(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin).FirstOrDefault();
-                //if something was found, return it
+               
+                // if something was found, return it
                 if (!keyValue.Equals(default(KeyValuePair<Guid, PluginData>)))
                 {
                     mutexPluginData.ReleaseMutex();
@@ -60,7 +61,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
                         
             Guid guid = Guid.NewGuid();
-            PluginData data = new PluginData() { ClassName = className, FilePath = pathToPlugin};
+            PluginData data = new PluginData() { ClassName = className, FilePath = pathToPlugin };
 
             mutexPluginData.WaitOne();
             knownPluginData[guid] = data;
@@ -76,7 +77,10 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 mutexPluginData.WaitOne();
                 if (knownPluginData.ContainsKey(guid))
+                {
                     result = knownPluginData[guid];
+                }
+
                 mutexPluginData.ReleaseMutex();
             }
 
@@ -90,7 +94,10 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 mutexInstanceData.WaitOne();
                 if (runningInstances.ContainsKey(hash))
+                {
                     result = runningInstances[hash];
+                }
+
                 mutexInstanceData.ReleaseMutex();
             }
 
@@ -106,12 +113,16 @@ namespace Uhuru.CloudFoundry.DEA
         {
             PluginData data = GetPluginData(pluginId);
             if (data.Equals(default(PluginData)))
+            {
                 throw new KeyNotFoundException("There is no data associated with the given unique key");
+            }
 
             AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
-            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);//typeof(IAgentPlugin).FullName);
             
-            //save data to the dictionary
+            // typeof(IAgentPlugin).FullName);
+            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
+            
+            // save data to the dictionary
             mutexInstanceData.WaitOne();
             runningInstances[agentPlugin.GetHashCode()] = domain;
             mutexInstanceData.ReleaseMutex();
@@ -129,11 +140,12 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 throw new ArgumentNullException("agent");
             }
+
             int hash = agent.GetHashCode();
             AppDomain domain = GetInstanceData(hash);
-            if (domain.Equals(default(AppDomain))) return; //looks like the data has already been removed
-                //throw new KeyNotFoundException("There is no data associated with the given key");
-
+            if (domain.Equals(default(AppDomain))) return; // looks like the data has already been removed
+            
+            // throw new KeyNotFoundException("There is no data associated with the given key");
             agent.StopApplication();
             AppDomain.Unload(domain);
 

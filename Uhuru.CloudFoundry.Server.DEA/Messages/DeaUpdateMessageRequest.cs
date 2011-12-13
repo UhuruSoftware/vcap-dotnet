@@ -15,6 +15,5 @@ namespace Uhuru.CloudFoundry.DEA
 
         [JsonName("uris")]
         public string[] Uris { get; set; }
-
     }
 }

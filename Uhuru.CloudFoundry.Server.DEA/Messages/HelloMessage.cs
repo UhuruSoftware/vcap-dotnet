@@ -1,7 +1,13 @@
-﻿using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="HelloMessage.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using Uhuru.Utilities;
+
     class HelloMessage : JsonConvertibleObject
     {
         [JsonName("id")]

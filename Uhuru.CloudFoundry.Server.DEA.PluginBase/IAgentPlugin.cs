@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     /// <summary>
     /// the interface to be implemented by a CF plugin
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
     public interface IAgentPlugin
     {
         /// <summary>
@@ -36,6 +37,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// reads the ids of the processes currently used by the running app
         /// </summary>
         /// <returns>the ids of the processes, as an array</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Design is cleaner like this.")]
         int GetApplicationProcessId();
 
         /// <summary>

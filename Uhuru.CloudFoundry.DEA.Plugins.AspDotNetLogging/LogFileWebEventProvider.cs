@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="LogFileWebEventProvider.cs" company="Uhuru Software">
+// <copyright file="LogFileWebEventProvider.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -7,18 +7,25 @@
 namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
 {
     using System;
+    using System.Configuration;
     using System.Globalization;
     using System.IO;
     using System.Text;
     using System.Web.Management;
-    using System.Configuration;
 
     /// <summary>
     /// Event provider for droplet instances. Writes events to a file.
     /// </summary>
     public class LogFileWebEventProvider : BufferedWebEventProvider
     {
+        /// <summary>
+        /// The path to the log file.
+        /// </summary>
         private string logFilePath;
+
+        /// <summary>
+        /// Buffer log data.
+        /// </summary>
         private StringBuilder customInfo;
 
         /// <summary>
@@ -26,18 +33,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
         /// </summary>
         public LogFileWebEventProvider()
         {
-           
         }
-        
+
         /// <summary>
-        /// the path where the log info will be saved
+        /// Gets or sets the path where the log info will be saved
         /// </summary>
         public string LogFilePath
         {
             get { return this.logFilePath; }
             set { this.logFilePath = value; }
         }
-        
+
         /// <summary>
         /// Gets a value indicating whether buffering will be used or not
         /// </summary>
@@ -99,7 +105,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
             }
             else
             {
-                string extraInfo = String.Empty;
+                string extraInfo = string.Empty;
 
                 WebBaseErrorEvent errorEvent = eventRaised as WebBaseErrorEvent;
 
@@ -108,9 +114,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
                     extraInfo = errorEvent.ErrorException.ToString();
                 }
 
-                this.customInfo.AppendLine(String.Format(CultureInfo.InvariantCulture,
+                this.customInfo.AppendLine(
+                    string.Format(
+                    CultureInfo.InvariantCulture,
                     "Event Time (UTC):[{0}] Event Code:[{1}] Event Id:[{2}] Event Message:[{3}]",
-                    eventRaised.EventTimeUtc, eventRaised.EventCode, eventRaised.EventID,
+                    eventRaised.EventTimeUtc,
+                    eventRaised.EventCode,
+                    eventRaised.EventID,
                     eventRaised.Message + " " + extraInfo));
 
                 this.StoreToFile(FileMode.Append);
@@ -130,16 +140,21 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
 
             foreach (WebBaseEvent eventRaised in flushInfo.Events)
             {
-                string extraInfo = String.Empty;
+                string extraInfo = string.Empty;
+                WebBaseErrorEvent webBasedErrorEvent = eventRaised as WebBaseErrorEvent;
 
-                if (eventRaised is WebBaseErrorEvent)
+                if (webBasedErrorEvent != null)
                 {
-                    extraInfo = ((WebBaseErrorEvent)eventRaised).ErrorException.ToString();
+                    extraInfo = webBasedErrorEvent.ErrorException.ToString();
                 }
 
-                this.customInfo.AppendLine(String.Format(CultureInfo.InvariantCulture,
+                this.customInfo.AppendLine(
+                    string.Format(
+                    CultureInfo.InvariantCulture,
                     "Event Time (UTC):[{0}] Event Code:[{1}] Event Id:[{2}] Event Message:[{3}]",
-                    eventRaised.EventTimeUtc, eventRaised.EventCode, eventRaised.EventID,
+                    eventRaised.EventTimeUtc, 
+                    eventRaised.EventCode, 
+                    eventRaised.EventID,
                     eventRaised.Message + " " + extraInfo));
             }
 
@@ -151,35 +166,44 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
         /// </summary>
         public override void Shutdown()
         {
-            Flush();
+            this.Flush();
         }
 
         /// <summary>
         /// saves the currently gathered info to a file
         /// </summary>
         /// <param name="fileMode">the file mode to use when opening the file</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "The object is only disposed once.")]
         private void StoreToFile(FileMode fileMode)
         {
             int writeBlock;
             int startIndex;
             const int SEP_LEN = 70;
 
-            writeBlock = customInfo.Length + SEP_LEN;
+            writeBlock = this.customInfo.Length + SEP_LEN;
             startIndex = 0;
 
-            FileStream logFileStream = new FileStream(logFilePath, fileMode, FileAccess.Write);
-            logFileStream.Lock(startIndex, writeBlock);
-
-            using (StreamWriter writer = new StreamWriter(logFileStream))
+            FileStream logFileStream = null;
+            try
             {
-                writer.BaseStream.Seek(0, SeekOrigin.Current);
-                writer.Write(customInfo.ToString());
-                writer.Flush();
+                logFileStream = new FileStream(this.logFilePath, fileMode, FileAccess.Write);
 
-                logFileStream.Unlock(startIndex, writeBlock);
-
-                writer.Close();
-                logFileStream.Close();
+                using (StreamWriter writer = new StreamWriter(logFileStream))
+                {
+                    logFileStream.Lock(startIndex, writeBlock);
+                    writer.BaseStream.Seek(0, SeekOrigin.Current);
+                    writer.Write(this.customInfo.ToString());
+                    writer.Flush();
+                    logFileStream.Unlock(startIndex, writeBlock);
+                    logFileStream = null;
+                }
+            }
+            finally
+            {
+                if (logFileStream != null)
+                {
+                    logFileStream.Close();
+                }
             }
         }
     }

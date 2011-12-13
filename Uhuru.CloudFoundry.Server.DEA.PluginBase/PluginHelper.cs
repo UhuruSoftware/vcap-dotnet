@@ -6,6 +6,7 @@
 
 namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
@@ -15,6 +16,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
     /// <summary>
     /// This is a helper class that provides easy methods to extract application settings from the variables that are given to a plugin.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
     public static class PluginHelper
     {
         /// <summary>
@@ -24,6 +26,11 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
         /// <returns>An ApplicationParsedData object, that contains structured information about the application.</returns>
         public static ApplicationParsedData GetParsedData(ApplicationVariable[] appVariables)
         {
+            if (appVariables == null)
+            {
+                throw new ArgumentNullException("appVariables");
+            }
+
             Dictionary<string, string> variablesHash = new Dictionary<string, string>(appVariables.Length);
 
             foreach (ApplicationVariable variable in appVariables)

@@ -1,6 +1,15 @@
-﻿namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
-    partial class MsSqlWindowsService
+    /// <summary>
+    /// This is the Windows Service class that hosts an MS SQL Node.
+    /// </summary>
+    internal partial class MSSqlWindowsService
     {
         /// <summary> 
         /// Required designer variable.
@@ -13,10 +22,12 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (this.components != null))
             {
-                components.Dispose();
+                this.components.Dispose();
+                this.node.Dispose();
             }
+
             base.Dispose(disposing);
         }
 

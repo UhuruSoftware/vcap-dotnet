@@ -24,6 +24,9 @@
       <Acronym>VMC</Acronym>
       <Acronym>NFS</Acronym>
       <Acronym>VCAP</Acronym>
+      <Acronym>UUID</Acronym>
+      <Acronym>Plugin</Acronym>
+      <Acronym>IIS</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

@@ -8,12 +8,12 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
-    using Uhuru.Utilities.ProcessPerformance;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
-    using System.Net.Sockets;
     using System.IO;
+    using System.Net.Sockets;
+    using System.Threading;
+    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.ProcessPerformance;
 
     public class DropletInstance
     {
@@ -43,12 +43,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return readerWriterLock;
+                return this.readerWriterLock;
             }
 
             set
             {
-                readerWriterLock = value;
+                this.readerWriterLock = value;
             }
         }
 
@@ -56,12 +56,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return properties;
+                return this.properties;
             }
 
             set
             {
-                properties = value;
+                this.properties = value;
             }
         }
 
@@ -70,12 +70,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                return usage;
+                return this.usage;
             }
 
             set
             {
-                usage = value;
+                this.usage = value;
             }
         }
         
@@ -86,12 +86,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get
             {
-                if (Properties.ProcessId == 0)
+                if (this.Properties.ProcessId == 0)
                 {
                     return false;
                 }
 
-                return ProcessInformation.GetProcessUsage(Properties.ProcessId) != null;
+                return ProcessInformation.GetProcessUsage(this.Properties.ProcessId) != null;
             }
         }
 
@@ -103,7 +103,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     using (TcpClient client = new TcpClient())
                     {
-                        IAsyncResult result = client.BeginConnect("localhost", properties.Port, null, null);
+                        IAsyncResult result = client.BeginConnect("localhost", this.properties.Port, null, null);
                         result.AsyncWaitHandle.WaitOne(100);
 
                         if (client.Connected)
@@ -112,6 +112,7 @@ namespace Uhuru.CloudFoundry.DEA
                         }
                     }
                 }
+
                 return false;
             }
         }
@@ -125,26 +126,27 @@ namespace Uhuru.CloudFoundry.DEA
             HeartbeatMessage.InstanceHeartbeat beat = new HeartbeatMessage.InstanceHeartbeat();
             try
             {
-                Lock.EnterReadLock();
+                this.Lock.EnterReadLock();
 
-                beat.DropletId = Properties.DropletId;
-                beat.Version = Properties.Version;
-                beat.InstanceId = Properties.InstanceId;
-                beat.InstanceIndex = Properties.InstanceIndex;
-                beat.State = Properties.State;
-                beat.StateTimestamp = Properties.StateTimestamp;
+                beat.DropletId = this.Properties.DropletId;
+                beat.Version = this.Properties.Version;
+                beat.InstanceId = this.Properties.InstanceId;
+                beat.InstanceIndex = this.Properties.InstanceIndex;
+                beat.State = this.Properties.State;
+                beat.StateTimestamp = this.Properties.StateTimestamp;
             }
             finally
             {
-                Lock.ExitReadLock();
+                this.Lock.ExitReadLock();
             }
+
             return beat;
         }
 
         public HeartbeatMessage GenerateHeartbeat()
         {
             HeartbeatMessage response = new HeartbeatMessage();
-            response.Droplets.Add(GenerateInstanceHeartbeat().ToJsonIntermediateObject());
+            response.Droplets.Add(this.GenerateInstanceHeartbeat().ToJsonIntermediateObject());
             return response;
         }
 
@@ -157,25 +159,24 @@ namespace Uhuru.CloudFoundry.DEA
 
             try
             {
-                Lock.EnterReadLock();
-                response.DropletId = Properties.DropletId;
-                response.Version = Properties.Version;
-                response.InstanceId = Properties.InstanceId;
-                response.Index = Properties.InstanceIndex;
-                response.ExitReason = Properties.ExitReason;
+                this.Lock.EnterReadLock();
+                response.DropletId = this.Properties.DropletId;
+                response.Version = this.Properties.Version;
+                response.InstanceId = this.Properties.InstanceId;
+                response.Index = this.Properties.InstanceIndex;
+                response.ExitReason = this.Properties.ExitReason;
 
-                if (Properties.State == DropletInstanceState.Crashed)
+                if (this.Properties.State == DropletInstanceState.Crashed)
                 {
-                    response.CrashedTimestamp = Properties.StateTimestamp;
+                    response.CrashedTimestamp = this.Properties.StateTimestamp;
                 }
             }
             finally
             {
-                Lock.ExitReadLock();
+                this.Lock.ExitReadLock();
             }
 
             return response;
-
         }
 
         /// <summary>
@@ -188,22 +189,22 @@ namespace Uhuru.CloudFoundry.DEA
 
             try
             {
-                Lock.EnterReadLock();
-                response.Name = Properties.Name;
-                response.Port = Properties.Port;
-                response.Uris = Properties.Uris;
-                response.Uptime = (DateTime.Now - Properties.Start).TotalSeconds;
-                response.MemoryQuotaBytes = Properties.MemoryQuotaBytes;
-                response.DiskQuotaBytes = Properties.DiskQuotaBytes;
-                response.FdsQuota = Properties.FdsQuota;
-                if (Usage.Count > 0)
+                this.Lock.EnterReadLock();
+                response.Name = this.Properties.Name;
+                response.Port = this.Properties.Port;
+                response.Uris = this.Properties.Uris;
+                response.Uptime = (DateTime.Now - this.Properties.Start).TotalSeconds;
+                response.MemoryQuotaBytes = this.Properties.MemoryQuotaBytes;
+                response.DiskQuotaBytes = this.Properties.DiskQuotaBytes;
+                response.FdsQuota = this.Properties.FdsQuota;
+                if (this.Usage.Count > 0)
                 {
-                    response.Usage = Usage[Usage.Count - 1];
+                    response.Usage = this.Usage[this.Usage.Count - 1];
                 }
             }
             finally
             {
-                Lock.ExitReadLock();
+                this.Lock.ExitReadLock();
             }
 
             return response;
@@ -230,29 +231,27 @@ namespace Uhuru.CloudFoundry.DEA
             return appInfo;
         }
 
-
-
         public void LoadPlugin()
         {
             // in startup, we have the classname and assembly to load as a plugin
-            string startup = File.ReadAllText(Path.Combine(Properties.Directory, "startup"));
+            string startup = File.ReadAllText(Path.Combine(this.Properties.Directory, "startup"));
 
             VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
             pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(startup));
 
-            ErrorLog = new Utilities.FileLogger(Path.Combine(properties.Directory, pluginInfo.Logs.DeaErrorLog));
+            this.ErrorLog = new Utilities.FileLogger(Path.Combine(this.properties.Directory, pluginInfo.Logs.DeaErrorLog));
 
             // check to see if the pluging is in the instance directory
-            if (File.Exists(Path.Combine(Properties.Directory, pluginInfo.Assembly)))
+            if (File.Exists(Path.Combine(this.Properties.Directory, pluginInfo.Assembly)))
             {
-                Guid PluginId = PluginHost.LoadPlugin(Path.Combine(Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
-                Plugin = PluginHost.CreateInstance(PluginId);
+                Guid pluginId = PluginHost.LoadPlugin(Path.Combine(this.Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
+                this.Plugin = PluginHost.CreateInstance(pluginId);
             }
             else
-            // if not load the plugin from the dea
             {
+                // if not load the plugin from the dea
                 Guid PluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
-                Plugin = PluginHost.CreateInstance(PluginId);
+                this.Plugin = PluginHost.CreateInstance(PluginId);
             }
         }
 
@@ -264,23 +263,20 @@ namespace Uhuru.CloudFoundry.DEA
             curUsage.MemoryKbytes = memBytes / 1024;
             curUsage.DiskBytes = diskBytes;
 
-            Usage.Add(curUsage);
-            if (Usage.Count > DropletInstance.MaxUsageSamples)
+            this.Usage.Add(curUsage);
+            if (this.Usage.Count > DropletInstance.MaxUsageSamples)
             {
-                Usage.RemoveAt(0);
+                this.Usage.RemoveAt(0);
             }
 
-            Properties.LastUsage = curUsage;
+            this.Properties.LastUsage = curUsage;
             return curUsage;
         }
 
-
         public FileLogger ErrorLog { get; set; }
-
 
         class VcapPluginStagingInfo : JsonConvertibleObject
         {
-
             [JsonName("assembly")]
             public string Assembly { get; set; }
 
@@ -304,6 +300,5 @@ namespace Uhuru.CloudFoundry.DEA
                 set;
             }
         }
-
     }
 }

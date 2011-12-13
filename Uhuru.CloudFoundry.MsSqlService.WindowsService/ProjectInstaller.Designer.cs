@@ -1,11 +1,27 @@
-﻿namespace Uhuru.CloudFoundry.MsSqlService.WindowsService
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
-    partial class ProjectInstaller
+    internal partial class ProjectInstaller
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Service process installer.
+        /// </summary>
+        private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
+        
+        /// <summary>
+        /// Service installer.
+        /// </summary>
+        private System.ServiceProcess.ServiceInstaller serviceInstaller1;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -13,10 +29,11 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (this.components != null))
             {
-                components.Dispose();
+                this.components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
@@ -26,6 +43,7 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Required method for designer support.")]
         private void InitializeComponent()
         {
             this.serviceProcessInstaller1 = new System.ServiceProcess.ServiceProcessInstaller();
@@ -53,8 +71,5 @@
         }
 
         #endregion
-
-        private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
-        private System.ServiceProcess.ServiceInstaller serviceInstaller1;
     }
 }

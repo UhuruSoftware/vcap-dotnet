@@ -68,12 +68,12 @@
     <Compile Include="Messages\DeaFindDropletMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageResponse.cs" />
     <Compile Include="Messages\DeaStartMessageRequest.cs" />
-    <Compile Include="Messages\DeaStatusResponse.cs" />
+    <Compile Include="Messages\DeaStatusMessageResponse.cs" />
     <Compile Include="Messages\DropletExitedMessage.cs" />
     <Compile Include="Messages\DropletStatusMessageResponse.cs" />
-    <Compile Include="Messages\HearbeatMessage.cs" />
-    <Compile Include="Messages\HelloMessageResponse.cs" />
-    <Compile Include="Messages\RouterRegisterResponse.cs" />
+    <Compile Include="Messages\HeartbeatMessage.cs" />
+    <Compile Include="Messages\HelloMessage.cs" />
+    <Compile Include="Messages\RouterMessage.cs" />
     <Compile Include="Monitoring.cs" />
     <Compile Include="PluginHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

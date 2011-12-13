@@ -6,12 +6,21 @@
 
 namespace Uhuru.CloudFoundry.ServiceBase
 {
+    using System;
+
     /// <summary>
     /// This class contains configuration options for a Cloud Foundry system service.
     /// </summary>
     public class Options
     {
+        /// <summary>
+        /// Index of the service node.
+        /// </summary>
         private int index = 0;
+
+        /// <summary>
+        /// Interval at which varz and healtz are updated.
+        /// </summary>
         private int zInterval = 30000;
 
         /// <summary>
@@ -35,8 +44,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the NATS message bus uri.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings")]
-        public string Uri
+        public Uri Uri
         {
             get;
             set;

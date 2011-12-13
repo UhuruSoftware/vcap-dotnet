@@ -1,9 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaStopMessageRequest.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using System;
+    using System.Collections.Generic;
+    using Uhuru.Utilities;
+
     public class DeaStopMessageRequest : JsonConvertibleObject
     {
         [JsonName("droplet")]
@@ -43,22 +49,25 @@ namespace Uhuru.CloudFoundry.DEA
             get
             {
                 HashSet<string> res = new HashSet<string>();
-                foreach (DropletInstanceState state in States)
+                foreach (DropletInstanceState state in this.States)
                 {
                     res.Add(state.ToString());
                 }
+
                 return res;
             }
+
             set
             {
                 if (value == null)
                 {
                     throw new ArgumentNullException("value");
                 }
-                States = new HashSet<DropletInstanceState>();
+
+                this.States = new HashSet<DropletInstanceState>();
                 foreach (string state in value)
                 {
-                    States.Add(JsonConvertibleObject.ObjectToValue<DropletInstanceState>(state));
+                    this.States.Add(JsonConvertibleObject.ObjectToValue<DropletInstanceState>(state));
                 }
             }
         }

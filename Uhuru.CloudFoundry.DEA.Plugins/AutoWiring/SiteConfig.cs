@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="SiteConfig.cs" company="Uhuru Software">
+// <copyright file="SiteConfig.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
     using System.Reflection;
     using System.Xml;
     using System.Xml.XPath;
+    using Uhuru.CloudFoundry.DEA.Plugins;
 
     /// <summary>
     /// A class that acts as a config manager and has a one to one mapping with a web.config file
@@ -120,7 +121,7 @@ namespace Uhuru.CloudFoundry.DEA.AutoWiring
         {
             if (backupOriginal == true)
             {
-                throw new NotImplementedException("Site config: Configuration backup not implemented yet.");
+                throw new NotImplementedException(Strings.SiteConfigConfiguration);
             }
 
             foreach (INodeConfigRewireBase node in this.sectionConfigurators.Values)

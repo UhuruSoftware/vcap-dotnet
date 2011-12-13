@@ -12,12 +12,12 @@ namespace Uhuru.CloudFoundry.DEA
     public class FileViewer
     {
         private int StartAttempts;
+
         public event EventHandler OnStartError;
 
         System.Timers.Timer FilerStartTimer;
 
         FileServer FileViewerServer;
-
 
         public bool IsRunning
         {
@@ -45,64 +45,65 @@ namespace Uhuru.CloudFoundry.DEA
 
         public FileViewer()
         {
-            Credentials = new string[] { Utilities.Credentials.GenerateCredential(), Utilities.Credentials.GenerateCredential() };
-            IsRunning = false;
+            this.Credentials = new string[] { Utilities.Credentials.GenerateCredential(), Utilities.Credentials.GenerateCredential() };
+            this.IsRunning = false;
         }
 
         public void Start(string dropletsPath)
         {
-            FilerStartTimer = new System.Timers.Timer(500);
-            FilerStartTimer.AutoReset = false;
-            FilerStartTimer.Elapsed += new System.Timers.ElapsedEventHandler(delegate(object sender, System.Timers.ElapsedEventArgs args)
+            this.FilerStartTimer = new System.Timers.Timer(500);
+            this.FilerStartTimer.AutoReset = false;
+            this.FilerStartTimer.Elapsed += new System.Timers.ElapsedEventHandler(delegate(object sender, System.Timers.ElapsedEventArgs args)
             {
                 bool success = false;
 
                 try
                 {
-                    FileViewerServer = new FileServer(Port, dropletsPath, @"/droplets", Credentials[0], Credentials[1]);
-                    FileViewerServer.Start();
+                    this.FileViewerServer = new FileServer(this.Port, dropletsPath, @"/droplets", this.Credentials[0], this.Credentials[1]);
+                    this.FileViewerServer.Start();
 
-                    Logger.Info(Strings.FileServiceStartedOnPort, Port);
-                    StartAttempts += 1;
+                    Logger.Info(Strings.FileServiceStartedOnPort, this.Port);
+                    this.StartAttempts += 1;
                     success = true;
                 }
                 catch (Exception ex)
                 {
-                    Logger.Fatal(Strings.FilerServiceFailedToStart, Port, ex.ToString());
-                    StartAttempts += 1;
-                    if (StartAttempts >= 5)
+                    Logger.Fatal(Strings.FilerServiceFailedToStart, this.Port, ex.ToString());
+                    this.StartAttempts += 1;
+                    if (this.StartAttempts >= 5)
                     {
                         Logger.Fatal(Strings.GivingUpOnTryingToStartFiler);
-                        OnStartError(null, null);
+                        this.OnStartError(null, null);
                     }
                 }
 
                 if (success)
                 {
-                    IsRunning = true;
+                    this.IsRunning = true;
 
-                    FilerStartTimer.Enabled = false;
-                    FilerStartTimer = null;
+                    this.FilerStartTimer.Enabled = false;
+                    this.FilerStartTimer = null;
                 }
                 else
                 {
-                    FilerStartTimer.Enabled = true;
+                    this.FilerStartTimer.Enabled = true;
                 }
             });
 
-            FilerStartTimer.Enabled = true;
+            this.FilerStartTimer.Enabled = true;
         }
 
         public void Stop()
         {
-            if(FileViewerServer != null)
-                FileViewerServer.Stop();
+            if (this.FileViewerServer != null)
+            {
+                this.FileViewerServer.Stop();
+            }
         }
 
         ~FileViewer()
         {
-            Stop();
+            this.Stop();
         }
-
     }
 }

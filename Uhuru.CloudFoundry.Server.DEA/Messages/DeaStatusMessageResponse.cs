@@ -1,13 +1,18 @@
-﻿using Uhuru.Utilities;
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaStatusMessageResponse.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Uhuru.CloudFoundry.DEA
 {
+    using Uhuru.Utilities;
+
     /// <summary>
     /// This class is a representation of a DEA status message response.
     /// </summary>
     public class DeaStatusMessageResponse : JsonConvertibleObject
     {
-
         /// <summary>
         /// Gets or sets the id of the DEA service.
         /// </summary>

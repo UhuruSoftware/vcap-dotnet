@@ -19,7 +19,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// </summary>
     public abstract class NodeBase : SystemServiceBase
     {
+        /// <summary>
+        /// The node ID.
+        /// </summary>
         private string nodeId;
+
+        /// <summary>
+        /// Migration Network File System.
+        /// </summary>
         private string migrationNfs;
 
         /// <summary>
@@ -236,12 +243,23 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool Restore(string instanceId, string backupPath);
 
+        /// <summary>
+        /// Encodes a successful status of an operation.
+        /// </summary>
+        /// <param name="response">The response message, with the success property set to true.</param>
+        /// <returns>The response message serialized to a Json string.</returns>
         private static string EncodeSuccess(MessageWithSuccessStatus response)
         {
             response.Success = true;
             return response.SerializeToJson();
         }
 
+        /// <summary>
+        /// Encodes an unsuccessful status of an operation.
+        /// </summary>
+        /// <param name="response">The response message, with the success property set to false, and the exception set to the error property.</param>
+        /// <param name="error">The inner exception that was raised.</param>
+        /// <returns>The response message serialized to a Json string.</returns>   
         private static string EncodeFailure(MessageWithSuccessStatus response, Exception error = null)
         {
             response.Success = false;
@@ -254,6 +272,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
             return response.SerializeToJson();
         }
 
+        /// <summary>
+        /// Called when a provision request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "We log everything that happens, any provision request error should not bubble up.")]
         private void OnProvision(string msg, string reply, string subject)
         {
@@ -287,7 +311,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when an unprovision request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnUnprovision(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.UnprovisionRequestDebugLogMessage, ServiceDescription(), msg);
@@ -319,7 +349,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a bind request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnBind(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.BindRequestLogMessage, ServiceDescription(), msg, reply);
@@ -341,7 +377,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when an unbind request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnUnbind(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.UnbindRequestDebugLogMessage, ServiceDescription(), msg, reply);
@@ -369,7 +411,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a restore request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnRestore(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnRestoreDebugLogMessage, ServiceDescription(), msg, reply);
@@ -398,8 +446,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        // disable and dump instance
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a disable instance request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnDisableInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnDisableInstanceDebugLogMessage, ServiceDescription(), msg, reply);
@@ -434,8 +487,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        // enable instance and send updated credentials back
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when an enable instance request is received.
+        /// Enables an instance and sends updated credentials back.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnEnableInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnEnableInstanceDebugMessage, ServiceDescription(), msg, reply);
@@ -464,8 +523,14 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        // Cleanup nfs folder which contains migration data
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a cleanup NFS request is received.
+        /// Cleanup nfs folder which contains migration data.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnCleanupNfs(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.CleanupNfsLogMessage, ServiceDescription(), msg, reply);
@@ -489,7 +554,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a check orphan request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>         
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnCheckOrphan(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.CheckOrphanLogMessage, ServiceDescription());
@@ -521,6 +592,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        /// <summary>
+        /// Checks the specified service handles to see if they're orphaned.
+        /// </summary>
+        /// <param name="handles">The service handles (service ids and credentials).</param>
         private void CheckOrphan(Handle[] handles)
         {
             if (handles == null)
@@ -562,7 +637,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.OrphanBindingHash = orphanBindingHash;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when a purge orphan request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnPurgeOrphan(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnPurgeOrphanDebugLogMessage, ServiceDescription());
@@ -589,7 +670,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Purges orphan services.
+        /// </summary>
+        /// <param name="orphanInstancesList">The orphan service instances list.</param>
+        /// <param name="orphanBindingsList">The orphan servoce bindings list.</param>
+        /// <returns>A value indicating if the request is successful.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private bool PurgeOrphan(string[] orphanInstancesList, ServiceCredentials[] orphanBindingsList)
         {
             bool ret = true;
@@ -641,7 +728,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
             return Path.Combine(this.migrationNfs, "migration", ServiceName(), instance);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Called when an import instance request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnImportInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnImportInstanceDebugLogMessage, ServiceDescription(), msg, reply);
@@ -670,12 +763,22 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
         }
 
+        /// <summary>
+        /// Called when a discover request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
         private void OnDiscover(string msg, string reply, string subject)
         {
             this.SendNodeAnnouncement(reply);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        /// <summary>
+        /// Sends the node announcement to the cloud controller.
+        /// </summary>
+        /// <param name="reply">The reply subject.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void SendNodeAnnouncement(string reply = null)
         {
             try

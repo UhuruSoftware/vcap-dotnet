@@ -8,7 +8,6 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System.Collections.Generic;
 
-
     /// <summary>
     /// The droplet contains a collection of instances.
     /// </summary>

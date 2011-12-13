@@ -96,24 +96,24 @@ namespace Uhuru.CloudFoundry.DEA
             this.VarzLock = new ReaderWriterLockSlim();
             this.Varz = new Dictionary<string, object>();
             this.Discover = new Dictionary<string, object>();
-            
-            ConstructReactor();
 
-            Uuid = Guid.NewGuid().ToString("N");
+            this.ConstructReactor();
+
+            this.Uuid = Guid.NewGuid().ToString("N");
 
             // Initialize Index from config file
-            if (Index != null)
+            if (this.Index != null)
             {
-                Uuid = String.Format(CultureInfo.InvariantCulture, "{0}-{1}", Index, Uuid);
+                this.Uuid = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.Uuid);
             }
 
-            Host = NetworkInterface.GetLocalIPAddress(UhuruSection.GetSection().DEA.LocalRoute);
+            this.Host = NetworkInterface.GetLocalIPAddress(UhuruSection.GetSection().DEA.LocalRoute);
             VcapReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
 
             // http server port
-            Port = NetworkInterface.GrabEphemeralPort();
+            this.Port = NetworkInterface.GrabEphemeralPort();
 
-            Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
+            this.Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
         }
 
         protected virtual void ConstructReactor()
@@ -128,65 +128,66 @@ namespace Uhuru.CloudFoundry.DEA
         {
             VcapReactor.Start();
 
-            Discover = new Dictionary<string, object>() {
-              {"type", ComponentType},
-              {"index", Index},
-              {"uuid", Uuid},
-              {"host", String.Format(CultureInfo.InvariantCulture, "{0}:{1}", Host, Port)},
-              {"credentials", Authentication},
-              {"start", RubyCompatibility.DateTimeToRubyString(StartedAt = DateTime.Now)}
+            this.Discover = new Dictionary<string, object>() 
+            {
+              { "type", this.ComponentType },
+              { "index", this.Index },
+              { "uuid", this.Uuid },
+              { "host", string.Format(CultureInfo.InvariantCulture, "{0}:{1}", this.Host, this.Port) },
+              { "credentials", this.Authentication },
+              { "start", RubyCompatibility.DateTimeToRubyString(this.StartedAt = DateTime.Now) }
             };
             
             // Varz is customizable
-            Varz = new Dictionary<string, object>();
-            foreach (string key in Discover.Keys)
+            this.Varz = new Dictionary<string, object>();
+            foreach (string key in this.Discover.Keys)
             {
-                Varz[key] = Discover[key];
+                this.Varz[key] = this.Discover[key];
             }
 
-            Varz["num_cores"] = Environment.ProcessorCount;
+            this.Varz["num_cores"] = Environment.ProcessorCount;
 
-            Healthz = "ok\n";
+            this.Healthz = "ok\n";
 
             // Listen for discovery requests
             VcapReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
             {
-                UpdateDiscoverUptime();
-                VcapReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(Discover));
+                this.UpdateDiscoverUptime();
+                VcapReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(this.Discover));
             };
 
-            StartHttpServer();
+            this.StartHttpServer();
 
             // Also announce ourselves on startup..
-            VcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(Discover)); 
+            VcapReactor.SendVcapComponentAnnounce(JsonConvertibleObject.SerializeToJson(this.Discover)); 
         }
 
         private void UpdateDiscoverUptime()
         {
-            TimeSpan span = DateTime.Now - StartedAt;
-            Discover["uptime"] = String.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
+            TimeSpan span = DateTime.Now - this.StartedAt;
+            this.Discover["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
         private void StartHttpServer()
         {
-            MonitoringServer = new MonitoringServer(Port, Host, Authentication[0], Authentication[1]);
+            MonitoringServer = new MonitoringServer(this.Port, this.Host, this.Authentication[0], this.Authentication[1]);
 
             MonitoringServer.VarzRequested += delegate(object sender, VarzRequestEventArgs response)
             {
                 try
                 {
-                    VarzLock.ExitWriteLock();
-                    response.VarzMessage = JsonConvertibleObject.SerializeToJson(Varz);
+                    this.VarzLock.ExitWriteLock();
+                    response.VarzMessage = JsonConvertibleObject.SerializeToJson(this.Varz);
                 }
                 finally
-                { 
-                    VarzLock.ExitReadLock();
+                {
+                    this.VarzLock.ExitReadLock();
                 }
             };
 
             MonitoringServer.HealthzRequested += delegate(object sender, HealthzRequestEventArgs response)
             {
-                response.HealthzMessage = Healthz;
+                response.HealthzMessage = this.Healthz;
             };
 
             MonitoringServer.Start();

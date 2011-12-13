@@ -7,14 +7,13 @@
 namespace Uhuru.CloudFoundry.DEA
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Threading;
     using Uhuru.Utilities;
-    using System.Globalization;
     
     public class Monitoring
     {
-
         /// <summary>
         /// Lock for resource tracking.
         /// </summary>
@@ -83,11 +82,10 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-
-        //todo: stefi: configuration: consider putting this constants into configuration file
-        public const int TaintPerAppMilliseconds = 10; //milliseconds of delay added to dea.disover response per instance of a droplet
-        public const int TaintForMemoryMilliseconds = 100;  //milliseconds of delay added to dea.disover if the whole memory would be full
-        public const int TaintMaxMilliseconds = 250; //maximum ms of taint
+        // todo: stefi: configuration: consider putting this constants into configuration file
+        public const int TaintPerAppMilliseconds = 10; // milliseconds of delay added to dea.disover response per instance of a droplet
+        public const int TaintForMemoryMilliseconds = 100;  // milliseconds of delay added to dea.disover if the whole memory would be full
+        public const int TaintMaxMilliseconds = 250; // maximum ms of taint
 
         public const int DefaultAppMemoryMbytes = 512;
         public const int DefaultAppDiskMbytes = 256;
@@ -97,17 +95,15 @@ namespace Uhuru.CloudFoundry.DEA
         // How long to wait in between logging the structure of the apps directory in the event that a du takes excessively long
         public const int AppsDumpIntervalMilliseconds = 30 * 60000;
 
-
         public const int HeartbeatIntervalMilliseconds = 10 * 1000;
         public const int VarzUpdateIntervalMilliseconds = 1 * 1000;
         public const int MonitorIntervalMilliseconds = 10 * 1000;
         public const int CrashesReaperIntervalMilliseconds = 10 * 1000;
         public const int CrashesReaperTimeoutMilliseconds = 60 * 60 * 1000;
 
-        //todo: adapt this to windows system
+        // todo: adapt this to windows system
         public const int BeginReniceCpuThreshold = 50;
         public const int MaxReniceValue = 20;
-
 
         /// <summary>
         /// Add the instance memeory to the total memory usage and flags the instance as tracked.
@@ -119,22 +115,23 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 throw new ArgumentNullException("instance");
             }
+
             try
             {
-                Lock.EnterWriteLock();
+                this.Lock.EnterWriteLock();
                 instance.Lock.EnterWriteLock();
 
                 if (!instance.Properties.ResourcesTracked)
                 {
                     instance.Properties.ResourcesTracked = true;
-                    Clients++;
-                    MemoryReservedMbytes += instance.Properties.MemoryQuotaBytes / 1024 / 1024;
+                    this.Clients++;
+                    this.MemoryReservedMbytes += instance.Properties.MemoryQuotaBytes / 1024 / 1024;
                 }
             }
             finally
             {
                 instance.Lock.ExitWriteLock();
-                Lock.ExitWriteLock();
+                this.Lock.ExitWriteLock();
             }
         }
 
@@ -148,26 +145,25 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 throw new ArgumentNullException("instance");
             }
+
             try
             {
-                Lock.EnterWriteLock();
+                this.Lock.EnterWriteLock();
                 instance.Lock.EnterWriteLock();
 
                 if (instance.Properties.ResourcesTracked)
                 {
                     instance.Properties.ResourcesTracked = false;
-                    MemoryReservedMbytes -= instance.Properties.MemoryQuotaBytes / 1024 / 1024;
-                    Clients--;
+                    this.MemoryReservedMbytes -= instance.Properties.MemoryQuotaBytes / 1024 / 1024;
+                    this.Clients--;
                 }
             }
             finally
             {
                 instance.Lock.ExitWriteLock();
-                Lock.ExitWriteLock();
+                this.Lock.ExitWriteLock();
             }
-
         }
-
 
         /// <summary>
         /// Logs out the directory structure of the apps dir. This produces both a summary
@@ -177,11 +173,10 @@ namespace Uhuru.CloudFoundry.DEA
         public void DumpAppsDirDiskUsage(string appsDirectory)
         {
             string tsig = DateTime.Now.ToString("yyyyMMdd_hhmm", CultureInfo.InvariantCulture);
-            string summary_file = Path.Combine(AppsDumpDirectory, String.Format(CultureInfo.InvariantCulture, Strings.AppsDuSummary, tsig));
-            string details_file = Path.Combine(AppsDumpDirectory, String.Format(CultureInfo.InvariantCulture, Strings.AppsDuDetails, tsig));
+            string summary_file = Path.Combine(this.AppsDumpDirectory, string.Format(CultureInfo.InvariantCulture, Strings.AppsDuSummary, tsig));
+            string details_file = Path.Combine(this.AppsDumpDirectory, string.Format(CultureInfo.InvariantCulture, Strings.AppsDuDetails, tsig));
 
             // todo: vladi: removed max depth level (6) from call
-
             DiskUsage.WriteDiskUsageToFile(summary_file, appsDirectory, true);
             DiskUsage.WriteDiskUsageToFile(details_file, appsDirectory, false);
         }

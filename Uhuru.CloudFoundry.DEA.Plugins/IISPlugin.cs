@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IISPlugin.cs" company="Uhuru Software">
+// <copyright file="IISPlugin.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -31,14 +31,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// Class implementing the IAgentPlugin interface
     /// Responsible for automatically deploying and managing an IIS .Net application
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
         /// <summary>
         /// Mutex for protecting access to the ServerManager
         /// </summary>
         private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
-
-        #region Class Members
 
         /// <summary>
         /// The application name
@@ -65,10 +64,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// </summary>
         private ApplicationInfo applicationInfo = null;
 
-        #endregion
-
-        #region Public Interface Methods
-
         /// <summary>
         /// sets the initial data for an application
         /// </summary>
@@ -80,7 +75,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
                 this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
 
-                this.appName = this.RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appName = RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
                 this.appPath = parsedData.AppInfo.Path;
 
                 this.applicationInfo = parsedData.AppInfo;
@@ -106,7 +101,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
                 this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
-                this.appName = this.RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appName = RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
                 this.appPath = parsedData.AppInfo.Path;
                 this.applicationInfo = parsedData.AppInfo;
                 this.autoWireTemplates = parsedData.AutoWireTemplates;
@@ -114,7 +109,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             catch (Exception ex)
             {
                 this.startupLogger.Error(ex.ToString());
-                throw ex;
+                throw;
             }
         }
 
@@ -134,7 +129,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             catch (Exception ex)
             {
                 this.startupLogger.Error(ex.ToString());
-                throw ex;
+                throw;
             }
         }
 
@@ -186,16 +181,16 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             this.StopApp();
 
-            this.Cleanup(this.appPath);
+            Cleanup(this.appPath);
         }
 
         /// <summary>
         /// Cleans up the application.
         /// </summary>
-        /// <param name="path">The path.</param>
-        public void CleanupApplication(string path)
+        /// <param name="applicationPath">The path.</param>
+        public void CleanupApplication(string applicationPath)
         {
-            this.Cleanup(path);
+            Cleanup(applicationPath);
         }
 
         /// <summary>
@@ -207,9 +202,294 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             return null;
         }
 
-        #endregion
+        /// <summary>
+        /// Cleans up everything associated with the application deployed at the specified path.
+        /// </summary>
+        /// <param name="path">The application path.</param>
+        private static void Cleanup(string path)
+        {
+            mut.WaitOne();
+            try
+            {
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    DirectoryInfo root = new DirectoryInfo(path);
+                    DirectoryInfo[] childDirectories = root.GetDirectories("*", SearchOption.AllDirectories);
 
-        #region Private Helper Methods
+                    foreach (Site site in serverMgr.Sites)
+                    {
+                        string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
+                        string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
+
+                        if (!Directory.Exists(fullPath))
+                        {
+                            Delete(site.Bindings[0].EndPoint.Port);
+                        }
+
+                        if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
+                        {
+                            Delete(site.Bindings[0].EndPoint.Port);
+                        }
+
+                        foreach (DirectoryInfo di in childDirectories)
+                        {
+                            if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
+                            {
+                                Delete(site.Bindings[0].EndPoint.Port);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
+        }
+
+        /// <summary>
+        /// Removes the application - reachable at the specified port - and its application pools from IIS.
+        /// Note: Stops the application pools and the application if necessary
+        /// </summary>
+        /// <param name="port">The port.</param>
+        private static void Delete(int port)
+        {
+            mut.WaitOne();
+
+            try
+            {
+                using (ServerManager serverMgr = new ServerManager())
+                {
+                    Site currentSite = null;
+                    foreach (Site site in serverMgr.Sites)
+                    {
+                        if (site.Bindings[0].EndPoint.Port == port)
+                        {
+                            currentSite = site;
+                            break;
+                        }
+                    }
+
+                    bool retry = true;
+                    while (retry)
+                    {
+                        try
+                        {
+                            serverMgr.Sites[currentSite.Name].Stop();
+                            retry = false;
+                        }
+                        catch (System.Runtime.InteropServices.COMException)
+                        {
+                            // todo log exception
+                        }
+                    }
+
+                    int time = 0;
+                    while (serverMgr.Sites[currentSite.Name].State != ObjectState.Stopped && time < 300)
+                    {
+                        Thread.Sleep(100);
+                        time++;
+                    }
+
+                    if (time == 300)
+                    {
+                        KillApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
+                    }
+
+                    serverMgr.Sites.Remove(currentSite);
+                    serverMgr.CommitChanges();
+                    FirewallTools.ClosePort(port);
+                    ApplicationPool applicationPool = serverMgr.ApplicationPools[currentSite.Applications["/"].ApplicationPoolName];
+                    serverMgr.ApplicationPools[applicationPool.Name].Stop();
+                    time = 0;
+                    while (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time < 300)
+                    {
+                        Thread.Sleep(100);
+                        time++;
+                    }
+
+                    if (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time == 300)
+                    {
+                        KillApplicationProcesses(applicationPool.Name);
+                    }
+
+                    serverMgr.ApplicationPools.Remove(applicationPool);
+                    serverMgr.CommitChanges();
+                    string username = null;
+                    username = applicationPool.ProcessModel.UserName;
+                    if (username != null)
+                    {
+                        string path = currentSite.Applications["/"].VirtualDirectories["/"].PhysicalPath;
+                        if (Directory.Exists(path))
+                        {
+                            DirectoryInfo deploymentDir = new DirectoryInfo(path);
+                            DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
+                            deploymentDirSecurity.RemoveAccessRuleAll(new FileSystemAccessRule(username, FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, AccessControlType.Allow));
+                            deploymentDir.SetAccessControl(deploymentDirSecurity);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                mut.ReleaseMutex();
+            }
+        }
+
+        /// <summary>
+        /// Forcefully kills the application processes.
+        /// </summary>
+        /// <param name="appPoolName">Name of the app pool associated with the application.</param>
+        private static void KillApplicationProcesses(string appPoolName)
+        {
+            using (ServerManager serverMgr = new ServerManager())
+            {
+                foreach (WorkerProcess process in serverMgr.WorkerProcesses)
+                {
+                    if (process.AppPoolName == appPoolName)
+                    {
+                        Process p = Process.GetProcessById(process.ProcessId);
+                        if (p != null)
+                        {
+                            p.Kill();
+                            p.WaitForExit();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the ASP dot net version in string format from the dot net framework version
+        /// </summary>
+        /// <param name="version">The dot net framework version.</param>
+        /// <returns>Asp.NET version in string format. Returns null if version is not supported</returns>
+        private static string GetAspDotNetVersion(DotNetVersion version)
+        {
+            string dotNetVersion = null;
+            switch (version)
+            {
+                case DotNetVersion.Two:
+                    {
+                        dotNetVersion = "v2.0";
+                        break;
+                    }
+
+                case DotNetVersion.Four:
+                    {
+                        dotNetVersion = "v4.0";
+                        break;
+                    }
+            }
+
+            return dotNetVersion;
+        }
+
+        /// <summary>
+        /// Removes special characters from an input string.
+        /// Note: special characters are considered the ones illegal in a Windows account name
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <returns>A copy of the input string, with special characters removed</returns>
+        private static string RemoveSpecialCharacters(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                throw new ArgumentException(Strings.ArgumentNullOrEmpty, "input");
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (
+                    (input[i] != '/') &&
+                    (input[i] != '\\') &&
+                    (input[i] != '[') &&
+                    (input[i] != ']') &&
+                    (input[i] != ':') &&
+                    (input[i] != ';') &&
+                    (input[i] != '|') &&
+                    (input[i] != '=') &&
+                    (input[i] != ',') &&
+                    (input[i] != '+') &&
+                    (input[i] != '*') &&
+                    (input[i] != '?') &&
+                    (input[i] != '>') &&
+                    (input[i] != '<') &&
+                    (input[i] != '@'))
+                {
+                    sb.Append(input[i]);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Blocks until the application is in the specified state or until the timeout expires
+        /// Note: If the timeout expires without the state condition being true, the method throws a TimeoutException
+        /// </summary>
+        /// <param name="waitForState">State to wait on.</param>
+        /// <param name="milliseconds">Timeout in milliseconds.</param>
+        private void WaitApp(ObjectState waitForState, int milliseconds)
+        {
+            using (ServerManager serverMgr = new ServerManager())
+            {
+                Site site = serverMgr.Sites[this.appName];
+
+                int timeout = 0;
+                while (timeout < milliseconds)
+                {
+                    try
+                    {
+                        if (site.State == waitForState)
+                        {
+                            return;
+                        }
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        // TODO log the exception as warning
+                    }
+
+                    Thread.Sleep(25);
+                    timeout += 25;
+                }
+
+                if (site.State != waitForState)
+                {
+                    throw new TimeoutException(Strings.AppStartOperationExceeded);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the dot net version that the application runs on.
+        /// </summary>
+        /// <param name="appInfo">The application info structure.</param>
+        /// <returns>The .net version supported by the application</returns>
+        private DotNetVersion GetAppVersion(ApplicationInfo appInfo)
+        {
+            this.startupLogger.Info(Strings.DeterminingApplication);
+
+            string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
+
+            DotNetVersion version = DotNetVersion.Four;
+
+            foreach (string assembly in allAssemblies)
+            {
+                if (NetFrameworkVersion.GetVersion(assembly) == DotNetVersion.Four)
+                {
+                    version = DotNetVersion.Four;
+                    break;
+                }
+            }
+
+            this.startupLogger.Info(Strings.DetectedNet + GetAspDotNetVersion(version));
+
+            return version;
+        }
 
         /// <summary>
         /// Creates a per application user, sets security access rules for the application deployment directory
@@ -219,9 +499,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="version">The dot net framework version supported by the application.</param>
         private void DeployApp(ApplicationInfo appInfo, DotNetVersion version)
         {
-            this.startupLogger.Info("Deploying app on IIS.");
+            this.startupLogger.Info(Strings.DeployingAppOnIis);
 
-            string aspNetVersion = this.GetAspDotNetVersion(version);
+            string aspNetVersion = GetAspDotNetVersion(version);
             string password = appInfo.WindowsPassword;
             string userName = appInfo.WindowsUserName;
 
@@ -267,7 +547,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             finally
             {
                 mut.ReleaseMutex();
-                this.startupLogger.Info("Finished app deployment on IIS.");
+                this.startupLogger.Info(Strings.FinishedAppDeploymentOnIis);
             }
         }
 
@@ -281,7 +561,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="errorLogFilePath">The ASP.NET "All Errors" events log file path.</param>
         private void AutowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
         {
-            this.startupLogger.Info("Starting application auto-wiring.");
+            this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
 
             string configFile = Path.Combine(appInfo.Path, "web.config");
 
@@ -300,19 +580,19 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                         if (this.autoWireTemplates.TryGetValue(key, out template))
                         {
-                            template = template.Replace("{host}", service.Host);
-                            template = template.Replace("{port}", service.Port.ToString());
-                            template = template.Replace("{name}", service.InstanceName);
-                            template = template.Replace("{user}", service.User);
-                            template = template.Replace("{password}", service.Password);
+                            template = template.Replace(Strings.Host, service.Host);
+                            template = template.Replace(Strings.Port, service.Port.ToString(CultureInfo.InvariantCulture));
+                            template = template.Replace(Strings.Name, service.InstanceName);
+                            template = template.Replace(Strings.User, service.User);
+                            template = template.Replace(Strings.Password, service.Password);
 
-                            connections[string.Format("{{{0}#{1}}}", key, service.Name)] = template;
+                            connections[string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", key, service.Name)] = template;
                         }
                     }
 
                     foreach (string con in connections.Keys)
                     {
-                        this.startupLogger.Info("Configuring service " + con);
+                        this.startupLogger.Info(Strings.ConfiguringService + con);
                         configFileContents = configFileContents.Replace(con, connections[con]);
                     }
                 }
@@ -320,9 +600,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 XmlDocument doc = this.SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
 
                 doc.Save(configFile);
-                this.startupLogger.Info("Saved configuration file.");
+                this.startupLogger.Info(Strings.SavedConfigurationFile);
 
-                this.startupLogger.Info("Setting up logging.");
+                this.startupLogger.Info(Strings.SettingUpLogging);
 
                 string appDir = Path.GetDirectoryName(configFile);
                 string binDir = Path.Combine(appDir, "bin");
@@ -333,7 +613,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 File.Copy(assemblyFile, destinationAssemblyFile, true);
 
-                this.startupLogger.Info("Copied logging binaries to bin directory.");
+                this.startupLogger.Info(Strings.CopiedLoggingBinariesToBin);
 
                 SiteConfig siteConfiguration = new SiteConfig(appDir, true);
                 HealthMonRewire healthMon = new HealthMonRewire();
@@ -342,7 +622,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 siteConfiguration.Rewire(false);
                 siteConfiguration.CommitChanges();
 
-                this.startupLogger.Info("Updated logging configuration settings.");
+                this.startupLogger.Info(Strings.UpdatedLoggingConfiguration);
 
                 DirectoryInfo errorLogDir = new DirectoryInfo(Path.GetDirectoryName(errorLogFilePath));
                 DirectoryInfo logDir = new DirectoryInfo(Path.GetDirectoryName(logFilePath));
@@ -381,7 +661,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <returns>An xml document ready containing the updated configuration file.</returns>
         private XmlDocument SetApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
         {
-            this.startupLogger.Info("Setting up application variables.");
+            this.startupLogger.Info(Strings.SettingUpApplicationVariables);
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(configFileContents);
@@ -428,7 +708,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 while (iter.MoveNext())
                 {
                     string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (key != string.Empty && key == var.Name)
+                    if (!string.IsNullOrEmpty(key) && key == var.Name)
                     {
                         exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
@@ -460,7 +740,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 while (iter.MoveNext())
                 {
                     string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (key != string.Empty && key == "UHURU_LOG_FILE")
+                    if (!string.IsNullOrEmpty(key) && key == "UHURU_LOG_FILE")
                     {
                         exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
@@ -492,7 +772,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 while (iter.MoveNext())
                 {
                     string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (key != string.Empty && key == "UHURU_ERROR_LOG_FILE")
+                    if (!string.IsNullOrEmpty(key) && key == "UHURU_ERROR_LOG_FILE")
                     {
                         exists = true;
                         iter.Current.ReplaceSelf(n.CreateNavigator());
@@ -505,7 +785,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 }
             }
 
-            this.startupLogger.Info("Done setting up application variables.");
+            this.startupLogger.Info(Strings.DoneSettingUpApplication);
 
             return doc;
         }
@@ -517,7 +797,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                this.startupLogger.Info("Starting IIS site.");
+                this.startupLogger.Info(Strings.StartingIisSite);
 
                 mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
@@ -550,7 +830,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             finally
             {
                 mut.ReleaseMutex();
-                this.startupLogger.Info("Finished starting IIS site.");
+                this.startupLogger.Info(Strings.FinishedStartingIisSite);
             }
         }
 
@@ -584,297 +864,5 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 mut.ReleaseMutex();
             }
         }
-
-        /// <summary>
-        /// Cleans up everything associated with the application deployed at the specified path.
-        /// </summary>
-        /// <param name="path">The application path.</param>
-        private void Cleanup(string path)
-        {
-            mut.WaitOne();
-            try
-            {
-                using (ServerManager serverMgr = new ServerManager())
-                {
-                    DirectoryInfo root = new DirectoryInfo(path);
-                    DirectoryInfo[] childDirectories = root.GetDirectories("*", SearchOption.AllDirectories);
-
-                    foreach (Site site in serverMgr.Sites)
-                    {
-                        string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
-                        string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
-
-                        if (!Directory.Exists(fullPath))
-                        {
-                            this.Delete(site.Bindings[0].EndPoint.Port);
-                        }
-
-                        if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
-                        {
-                            this.Delete(site.Bindings[0].EndPoint.Port);
-                        }
-
-                        foreach (DirectoryInfo di in childDirectories)
-                        {
-                            if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
-                            {
-                                this.Delete(site.Bindings[0].EndPoint.Port);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                mut.ReleaseMutex();
-            }
-        }
-
-        /// <summary>
-        /// Removes the application - reachable at the specified port - and its application pools from IIS.
-        /// Note: Stops the application pools and the application if necessary
-        /// </summary>
-        /// <param name="port">The port.</param>
-        private void Delete(int port)
-        {
-            mut.WaitOne();
-
-            try
-            {
-                using (ServerManager serverMgr = new ServerManager())
-                {
-                    Site currentSite = null;
-                    foreach (Site site in serverMgr.Sites)
-                    {
-                        if (site.Bindings[0].EndPoint.Port == port)
-                        {
-                            currentSite = site;
-                            break;
-                        }
-                    }
-
-                    bool retry = true;
-                    while (retry)
-                    {
-                        try
-                        {
-                            serverMgr.Sites[currentSite.Name].Stop();
-                            retry = false;
-                        }
-                        catch (System.Runtime.InteropServices.COMException)
-                        {
-                            // todo log exception
-                        }
-                    }
-
-                    int time = 0;
-                    while (serverMgr.Sites[currentSite.Name].State != ObjectState.Stopped && time < 300)
-                    {
-                        Thread.Sleep(100);
-                        time++;
-                    }
-
-                    if (time == 300)
-                    {
-                        this.KillApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
-                    }
-
-                    serverMgr.Sites.Remove(currentSite);
-                    serverMgr.CommitChanges();
-                    FirewallTools.ClosePort(port);
-                    ApplicationPool applicationPool = serverMgr.ApplicationPools[currentSite.Applications["/"].ApplicationPoolName];
-                    serverMgr.ApplicationPools[applicationPool.Name].Stop();
-                    time = 0;
-                    while (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time < 300)
-                    {
-                        Thread.Sleep(100);
-                        time++;
-                    }
-
-                    if (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time == 300)
-                    {
-                        this.KillApplicationProcesses(applicationPool.Name);
-                    }
-
-                    serverMgr.ApplicationPools.Remove(applicationPool);
-                    serverMgr.CommitChanges();
-                    string username = null;
-                    username = applicationPool.ProcessModel.UserName;
-                    if (username != null)
-                    {
-                        string path = currentSite.Applications["/"].VirtualDirectories["/"].PhysicalPath;
-                        if (Directory.Exists(path))
-                        {
-                            DirectoryInfo deploymentDir = new DirectoryInfo(path);
-                            DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
-                            deploymentDirSecurity.RemoveAccessRuleAll(new FileSystemAccessRule(username, FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, AccessControlType.Allow));
-                            deploymentDir.SetAccessControl(deploymentDirSecurity);
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                mut.ReleaseMutex();
-            }
-        }
-
-        /// <summary>
-        /// Blocks until the application is in the specified state or until the timeout expires
-        /// Note: If the timeout expires without the state condition being true, the method throws a TimeoutException
-        /// </summary>
-        /// <param name="waitForState">State to wait on.</param>
-        /// <param name="milliseconds">Timeout in milliseconds.</param>
-        private void WaitApp(ObjectState waitForState, int milliseconds)
-        {
-            using (ServerManager serverMgr = new ServerManager())
-            {
-                Site site = serverMgr.Sites[this.appName];
-
-                int timeout = 0;
-                while (timeout < milliseconds)
-                {
-                    try
-                    {
-                        if (site.State == waitForState)
-                        {
-                            return;
-                        }
-                    }
-                    catch (System.Runtime.InteropServices.COMException)
-                    {
-                        // TODO log the exception as warning
-                    }
-
-                    Thread.Sleep(25);
-                    timeout += 25;
-                }
-
-                if (site.State != waitForState)
-                {
-                    throw new TimeoutException("App start operation exceeded maximum time");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Forcefully kills the application processes.
-        /// </summary>
-        /// <param name="appPoolName">Name of the app pool associated with the application.</param>
-        private void KillApplicationProcesses(string appPoolName)
-        {
-            using (ServerManager serverMgr = new ServerManager())
-            {
-                foreach (WorkerProcess process in serverMgr.WorkerProcesses)
-                {
-                    if (process.AppPoolName == appPoolName)
-                    {
-                        Process p = Process.GetProcessById(process.ProcessId);
-                        if (p != null)
-                        {
-                            p.Kill();
-                            p.WaitForExit();
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Gets the ASP dot net version in string format from the dot net framework version
-        /// </summary>
-        /// <param name="version">The dot net framework version.</param>
-        /// <returns>Asp.NET version in string format. Returns null if version is not supported</returns>
-        private string GetAspDotNetVersion(DotNetVersion version)
-        {
-            string dotNetVersion = null;
-            switch (version)
-            {
-                case DotNetVersion.Two:
-                    {
-                        dotNetVersion = "v2.0";
-                        break;
-                    }
-
-                case DotNetVersion.Four:
-                    {
-                        dotNetVersion = "v4.0";
-                        break;
-                    }
-            }
-
-            return dotNetVersion;
-        }
-
-        /// <summary>
-        /// Gets the dot net version that the application runs on.
-        /// </summary>
-        /// <param name="appInfo">The application info structure.</param>
-        /// <returns>The .net version supported by the application</returns>
-        private DotNetVersion GetAppVersion(ApplicationInfo appInfo)
-        {
-            this.startupLogger.Info("Determining application framework version.");
-
-            string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
-
-            DotNetVersion version = DotNetVersion.Four;
-
-            foreach (string assembly in allAssemblies)
-            {
-                if (NetFrameworkVersion.GetVersion(assembly) == DotNetVersion.Four)
-                {
-                    version = DotNetVersion.Four;
-                    break;
-                }
-            }
-
-            this.startupLogger.Info("Detected .Net " + this.GetAspDotNetVersion(version));
-
-            return version;
-        }
-
-        /// <summary>
-        /// Removes special characters from an input string.
-        /// Note: special characters are considered the ones illegal in a Windows account name
-        /// </summary>
-        /// <param name="input">The input string.</param>
-        /// <returns>A copy of the input string, with special characters removed</returns>
-        private string RemoveSpecialCharacters(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                throw new ArgumentException("Argument null or empty", "input");
-            }
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (
-                    (input[i] != '/') &&
-                    (input[i] != '\\') &&
-                    (input[i] != '[') &&
-                    (input[i] != ']') &&
-                    (input[i] != ':') &&
-                    (input[i] != ';') &&
-                    (input[i] != '|') &&
-                    (input[i] != '=') &&
-                    (input[i] != ',') &&
-                    (input[i] != '+') &&
-                    (input[i] != '*') &&
-                    (input[i] != '?') &&
-                    (input[i] != '>') &&
-                    (input[i] != '<') &&
-                    (input[i] != '@')
-                    )
-                {
-                    sb.Append(input[i]);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        #endregion
     }
 }

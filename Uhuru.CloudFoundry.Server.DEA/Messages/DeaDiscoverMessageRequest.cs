@@ -13,7 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
     {
         public DeaDiscoverMessageRequest()
         {
-            Limits = new DropletLimits();
+            this.Limits = new DropletLimits();
         }
 
         [JsonName("droplet")]
@@ -50,12 +50,10 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-        
     }
 
     public class DropletLimits : JsonConvertibleObject
     {
-
         [JsonName("mem")]
         public long MemoryMbytes
         {
