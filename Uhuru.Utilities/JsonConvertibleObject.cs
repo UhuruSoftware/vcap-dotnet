@@ -255,48 +255,60 @@ namespace Uhuru.Utilities
                     memberValue = valueAsDictionary[jsonPropertyName];
                 }
 
-                if (memberType.IsSubclassOf(typeof(JsonConvertibleObject)))
+                this.SetMemberValue(member, ConvertMember(memberValue, memberType));
+            }
+        }
+
+        /// <summary>
+        /// Converts an individual member.
+        /// </summary>
+        /// <param name="memberValue">The member value.</param>
+        /// <param name="memberType">Type of the member.</param>
+        /// <returns>The converted memeber.</returns>
+        private static object ConvertMember(object memberValue, Type memberType)
+        {
+            if (memberType.IsSubclassOf(typeof(JsonConvertibleObject)))
+            {
+                if (memberValue != null)
                 {
-                    if (memberValue != null)
-                    {
-                        JsonConvertibleObject finalValue = (JsonConvertibleObject)memberType.GetConstructor(new Type[0]).Invoke(null);
-                        finalValue.FromJsonIntermediateObject(memberValue);
-                        this.SetMemberValue(member, finalValue);
-                    }
-                }
-                else if (memberType.IsEnum)
-                {
-                    object enumValue = memberValue;
-                    JValue enumValueJObject = enumValue as JValue;
-                    if (enumValueJObject != null)
-                    {
-                        enumValue = enumValueJObject.Value<string>();
-                    }
-
-                    string strEnumValue = enumValue as string;
-
-                    if (strEnumValue == null)
-                    {
-                        continue;
-                    }
-
-                    object valueToSet = GetEnumValueFromString(memberType, strEnumValue);
-
-                    this.SetMemberValue(member, valueToSet);
-                }
-                else
-                {
-                    JToken memberValueAsJObject = memberValue as JToken;
-                    if (memberValueAsJObject != null)
-                    {
-                        MethodInfo method = memberValueAsJObject.GetType().GetMethod("ToObject", new Type[] { });
-                        MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { memberType });
-                        memberValue = genericMethod.Invoke(valueAsJObject[jsonPropertyName], null);
-                    }
-
-                    this.SetMemberValue(member, memberValue);
+                    JsonConvertibleObject finalValue = (JsonConvertibleObject)memberType.GetConstructor(new Type[0]).Invoke(null);
+                    finalValue.FromJsonIntermediateObject(memberValue);
+                    return finalValue;
                 }
             }
+            else if (memberType.IsEnum)
+            {
+                object enumValue = memberValue;
+                JValue enumValueJObject = enumValue as JValue;
+                if (enumValueJObject != null)
+                {
+                    enumValue = enumValueJObject.Value<string>();
+                }
+
+                string strEnumValue = enumValue as string;
+
+                if (strEnumValue == null)
+                {
+                    return null;
+                }
+
+                object valueToSet = GetEnumValueFromString(memberType, strEnumValue);
+
+                return valueToSet;
+            }
+            else
+            {
+                JToken memberValueAsJObject = memberValue as JToken;
+                if (memberValueAsJObject != null)
+                {
+                    MethodInfo method = memberValueAsJObject.GetType().GetMethod("ToObject", new Type[] { });
+                    MethodInfo genericMethod = method.MakeGenericMethod(new Type[] { memberType });
+                    memberValue = genericMethod.Invoke(memberValueAsJObject, null);
+                    return memberValue;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
