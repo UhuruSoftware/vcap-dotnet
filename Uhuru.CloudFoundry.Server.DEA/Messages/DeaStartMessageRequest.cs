@@ -17,8 +17,14 @@ namespace Uhuru.CloudFoundry.DEA
      * "version" :"98b1159c7d3539dd450fd86f92647d3902a0067b-1","services" :[],
      * "limits" :{"mem":128,"disk":2048,"fds":256},"env" :[],"users" :["dev@cloudfoundry.org"],"index" :0}'
      */
+    /// <summary>
+    /// This class encapsulates a request message to start a droplet instance.
+    /// </summary>
     public class DeaStartMessageRequest : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the droplet id of the instance that has to be started.
+        /// </summary>
         [JsonName("droplet")]
         public int DropletId
         {
@@ -26,6 +32,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the index of the instance that has to be started.
+        /// </summary>
         [JsonName("index")]
         public int Index
         {
@@ -33,6 +42,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the droplet.
+        /// </summary>
         [JsonName("name")]
         public string Name
         {
@@ -40,6 +52,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the URLs that are mapped to the droplet.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("uris")]
         public string[] Uris
@@ -48,6 +63,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the runtime that the droplet needs to run.
+        /// </summary>
         [JsonName("runtime")]
         public string Runtime
         {
@@ -55,6 +73,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the framework used by the droplet.
+        /// </summary>
         [JsonName("framework")]
         public string Framework
         {
@@ -62,6 +83,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the unique hash identifying the droplet.
+        /// </summary>
         [JsonName("sha1")]
         public string Sha1
         {
@@ -69,6 +93,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the executable file.
+        /// </summary>
         [JsonName("executableFile")]
         public string ExecutableFile
         {
@@ -76,6 +103,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the executable URI.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings"), 
         JsonName("executableUri")]
         public string ExecutableUri
@@ -84,6 +114,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the version of the droplet.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -91,6 +124,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the services that are bound to this droplet.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("services")]
         public Dictionary<string, object>[] Services
@@ -99,6 +135,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the environment variables for the droplet.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("env")]
         public string[] Environment
@@ -107,6 +146,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the users that own the droplet.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("users")]
         public string[] Users
@@ -115,6 +157,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the usage limits of the app.
+        /// </summary>
         [JsonName("limits")]
         public StartRequestDropletLimits Limits
         {
@@ -122,14 +167,23 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeaStartMessageRequest"/> class.
+        /// </summary>
         public DeaStartMessageRequest()
         {
             this.Limits = new StartRequestDropletLimits();
         }
     }
 
+    /// <summary>
+    /// This class contains information about the usage limits of a droplet.
+    /// </summary>
     public class StartRequestDropletLimits : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the maximum memory limit in megabytes.
+        /// </summary>
         [JsonName("mem")]
         public long? MemoryMbytes
         {
@@ -137,6 +191,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the maximum disk usage in megabytes.
+        /// </summary>
         [JsonName("disk")]
         public long? DiskMbytes
         {
@@ -144,102 +201,14 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the mximum number of open files and sockets.
+        /// </summary>
         [JsonName("fds")]
         public long? FileDescriptors
         {
             get;
             set;
         }
-    }
-
-    /*
-     * Example:
-     * {"droplet":30,"name":"helloworld","uris":["helloworld.uhurucloud.net"],"runtime":"iis","framework":"net","sha1":"3bce1e6408234c4e2deb7eee8268f4b6123d2b5f","executableFile":"/var/vcap/shared/droplets/3bce1e6408234c4e2deb7eee8268f4b61
-23d2b5f","executableUri":"http://192.168.1.117:9022/staged_droplets/30/3bce1e6408234c4e2deb7eee8268f4b6123d2b5f","version":"3bce1e6408234c4e2deb7eee8268f4b6123d2b5f-2","services":[{"name":"helloservice","type":"database","label":"mssql-2008","vendor":"mssql","version":"2008","tags":["mssql","2008","
-relational"],"plan":"free","plan_option":null,"credentials":{"name":"D4TA4f587f703ee24294808c7aa6df78e4f2","hostname":"192.168.1.116","host":"192.168.1.116","port":1433,"user":"US3RkkyIUnYreXC8","username":"US3RkkyIUnYreXC8","password":"P4SSJ0jwJTg0ojGx"}}],"limits":{"mem":128,"disk":2048,"fds":256}
-,"env":[],"users":["dev@cloudfoundry.org"],"debug":null,"index":0}'
-     */
-
-    /*
-     * 
-     *  "name":"helloservice",
-        "type":"database",
-        "label":"mssql-2008",
-        "vendor":"mssql",
-        "version":"2008",
-        "tags":[
-            "mssql",
-            "2008",
-            " relational"
-        ],
-        "plan":"free",
-        "plan_option":null,
-        "credentials":{
-            "name":"D4TA4f587f703ee24294808c7aa6df78e4f2",
-            "hostname":"192.168.1.116",
-            "host":"192.168.1.116",
-            "port":1433,
-            "user":"US3RkkyIUnYreXC8",
-            "username":"US3RkkyIUnYreXC8",
-            "password":"P4SSJ0jwJTg0ojGx"
-           }
-     */
-    public class StartRequestService : JsonConvertibleObject
-    {
-        public StartRequestService()
-        {
-            this.Credentials = new StartRequestServiceCredentials();
-        }
-
-        [JsonName("name")]
-        public string ServiceName { get; set; }
-
-        [JsonName("type")]
-        public string ServiceType { get; set; }
-
-        [JsonName("label")]
-        public string Label { get; set; }
-
-        [JsonName("vendor")]
-        public string Vendor { get; set; }
-
-        [JsonName("version")]
-        public string Version { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), JsonName("tags")]
-        public string[] Tags { get; set; }
-
-        [JsonName("plan")]
-        public string Plan { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), JsonName("plan_option")]
-        public Dictionary<string, object> PlanOptions { get; set; }
-
-        [JsonName("credentials")]
-        public StartRequestServiceCredentials Credentials { get; set; }
-    }
-
-    public class StartRequestServiceCredentials : JsonConvertibleObject
-    {
-        [JsonName("name")]
-        public string InstanceName { get; set; }
-
-        [JsonName("hostname")]
-        public string HostName { get; set; }
-
-        [JsonName("host")]
-        public string Host { get; set; }
-
-        [JsonName("port")]
-        public int Port { get; set; }
-
-        [JsonName("user")]
-        public string User { get; set; }
-
-        [JsonName("username")]
-        public string UserName { get; set; }
-
-        [JsonName("password")]
-        public string Password { get; set; }
     }
 }

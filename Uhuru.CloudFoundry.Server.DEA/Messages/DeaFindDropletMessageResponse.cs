@@ -9,8 +9,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using Uhuru.Utilities;
 
+    /// <summary>
+    /// This class encapsulates a response message to a <see cref="DeaFindDropletMessageResquest"/>
+    /// </summary>
     public class DeaFindDropletMessageResponse : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the DEA service ID.
+        /// </summary>
         [JsonName("dea")]
         public string DeaId
         {
@@ -18,6 +24,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the version of the droplet instance.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -25,6 +34,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the droplet id.
+        /// </summary>
         [JsonName("droplet")]
         public int DropletId
         {
@@ -32,6 +44,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the instance id.
+        /// </summary>
         [JsonName("instance")]
         public string InstanceId
         {
@@ -39,6 +54,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the index of the droplet instance.
+        /// </summary>
         [JsonName("index")]
         public int Index
         {
@@ -46,13 +64,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        /*
-        public string StateInterchangeableFormat
-        {
-            get { return State.ToString(); }
-            set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
-        }
-         */
+        /// <summary>
+        /// Gets or sets the state of the droplet instance.
+        /// </summary>
         [JsonName("state")]
         public DropletInstanceState State
         {
@@ -60,6 +74,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the last snapshot timestamp for the droplet instance state in a ruby-compatible format.
+        /// </summary>
         [JsonName("state_timestamp")]
         public int StateTimestampInterchangeableFormat
         {
@@ -67,12 +84,18 @@ namespace Uhuru.CloudFoundry.DEA
             set { this.StateTimestamp = RubyCompatibility.DateTimeFromEpochSeconds(value); }
         }
 
+        /// <summary>
+        /// Gets or sets the last snapshot timestamp for the droplet instance state.
+        /// </summary>
         public DateTime StateTimestamp
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the URI to the file server that can serve the droplet instance.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings"), 
         JsonName("file_uri")]
         public string FileUri
@@ -81,6 +104,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the authentication credentials for the file server.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays"), 
         JsonName("credentials")]
         public string[] FileAuth
@@ -89,6 +115,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the staged value.
+        /// </summary>
         [JsonName("staged")]
         public string Staged
         {
@@ -96,6 +125,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the debug IP for the droplet instance.
+        /// </summary>
         [JsonName("debug_ip")]
         public string DebugIP
         {
@@ -103,6 +135,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the debug port for the droplet instance.
+        /// </summary>
         [JsonName("debug_port")]
         public int? DebugPort
         {
@@ -110,6 +145,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the stats of the droplet instance.
+        /// </summary>
         [JsonName("stats")]
         public DropletStatusMessageResponse Stats
         {

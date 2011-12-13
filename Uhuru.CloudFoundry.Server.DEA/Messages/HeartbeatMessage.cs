@@ -9,11 +9,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using System.Collections.Generic;
     using Uhuru.Utilities;
-    
+
+    /// <summary>
+    /// A class that encapsulates a heartbeat message.
+    /// </summary>
     public class HeartbeatMessage : JsonConvertibleObject
     {
         /// <summary>
-        /// A class containing a set of droplet instance properties.
+        /// A class that encapsulates a message containing a set of droplet instance properties.
         /// </summary>
         public class InstanceHeartbeat : JsonConvertibleObject
         {
@@ -57,14 +60,6 @@ namespace Uhuru.CloudFoundry.DEA
                 set;
             }
 
-            /*
-            public string StateInterchangeableFormat
-            {
-                get { return State.ToString(); }
-                set { State = (DropletInstanceState)Enum.Parse(typeof(DropletInstanceState), value); }
-            }
-            */
-
             /// <summary>
             /// The state of the droplet instance.
             /// </summary>
@@ -96,6 +91,9 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         // todo: stefi: change the type when json helper class can go deep into generic collections
+        /// <summary>
+        /// All the droplets hosted in the DEA.
+        /// </summary>
         [JsonName("droplets")]
         public List<Dictionary<string, object>> Droplets = new List<Dictionary<string, object>>();
     }

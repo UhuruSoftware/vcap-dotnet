@@ -10,8 +10,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Generic;
     using Uhuru.Utilities;
 
+    /// <summary>
+    /// This class encapsulates a request message to find a droplet.
+    /// </summary>
     public class DeaFindDropletMessageRequest : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the droplet id.
+        /// </summary>
         [JsonName("droplet")]
         public int DropletId
         {
@@ -19,6 +25,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the version of the droplet.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -26,6 +35,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the instance ids of the droplet that we have to find.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"),
         JsonName("instance_ids")]
         public HashSet<string> InstanceIds
@@ -34,6 +46,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the indexes of the instances that we have to find..
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("indices")]
         public HashSet<int> Indexes
@@ -42,13 +57,16 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        // todo: change this conversion mechanism
+        /// <summary>
+        /// Gets or sets the desired states of the instances that have to be found.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("states")]
         public HashSet<string> StatesInterchangeableFormat
         {
             get 
-            { 
+            {         
+                // todo: change this conversion mechanism
                 HashSet<string> res = new HashSet<string>();
                 foreach (DropletInstanceState state in this.States)
                 {
@@ -74,6 +92,9 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets or sets the states of the instances that have to be found.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public HashSet<DropletInstanceState> States
         {
@@ -81,6 +102,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to include states in the response message.
+        /// </summary>
         [JsonName("include_stats")]
         public bool IncludeStates
         {
