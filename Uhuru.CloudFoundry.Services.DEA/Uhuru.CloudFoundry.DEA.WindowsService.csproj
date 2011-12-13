@@ -63,7 +63,6 @@
     <Compile Include="DeaWindowsService.Designer.cs">
       <DependentUpon>DeaWindowsService.cs</DependentUpon>
     </Compile>
-    <Compile Include="InstallArguments.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

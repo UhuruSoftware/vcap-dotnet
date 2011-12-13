@@ -10,8 +10,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Generic;
     using Uhuru.Utilities;
 
+    /// <summary>
+    /// This class encapsulates a request message to stop droplet instances.
+    /// </summary>
     public class DeaStopMessageRequest : JsonConvertibleObject
     {
+        /// <summary>
+        /// Gets or sets the droplet id to be stopped.
+        /// </summary>
         [JsonName("droplet")]
         public int DropletId
         {
@@ -19,6 +25,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the version of the droplet.
+        /// </summary>
         [JsonName("version")]
         public string Version
         {
@@ -26,6 +35,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the instance IDs that have to be stopped.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("instances")]
         public HashSet<string> InstanceIds
@@ -34,6 +46,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the indexes of the instances that have to be stopped.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("indices")]
         public HashSet<int> Indexes
@@ -42,6 +57,9 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        /// <summary>
+        /// Gets or sets the states of the instances; this property is used for (de)serialization only.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly"), 
         JsonName("states")]
         public HashSet<string> StatesInterchangeableFormat
@@ -72,6 +90,9 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        /// <summary>
+        /// Gets or sets the states of the instances.
+        /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public HashSet<DropletInstanceState> States
         {

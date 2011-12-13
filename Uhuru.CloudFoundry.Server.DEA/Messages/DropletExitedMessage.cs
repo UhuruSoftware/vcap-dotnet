@@ -10,7 +10,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Utilities;
     
     /// <summary>
-    /// Contains relevant information after a droplet instance has exited.
+    /// This encapsulates a message that is sent after a droplet instance has exited.
     /// </summary>
     public class DropletExitedMessage : JsonConvertibleObject
     {
@@ -53,14 +53,6 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-
-        /*
-        public string ExitReasonInterchangeableFormat
-        {
-            get { return ExitReason != null ? ExitReason.ToString() : null; }
-            set { ExitReason = value != null ? (DropletExitReason?)Enum.Parse(typeof(DropletExitReason), value) : null; }
-        }
-        */
 
         /// <summary>
         /// The reason, if known, why the droplet instance has exited.

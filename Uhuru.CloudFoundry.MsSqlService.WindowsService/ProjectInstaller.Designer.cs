@@ -6,7 +6,7 @@
 
 namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
-    internal partial class ProjectInstaller
+    public partial class ProjectInstaller
     {
         /// <summary>
         /// Required designer variable.

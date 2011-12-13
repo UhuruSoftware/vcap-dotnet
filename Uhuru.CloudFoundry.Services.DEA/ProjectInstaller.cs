@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ProjectInstaller.cs" company="Uhuru Software">
+// <copyright file="ProjectInstaller.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         /// </summary>
         public ProjectInstaller()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>
@@ -41,47 +41,46 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         {
             base.Install(stateSaver);
 
-            InstallArguments arguments = new InstallArguments(this.Context);
-            string configFile = Path.Combine(arguments.TargetDir, Assembly.GetExecutingAssembly().Location + ".config");
+            string targetDir = Context.Parameters[Arguments.TargetDir].TrimEnd('\\');
+            string configFile = Path.Combine(targetDir, Assembly.GetExecutingAssembly().Location + ".config");
 
             System.Configuration.ConfigurationFileMap fileMap = new ConfigurationFileMap(configFile);
-
             System.Configuration.Configuration config = System.Configuration.ConfigurationManager.OpenMappedMachineConfiguration(fileMap);
 
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(delegate(object sender, ResolveEventArgs args)
             {
-                return Assembly.LoadFile(Path.Combine(arguments.TargetDir, args.Name + ".dll"));
+                return Assembly.LoadFile(Path.Combine(targetDir, args.Name + ".dll"));
             });
 
             UhuruSection section = (UhuruSection)config.GetSection("uhuru");
-            if (!string.IsNullOrEmpty(arguments.BaseDir))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.BaseDir]))
             {
-                section.DEA.BaseDir = arguments.BaseDir;
+                section.DEA.BaseDir = Context.Parameters[Arguments.BaseDir];
             }
 
-            if (!string.IsNullOrEmpty(arguments.EnforceUlimit))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.EnforceUlimit]))
             {
-                section.DEA.EnforceUsageLimit = Convert.ToBoolean(arguments.EnforceUlimit, CultureInfo.InvariantCulture);
+                section.DEA.EnforceUsageLimit = Convert.ToBoolean(Context.Parameters[Arguments.EnforceUlimit], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.FilerPort))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.FilerPort]))
             {
-                section.DEA.FilerPort = Convert.ToInt32(arguments.FilerPort, CultureInfo.InvariantCulture);
+                section.DEA.FilerPort = Convert.ToInt32(Context.Parameters[Arguments.FilerPort], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.ForceHttpSharing))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.ForceHttpSharing]))
             {
-                section.DEA.ForceHttpSharing = Convert.ToBoolean(arguments.ForceHttpSharing, CultureInfo.InvariantCulture);
+                section.DEA.ForceHttpSharing = Convert.ToBoolean(Context.Parameters[Arguments.ForceHttpSharing], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.HeartBeatInterval))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.HeartBeatInterval]))
             {
-                section.DEA.HeartbeatInterval = Convert.ToInt32(arguments.HeartBeatInterval, CultureInfo.InvariantCulture);
+                section.DEA.HeartbeatInterval = Convert.ToInt32(Context.Parameters[Arguments.HeartBeatInterval], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.LocalRoute))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.LocalRoute]))
             {
-                section.Service.LocalRoute = arguments.LocalRoute;
+                section.DEA.LocalRoute = Context.Parameters[Arguments.LocalRoute];
             }
             else
             {
@@ -95,31 +94,99 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
                     }
                 }
 
-                section.Service.LocalRoute = ip;
+                section.DEA.LocalRoute = ip;
             }
 
-            if (!string.IsNullOrEmpty(arguments.MaxMemory))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.MaxMemory]))
             {
-                section.DEA.MaxMemory = Convert.ToInt32(arguments.MaxMemory, CultureInfo.InvariantCulture);
+                section.DEA.MaxMemory = Convert.ToInt32(Context.Parameters[Arguments.MaxMemory], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.MessageBus))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.MessageBus]))
             {
-                section.DEA.MessageBus = arguments.MessageBus;
+                section.DEA.MessageBus = Context.Parameters[Arguments.MessageBus];
             }
 
-            if (!string.IsNullOrEmpty(arguments.MultiTenant))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.MultiTenant]))
             {
-                section.DEA.Multitenant = Convert.ToBoolean(arguments.MultiTenant, CultureInfo.InvariantCulture);
+                section.DEA.Multitenant = Convert.ToBoolean(Context.Parameters[Arguments.MultiTenant], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(arguments.Secure))
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.Secure]))
             {
-                section.DEA.Secure = Convert.ToBoolean(arguments.Secure, CultureInfo.InvariantCulture);
+                section.DEA.Secure = Convert.ToBoolean(Context.Parameters[Arguments.Secure], CultureInfo.InvariantCulture);
             }
 
             section.Service = null;
             config.Save();
+        }
+
+        /// <summary>
+        /// Class defining all argument names
+        /// </summary>
+        private class Arguments
+        {
+            /// <summary>
+            /// Directory where service is being installed
+            /// </summary>
+            public const string TargetDir = "TARGETDIR";
+
+            /// <summary>
+            /// Parameter name for BaseDir
+            /// </summary>
+            public const string BaseDir = "baseDir";
+
+            /// <summary>
+            /// Parameter name for LocalRoute
+            /// </summary>
+            public const string LocalRoute = "localRoute";
+
+            /// <summary>
+            /// Parameter name for FilerPort
+            /// </summary>
+            public const string FilerPort = "filerPort";
+
+            /// <summary>
+            /// Parameter name for MessageBus
+            /// </summary>
+            public const string MessageBus = "messageBus";
+
+            /// <summary>
+            /// Parameter name for MultiTenant
+            /// </summary>
+            public const string MultiTenant = "multiTenant";
+
+            /// <summary>
+            /// Parameter name for MaxMemory
+            /// </summary>
+            public const string MaxMemory = "maxMemory";
+
+            /// <summary>
+            /// Parameter name for Secure
+            /// </summary>
+            public const string Secure = "secure";
+
+            /// <summary>
+            /// Parameter name for EnforceUlimit
+            /// </summary>
+            public const string EnforceUlimit = "enforceUlimit";
+
+            /// <summary>
+            /// Parameter name for heartbeat
+            /// </summary>
+            public const string HeartBeatInterval = "heartBeatInterval";
+
+            /// <summary>
+            /// Parameter name for forceHttpSharing
+            /// </summary>
+            public const string ForceHttpSharing = "forceHttpSharing";
+
+            /// <summary>
+            /// Prevents a default instance of the <see cref="Arguments"/> class from being created.
+            /// </summary>
+            private Arguments()
+            {
+            }
         }
     }
 }
