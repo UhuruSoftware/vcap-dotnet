@@ -338,6 +338,12 @@ namespace Uhuru.Utilities
         /// <param name="value">The value.</param>
         private void SetMemberValue(MemberInfo member, object value)
         {
+            // if the member isn't in the json object, this the value is null, don't set anything to the memeber.
+            if (value == null)
+            {
+                return;
+            }
+
             PropertyInfo property = member as PropertyInfo;
             FieldInfo field = member as FieldInfo;
 
