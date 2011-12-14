@@ -1547,9 +1547,6 @@ namespace Uhuru.CloudFoundry.DEA
 
                             long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
 
-
-                            //instanceProcess.TotalProcessorTime.Ticks
-
                             instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
 
                             if (this.secure)

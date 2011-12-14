@@ -14,7 +14,6 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public class DropletInstanceUsage : JsonConvertibleObject
     {
-
         /// <summary>
         /// Gets or sets the total process ticks at that time.
         /// </summary>
