@@ -332,39 +332,28 @@ namespace Uhuru.CloudFoundry.DEA
 
             DropletInstance instance = null;
 
-            try
-            {
-                instance = new DropletInstance();
+            instance = new DropletInstance();
 
-                // stefi: consider changing the format
-                string instanceId = Guid.NewGuid().ToString("N");
+            string instanceId = Guid.NewGuid().ToString("N");
 
-                instance.Properties.State = DropletInstanceState.Starting;
-                instance.Properties.StateTimestamp = DateTime.Now;
-                instance.Properties.Start = DateTime.Now;
+            instance.Properties.State = DropletInstanceState.Starting;
+            instance.Properties.StateTimestamp = DateTime.Now;
+            instance.Properties.Start = DateTime.Now;
 
-                instance.Properties.InstanceId = instanceId;
+            instance.Properties.InstanceId = instanceId;
 
-                instance.Properties.DropletId = message.DropletId;
-                instance.Properties.InstanceIndex = message.Index;
-                instance.Properties.Name = message.Name;
-                instance.Properties.Uris = message.Uris;
-                instance.Properties.Users = message.Users;
-                instance.Properties.Version = message.Version;
-                instance.Properties.Framework = message.Framework;
-                instance.Properties.Runtime = message.Runtime;
-                instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
+            instance.Properties.DropletId = message.DropletId;
+            instance.Properties.InstanceIndex = message.Index;
+            instance.Properties.Name = message.Name;
+            instance.Properties.Uris = message.Uris;
+            instance.Properties.Users = message.Users;
+            instance.Properties.Version = message.Version;
+            instance.Properties.Framework = message.Framework;
+            instance.Properties.Runtime = message.Runtime;
+            instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
 
-                this.AddDropletInstance(instance);
-                instance = null;
-            }
-            finally
-            {
-                if (instance != null)
-                {
-                    instance.Dispose();
-                }
-            }
+            this.AddDropletInstance(instance);
+
 
             return instance;
         }
