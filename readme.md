@@ -162,10 +162,10 @@ MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /cate
 System testing is conducted on the complete, integrated system to evaluate the system’s compliance with the specified requirements.
 #### Configure
   To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
-1. Go to Uhuru.CloudFoundtry.Test project
-cd {clonePath}\src\Uhuru.CloudFoundry.Test\
-2. Edit the App.config file
-notepad App.config 
+1. Go to Uhuru.CloudFoundtry.Test project  
+cd {clonePath}\src\Uhuru.CloudFoundry.Test\  
+2. Edit the App.config file  
+notepad App.config  
 3. Set a valid NATS Server for the nats key:
 <add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
 4. Set the target CloudFoundry deployment
