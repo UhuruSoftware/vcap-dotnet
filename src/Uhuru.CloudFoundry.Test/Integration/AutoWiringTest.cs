@@ -15,7 +15,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
     {
 
         // private string applicationPhysicalPath = Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp");
-        private string applicationPhysicalPath = Path.GetFullPath(@"..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\App");
+        private string applicationPhysicalPath = Path.GetFullPath(@"..\..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp");
         private bool nodeExisted;
         private string tempAppFolder;
 
