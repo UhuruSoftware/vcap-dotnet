@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
     {
         string user;
         string password;
-        string testAppLoc = Path.GetFullPath(@"..\..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp");
+        string testAppLoc = Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp");
 
         [TestInitialize()]
         public void TestInitialize()
