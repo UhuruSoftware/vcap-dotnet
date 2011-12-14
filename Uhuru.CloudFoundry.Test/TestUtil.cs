@@ -50,15 +50,6 @@ namespace Uhuru.CloudFoundry.Test
             }
         }
 
-        public static int GetEphemeralPort()
-        {
-            TcpListener socket = new TcpListener(IPAddress.Any, 0);
-            socket.Start();
-            int port = ((IPEndPoint)socket.LocalEndpoint).Port;
-            socket.Stop();
-            return port;
-        }
-
         public static string GetLocalIp()
         {
             IPHostEntry ipHostEntry;
@@ -75,7 +66,7 @@ namespace Uhuru.CloudFoundry.Test
             return localIP;
         }
 
-        public static void TestUmbraco(string url)
+        public static void TestUrl(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.AllowAutoRedirect = false;

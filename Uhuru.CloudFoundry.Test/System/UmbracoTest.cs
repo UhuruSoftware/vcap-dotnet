@@ -65,8 +65,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
         }
 
-        [TestMethod, Timeout(300000)]
-        [TestCategory("System")]
+        [TestMethod, Timeout(300000), TestCategory("System")]
         public void TC001_Create_UmbracoSimple()
         {
             string appName = "umbraco";
@@ -80,11 +79,10 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 Assert.Fail(ex.ToString());
             }
-            TestUtil.TestUmbraco(url);
+            TestUtil.TestUrl(url);
         }
 
-        [TestMethod, Timeout(300000)]
-        [TestCategory("System")]
+        [TestMethod, Timeout(300000), TestCategory("System")]
         public void TC002_Delete_UmbracoSimple()
         {
             string appName = "testdelete";
@@ -94,7 +92,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 PushUmbraco(appName, serviceName, umbracoRootDir, url);
-                TestUtil.TestUmbraco(url);
+                TestUtil.TestUrl(url);
                 DeleteApp(appName, serviceName);
             }
             catch (Exception ex)
@@ -104,8 +102,7 @@ namespace Uhuru.CloudFoundry.Test.System
             Assert.IsFalse(client.AppExists(appName));
         }
 
-        [TestMethod, Timeout(900000)]
-        [TestCategory("System")]
+        [TestMethod, Timeout(900000), TestCategory("System")]
         public void TC003_Create_3Secquential()
         {
             Dictionary<string, string> apps = new Dictionary<string, string>();
@@ -117,7 +114,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 try
                 {
                     PushUmbraco(name, service, umbracoRootDir, url);
-                    TestUtil.TestUmbraco(url);
+                    TestUtil.TestUrl(url);
                 }
                 catch (Exception ex)
                 {
@@ -138,8 +135,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
         }
 
-        [TestMethod, Timeout(1000000)]
-        [TestCategory("System")]
+        [TestMethod, Timeout(1000000), TestCategory("System")]
         public void TC004_Create_5Parallel()
         {
             Dictionary<string, string> apps = new Dictionary<string, string>();
@@ -194,7 +190,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             foreach (string uri in umbracoUris)
             {
-                TestUtil.TestUmbraco(uri);
+                TestUtil.TestUrl(uri);
             }
 
             threads = new List<Thread>();
@@ -268,49 +264,6 @@ namespace Uhuru.CloudFoundry.Test.System
 
             Thread.Sleep(10000);
         }
-
-
-
-        //private void TestUmbraco(string url)
-        //{
-        //    Settings.WaitForCompleteTimeOut = 180;
-
-        //    IE browser = new IE(url, true);
-        //    try
-        //    {
-        //        Thread.Sleep(3000);
-        //        browser.RunScript("__doPostBack('ctl09$btnNext','')");
-        //        Thread.Sleep(3000);
-        //        browser.WaitForComplete();
-        //        browser.RunScript("__doPostBack('ctl09$btnNext','')");
-        //        Thread.Sleep(3000);
-        //        browser.WaitForComplete();
-        //        browser.RunScript("__doPostBack('ctl09$ctl00','')");
-        //        Thread.Sleep(3000);
-        //        browser.WaitForComplete();
-        //        browser.RunScript("__doPostBack('ctl09$ctl01','')");
-        //        Thread.Sleep(3000);
-        //        browser.WaitForComplete();
-        //        browser.TextField(Find.ById("ctl09_tb_password")).TypeText("password1234!");
-        //        browser.TextField(Find.ById("ctl09_tb_password_confirm")).TypeText("password1234!");
-        //        browser.RunScript("WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(\"ctl09$ctl12\", \"\", true, \"\", \"\", false, true))");
-        //        Thread.Sleep(10000);
-        //        browser.WaitForComplete();
-        //        browser.RunScript("__doPostBack('ctl09$ctl01$rep_starterKits$ctl04$bt_selectKit','')");
-        //        Thread.Sleep(10000);
-        //        browser.WaitForComplete();
-        //        browser.RunScript("__doPostBack('ctl09$StarterKitDesigns$rep_starterKitDesigns$ctl01$bt_selectKit','')");
-        //        Thread.Sleep(10000);
-        //        browser.WaitForComplete();
-        //        browser.GoTo(url + "/umbraco/umbraco.aspx");
-
-        //        Assert.True(browser.Title.Contains("Umbraco CMS"));
-        //    }
-        //    finally
-        //    {
-        //        browser.Close();
-        //    }
-        //}
 
         private void DeleteApp(string name, string service)
         {
