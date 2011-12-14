@@ -79,7 +79,7 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 Assert.Fail(ex.ToString());
             }
-            TestUtil.TestUrl(url);
+            Assert.IsTrue(TestUtil.TestUrl(url));
         }
 
         [TestMethod, Timeout(300000), TestCategory("System")]
@@ -92,7 +92,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 PushUmbraco(appName, serviceName, umbracoRootDir, url);
-                TestUtil.TestUrl(url);
+                Assert.IsTrue(TestUtil.TestUrl(url));
                 DeleteApp(appName, serviceName);
             }
             catch (Exception ex)
@@ -114,12 +114,12 @@ namespace Uhuru.CloudFoundry.Test.System
                 try
                 {
                     PushUmbraco(name, service, umbracoRootDir, url);
-                    TestUtil.TestUrl(url);
                 }
                 catch (Exception ex)
                 {
                     Assert.Fail(ex.ToString());
                 }
+                Assert.IsTrue(TestUtil.TestUrl(url));
                 apps.Add(name, service);
             }
 
@@ -190,7 +190,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             foreach (string uri in umbracoUris)
             {
-                TestUtil.TestUrl(uri);
+                Assert.IsTrue(TestUtil.TestUrl(uri));
             }
 
             threads = new List<Thread>();
