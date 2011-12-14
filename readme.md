@@ -22,6 +22,16 @@ License
 
 This project uses the Apache 2 license.  See LICENSE for details.
 
+Development Tools
+-----------------
+
+Visual Studio 2010 Ultimate (needed for code analysis)
+Style Cop (needed for code analysis)
+Power Tools
+Ghost Doc
+
+
+
 Installation Notes
 ------------------
 
@@ -66,9 +76,11 @@ Valid parameters that can be used are:
 
 Example: TODO: florind: show an example
 
-#### Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+#### Install using the UI. 
 
-After the installation start the DeaWindowsService in services.msc
+In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+
+#### After the installation start the DeaWindowsService in services.msc
 
 ### Installing the MS Sql Server Node
 
@@ -101,9 +113,11 @@ Valid parameters that can be used are:
 
 Example: TODO: florind: show an example
 
-#### Install using the UI. In this case, you will have to edit all the configurations manually after the installation in {installationDirectory}/uhuru.config. TODO: florind: what config files?
+#### Install using the UI. 
 
-After the installation start the MssqlNodeService in services.msc
+In this case, you will have to edit all the configurations manually after the installation in {installationDirectory}/uhuru.config.
+
+#### After the installation start the MssqlNodeService in services.msc
 
 Trying your setup
 -----------------
@@ -120,9 +134,9 @@ The Unit Tests run out of the box, no additional configuration is needed.
 #### Run
 1. Open Visual studio command prompt
 2. Build vcap-dotnet solution
-msbuild {cloneDirectory}vcap-dotnet.sln
+msbuild {cloneDirectory}\src\vcap-dotnet.sln
 3. Run tests in the "Unit" category using MSTest
-MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"Unit"
+MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Unit"
 
 ### Integration Tests
 This type of tests ensure that all the functional requirements are met at the component level.
@@ -130,7 +144,7 @@ This type of tests ensure that all the functional requirements are met at the co
 This tests require a working NATS Serve deployment.
 To edit the NATS Server used for the tests follow the steps:
 1. Go to Uhuru.CloudFoundtry.Test project
-cd {clonePath}\Uhuru.CloudFoundry.Test\
+cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
 notepad App.config 
 3. Set a valid NATS Server for the "nats" key:
@@ -138,18 +152,18 @@ notepad App.config
 #### Run
 1. Open Visual studio command prompt
 2. Build vcap-dotnet solution
-msbuild {cloneDirectory}vcap-dotnet.sln
+msbuild {cloneDirectory}\src\vcap-dotnet.sln
 3. Build CloudTestApp solution
-msbuild {cloneDirectory}\TestApps\CloudTestApp\CloudTestApp.sln
+msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
 4. Run tests in the "Integration" category using MSTest
-MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"Integration"
+MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Integration"
 
 ### System Tests
 System testing is conducted on the complete, integrated system to evaluate the system’s compliance with the specified requirements.
 #### Configure
 To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
  1. Go to Uhuru.CloudFoundtry.Test project
-cd {clonePath}\Uhuru.CloudFoundry.Test\
+cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
 notepad App.config 
 3. Set a valid NATS Server for the nats key:
@@ -160,13 +174,15 @@ notepad App.config
 <add key="username" value="continuousintegration@uhurusoftware.com"/>
 6. Set the password for the deployment
 <add key="password" value="myPassword"/>
-7. Set the Umbraco root directory
+7. We use Umbraco as a test app, you can download it from [http://umbraco.codeplex.com/](here)) and edit its web.config file like so:
+<add key="umbracoDbDSN" value="{mssql-2008#umbracosvc}" />
+8. Set the Umbraco root directory
 <add key="umbracoRootDir" value="C:\PathToUmbraco"/>
 #### Run
 1. Open Visual studio command prompt
 2. Build vcap-dotnet solution
-msbuild {cloneDirectory}vcap-dotnet.sln
+msbuild {cloneDirectory}\src\vcap-dotnet.sln
 3. Build CloudTestApp solution
-msbuild {cloneDirectory}\TestApps\CloudTestApp\CloudTestApp.sln
-4. Run tests in the "Sytem" category using MSTest
-MSTest.exe /testcontainer:{cloneDirectory}\..\bin-vcap-dotnet\Uhuru.CloudFoundry.Test.dll /category:"System"
+msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
+4. Run tests in the "System" category using MSTest
+MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"System"
