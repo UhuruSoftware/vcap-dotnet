@@ -66,12 +66,19 @@ namespace Uhuru.CloudFoundry.Test
             return localIP;
         }
 
-        public static void TestUrl(string url)
+        public static bool TestUrl(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.AllowAutoRedirect = false;
-            request.GetResponse();
-
+            try
+            {
+                request.GetResponse();
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static void UpdateWebConfigKey(string fileName, string key, string newValue)
@@ -90,6 +97,11 @@ namespace Uhuru.CloudFoundry.Test
                 }
             }
             xmlDoc.Save(fileName);
+        }
+
+        public static string GenerateAppName()
+        {
+            return Guid.NewGuid().ToString().Substring(0, 6);
         }
     }
 }
