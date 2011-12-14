@@ -102,7 +102,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
             };
 
 
@@ -148,7 +148,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
             };
 
                 appInfos.Add(appInfo);
@@ -328,7 +328,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
                     new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
                     new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp")) }
+                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
                 };
 
 
