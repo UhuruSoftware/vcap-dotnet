@@ -3,14 +3,16 @@ Uhuru Software .Net Extensions to Cloud Foundry
 
 Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 
-What are the .Net Extensions to Cloud Foundry?
+What are the .NET Extensions to Cloud Foundry?
 ----------------------------------------------
 
 This project is an effort to extend Cloud Foundry so it runs .Net web applications on a Windows environment.
 
-Although Cloud Foundry is developed on Linux/Ruby, our stack is 100% .Net. We have ported the NATS client (NATS is the message bus used for communication by all Cloud Foundry components), the DEA (Droplet Execution Engine) and the Service Node base. This means that now we can bring in frameworks and services on Cloud Foundry that run on Windows. We hope that since it's .Net, adding frameworks/services for Windows will be easier and faster for Windows devs, as well as more stable than Ruby on Windows.
+Cloud Foundry was developed on Linux and Ruby and lacks support for Microsoft Windows Server environments. The .NET Extensions from Uhuru software are built entirely on Windows and .NET. We have ported the Cloud Foundry NATS client message bus, DEA (Droplet Execution Engine) and the Service Node base components to .NET and Windows Server. The Uhuru Software .NET Extensions allow Windows Servers to be full-fledged Cloud Foundry citizens. Windows developers can now benefit from the same Cloud Foundry application deployment advances that Ruby developers already enjoy.
 
-So far we've added:
+The .NET Extensions also make it possible for the open source developer community to add new Cloud Foundry enabled frameworks and services to Windows Servers.
+
+So far the Uhuru .NET Extensions to Cloud Foundry include:
 
 * A dotNet framework that runs .Net 2.0, 3.5 and 4.0 web applications on IIS 7
 * An mssql system service that allows you to provision MS SQL Server 2008 R2 databases using Cloud Foundry
@@ -39,9 +41,13 @@ Install "WindowsDEA.msi" and "MSSqlNode.msi" on a box that meets the following p
 Detailed Install/Run Instructions:
 ----------------------------------
 
-### Installing the WindowsDEA
+### Installing the Windows DEA
 
-You have to run the WindowsDEA.msi installer in order to install the service. There are two ways to do that.
+#### Prerequisites
+* IIS 7 (TODO: florind: detail features)
+* .NET 4.0 Framework
+
+You have to run DEAInstaller.msi in order to install the service. There are two ways to do that.
 
 #### Install from from command line using following command and parameters: msiexec /i WindowsDEA.msi [parameterName=parameterValue]
 
@@ -58,13 +64,19 @@ Valid parameters that can be used are:
 	heartBeatInterval (integer)
 	forceHttpSharing (boolean)
 
+Example: TODO: florind: show an example
+
 #### Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
 
 After the installation start the DeaWindowsService in services.msc
 
-### Installing the MSSqlNode
+### Installing the MS Sql Server Node
 
-You have to run the MSSqlNode.msi installer in order to install the service. There are two ways to do that.
+#### Prerequisites
+* SQL Server 2008 R2
+* .NET 4.0 Framework
+
+You have to run  MSSqlNodeInstaller.msi in order to install the service. There are two ways to do that.
 
 #### Install from from command line using following command and parameters: msiexec /i MSSqlNode.msi [parameterName=parameterValue]
 
@@ -87,7 +99,9 @@ Valid parameters that can be used are:
 	password (string) - MSSql Server password
 	port (integer) - MSSql Server port
 
-#### Install using the UI. In this case, you will have to edit all the configuration manually after the installation in {installationDirectory}/uhuru.config.
+Example: TODO: florind: show an example
+
+#### Install using the UI. In this case, you will have to edit all the configurations manually after the installation in {installationDirectory}/uhuru.config. TODO: florind: what config files?
 
 After the installation start the MssqlNodeService in services.msc
 
@@ -120,7 +134,7 @@ cd {clonePath}\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
 notepad App.config 
 3. Set a valid NATS Server for the "nats" key:
- <add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
+<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
 #### Run
 1. Open Visual studio command prompt
 2. Build vcap-dotnet solution
@@ -139,7 +153,7 @@ cd {clonePath}\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
 notepad App.config 
 3. Set a valid NATS Server for the nats key:
- <add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
+<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
 4. Set the target CloudFoundry deployment
 <add key="target" value="api.uhurucloud.net"/>
 5. Set the user name for the deployment
