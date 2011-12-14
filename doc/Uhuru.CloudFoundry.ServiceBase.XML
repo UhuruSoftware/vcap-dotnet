@@ -1,0 +1,1409 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.CloudFoundry.ServiceBase</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.Options">
+            <summary>
+            This class contains configuration options for a Cloud Foundry system service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.Options.index">
+            <summary>
+            Index of the service node.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.Options.zInterval">
+            <summary>
+            Interval at which varz and healtz are updated.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.NodeId">
+            <summary>
+            Gets or sets the Node Id of the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.MigrationNFS">
+            <summary>
+            Gets or sets the network file system used for migrating provisioned services.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.Uri">
+            <summary>
+            Gets or sets the NATS message bus uri.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.Index">
+            <summary>
+            Gets or sets the node index of the service node.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.ZInterval">
+            <summary>
+            Gets or sets the interval at which the varz and healthz are updated.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.MaxDBSize">
+            <summary>
+            Gets or sets the maximum database size for a provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.MaxLengthyQuery">
+            <summary>
+            Gets or sets the maximum length for a running query.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.MaxLengthyTX">
+            <summary>
+            Gets or sets the maximum length for a running transaction.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.BaseDir">
+            <summary>
+            Gets or sets the base directory for the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.AvailableStorage">
+            <summary>
+            Gets or sets the maximum available storage for the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.LocalDB">
+            <summary>
+            Gets or sets the local db in which to save the provisioned services.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Options.LocalRoute">
+            <summary>
+            Gets or sets the IP address of a well known server on your network; it
+            is used to choose the right ip address (think of hosts that have multiple nics
+            and IP addresses assigned to them) of the host running the DEA. Default
+            value of null, should work in most cases.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode">
+            <summary>
+            This structure contains service error information.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode.ErrorCode">
+            <summary>
+            Gets or sets an error code.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode.HttpError">
+            <summary>
+            Gets or sets an http error code for the service error.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode.Message">
+            <summary>
+            Gets or sets the error message.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.PurgeOrphanRequest">
+            <summary>
+            This class encapsulates a request message to purge orphaned services.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.PurgeOrphanRequest.OrphanInsList">
+            <summary>
+            Gets or sets a list of orphan instances names.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.PurgeOrphanRequest.OrphanBindingList">
+            <summary>
+            Gets or sets a list of orphan bindings credentials.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.BindResponse">
+            <summary>
+            This class encapsulates a response message to a <see cref="T:Uhuru.CloudFoundry.ServiceBase.BindRequest"/>.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus">
+            <summary>
+            This is a base class for a message that is received through NATS and that has a success status.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus.Success">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus"/> represents a successful operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus.Error">
+            <summary>
+            Gets or sets the error that occured during an operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindResponse.Success">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus"/> represents a successful operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindResponse.Credentials">
+            <summary>
+            Gets or sets the credentials that have been generated for the bind request.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindResponse.Error">
+            <summary>
+            Gets or sets the error that occured during an operation.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.Handle">
+            <summary>
+            This is a class containing information about a provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Handle.ServiceId">
+            <summary>
+            Gets or sets the service ID.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Handle.Credentials">
+            <summary>
+            Gets or sets the service credentials.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.CheckOrphanResponse">
+            <summary>
+            This clas encapsulates a response message to a <see cref="T:Uhuru.CloudFoundry.ServiceBase.CheckOrphanRequest"/>
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.CheckOrphanResponse.Success">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus"/> represents a successful operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.CheckOrphanResponse.Error">
+            <summary>
+            Gets or sets the error that occured during an operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.CheckOrphanResponse.OrphanInstances">
+            <summary>
+            Gets or sets a hash for orphan instances;
+            Key: the id of the node with orphans
+            Value: orphan instances list
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.CheckOrphanResponse.OrphanBindings">
+            <summary>
+            Gets or sets a hash for orphan bindings;
+            Key: the id of the node with orphans
+            Value: orphan bindings list
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode">
+            <summary>
+            Enum detailing possible HTTP error codes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.None">
+            <summary>
+            No error (0).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpBadRequest">
+            <summary>
+            Bad request (400).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpNotAuthorized">
+            <summary>
+            Not authorized (401).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpForbidden">
+            <summary>
+            Forbidden (403).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpNotFound">
+            <summary>
+            Not found (404).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpInternal">
+            <summary>
+            Internal error (500).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpServiceUnavailable">
+            <summary>
+            Service unavailable (503).
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.HttpErrorCode.HttpGatewayTimeout">
+            <summary>
+            Gateway timeout (504).
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ServiceException">
+            <summary>
+            Exception class raised by a system service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.InvalidContent">
+            <summary>
+            Error codes between 30000 - 30099; 400 Bad Request
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.MalFormattedRequest">
+            <summary>
+            Error codes between 30000 - 30099; 400 Bad Request
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.UnknownLabel">
+            <summary>
+            Error codes between 30000 - 30099; 400 Bad Request
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.NotAuthorized">
+            <summary>
+            Error codes between 30100 - 30199; 401 Unauthorized
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.NotFound">
+            <summary>
+            Error codes between 30300 - 30399; 404 Not Found 
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.InternalError">
+            <summary>
+            Error codes between 30500 - 30599; 500 Internal Error
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.ServiceUnavailable">
+            <summary>
+            Error codes between 30600 - 30699; 503 Service Unavailable
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.GatewayTimeout">
+            <summary>
+            Error codes between 30700 - 30799; 500 Gateway Timeout
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceException.errorCode">
+            <summary>
+            Error code of the service exception.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(System.Int32,Uhuru.CloudFoundry.ServiceBase.HttpErrorCode,System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="serviceErrorCode">The service error code.</param>
+            <param name="httpError">An HTTP error code.</param>
+            <param name="message">The service error message.</param>
+            <param name="formattingParameters">Formatting arguments for the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="errorCode">Service error code.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(Uhuru.CloudFoundry.ServiceBase.ServiceErrorCode,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="errorCode">Service error code.</param>
+            <param name="arguments">Formatting arguments for the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="innerException">The inner exception.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ServiceException"/> class.
+            </summary>
+            <param name="serializationInfo">The serialization info.</param>
+            <param name="streamingContext">The streaming context.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with information about the exception.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.ToString">
+            <summary>
+            Converts the ServiceError to a string.
+            </summary>
+            <returns>A string conataining information about the error.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ServiceException.ToDictionary">
+            <summary>
+            Converts the error to a JSON-serializable dictionary.
+            </summary>
+            <returns>A dictionary that is ready to be serialized to a ruby compatible JSON string.</returns>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.Announcement">
+            <summary>
+            This class contains announcement information for a service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Announcement.Id">
+            <summary>
+            Gets or sets the id of the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Announcement.AvailableStorage">
+            <summary>
+            Gets or sets the available storage for the service.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.VCAPComponent">
+            <summary>
+            This is a class used to register vcap components to the Cloud Foundry controller.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.discover">
+            <summary>
+            Discover information for the node.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.httpMonitoringServer">
+            <summary>
+            The http monitoring server that server varz and healthz information.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.Register(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Registers a component using the specified options.
+            </summary>
+            <param name="options">The options for the component.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.UpdateDiscoverUptime">
+            <summary>
+            Updates the discovery uptime.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.StartHttpServer(System.String,System.Int32,System.String[])">
+            <summary>
+            Starts the HTTP server used for monitoring.
+            </summary>
+            <param name="host">The host that publishes the monitoring server.</param>
+            <param name="port">The port on which the server will listen.</param>
+            <param name="auth">The user and password used for basic http authentication.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.HttpMonitoringServer_HealthzRequested(System.Object,Uhuru.Utilities.HealthzRequestEventArgs)">
+            <summary>
+            Handles the HealthzRequested event of the HttpMonitoringServer control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:Uhuru.Utilities.HealthzRequestEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.Varz">
+            <summary>
+            Gets or sets the varz information for the component.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.Healthz">
+            <summary>
+            Gets or sets the healthz information for the component.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.VCAPComponent.UUID">
+            <summary>
+            Gets the UUID of the component.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.RestoreRequest">
+            <summary>
+            This class encapsulates a request message to restore a service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.RestoreRequest.InstanceId">
+            <summary>
+            Gets or sets the instance id of the service that is to be restored.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.RestoreRequest.BackupPath">
+            <summary>
+            Gets or sets the backup path to the resource that will be used to restore the service instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase">
+            <summary>
+            This is the service base for all Cloud Foundry system services.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.nodeNats">
+            <summary>
+            This is the NATS client used for communication with the rest of CLoud Foundry.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.localIP">
+            <summary>
+            The local IP that we use to publish stuff.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.orphanInstancesHash">
+            <summary>
+            A dictionary containing orphaned services.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.orphanBindingHash">
+            <summary>
+            A dictionary containing service bindings that are orphaned.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.vcapComponent">
+            <summary>
+            The VCAP component that we use to register ourselves to the Cloud Controller
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.Start(Uhuru.CloudFoundry.ServiceBase.Options)">
+            <summary>
+            Starts the service using the specified options.
+            </summary>
+            <param name="options">The configuration options.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.ServiceDescription">
+            <summary>
+            Gets the service description.
+            </summary>
+            <returns>A string containing the service description.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.Dispose">
+            <summary>
+            Implementation of IDisposable.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.Shutdown">
+            <summary>
+            Stops this instance.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.OnConnectNode">
+            <summary>
+            Called after the node is connected to NATS.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.Flavor">
+            <summary>
+            Gets the flavor of the service. Only "Node" for the .net world.
+            </summary>
+            <returns>On windows, this always returns the value "Node"</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.VarzDetails">
+            <summary>
+            Gets the varz details for this service.
+            </summary>
+            <returns>A dictionary containing varz variables.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.HealthzDetails">
+            <summary>
+            Gets the healthz details for this service.
+            </summary>
+            <returns>A dictionary containing healthz details.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.ServiceName">
+            <summary>
+            Gets the service name.
+            </summary>
+            <returns>A tring containing the service name.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.UpdateVarz">
+            <summary>
+            Updates the varz message.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.UpdateHealthz">
+            <summary>
+            Updates the healthz message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.NodeNats">
+            <summary>
+            Gets the nats reactor used for communicating with the cloud controller.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.OrphanInstancesHash">
+            <summary>
+            Gets or sets the orphan instances hash.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.SystemServiceBase.OrphanBindingHash">
+            <summary>
+            Gets or sets the orphan binding hash.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.UnprovisionRequest">
+            <summary>
+            This class encapsulate a request message to unprovision a service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.UnprovisionRequest.Name">
+            <summary>
+            Gets or sets the name of the service to be unprovisioned.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.UnprovisionRequest.Bindings">
+            <summary>
+            Gets or sets the bindings of the service that have to be unprovisioned.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.CheckOrphanRequest">
+            <summary>
+            This class encapsulate a request message to check for oprhaned services.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.CheckOrphanRequest.Handles">
+            <summary>
+            Gets or sets the handles that contain information about which services to check.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ProvisionResponse">
+            <summary>
+            This class encapsulates a response message to a <see cref="T:Uhuru.CloudFoundry.ServiceBase.ProvisionRequest"/>.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionResponse.Success">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus"/> represents a successful operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionResponse.Credentials">
+            <summary>
+            Gets or sets the credentials that have been provisioned.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionResponse.Error">
+            <summary>
+            Gets or sets the error that occured during an operation.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ProvisionRequest">
+            <summary>
+            This encapsulates a request message for provisioning a service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionRequest.Plan">
+            <summary>
+            Gets or sets the billing plan of the service that is to be provisioned.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionRequest.Credentials">
+            <summary>
+            Gets or sets the credentials information for the service that is to be provisioned.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.BindRequestLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Bind request: {1} from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.CheckOrphanDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to Orphan Instances: {0};  Orphan Bindings: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.CheckOrphanExceptionLogMessage">
+            <summary>
+              Looks up a localized string similar to Exception at OnCheckOrphan {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.CheckOrphanLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: handles for checking orphan.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.CleanupNfsLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: cleanup nfs request {1} from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ConnectedLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Connected to node mbus.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.InitializingLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Initializing.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectAnnounce">
+            <summary>
+              Looks up a localized string similar to {0}.announce.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectBind">
+            <summary>
+              Looks up a localized string similar to {0}.bind.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectCheckOrphan">
+            <summary>
+              Looks up a localized string similar to {0}.check_orphan.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectCleanupNfs">
+            <summary>
+              Looks up a localized string similar to {0}.cleanup_nfs.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectDisableInstance">
+            <summary>
+              Looks up a localized string similar to {0}.disable_instance.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectDiscover">
+            <summary>
+              Looks up a localized string similar to {0}.discover.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectEnableInstance">
+            <summary>
+              Looks up a localized string similar to {0}.enable_instance.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectImportInstance">
+            <summary>
+              Looks up a localized string similar to {0}.import_instance.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectOrphanResult">
+            <summary>
+              Looks up a localized string similar to {0}.orphan_result.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectProvision">
+            <summary>
+              Looks up a localized string similar to {0}.provision.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectPurgeOrphan">
+            <summary>
+              Looks up a localized string similar to {0}.purge_orphan.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectRestore">
+            <summary>
+              Looks up a localized string similar to {0}.restore.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectUnbind">
+            <summary>
+              Looks up a localized string similar to {0}.unbind.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.NatsSubjectUnprovision">
+            <summary>
+              Looks up a localized string similar to {0}.unprovision.{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnDisableInstanceDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Disable instance {1} request from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnEnableInstanceDebugMessage">
+            <summary>
+              Looks up a localized string similar to {0}: enable instance {1} request from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnImportInstanceDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: import instance {1} request from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnProvisionRequestDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Provision request: {1} from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnProvisionSuccessDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Successfully provisioned service for request {1}: {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnPurgeOrphanDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Message for purging orphan.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.OnRestoreDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Restore request: {1} from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ProvisionedServiceListSaveErrorLogMessage">
+            <summary>
+              Looks up a localized string similar to Could not save ProvisionedService list {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.PurgeOrphanDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to Unprovision orphan instance {0} and its bindings {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.PurgeOrphanErrorLogMessage">
+            <summary>
+              Looks up a localized string similar to Error on purge orphan instance {0}: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.PurgeOrphanUnbindBindingDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to Unbind orphan binding {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.PurgeOrphanUnbindBindingErrorLogMessage">
+            <summary>
+              Looks up a localized string similar to Error on purge orphan binding {0}: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.SendNodeAnnouncementDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Sending announcement for {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.SendNodeAnnouncementNotReadyDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Not ready to send announcement.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionAsString">
+            <summary>
+              Looks up a localized string similar to Error Code: {0}, Error Message: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionGatewayTimeout">
+            <summary>
+              Looks up a localized string similar to Gateway timeout.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionInternalError">
+            <summary>
+              Looks up a localized string similar to Internal Error.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionInvalidContentType">
+            <summary>
+              Looks up a localized string similar to Invalid Content-Type.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionMalformedContent">
+            <summary>
+              Looks up a localized string similar to Malformatted request.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionNotAuthorized">
+            <summary>
+              Looks up a localized string similar to Not authorized.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionNotFound">
+            <summary>
+              Looks up a localized string similar to {0} not found.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionServiceUnavailable">
+            <summary>
+              Looks up a localized string similar to Service unavailable.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ServiceExceptionUnknownLabel">
+            <summary>
+              Looks up a localized string similar to Unknown label.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.ShuttingDownLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Shutting down.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.UnbindRequestDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Unbind request: {1} from {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.Strings.UnprovisionRequestDebugLogMessage">
+            <summary>
+              Looks up a localized string similar to {0}: Unprovision request: {1}..
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType">
+            <summary>
+            Enum detailing service plan types.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType.Free">
+            <summary>
+            Free plan.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ProvisionedService">
+            <summary>
+            Class containing information about a provisioned service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.collectionLock">
+            <summary>
+            This is a lock object used to synchronize add/remove operations of this collection.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.services">
+            <summary>
+            This is the internal list of provisioned services.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.filename">
+            <summary>
+            The path to the file where the information about the provisioned services is saved.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.name">
+            <summary>
+            Name of the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.user">
+            <summary>
+            User used to connect to the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.password">
+            <summary>
+            Password for the service user.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.plan">
+            <summary>
+            Billing plan for the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.quotaExceeded">
+            <summary>
+            Indicates whether quota has been exceeded.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.ServiceBase.ProvisionedService"/> class.
+            Creates a new instance and adds it to a local collection, that is persisted.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.GetInstances">
+            <summary>
+            Gets the avilable provisioned services.
+            </summary>
+            <returns>An array containing provisioned services.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.GetService(System.String)">
+            <summary>
+            Gets a provisioned service by its name.
+            </summary>
+            <param name="name">A service name.</param>
+            <returns>The provisioned service, or null if the specified service name does not exist.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Initialize(System.String)">
+            <summary>
+            Initializes a local database for provisioned services.
+            </summary>
+            <param name="databaseFileName">Name of the db file.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Save">
+            <summary>
+            Saves this instance into the local database.
+            </summary>
+            <returns>A boolean value indicating whther persistance was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Destroy">
+            <summary>
+            Removes this instance from the collection of provisioned services and saves the local database.
+            </summary>
+            <returns>A boolean value indicating whether the persistance was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.SaveFile">
+            <summary>
+            Saves the provisioned services local database file.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Load(System.String)">
+            <summary>
+            Loads saved provisioned information the specified filename.
+            </summary>
+            <param name="filename">The filename.</param>
+            <returns>A value indicating whether the load was successful.</returns>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Name">
+            <summary>
+            Gets or sets the name of the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.User">
+            <summary>
+            Gets or sets the user of the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Password">
+            <summary>
+            Gets or sets the password for the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.Plan">
+            <summary>
+            Gets or sets the payment plan for the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ProvisionedService.QuotaExceeded">
+            <summary>
+            Gets or sets a value indicating whether quota was exceeded for the provsioned service.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.NodeBase">
+            <summary>
+            This is the base class for all Cloud Foundry system services nodes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.NodeBase.nodeId">
+            <summary>
+            The node ID.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.NodeBase.migrationNfs">
+            <summary>
+            Migration Network File System.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Start(Uhuru.CloudFoundry.ServiceBase.Options)">
+            <summary>
+            Starts the node.
+            </summary>
+            <param name="options">The configuration options for the node.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Flavor">
+            <summary>
+            Gets the flavor of this service (only node for .Net)
+            </summary>
+            <returns>The value "Node"</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnConnectNode">
+            <summary>
+            This is called after the node is connected to NATS.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.AllInstancesList">
+            <summary>
+            Subclass must overwrite this method to enable check orphan instance feature.
+            Otherwise it will not check orphan instance
+            </summary>
+            <returns>The return value should be a list of instance names.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.AllBindingsList">
+            <summary>
+            Subclass must overwrite this method to enable check orphan binding feature.
+            Otherwise it will not check orphan bindings
+            </summary>
+            <returns>The return value should be a list of binding credentials</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.NodeReady">
+            <summary>
+            Service Node subclasses can override this method if they depend
+            on some external service in order to operate; for example, MySQL
+            and Postgresql require a connection to the underlying server.
+            </summary>
+            <returns>True if node is ready.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.VarzDetails">
+            <summary>
+            Service Node subclasses may want to override this method to
+            provide service specific data beyond what is returned by their
+            "announcement" method.
+            </summary>
+            <returns>A dictionary containing varz details.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.HealthzDetails">
+            <summary>
+            Service Node subclasses may want to override this method to
+            provide service specific data
+            </summary>
+            <returns>A dictionary containing healthz details.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Provision(Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType)">
+            <summary>
+            Subclasses have to implement this in order to provision services.
+            </summary>
+            <param name="plan">The payment plan for the service.</param>
+            <returns>Credentials for the provisioned service.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Provision(Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Subclasses have to implement this in order to provision services.
+            </summary>
+            <param name="plan">The payment plan for the service.</param>
+            <param name="credentials">Existing credentials for the service.</param>
+            <returns>Credentials for the provisioned service.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Unprovision(System.String,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials[])">
+            <summary>
+            Subclasses have to implement this in order to unprovision services.
+            </summary>
+            <param name="name">The name of the service to unprovision.</param>
+            <param name="bindings">Array of bindings for the service that have to be unprovisioned.</param>
+            <returns>A boolean specifying whether the unprovision request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Bind(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Subclasses have to implement this in order to bind a provisioned service to an app.
+            </summary>
+            <param name="name">The name of the service.</param>
+            <param name="bindOptions">Binding options.</param>
+            <param name="credentials">Already existing credentials.</param>
+            <returns>A new set of credentials used for binding.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Bind(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Subclasses have to implement this in order to bind a provisioned service to an app.
+            </summary>
+            <param name="name">The name of the service.</param>
+            <param name="bindOptions">Binding options.</param>
+            <returns>A new set of credentials used for binding.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Unbind(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Subclasses have to implement this in order to unbind a service from an app.
+            </summary>
+            <param name="credentials">The credentials that have to be unprovisioned.</param>
+            <returns>A bool indicating whether the unbind request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.DisableInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Subclasses have to implement this in order to disable an instance.
+            </summary>
+            <param name="provisionedCredential">The provisioned credentials.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <returns>A bool indicating whether the request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.DumpInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,System.String)">
+            <summary>
+            Subclasses have to implement this in order to dump an instance.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <param name="filePath">The file path where to dump the service.</param>
+            <returns>A bool indicating whether the request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.ImportInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,System.String,Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType)">
+            <summary>
+            Subclasses have to implement this in order to import an instance.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <param name="filePath">The file path from which to import the service.</param>
+            <param name="plan">The payment plan.</param>
+            <returns>A bool indicating whether the request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.EnableInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials@,System.Collections.Generic.Dictionary{System.String,System.Object}@)">
+            <summary>
+            Enables the instance.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentialsHash">The binding credentials hash.</param>
+            <returns>A bool indicating whether the request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.Restore(System.String,System.String)">
+            <summary>
+            Restores the specified instance id.
+            </summary>
+            <param name="instanceId">The instance id.</param>
+            <param name="backupPath">The backup path.</param>
+            <returns>A bool indicating whether the request was successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.EncodeSuccess(Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus)">
+            <summary>
+            Encodes a successful status of an operation.
+            </summary>
+            <param name="response">The response message, with the success property set to true.</param>
+            <returns>The response message serialized to a Json string.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.EncodeFailure(Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus,System.Exception)">
+            <summary>
+            Encodes an unsuccessful status of an operation.
+            </summary>
+            <param name="response">The response message, with the success property set to false, and the exception set to the error property.</param>
+            <param name="error">The inner exception that was raised.</param>
+            <returns>The response message serialized to a Json string.</returns>   
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnProvision(System.String,System.String,System.String)">
+            <summary>
+            Called when a provision request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnUnprovision(System.String,System.String,System.String)">
+            <summary>
+            Called when an unprovision request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnBind(System.String,System.String,System.String)">
+            <summary>
+            Called when a bind request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnUnbind(System.String,System.String,System.String)">
+            <summary>
+            Called when an unbind request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnRestore(System.String,System.String,System.String)">
+            <summary>
+            Called when a restore request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnDisableInstance(System.String,System.String,System.String)">
+            <summary>
+            Called when a disable instance request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnEnableInstance(System.String,System.String,System.String)">
+            <summary>
+            Called when an enable instance request is received.
+            Enables an instance and sends updated credentials back.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnCleanupNfs(System.String,System.String,System.String)">
+            <summary>
+            Called when a cleanup NFS request is received.
+            Cleanup nfs folder which contains migration data.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnCheckOrphan(System.String,System.String,System.String)">
+            <summary>
+            Called when a check orphan request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>         
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.CheckOrphan(Uhuru.CloudFoundry.ServiceBase.Handle[])">
+            <summary>
+            Checks the specified service handles to see if they're orphaned.
+            </summary>
+            <param name="handles">The service handles (service ids and credentials).</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnPurgeOrphan(System.String,System.String,System.String)">
+            <summary>
+            Called when a purge orphan request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.PurgeOrphan(System.String[],Uhuru.CloudFoundry.ServiceBase.ServiceCredentials[])">
+            <summary>
+            Purges orphan services.
+            </summary>
+            <param name="orphanInstancesList">The orphan service instances list.</param>
+            <param name="orphanBindingsList">The orphan servoce bindings list.</param>
+            <returns>A value indicating if the request is successful.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.GetMigrationFolder(System.String)">
+            <summary>
+            Get the tmp folder for migration
+            </summary>
+            <param name="instance">Instance name.</param>
+            <returns>A string containing the temp folder.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnImportInstance(System.String,System.String,System.String)">
+            <summary>
+            Called when an import instance request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.OnDiscover(System.String,System.String,System.String)">
+            <summary>
+            Called when a discover request is received.
+            </summary>
+            <param name="msg">The message payload.</param>
+            <param name="reply">The reply to setting.</param>
+            <param name="subject">The subject of the message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.ServiceBase.NodeBase.SendNodeAnnouncement(System.String)">
+            <summary>
+            Sends the node announcement to the cloud controller.
+            </summary>
+            <param name="reply">The reply subject.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.NodeBase.AnnouncementDetails">
+            <summary>
+            Gets any service-specific announcement details.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.BindRequest">
+            <summary>
+            This class encapsulates a request message to bind a service to an app.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindRequest.Name">
+            <summary>
+            Gets or sets the name of the service to be bound.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindRequest.BindOptions">
+            <summary>
+            Gets or sets the binding options.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.BindRequest.Credentials">
+            <summary>
+            Gets or sets the credentials that will be used to bind the service to the app.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.UnbindRequest">
+            <summary>
+            This class encapsulated a request to unbind a service from an app.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.UnbindRequest.Credentials">
+            <summary>
+            Gets or sets the credentials that have to be unbound.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials">
+            <summary>
+            This class contains information about service credentials.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.bindOptions">
+            <summary>
+            Binding options for the service credentials settings.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.NodeId">
+            <summary>
+            Gets or sets the Node ID.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.Name">
+            <summary>
+            Gets or sets the provisioned service name.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.UserName">
+            <summary>
+            Gets or sets the username.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.User">
+            <summary>
+            Gets or sets the username.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.Password">
+            <summary>
+            Gets or sets the password.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.HostName">
+            <summary>
+            Gets or sets the hostname of the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.Port">
+            <summary>
+            Gets or sets the port of the provisioned service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.ServiceCredentials.BindOptions">
+            <summary>
+            Gets the bind options for the provisioned service.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.ServiceBase.SimpleResponse">
+            <summary>
+            This class encapsulates a simple response message, that only contains the status of the requested operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.SimpleResponse.Success">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.ServiceBase.MessageWithSuccessStatus"/> represents a successful operation.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.ServiceBase.SimpleResponse.Error">
+            <summary>
+            Gets or sets the error that occured during an operation.
+            </summary>
+        </member>
+    </members>
+</doc>

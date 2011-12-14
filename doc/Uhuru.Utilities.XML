@@ -1,0 +1,1215 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.Utilities</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.Utilities.WindowsVCAPUsers">
+            <summary>
+            This is a helper class for creating Windows Users.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsVCAPUsers.UserDecoration">
+            <summary>
+            A prefix that is appended to all created Windows users.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateUser(System.String,System.String)">
+            <summary>
+            Creates a user based on an id. The created user has a prefix added to it.
+            </summary>
+            <param name="id">An id for the username.</param>
+            <param name="password">A password for the user. Make sure it's strong.</param>
+            <returns>The final username of the newly created Windows User.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(System.String)">
+            <summary>
+            Deletes a windows user based on an Id.
+            </summary>
+            <param name="id">The id that was used to create the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DecorateUser(System.String)">
+            <summary>
+            Returns a string that is unique for a given user.
+            </summary>
+            <param name="id"> The id of the user. </param>
+            <returns> The unique string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.NativeMethods">
+            <summary>
+            exposes a few WinAPI methods for working with processes
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.NativeMethods.ProcessAllAccess">
+            <summary>
+            This tells OpenProcess that we want all possible access rights for a process object.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.NativeMethods.ProcessHandleError">
+            <summary>
+            This is an IntPtr that looks like an error response. We use it for comparison.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.CloseHandle(System.IntPtr)">
+            <summary>
+            Closes handles.
+            </summary>
+            <param name="handle">The handle to close.</param>
+            <returns>A boolean value indicating whether the operation was successful.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.OpenProcess(System.UInt32,System.Boolean,System.UInt32)">
+            <summary>
+            gets the process handle
+            </summary>
+            <param name="desiredAccess">the access level we want to obtain</param>
+            <param name="inheritHandle">if this is true, child processes will inherit this handle</param>
+            <param name="processId">the process ID</param>
+            <returns>a process handle</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.NativeMethods.GetProcessTimes(System.IntPtr,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@,System.Runtime.InteropServices.ComTypes.FILETIME@)">
+            <summary>
+            gets the process creation, exit, kernel and user time 
+            </summary>
+            <param name="processHandle">the handle of the process</param>
+            <param name="creationTime">the creation time</param>
+            <param name="exitTime">the exit time</param>
+            <param name="kernelTime">the kernel time</param>
+            <param name="userTime">the user time</param>
+            <returns>True if the operation was successful</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.HealthzRequestEventArgs">
+            <summary>
+            This is an EventArgs class used by the Healthz and Varz server.
+            When the server needs healthz information, it raises an event.
+            The subscriber to that event sets the message of these args.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HealthzRequestEventArgs.healthzMessage">
+            <summary>
+            The health JSON message
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HealthzRequestEventArgs.HealthzMessage">
+            <summary>
+            Gets or sets the healthz message that will be served by the server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.DotNetVersion">
+            <summary>
+            a DotNet version
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DotNetVersion.Two">
+            <summary>
+            version 2.0
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DotNetVersion.Four">
+            <summary>
+            version 4.0
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.NetFrameworkVersion">
+            <summary>
+            class used for dot net framework version detection
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.NetFrameworkVersion.GetVersion(System.String)">
+            <summary>
+            returns the dot net framework version of an assembly
+            </summary>
+            <param name="assemblyPath">the path to the assembly</param>
+            <returns>the dot net framewrok version</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.LoadAssemblyHelper">
+            <summary>
+            This class is injected at runtime in a new app domain, and used to get the .Net version of an assembly.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.LoadAssemblyHelper.GetDotNetVersion(System.String)">
+            <summary>
+            Gets the dot net version of a sepcified assembly.
+            </summary>
+            <param name="assemblyPath">The assembly path.</param>
+            <returns>A string containing the .Net version of the assembly.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.FirewallTools">
+            <summary>
+            a set of firewall-related tools
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FirewallTools.OpenPort(System.Int32,System.String)">
+            <summary>
+            opens a firewall port to an application
+            </summary>
+            <param name="port">the port to open</param>
+            <param name="applicationName">the application to open the port to</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FirewallTools.ClosePort(System.Int32)">
+            <summary>
+            closes a port
+            </summary>
+            <param name="port">the port to be closed</param>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessTimes">
+            <summary>
+            holds the process time data. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.CreationTime">
+            <summary>
+            Creation time of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.ExitTime">
+            <summary>
+            Exit time of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.KernelTime">
+            <summary>
+            Kernel CPU time the process spent.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.UserTime">
+            <summary>
+            User CPU time the process spent.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawCreationTime">
+            <summary>
+            Creation time of the process in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawExitTime">
+            <summary>
+            Exit time of the process in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawKernelTime">
+            <summary>
+            Kernel CPU time the process spent in its raw (native) format.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessTimes.RawUserTime">
+            <summary>
+            User CPU time the process spent in its raw (native) format.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessTimes.ConvertTime">
+            <summary>
+            Converts the FILETIME fields to DateTime and stores the results in their respective properties.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessTimes.FiletimeToDateTime(System.Runtime.InteropServices.ComTypes.FILETIME)">
+            <summary>
+            Filetimes a FILETIME to a DateTime.
+            </summary>
+            <param name="fileTime">The FILETIME object.</param>
+            <returns>A DateTime object cointaining the converted value.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.NetworkInterface">
+            <summary>
+            Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress">
+            <summary>
+            Get an IP using 198.41.0.4 as a target for openining a socket.
+            </summary>
+            <returns>The IP used by the OS to connect to 198.41.0.4</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress(System.String)">
+            <summary>
+            Returns the IP used by the OS to connect to the RouteIPAddress.
+            Pointing to a interface address will return that address.
+            </summary>
+            <param name="routeIPAddress">The route IP address.</param>
+            <returns>The local IP address.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GrabEphemeralPort">
+            <summary>
+            This method returns a free port.
+            </summary>
+            <returns>An int that is the free port.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.DiskUsageEntry">
+            <summary>
+            This class contains disk usage information.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.readableSize">
+            <summary>
+            Directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.sizeKB">
+            <summary>
+            Directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.directory">
+            <summary>
+            The path to the directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsageEntry.#ctor(System.String,System.Int64,System.String)">
+            <summary>
+            Initializes a new instance of the DiskUsageEntry class.
+            </summary>
+            <param name="readableSize">Directory size as a human readable string.</param>
+            <param name="size">Directory size in kilobytes.</param>
+            <param name="directory">The directory path.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.ReadableSize">
+            <summary>
+            Gets the directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.SizeKB">
+            <summary>
+            Gets the directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.Directory">
+            <summary>
+            Gets the directory path.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer">
+            <summary>
+            This class implements an http server that serves files from local storage.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.TableRowSize">
+            <summary>
+            Table row size for directory listing.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverPort">
+            <summary>
+            Port on which the file server is listening.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverPhysicalPath">
+            <summary>
+            Path to the directory served by the server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.serverVirtualPath">
+            <summary>
+            Virtual path of server (clients use the URI http://[host]:[port]/[virtual path]).
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.username">
+            <summary>
+            Username for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.password">
+            <summary>
+            Password for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.host">
+            <summary>
+            WCF service host for the FileServer.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.#ctor(System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the FileServer class
+            </summary>
+            <param name="port">Port used by the server to listen on.</param>
+            <param name="physicalPath">Root of the path served by the server.</param>
+            <param name="virtualPath">To get to the files, a caller needs to get http://[ip]:[port]/[virtualPath]/[file]</param>
+            <param name="serverUserName">Username that is allowed access to the server.</param>
+            <param name="serverPassword">Password that is allowed access to the server.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Start">
+            <summary>
+            Starts the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Stop">
+            <summary>
+            Stops the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.Dispose">
+            <summary>
+            IDisposable implementation.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer.IFileServerService">
+            <summary>
+            interface / contract for an endpoint
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.IFileServerService.GetFile">
+            <summary>
+            Gets a file from the server.
+            </summary>
+            <returns>A message containing a stream to the requested file.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.FileServer.FileServerService">
+            <summary>
+            This is the WCF service class that is used to host the File Server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.DirectoryListingTableFillChar">
+            <summary>
+            The char used to fill in the rows of the directory listing table so it's properly formatted.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.serverPhysicalPath">
+            <summary>
+            Path to the directory served by the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileServer.FileServerService.serverVirtualPath">
+            <summary>
+            Virtual path of the http server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.Initialize(System.String,System.String)">
+            <summary>
+            Initializes the service with the physical and virtual path.
+            </summary>
+            <param name="physicalPath">The physical path.</param>
+            <param name="virtualPath">The virtual path.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetFile">
+            <summary>
+            Gets a file from the server.
+            </summary>
+            <returns>
+            A message containing a stream to the requested file.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.CreateStreamResponse(System.String)">
+            <summary>
+            Creates a Message that contains an open stream to the contents of the specified file.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <returns>A Message that can stream the contents of the file.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetReadableForm(System.Int64)">
+            <summary>
+            converts a numeric file size into a human readable one
+            </summary>
+            <param name="size">the size to convert (e.g. 800)</param>
+            <returns>a nicely formatted string (e.g. 800B)</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.CreateCLITableRow(System.String,System.String)">
+            <summary>
+            Creates the cli line.
+            </summary>
+            <param name="leftColumn">The left column of a table.</param>
+            <param name="rightColumn">The right column of the table.</param>
+            <returns>A string that is formatted as a table row with two columns.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.FileServer.FileServerService.GetFullFilePath(System.String)">
+            <summary>
+            Gets the full path of a specified file or directory.
+            </summary>
+            <param name="path">The path.</param>
+            <returns>The absolute path to the file or directory.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.JsonTools">
+            <summary>
+            a class offering json-related functionalities
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonTools.JsonToXml(System.String)">
+            <summary>
+            converts a json object to an xmlPath
+            </summary>
+            <param name="json">the json object to convert</param>
+            <returns>the conversion result</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.SystemTime">
+            <summary>
+            A class to hold the properties of a particular time.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.year">
+            <summary>
+            the year
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.month">
+            <summary>
+            the month
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.dayOfWeek">
+            <summary>
+            the day of the week
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.day">
+            <summary>
+            the day of the month
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.hour">
+            <summary>
+            the hour
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.minute">
+            <summary>
+            the minute
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.second">
+            <summary>
+            the second
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.SystemTime.milliseconds">
+            <summary>
+            the milliseconds
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.op_Equality(Uhuru.Utilities.ProcessPerformance.SystemTime,Uhuru.Utilities.ProcessPerformance.SystemTime)">
+            <summary>
+            overload of == for this particular type
+            </summary>
+            <param name="firstValue">the first parameter</param>
+            <param name="secondValue">the second parameter</param>
+            <returns>the intended result of ==</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.op_Inequality(Uhuru.Utilities.ProcessPerformance.SystemTime,Uhuru.Utilities.ProcessPerformance.SystemTime)">
+            <summary>
+            overload of != for this particular type
+            </summary>
+            <param name="firstValue">the first parameter</param>
+            <param name="secondValue">the second parameter</param>
+            <returns>the intended result of !=</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.Equals(System.Object)">
+            <summary>
+            determines whether the current instance equals another object or not
+            </summary>
+            <param name="obj">the object to compare the current instance to</param>
+            <returns>the result of the comparison</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.SystemTime.GetHashCode">
+            <summary>
+            returns the hashcode for this instance
+            </summary>
+            <returns>the requested hashcode</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.JsonNameAttribute">
+            <summary>
+            This is an attribute that is used to decorate fields/properties/enums with JSON names.
+            The JSON name will be used instead of the member's name when serializing.
+            This is used in conjunction <see cref="T:Uhuru.Utilities.JsonConvertibleObject"/>.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.JsonNameAttribute.name">
+            <summary>
+            The JSON name of the member.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.JsonNameAttribute"/> class.
+            </summary>
+            <param name="name">The JSON name of the member.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.JsonNameAttribute.Name">
+            <summary>
+            Gets the Name of the member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.JsonConvertibleObject">
+            <summary>
+            This object is used for serialization/deserialization of objects into/from JSON.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.DeserializeFromJsonArray(System.String)">
+            <summary>
+            Deserializes a json string that is supposed to contain an array (i.e. [{"field1" : "value1"}, "value2", 0])
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An array of objects</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.DeserializeFromJson(System.String)">
+            <summary>
+            Deserializes json string that is supposed to contain an object (i.e. {"field1" : "value1"}).
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.SerializeToJson(System.Object)">
+            <summary>
+            Serializes an intermediate object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) to a JSON string.
+            </summary>
+            <param name="intermediateValue">A Dictionary&lt;string, object&gt; or a newtonsoft JObject.</param>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.ObjectToValue``1(System.Object)">
+            <summary>
+            Converts an object into another type.
+            If the object is a JObject or JArray, this method uses their respective methods for conversion.
+            Otherwise, it uses Convert.ChangeType.
+            </summary>
+            <typeparam name="T">The type to convert to.</typeparam>
+            <param name="value">The object to convert.</param>
+            <returns>The converted object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.SerializeToJson">
+            <summary>
+            Serializes the instance to a JSON string.
+            </summary>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.ToJsonIntermediateObject">
+            <summary>
+            Converts this instance to a Dictionary&lt;string, object&gt; that is ready to be serialized to a Ruby-compatible JSON.
+            </summary>
+            <returns>A Dictionary&lt;string, object&gt;</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.FromJsonIntermediateObject(System.Object)">
+            <summary>
+            Goes through a deserialized JSON object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) and updates all field an properties of this instance.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.ConvertMember(System.Object,System.Type)">
+            <summary>
+            Converts an individual member.
+            </summary>
+            <param name="memberValue">The member value.</param>
+            <param name="memberType">Type of the member.</param>
+            <returns>The converted memeber.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.GetEnumValueFromString(System.Type,System.String)">
+            <summary>
+            Gets an enum value from a string. The method first tries to match the string value to any defined JsonName attributes, then defaults to Enum.Parse.
+            </summary>
+            <param name="enumType">Type of the enum.</param>
+            <param name="enumValue">The enum value.</param>
+            <returns>The parsed enum value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.JsonConvertibleObject.SetMemberValue(System.Reflection.MemberInfo,System.Object)">
+            <summary>
+            Sets a member's value.
+            </summary>
+            <param name="member">The member (can be a field or a property).</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.Logger">
+            <summary>
+            This is a helper logger class that is used throughout the code.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.configureEventLogSourceLock">
+            <summary>
+            A lock object used to make sure multiple threads don't configure an event log source at the same time.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.log">
+            <summary>
+            The log4net ILog object used for logging.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.isSourceConfigured">
+            <summary>
+            Specifies whether the Windows Event Log source has been configured.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String)">
+            <summary>
+            Logs a fatal message.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String)">
+            <summary>
+            Logs an error message.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String)">
+            <summary>
+            Logs a warning message.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String)">
+            <summary>
+            Logs an information message.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String)">
+            <summary>
+            Logs a debug message.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String,System.Object[])">
+            <summary>
+            Logs a fatal message and formats it.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an error message and formats it.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning message and formats it.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String,System.Object[])">
+            <summary>
+            Logs an information message and formats it.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs a debug message and formats it.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.SetEventLogSource">
+            <summary>
+            Sets up the event log source.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.UserCustomAuthentication">
+            <summary>
+            Class used for custom user/password authentication.
+            This is used in the file server and the healthz/varz server.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserCustomAuthentication.validUsername">
+            <summary>
+            The username that passes the validation check.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.UserCustomAuthentication.validPassword">
+            <summary>
+            The password that passes the validation check.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.UserCustomAuthentication.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the UserCustomAuthentication class
+            </summary>
+            <param name="userName">Username that is allowed access.</param>
+            <param name="password">Password that is allowed access.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.UserCustomAuthentication.Validate(System.String,System.String)">
+            <summary>
+            This method is called when a server needs to check if credentials are ok.
+            </summary>
+            <param name="userName">Username to verify.</param>
+            <param name="password">Password to verify.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.DiskUsage">
+            <summary>
+            This class is used to get disk usage information for a directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetDiskUsage(System.String,System.Boolean)">
+            <summary>
+            Gets disk usage information for a directory.
+            </summary>
+            <param name="directory">Specifies the directory where to look for objects</param>
+            <param name="summary">Whether to summarize the result (show only direct children), or display all descendats.</param>
+            <returns>An array of DiskUsageEntry objects.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.WriteDiskUsageToFile(System.String,System.String,System.Boolean)">
+            <summary>
+            Writes disk usage information to a file.
+            </summary>
+            <param name="fileName">The file where to write the data.</param>
+            <param name="directory">The directory for which to retrieve disk usage.</param>
+            <param name="summary">Boolean value specifying whether to include information about all descendant directories.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetDirectorySize(System.String,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.Int64},System.Object)">
+            <summary>
+            Gets a directory size, in kilobytes.
+            </summary>
+            <param name="directory">A string specifying the path of the directory.</param>
+            <param name="recurse">A boolean value specifying whether to include child directories.</param>
+            <param name="objects">A dictionary in which all the sizes of the objects (file or directory) are added. If it's null, it won't be used.</param>
+            <param name="objectsLock">An object used for locking the dictionary.</param>
+            <returns>The size of the directory, in kilobytes.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetFileSize(System.String)">
+            <summary>
+            gets the size, in bytes, of a file
+            </summary>
+            <param name="file">the name of the file</param>
+            <returns>the size of the file, in kilobytes</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsage.GetReadableForm(System.Int64)">
+            <summary>
+            converts a numeric file size into a human readable one
+            </summary>
+            <param name="size">the size to convert (in KB) (e.g. 1024)</param>
+            <returns>a nicely formatted string (e.g. 1024 KB = 1MB)</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.VarzRequestEventArgs">
+            <summary>
+            This is an EventArgs class used by the Healthz and Varz server.
+            When the server needs varz information, it raises an event.
+            The subscriber to that event sets the message of these args.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.VarzRequestEventArgs.varzMessage">
+            <summary>
+            The varz message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.VarzRequestEventArgs.VarzMessage">
+            <summary>
+            Gets or sets the varz message that will be served by the server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.RubyCompatibility">
+            <summary>
+            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
+            <summary>
+            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
+            </summary>
+            <param name="date">DateTime to be converted.</param>
+            <returns>An int containing the number of seconds.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
+            <summary>
+            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
+            </summary>
+            <param name="seconds">An int containing the number of seconds.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
+            <summary>
+            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
+            </summary>
+            <param name="date">The DateTime to be converted.</param>
+            <returns>A string with the formatted date and time.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
+            <summary>
+            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
+            </summary>
+            <param name="date">A string containing the formatted date and time.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.Credentials">
+            <summary>
+            This is a helper class that generates credential strings, such as usernames and passwords.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential">
+            <summary>
+            Generates a credential string with a default length of 12 characters.
+            </summary>
+            <returns>A string containing a randomly generated string with length 12.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential(System.Int32)">
+            <summary>
+            Generates a credential string using the specified length.
+            </summary>
+            <param name="length">An int specifying the length of the generated string.</param>
+            <returns>A string containing a randomly generated string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.FileLogger">
+            <summary>
+            This is a helper logger class that writes to a file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.FileLogger.fileName">
+            <summary>
+            The path to the log file.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.FileLogger"/> class.
+            </summary>
+            <param name="fileName">The file in which log events will be written.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Fatal(System.String)">
+            <summary>
+            Logs a fatal message.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Error(System.String)">
+            <summary>
+            Logs an error message.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Warning(System.String)">
+            <summary>
+            Logs a warning message.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Info(System.String)">
+            <summary>
+            Logs an information message.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Debug(System.String)">
+            <summary>
+            Logs a debug message.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Fatal(System.String,System.Object[])">
+            <summary>
+            Logs a fatal message and formats it.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an error message and formats it.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning message and formats it.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Info(System.String,System.Object[])">
+            <summary>
+            Logs an information message and formats it.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.FileLogger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs a debug message and formats it.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessInformation">
+            <summary>
+            This is a helper class used to get CPU and memory usage information for processes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessInformation.SnapshotCount">
+            <summary>
+            Numbet of snapshots to take.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessInformation.GetProcessUsage(System.Int32)">
+            <summary>
+            Gets process usage information for a process.
+            </summary>
+            <param name="processId">The process id for which to get the data.</param>
+            <returns>A ProcessData object containing metrics.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessInformation.GetProcessUsage">
+            <summary>
+            Gets process usage information for the processes on the local machine.
+            </summary>
+            <returns>An array of ProcessData objects.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer">
+            <summary>
+            This class implements an http server that is used to get healthz and varz information about a Cloud Foundry component.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.instance">
+            <summary>
+            The singleton MonitoringServer instance.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.serverPort">
+            <summary>
+            The port on which the server is listening.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.hostName">
+            <summary>
+            The hostname of the machine hosting the service.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.username">
+            <summary>
+            The username used for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.password">
+            <summary>
+            The password used for basic http authentication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.MonitoringServer.host">
+            <summary>
+            The WCF service host used to publish the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.#ctor(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            Initializes a new instance of the MonitoringServer class
+            </summary>
+            <param name="port">The port used by the server to listen.</param>
+            <param name="host">The host used to publish the service.</param>
+            <param name="serverUserName">A username for basic authentication.</param>
+            <param name="serverPassword">A password for basic authentication.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Start">
+            <summary>
+            Starts the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Stop">
+            <summary>
+            Stops the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.Dispose">
+            <summary>
+            IDisposable implementation.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.TriggerHealthz(System.Object,Uhuru.Utilities.HealthzRequestEventArgs)">
+            <summary>
+            Triggers the HealthzRequested event.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:Uhuru.Utilities.HealthzRequestEventArgs"/> instance containing the event data.</param>
+            <returns>A string that contains the requested message.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.TriggerVarz(System.Object,Uhuru.Utilities.VarzRequestEventArgs)">
+            <summary>
+            Triggers the VarzRequested event.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="e">The <see cref="T:Uhuru.Utilities.VarzRequestEventArgs"/> instance containing the event data.</param>
+            <returns>A string containing the requested message.</returns>
+        </member>
+        <member name="E:Uhuru.Utilities.MonitoringServer.HealthzRequested">
+            <summary>
+            Event that is raised when the server receives a healthz request (http://[ip]:[port]/healthz).
+            </summary>
+        </member>
+        <member name="E:Uhuru.Utilities.MonitoringServer.VarzRequested">
+            <summary>
+            Event that is raised when the server receives a varz request (http://[ip]:[port]/varz).
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.MonitoringServer.Instance">
+            <summary>
+            Gets the singleton instance of the Monitoring Server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer.IMonitoringService">
+            <summary>
+            WCF contract that the service implements.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.IMonitoringService.GetHealthz">
+            <summary>
+            Gets the healthz message.
+            </summary>
+            <returns>A JSON string containing the healthz message.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.IMonitoringService.GetVarz">
+            <summary>
+            Gets the varz message.
+            </summary>
+            <returns>A JSON string containing various status information.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.MonitoringServer.MonitoringService">
+            <summary>
+            This is the class that implements the IMonitoringService contract; WCF uses it as a singleton when it publishes the server.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.GetHealthz">
+            <summary>
+            Gets the healthz message.
+            </summary>
+            <returns>
+            A JSON string containing the healthz message.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.GetVarz">
+            <summary>
+            Gets the varz message.
+            </summary>
+            <returns>
+            A JSON string containing various status information.
+            </returns>
+        </member>
+        <member name="M:Uhuru.Utilities.MonitoringServer.MonitoringService.CreateTextresponse(System.String,System.String)">
+            <summary>
+            Creates a Message with a text response.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="contentType">Type of the content.</param>
+            <returns>A message that has a text body.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.ProcessPerformance.ProcessData">
+            <summary>
+            This class contains process data.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.processId">
+            <summary>
+            The ID of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.name">
+            <summary>
+            The name of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.cpu">
+            <summary>
+            The CPU usage of the process.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldUserTime">
+            <summary>
+            The number of user cycles of the process on the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldKernelTime">
+            <summary>
+            The number of kernel cycles of the process on the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.oldUpdate">
+            <summary>
+            The time of the last snapshot.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.ProcessPerformance.ProcessData.workingSetBytes">
+            <summary>
+            The memory usage of the process.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessData.#ctor(System.Int32,System.String,System.Int64,System.Int64,System.Int64)">
+            <summary>
+            Initializes a new instance of the ProcessData class
+            </summary>
+            <param name="id">the process ID</param>
+            <param name="name">the name of the process</param>
+            <param name="oldUserTime">the user time</param>
+            <param name="oldKernelTime">the kernel time</param>
+            <param name="workingSetBytes">memory usage for the process</param>
+        </member>
+        <member name="M:Uhuru.Utilities.ProcessPerformance.ProcessData.UpdateCpuUsage(System.Int64,System.Int64)">
+            <summary>
+            updates the cpu usage (cpu usage = UserTime + KernelTime) 
+            </summary>
+            <param name="newUserTime">the new user time</param>
+            <param name="newKernelTime">the new kernel time</param>
+            <returns>the raw usage</returns>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.ProcessId">
+            <summary>
+            Gets or sets the process id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.Name">
+            <summary>
+            Gets or sets the name of the process.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.Cpu">
+            <summary>
+            Gets or sets the CPU usage of the process, as a percentage.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.ProcessPerformance.ProcessData.WorkingSetBytes">
+            <summary>
+            Gets or sets the memory amount used by the process.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerCallback">
+            <summary>
+            Delegate definition that refers to a method to be called when a timer tick occurs.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerHelper">
+            <summary>
+            This is a helper class that provides the developer with easy methods of creating timers.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.DelayedCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks only once and runs a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the amount of time to sleep before calling the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is used to delay the call to the callback method.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks forever, and on each tick it calls a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each tick.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringLongCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks once, and on each tick it calls a callback method.
+            After each call to the callback method, the timer is reset.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each call of the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+    </members>
+</doc>
