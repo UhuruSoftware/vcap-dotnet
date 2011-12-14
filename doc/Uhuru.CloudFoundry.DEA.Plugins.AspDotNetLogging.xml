@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider">
+            <summary>
+            Event provider for droplet instances. Writes events to a file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.logFilePath">
+            <summary>
+            The path to the log file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.customInfo">
+            <summary>
+            Buffer log data.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.#ctor">
+            <summary>
+            Initializes a new instance of the LogFileWebEventProvider class
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.Flush">
+            <summary>
+            Moves the events from the provider's buffer into the event log.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.Initialize(System.String,System.Collections.Specialized.NameValueCollection)">
+            <summary>
+            provides the initial settings to the object
+            </summary>
+            <param name="name">the provider name</param>
+            <param name="config">the rest of the attributes we want to assign</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.ProcessEvent(System.Web.Management.WebBaseEvent)">
+            <summary>
+            process a raised event
+            </summary>
+            <param name="eventRaised">the event to be processed</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.ProcessEventFlush(System.Web.Management.WebEventBufferFlushInfo)">
+            <summary>
+            Processes the buffered events.
+            </summary>
+            <param name="flushInfo">A <see cref="T:System.Web.Management.WebEventBufferFlushInfo"/> that contains buffering information.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.Shutdown">
+            <summary>
+            shuts down the current object
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.StoreToFile(System.IO.FileMode)">
+            <summary>
+            saves the currently gathered info to a file
+            </summary>
+            <param name="fileMode">the file mode to use when opening the file</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.LogFilePath">
+            <summary>
+            Gets or sets the path where the log info will be saved
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.LogFileUseBuffering">
+            <summary>
+            Gets a value indicating whether buffering will be used or not
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.LogFileWebEventProvider.LogFileBufferMode">
+            <summary>
+            Gets a value indicating the buffering mode of the provider
+            </summary>
+        </member>
+    </members>
+</doc>

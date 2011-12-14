@@ -1,0 +1,825 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.Configuration</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.Configuration.DEA.DebugElement">
+            <summary>
+            This configuration class contains debug settings for a DEA runtime.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DebugElement.propertyName">
+            <summary>
+            Name configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DebugElement.propertyEnvironment">
+            <summary>
+            Environment configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DebugElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugElement.#cctor">
+            <summary>
+            Initializes static members of the DebugElement class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugElement.Name">
+            <summary>
+            Gets or sets the name of a debug configuration for a runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugElement.Environment">
+            <summary>
+            Gets a collection of environment variables for a debug configuration.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugElement.Properties">
+            <summary>
+            Override the Properties collection and return our custom one.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.EnvironmentCollection">
+            <summary>
+            This class is a collection of EnvironmentElement items.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.EnvironmentCollection.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentCollection.#cctor">
+            <summary>
+            Initializes static members of the <see cref="T:Uhuru.Configuration.DEA.EnvironmentCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentCollection.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Configuration.DEA.EnvironmentCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentCollection.CreateNewElement">
+            <summary>
+            This method creates a new EnvironmentElement.
+            </summary>
+            <returns>A new EnvironmentElement.</returns>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentCollection.GetElementKey(System.Configuration.ConfigurationElement)">
+            <summary>
+            This method gets an element key name for a EnvironmentElement.
+            </summary>
+            <param name="element">The EnvironmentElement for which to get the key.</param>
+            <returns>A string that is the name of the environment variable.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentCollection.CollectionType">
+            <summary>
+            Defines the collection type (BasicMap) for the current object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentCollection.ElementName">
+            <summary>
+            Gets the element name for the current object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentCollection.Properties">
+            <summary>
+            Defines the configuration properties available for the current object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentCollection.Item(System.Int32)">
+            <summary>
+            Gets a environment variable by index.
+            </summary>
+            <param name="index">The zero-based index of an environment variable.</param>
+            <returns>The EnvironmentElement at the specified index.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentCollection.Item(System.String)">
+            <summary>
+            Gets an environment variable by its name.
+            </summary>
+            <param name="name">String specifying the environment variable name.</param>
+            <returns>The EnvironmentElement with the specified name.</returns>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.DebugCollection">
+            <summary>
+            This class is a collection of DebugElement.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DebugCollection.properties">
+            <summary>
+            Designed to hold the the configuration properties of the current instance.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugCollection.#cctor">
+            <summary>
+            Initializes static members of the DebugCollection class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugCollection.#ctor">
+            <summary>
+            Initializes a new instance of the DebugCollection class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugCollection.CreateNewElement">
+            <summary>
+            This method creates a new DebugElement.
+            </summary>
+            <returns>A new DebugElement.</returns>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DebugCollection.GetElementKey(System.Configuration.ConfigurationElement)">
+            <summary>
+            This method gets an element key name for a DebugElement.
+            </summary>
+            <param name="element">The DebugElement for which to get the key.</param>
+            <returns>A string that is the name of the debug configuration.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugCollection.CollectionType">
+            <summary>
+            Defines the collection type (BasicMap) for DebugCollection.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugCollection.ElementName">
+            <summary>
+            Gets the element name for a DebugCollection.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugCollection.Properties">
+            <summary>
+            Defines the configuration properties available for a DebugCollection object.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugCollection.Item(System.Int32)">
+            <summary>
+            Gets a debug configuration by index.
+            </summary>
+            <param name="index">Zero-based index of a debug configuration.</param>
+            <returns>The DebugElement at the specified index.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DebugCollection.Item(System.String)">
+            <summary>
+            Gets a debug configuration by its name.
+            </summary>
+            <param name="name">String specifying the debug configuration name.</param>
+            <returns>The DebugElement with the specified name.</returns>
+        </member>
+        <member name="T:Uhuru.Configuration.UhuruSection">
+            <summary>
+            This class defines an Uhuru section in an application configuration file.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.UhuruSection.propertyDEA">
+            <summary>
+            DEA configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.UhuruSection.propertyService">
+            <summary>
+            Service configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.UhuruSection.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.UhuruSection.section">
+            <summary>
+            Uhuru section.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.UhuruSection.#cctor">
+            <summary>
+             Initializes static members of the <see cref="T:Uhuru.Configuration.UhuruSection"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.UhuruSection.GetSection">
+            <summary>
+            Gets the configuration section using the default element name.
+            </summary>
+            <returns>the default configuration section</returns>
+        </member>
+        <member name="M:Uhuru.Configuration.UhuruSection.GetSection(System.String)">
+            <summary>
+            Gets the configuration section using the specified element name.
+            </summary>
+            <param name="definedName">Name of the section to load.</param>
+            <returns>the configuration section requested</returns>    
+        </member>
+        <member name="P:Uhuru.Configuration.UhuruSection.DEA">
+            <summary>
+            Gets or sets the configuration settings for a DEA.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.UhuruSection.Service">
+            <summary>
+            Gets or sets the configuration settings for a System Service
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.Service.ServiceElement">
+            <summary>
+            This configuration class contains settings for a service component.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyNodeId">
+            <summary>
+            Node ID configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMigrationNfs">
+            <summary>
+            Migration NFS configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMBus">
+            <summary>
+            Message bus configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyIndex">
+            <summary>
+            Index configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyZInterval">
+            <summary>
+            Z-Interval configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMaxDbSize">
+            <summary>
+            Maximum DB size configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMaxLongQuery">
+            <summary>
+            Maximum long query configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMaxLongTx">
+            <summary>
+            Maximum long transaction configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyLocalDb">
+            <summary>
+            Local database configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyBaseDir">
+            <summary>
+            Base directory configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyLocalRoute">
+            <summary>
+            Local route configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyAvailableStorage">
+            <summary>
+            Available storage configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.propertyMsSql">
+            <summary>
+            MS SQL Service configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.ServiceElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.Service.ServiceElement.#cctor">
+            <summary>
+            Initializes static members of the ServiceElement class. 
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.Service.ServiceElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.NodeId">
+            <summary>
+            Gets or sets the node id for the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MigrationNFS">
+            <summary>
+            Gets or sets the network file system used for migration.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MBus">
+            <summary>
+            Gets or sets the NATS message bus URI
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.Index">
+            <summary>
+            Gets or sets the index of the service node.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.ZInterval">
+            <summary>
+            Gets or sets the interval at which to update the Healthz and Varz
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MaxDBSize">
+            <summary>
+            Gets or sets the maximum database size.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MaxLengthyQuery">
+            <summary>
+            Gets or sets the maximum duration for a query in seconds.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MaxLengthyTX">
+            <summary>
+            Gets or sets the maximum duration for a query in seconds.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.BaseDir">
+            <summary>
+            Gets or sets the base directory for the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.AvailableStorage">
+            <summary>
+            Gets or sets the amount of available storage for this service, in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.LocalDB">
+            <summary>
+            Gets or sets the local database file in which to save the list of provisioned services.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.LocalRoute">
+            <summary>
+            Gets or sets the IP address of a well known server on your network; it
+            is used to choose the right ip address (think of hosts that have multiple nics
+            and IP addresses assigned to them) of the host running the DEA. Default
+            value of null, should work in most cases.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.MSSql">
+            <summary>
+            Gets or sets the configuration settings for an MS Sql Server system service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.ServiceElement.Properties">
+            <summary>
+            Override the Properties collection and return our custom one.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.EnvironmentElement">
+            <summary>
+            This configuration class contains environment variable settings for a runtime.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.EnvironmentElement.propertyName">
+            <summary>
+            Name property collection.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.EnvironmentElement.propertyValue">
+            <summary>
+            Value property collection.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.EnvironmentElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentElement.#cctor">
+            <summary>
+            Initializes static members of the <see cref="T:Uhuru.Configuration.DEA.EnvironmentElement"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.EnvironmentElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentElement.Name">
+            <summary>
+            Gets or sets the name of a Environment variable.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentElement.Value">
+            <summary>
+            Gets or sets the value of a Environment variable.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.EnvironmentElement.Properties">
+            <summary>
+            Override the Properties collection and return our custom one.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.RuntimeElement">
+            <summary>
+            This is a configuration class that defines the possible runtimes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyName">
+            <summary>
+            Name configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyExecutable">
+            <summary>
+            Executable configuration property. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyVersion">
+            <summary>
+            Version configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyVersionArgument">
+            <summary>
+            Version argument configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyAdditionalChecks">
+            <summary>
+            Additional checks configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyEnvironment">
+            <summary>
+            Environment configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.propertyDebug">
+            <summary>
+            Debug configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeElement.#cctor">
+            <summary>
+            Initializes static members of the <see cref="T:Uhuru.Configuration.DEA.RuntimeElement"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Name">
+            <summary>
+            Gets or sets the name of the runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Executable">
+            <summary>
+            Gets or sets the executable for the runtime, used to get the version.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Version">
+            <summary>
+            Gets or sets the expected runtime version.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.VersionArgument">
+            <summary>
+            Gets or sets the flag that is passed to the runtime executable, to get the version.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.AdditionalChecks">
+            <summary>
+            Gets or sets any additional checks to be done for the runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Environment">
+            <summary>
+            Gets a collection of environment variables for this runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Debug">
+            <summary>
+            Gets a collection of debug configurations for this runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeElement.Properties">
+            <summary>
+            Override the Properties collection and return our custom one.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.RuntimeCollection">
+            <summary>
+            This class is a collection of RuntimeElement.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.RuntimeCollection.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeCollection.#cctor">
+            <summary>
+            Initializes static members of the <see cref="T:Uhuru.Configuration.DEA.RuntimeCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeCollection.#ctor">
+            <summary>
+            Initializes a new instance of the RuntimeCollection class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeCollection.GetElementKey(System.Configuration.ConfigurationElement)">
+            <summary>
+            This method gets an element key name for a RuntimeElement.
+            </summary>
+            <param name="element">The RuntimeElement for which to get the key.</param>
+            <returns>A string that is the name of the Runtime configuration.</returns>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.RuntimeCollection.CreateNewElement">
+            <summary>
+            This method creates a new RuntimeElement.
+            </summary>
+            <returns>A new RuntimeElement.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeCollection.CollectionType">
+            <summary>
+            Defines the collection type (BasicMap) for RuntimeCollection
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeCollection.Properties">
+            <summary>
+            Gets the configuration properties available for a RuntimeCollection
+            </summary>
+            <returns>The <see cref="T:System.Configuration.ConfigurationPropertyCollection"/> of properties for the element.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeCollection.ElementName">
+            <summary>
+            Gets the element name for a RuntimeCollection
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeCollection.Item(System.Int32)">
+            <summary>
+            Gets a runtime configuration by index.
+            </summary>
+            <param name="index">Zero-based index of a runtime configuration.</param>
+            <returns>The RuntimeElement at the specified index.</returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.RuntimeCollection.Item(System.String)">
+            <summary>
+            Gets a runtime configuration by its name.
+            </summary>
+            <param name="name">String specifying the runtime name.</param>
+            <returns>The RuntimeElement with the specified name.</returns>
+        </member>
+        <member name="T:Uhuru.Configuration.Service.MSSqlElement">
+            <summary>
+            This configuration class defines settings for the MS Sql Server Node component.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.MSSqlElement.propertyHost">
+            <summary>
+            Host configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.MSSqlElement.propertyUser">
+            <summary>
+            User configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.MSSqlElement.propertyPassword">
+            <summary>
+            Password configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.MSSqlElement.propertyPort">
+            <summary>
+            Port configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.Service.MSSqlElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.Service.MSSqlElement.#cctor">
+            <summary>
+            Initializes static members of the <see cref="T:Uhuru.Configuration.Service.MSSqlElement"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.Service.MSSqlElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.MSSqlElement.Host">
+            <summary>
+            Gets or sets the host of the target SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.MSSqlElement.User">
+            <summary>
+            Gets or sets the user for connecting to the target SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.MSSqlElement.Password">
+            <summary>
+            Gets or sets the password for connecting to the target SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.MSSqlElement.Port">
+            <summary>
+            Gets or sets the port for connecting to the target SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.Service.MSSqlElement.Properties">
+            <summary>
+            Override the Properties collection and return our custom one.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Configuration.DEA.DEAElement">
+            <summary>
+            This is a configuration class that defines settings for the DEA component.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyBaseDir">
+            <summary>
+            Base Directory configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyLocalRoute">
+            <summary>
+            Local route configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyFilerPort">
+            <summary>
+            Filer port configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyHeartBeatInterval">
+            <summary>
+            Heart beat interval configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyMessageBus">
+            <summary>
+            Message bus configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyMultiTenant">
+            <summary>
+            Muti-tenant configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyMaxMemory">
+            <summary>
+            Maximum memory configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertySecure">
+            <summary>
+            "Is secure" configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyEnforceUsageLimit">
+            <summary>
+            Enforec usage limit configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyDisableDirCleanup">
+            <summary>
+            Disable directory cleanup configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyForceHttpSharing">
+            <summary>
+            Force http sharing configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.propertyRuntimes">
+            <summary>
+            Runtimes configuration property.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Configuration.DEA.DEAElement.properties">
+            <summary>
+            Configuration properties collection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DEAElement.#cctor">
+            <summary>
+            Initializes static members of the DEAElement class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Configuration.DEA.DEAElement.IsReadOnly">
+            <summary>
+            Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
+            </summary>
+            <returns>
+            true if the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only; otherwise, false.
+            </returns>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.BaseDir">
+            <summary>
+            Gets or sets the base directory where all applications are staged and hosted
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.LocalRoute">
+            <summary>
+            Gets or sets the local route.
+            The local route is the IP address of a well known server on your network,
+            used to choose the right ip address (think of hosts that have multiple nicks
+            and IP addresses assigned to them) of the host running the DEA. A default
+            value of null should work in most cases.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.FilerPort">
+            <summary>
+            Gets or sets the port for accessing the files of running applications.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.HeartbeatInterval">
+            <summary>
+            Gets or sets the time interval to send heartbeat messages to the message bus, in milliseconds.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.MessageBus">
+            <summary>
+            Gets or sets the NATS message bus URI.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.Multitenant">
+            <summary>
+            Gets or sets a value indicating whether more than one application is allowed to run per DEA.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.MaxMemory">
+            <summary>
+            Gets or sets the maximum amount of memory allocated to this DEA. In a multi tenant setup, this
+            memory is divided amongst all applications managed by this DEA.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.Secure">
+            <summary>
+            Gets or sets a value indicating whether the environment for running applications in a multi tenant setup is secure or not.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.EnforceUsageLimit">
+            <summary>
+            Gets or sets a value indicating whether ulimit-based resource isolation in a multi tenant setup is provided or not.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.DisableDirCleanup">
+            <summary>
+            Gets or sets a value indicating whether disabling the cleanup of droplet instances after stopping them is activated or not.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.ForceHttpSharing">
+            <summary>
+            Gets or sets a value indicating whether the droplets are to be downloaded over http even when
+            there is a shared directory containing the droplet or not.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.Runtimes">
+            <summary>
+            Gets the runtimes configuration for the dea.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Configuration.DEA.DEAElement.Properties">
+            <summary>
+            Overrides the Properties collection and returns our custom one.
+            </summary>
+        </member>
+    </members>
+</doc>

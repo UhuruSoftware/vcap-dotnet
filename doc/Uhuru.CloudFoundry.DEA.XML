@@ -1,0 +1,2914 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.CloudFoundry.DEA</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest">
+            <summary>
+            This class encapsulates a request message to stop droplet instances.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.DropletId">
+            <summary>
+            Gets or sets the droplet id to be stopped.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.Version">
+            <summary>
+            Gets or sets the version of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.InstanceIds">
+            <summary>
+            Gets or sets the instance IDs that have to be stopped.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.Indexes">
+            <summary>
+            Gets or sets the indexes of the instances that have to be stopped.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.StatesInterchangeableFormat">
+            <summary>
+            Gets or sets the states of the instances; this property is used for (de)serialization only.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStopMessageRequest.States">
+            <summary>
+            Gets or sets the states of the instances.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.PluginHost">
+            <summary>
+            the class through which the plugins are consumed
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginHost.knownPluginData">
+            <summary>
+            offers an easier way to access a filePath/className pair later on
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginHost.runningInstances">
+            <summary>
+            Contains all the app domains that have been registered. The key is an IAgentPlugin's hash.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginHost.mutexPluginData">
+            <summary>
+            A mutex used to synchronize access to plugin data across multiple app domains.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginHost.mutexInstanceData">
+            <summary>
+            A mutex used to synchronize access to instance data across multiple app domains.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.PluginHost.CreateInstance(System.Guid)">
+            <summary>
+            creates a new instance of the plugin
+            </summary>
+            <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
+            <returns>a plugin object</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.PluginHost.RemoveInstance(Uhuru.CloudFoundry.Server.DEA.PluginBase.IAgentPlugin)">
+            <summary>
+            stops a running application and frees the resources used by it 
+            </summary>
+            <param name="agent">the plugin running the app</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.PluginHost.LoadPlugin(System.String,System.String)">
+            <summary>
+            saves the plugin data for later reference
+            </summary>
+            <param name="pathToPlugin">the path to the plugin</param>
+            <param name="className">the name of the class implementing the IAgentPlugin interface</param>
+            <returns>an unique key used later to retrieve the saved data</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.PluginHost.GetPluginData(System.Guid)">
+            <summary>
+            Gets the plugin data based on a plugin GUID.
+            </summary>
+            <param name="guid">The plugin GUID.</param>
+            <returns>An instance of PluginData that contains the assembly name and the class name associated with the GUID.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.PluginHost.GetInstanceData(System.Int32)">
+            <summary>
+            Gets the app domain of a plugin instance.
+            </summary>
+            <param name="hash">The hash of the plugin instance.</param>
+            <returns>The app domain that is used to sandbox the plugin instance.</returns>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.BoolStateBlockCallback">
+            <summary>
+            Callback with a Boolean parameter.
+            </summary>
+            <param name="state">if set to <c>true</c> [state].</param>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Agent">
+            <summary>
+            The Agent class is the DEA engine. It handles all the messages it receives on the message bus and send appropriate messages when it is requested to do so,
+            or some external event happened.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.VCAPComponent">
+            <summary>
+            Represents a Cloud Foundry component, that has to be registered, and uses a NATS connection.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.VCAPComponent"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.Run">
+            <summary>
+            Runs this the VCAP component. This method is non-blocking.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.ConstructReactor">
+            <summary>
+            Constructs the reactor for the VCAP component.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.UpdateDiscoverUptime">
+            <summary>
+            Updates the discover uptime.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPComponent.StartHttpServer">
+            <summary>
+            Starts the HTTP server used for healthz and varz.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.VarzLock">
+            <summary>
+            Gets or sets the varz lock for the varz property.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Varz">
+            <summary>
+            Gets or sets the varz value to be published.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Healthz">
+            <summary>
+            Gets or sets the healthz value to be published.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Discover">
+            <summary>
+            Gets or sets the discover.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.StartedAt">
+            <summary>
+            Gets or sets the timestamp the component started.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.UUID">
+            <summary>
+            Gets or sets the UUID of the VCAP component.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.ComponentType">
+            <summary>
+            Gets or sets the type of the VCAP component (DEA, CloudControlser, Node, Healthmanager, etc.).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Index">
+            <summary>
+            Gets or sets the index.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.NatsUri">
+            <summary>
+            Gets or sets the NATS server URI.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Host">
+            <summary>
+            Gets or sets the host address of the VCAP component to be announced.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Port">
+            <summary>
+            Gets or sets the monitoring server port.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.Authentication">
+            <summary>
+            Gets or sets the monitoring server authentication.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.VCAPReactor">
+            <summary>
+            Gets or sets the VCAP reactor.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPComponent.MonitoringServer">
+            <summary>
+            Gets or sets the monitoring server used for healthz and varz.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.Version">
+            <summary>
+            The DEA version.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.HomeVariable">
+            <summary>
+            Home variable.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapApplicationVariable">
+            <summary>
+            Application variable.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapServicesVariable">
+            <summary>
+            Services variable.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapAppHostVariable">
+            <summary>
+            Vcap Application Host Variable.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapAppPortVariable">
+            <summary>
+            Vcap Application Port.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapAppDebugIpVariable">
+            <summary>
+            Vcap Debug Ip.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapAppDebugPortVariable">
+            <summary>
+            Vcap Debug Port.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapPluginStagingInfoVariable">
+            <summary>
+            Vcap Plugin Stating Info.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapWindowsUserVariable">
+            <summary>
+            Vcap Windows User.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapWindowsUserPasswordVariable">
+            <summary>
+            Vcap Windows User Password.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.VcapAppPidVariable">
+            <summary>
+            Vcap Application Pid.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.droplets">
+            <summary>
+            The the droplets the DEA manages.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.stager">
+            <summary>
+            The application stager.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.fileViewer">
+            <summary>
+            The DEA's HTTP droplet file viewer. Helps receive the logs.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.monitoring">
+            <summary>
+            The monitoring resource.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.multiTenant">
+            <summary>
+            Set to true when more applications are allowed to be hosted on the DEA.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.secure">
+            <summary>
+            If secure mode is enabled.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.deaReactor">
+            <summary>
+            The DEA reactor. Is is the middleware to the message bus. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.helloMessage">
+            <summary>
+            The hello message send to the message bus.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.shuttingDown">
+            <summary>
+            Flag set to true when the system is shutting down. It used to avoiding processing some routines when the DEA is preparing to shut down.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Agent.evacuationDelayMs">
+            <summary>
+            The delay
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.Agent"/> class. Loads the configuration and initializes the members.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.Run">
+            <summary>
+            Runs the DEA.
+            It prepares the NATS subscriptions, stats the NATS client, and the required timers.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.RecoverExistingDroplets">
+            <summary>
+            Loads the saved droplet instances the last dea process has saved using the ShanpShotAppState method. 
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.EvacuateAppsThenQuit">
+            <summary>
+            First evacuates the Instances and after a delay it's calling the shutdown.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.Shutdown">
+            <summary>
+            Shuts down the DEA. First it stops all the instances and then the Nats client.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.ConstructReactor">
+            <summary>
+            Constructs the needed reactor. In this case a DeaReactor is needed.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.CreateServicesApplicationVariable(System.Collections.Generic.Dictionary{System.String,System.Object}[])">
+            <summary>
+            Creates the services application variable used when configuring the plugin.
+            </summary>
+            <param name="services">The services received from the Cloud Controller.</param>
+            <returns>The services application variable</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DetectAppReady(Uhuru.CloudFoundry.DEA.DropletInstance,Uhuru.CloudFoundry.DEA.BoolStateBlockCallback)">
+            <summary>
+            Detects the if an app is ready and run the callback.
+            </summary>
+            <param name="instance">The instance to be checked.</param>
+            <param name="callBack">The call back.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DetectPortReady(Uhuru.CloudFoundry.DEA.DropletInstance,Uhuru.CloudFoundry.DEA.BoolStateBlockCallback)">
+            <summary>
+            Detects if an application has the port ready and then invoke the call back.
+            </summary>
+            <param name="instance">The instance to be checked.</param>
+            <param name="callBack">The call back.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeleteUntrackedInstanceDirs">
+            <summary>
+            If there are lingering instance directories in the application directory, delete them. 
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.NatsErrorHandler(System.Object,Uhuru.NatsClient.ReactorErrorEventArgs)">
+            <summary>
+            NATS the error handler.
+            </summary>
+            <param name="sender">The sender.</param>
+            <param name="args">The <see cref="T:Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.SendHeartbeat">
+            <summary>
+            Sends the heartbeat of every droplet instnace the DEA is aware of.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.SnapshotVarz">
+            <summary>
+            Snapshots the varz with basic resource information.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaStatusHandler(System.String,System.String,System.String)">
+            <summary>
+            The hander for dea.status message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DropletStatusHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for the droplet.status message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaDiscoverHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for the dea.discover message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaFindDropletHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for dea.find.droplet message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaUpdateHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for dea.update handler.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="replay">The replay.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaStopHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for the dea.stop message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="replay">The replay.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.StopDroplet(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Stops the a droplet instance.
+            </summary>
+            <param name="instance">The instance to be stopped.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DeaStartHandler(System.String,System.String,System.String)">
+            <summary>
+            Handler for the dea.{guid}.start message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply.</param>
+            <param name="subject">The subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.StartDropletInstance(Uhuru.CloudFoundry.DEA.DropletInstance,System.String,System.String,System.Uri)">
+            <summary>
+            Starts the droplet instance after the basic initialization is done.
+            </summary>
+            <param name="instance">The instance to be started.</param>
+            <param name="sha1">The sha1 of the droplet file.</param>
+            <param name="executableFile">The path to the droplet file.</param>
+            <param name="executableUri">The URI to the droplet file.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.DetectAppReady(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Detects if an droplet instance is ready, so that it can be set to a Running state and registerd with the router.
+            </summary>
+            <param name="instance">The instance do be detected.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.SetupInstanceEnv(Uhuru.CloudFoundry.DEA.DropletInstance,System.String[],System.Collections.Generic.Dictionary{System.String,System.Object}[])">
+            <summary>
+            Setups the instance environment variables to be passed when configuring the plugin of an instance.
+            </summary>
+            <param name="instance">The instance for which to generate the variables.</param>
+            <param name="appVars">The user application variables.</param>
+            <param name="services">The services to be bound to the instance.</param>
+            <returns>The application variables.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.CreateInstanceVariable(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Creates the application variable for an instance. Is is used for the plugin configuration.
+            </summary>
+            <param name="instance">The instance for which the application variable is to be generated.</param>
+            <returns>The application variable.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.RouterStartHandler(System.String,System.String,System.String)">
+            <summary>
+            Handler for router.start Nats messages.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="reply">The reply token.</param>
+            <param name="subject">The message subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.RegisterInstanceWithRouter(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Registers the instance with the Vcap router. Called when the application is running and ready.
+            </summary>
+            <param name="instance">The instance to be registered.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.UnregisterInstanceFromRouter(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Unregisters the instance from the Vcap router. Called when the applicatoin is not in a running state any more.
+            </summary>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.HealthmanagerStartHandler(System.String,System.String,System.String)">
+            <summary>
+            The handler for healthmanager.start Nats message.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="replay">The replay token.</param>
+            <param name="subject">The message subject.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.MonitorApps">
+            <summary>
+            Checks the system resource usage (cpu, memeory, disk size) and associate the respective counters to each instance.
+            Stop an instance if it's usage is above its quota.
+            Update the varz with resouce usage.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.CheckUsage(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Checks the usage of the instance. If it has a usage above the quota and the DEA is in secure mode, the instance will be stopped.
+            </summary>
+            <param name="instance">The instance to checks.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Agent.TheReaper">
+            <summary>
+            Does all the cleaning that is needed for an instance if stopped gracefully or has crashed
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Monitoring">
+            <summary>
+            Contains all kind of monitoring related members.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.TaintPerAppMilliseconds">
+            <summary>
+            milliseconds of delay added to dea.disover response per instance of a droplet
+            todo: configuration: consider putting this constants into configuration file
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.TaintForMemoryMilliseconds">
+            <summary>
+            milliseconds of delay added to dea.disover if the whole memory would be full
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.TaintMaxMilliseconds">
+            <summary>
+            maximum ms of taint
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.DefaultAppMemoryMbytes">
+            <summary>
+            The default application RAM, if it is not specified in the start message.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.DefaultAppDiskMbytes">
+            <summary>
+            The default disk memory. Used when not specified in the start message.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.DefaultAppFDS">
+            <summary>
+            Default number of file descriptors.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.DefaultMaxClients">
+            <summary>
+            Default number of maximum number o instances a DEA could host.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.AppsDumpIntervalMilliseconds">
+            <summary>
+            How long to wait in between logging the structure of the apps directory in the event that a du takes excessively long
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.HeartbeatIntervalMilliseconds">
+            <summary>
+            The interval the DEA is sending heartbeat messages.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.VarzUpdateIntervalMilliseconds">
+            <summary>
+            The interval at which the DEA is updating the varz values.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.MonitorIntervalMilliseconds">
+            <summary>
+            The interval at which the DEA is monitoring the applications.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.CrashesReaperIntervalMilliseconds">
+            <summary>
+            The interval at which the DEA is invoking the reaper.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.CrashesReaperTimeoutMilliseconds">
+            <summary>
+            The timeout after which the reaper is cleaning the crashed instance directories
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.BeginReniceCpuThreshold">
+            <summary>
+            The value at which the monitor starts to lower the instance's process priority.
+            todo: adapt this to windows system
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.MaxReniceValue">
+            <summary>
+            The maximum priority value.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Monitoring.slimLock">
+            <summary>
+            Lock for resource tracking.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Monitoring.AddInstanceResources(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Add the instance memory to the total memory usage and flags the instance as tracked.
+            </summary>
+            <param name="instance">The instance to be tracked.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Monitoring.RemoveInstanceResources(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Untracks the memory used by the instance and flags it/
+            </summary>
+            <param name="instance">The instance to be untracked.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Monitoring.DumpAppsDirDiskUsage(System.String)">
+            <summary>
+            Logs out the directory structure of the apps dir. This produces both a summary
+            (top level view) of the directory, as well as a detailed view.
+            </summary>
+            <param name="appsDirectory">The directory to be analyzed.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Monitoring.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Monitoring.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.Lock">
+            <summary>
+            Gets or sets a lock for resource tracking.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.AppsDumpDirectory">
+            <summary>
+            Gets or sets where to dump the applications disk usage.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.LastAppDump">
+            <summary>
+            Gets or sets when was the last dump made.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.MemoryReservedMbytes">
+            <summary>
+            Gets or sets the total memory allocated to instances
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.MemoryUsageKbytes">
+            <summary>
+            Gets or sets the total memory used by apps
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.Clients">
+            <summary>
+            Gets or sets the number of instances that have resources allocated
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.MaxMemoryMbytes">
+            <summary>
+            Gets or sets the maximum memory that can be allocated
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Monitoring.MaxClients">
+            <summary>
+            Gets or sets the maximum number of instances that can run
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Droplet">
+            <summary>
+            The droplet contains a collection of instances.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Droplet.dropletInstances">
+            <summary>
+            The hash table of droplet instances. The Instance ID key points to the Instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Droplet.DropletInstances">
+            <summary>
+            Gets or sets the droplet instances.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.HelloMessage">
+            <summary>
+            This class encapsulates a hello message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HelloMessage.Id">
+            <summary>
+            Gets or sets the id of the DEA service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HelloMessage.Version">
+            <summary>
+            Gets or sets the version of the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HelloMessage.Host">
+            <summary>
+            Gets or sets the host on which the service runs.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HelloMessage.FileViewerPort">
+            <summary>
+            Gets or sets the file viewer port for the DEA service.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.VCAPReactor">
+            <summary>
+            The reactor for the the common VCAP Component.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPReactor.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.VCAPReactor"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPReactor.Start">
+            <summary>
+            Starts this the reactor, by starting the NATS client and subscribing to the message bus.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPReactor.SendVCAPComponentAnnounce(System.String)">
+            <summary>
+            Sends the VCAP component announce.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.VCAPReactor.SendReply(System.String,System.String)">
+            <summary>
+            Send a reply to a NATS message.
+            </summary>
+            <param name="reply">The reply token.</param>
+            <param name="message">The actual reply.</param>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.VCAPReactor.OnComponentDiscover">
+            <summary>
+            Occurs when the component.dicover message is received.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.VCAPReactor.OnNatsError">
+            <summary>
+            Occurs when NATS fails.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPReactor.NatsClient">
+            <summary>
+            Gets or sets the NATS client.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.VCAPReactor.Uri">
+            <summary>
+            Gets or sets the URI of the NATS client.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage">
+            <summary>
+            A class that encapsulates a heartbeat message.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.droplets">
+            <summary>
+            All the droplets in the DEA.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.Droplets">
+            <summary>
+            Gets or sets all the droplets hosted in the DEA.
+            TODO: stefi: change the type when json helper class can go deep into generic collections
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat">
+            <summary>
+            A class that encapsulates a message containing a set of droplet instance properties.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.DropletId">
+            <summary>
+            Gets or sets the id of the droplet the instance belongs to.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.Version">
+            <summary>
+            Gets or sets the version of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.InstanceId">
+            <summary>
+            Gets or sets the id of the current instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.InstanceIndex">
+            <summary>
+            Gets or sets the index of the current instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.State">
+            <summary>
+            Gets or sets the state of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.StateTimestampInterchangeableFormat">
+            <summary>
+            Gets or sets the timestamp corresponding to the moment the state was read, in interchangeable format.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.HeartbeatMessage.InstanceHeartbeat.StateTimestamp">
+            <summary>
+            Gets or sets the timestamp corresponding to the moment the state was read.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse">
+            <summary>
+            This class is a representation of a DEA status message response.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.Id">
+            <summary>
+            Gets or sets the id of the DEA service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.Version">
+            <summary>
+            Gets or sets the version of the DEA component.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.Host">
+            <summary>
+            Gets or sets the ip of the machine hosting the DEA service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.FileViewerPort">
+            <summary>
+            Gets or sets the file viewer port.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.MaxMemoryMbytes">
+            <summary>
+            Gets or sets the max memory to be used by the DEA in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.MemoryReservedMbytes">
+            <summary>
+            Gets or sets the reserved memory of the DEA in megabytes (sum of max memory for each droplet instance).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.MemoryUsageKbytes">
+            <summary>
+            Gets or sets the memory usage of the DEA in kilobytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.NumberOfClients">
+            <summary>
+            Gets or sets the number of instances hosted by the DEA service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStatusMessageResponse.State">
+            <summary>
+            Gets or sets the state of the DEA service.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.RouterMessage">
+            <summary>
+            This class encapsulates a message that is sent to the router to register an instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.DeaId">
+            <summary>
+            Gets or sets the DEA id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.Host">
+            <summary>
+            Gets or sets the host of the DEA service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.Port">
+            <summary>
+            Gets or sets the port on which the droplet instance listens.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.Uris">
+            <summary>
+            Gets or sets the URLs of the running droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.Tags">
+            <summary>
+            Gets or sets the framework and runtime tags.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.TagsObject">
+            <summary>
+            This class contains tags for the runtime and framework.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.TagsObject.Framework">
+            <summary>
+            Gets or sets the framework.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.RouterMessage.TagsObject.Runtime">
+            <summary>
+            Gets or sets the runtime.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest">
+            <summary>
+            This class encapsulates a request message to discover a DEA that can run a droplet.
+            example: {"droplet":198,"limits":{"mem":128,"disk":2048,"fds":256},"name":"helloworld","runtime":"iis","sha":"98b1159c7d3539dd450fd86f92647d3902a0067b
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest"/> class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.DropletId">
+            <summary>
+            Gets or sets the droplet id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.Name">
+            <summary>
+            Gets or sets the name of the app.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.Runtime">
+            <summary>
+            Gets or sets the runtime the droplet needs.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.SHA">
+            <summary>
+            Gets or sets a hash that uniquely identifies the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaDiscoverMessageRequest.Limits">
+            <summary>
+            Gets or sets the usage limits for the application (memory, disk, etc.).
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DeaReactor">
+            <summary>
+            The reactor for the DEA. It is basically a wrapper for the NATS client. It inherits the common VCAP reactor which belongs to the VcapComponent.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.DeaReactor"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.Start">
+            <summary>
+            Runs the Dea Reactor. This function is not blocking.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.SendDeaHeartbeat(System.String)">
+            <summary>
+            Sends the DEA heartbeat to the message bus.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.SendDeaStart(System.String)">
+            <summary>
+            Sends the DEA start to the message bus.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.SendDropletExited(System.String)">
+            <summary>
+            Sends the droplet exited to the message bus.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.SendRouterRegister(System.String)">
+            <summary>
+            Sends the router register to the message bus.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaReactor.SendRouterUnregister(System.String)">
+            <summary>
+            Sends the router unregister to the message bus.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnRouterStart">
+            <summary>
+            Occurs when router.start message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnHealthManagerStart">
+            <summary>
+            Occurs when healthmanager.start message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaStart">
+            <summary>
+            Occurs when dea.{vcapguid}.start message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaStop">
+            <summary>
+            Occurs when dea.stop message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaStatus">
+            <summary>
+            Occurs when the dea.status message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDropletStatus">
+            <summary>
+            Occurs when the droplet.status message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaDiscover">
+            <summary>
+            Occurs when the dea.discover message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaFindDroplet">
+            <summary>
+            Occurs when dea.find.droplet message is received on the message bus.
+            </summary>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.DeaReactor.OnDeaUpdate">
+            <summary>
+            Occurs when dea.update message is received on the message bus.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaReactor.UUID">
+            <summary>
+            Gets or sets the UUID of the vcap component.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.StartRequestDropletLimits">
+            <summary>
+            This class contains information about the usage limits of a droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.StartRequestDropletLimits.MemoryMbytes">
+            <summary>
+            Gets or sets the maximum memory limit in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.StartRequestDropletLimits.DiskMbytes">
+            <summary>
+            Gets or sets the maximum disk usage in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.StartRequestDropletLimits.FileDescriptors">
+            <summary>
+            Gets or sets the maximum number of open files and sockets.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DropletLimits">
+            <summary>
+            This class contains information about the resource limits of a droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletLimits.MemoryMbytes">
+            <summary>
+            Gets or sets the maximum memory in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletLimits.DiskMbytes">
+            <summary>
+            Gets or sets the maximum disk usage in megabytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletLimits.FDS">
+            <summary>
+            Gets or sets the maximum number of open files and sockets.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.FileViewer">
+            <summary>
+            A http file viewer.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.FileViewer.startAttempts">
+            <summary>
+            The number of times the file viewer tried to start.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.FileViewer.filerStartTimer">
+            <summary>
+            Start timestamp.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.FileViewer.fileViewerServer">
+            <summary>
+            The file server used for the file viewer.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.FileViewer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.FileViewer"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.FileViewer.Start(System.String)">
+            <summary>
+            Starts the file viewer. This method is non-blocking.
+            </summary>
+            <param name="dropletsPath">The droplets path.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.FileViewer.Stop">
+            <summary>
+            Stops the file viewer.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.FileViewer.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.FileViewer.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="E:Uhuru.CloudFoundry.DEA.FileViewer.OnStartError">
+            <summary>
+            Occurs when the file viewer was unable to start.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.FileViewer.IsRunning">
+            <summary>
+            Gets or sets a value indicating whether this instance is running.
+            </summary>
+            <value>
+                <c>true</c> if this instance is running; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.FileViewer.Port">
+            <summary>
+            Gets or sets the TCP port.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.FileViewer.Credentials">
+            <summary>
+            Gets or sets the credentials to the file viewer.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.FileViewer.Uri">
+            <summary>
+            Gets or sets the URI.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Stager">
+            <summary>
+            This class contains all the functionality required to download/unzip application bits and manages runtimes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Stager.CleanCacheIntervalMilliseconds">
+            <summary>
+            The timer to cleanup the application files cached.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Stager.stagerLock">
+            <summary>
+            The stager lock.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.Stager"/> class.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.CreateDirectories">
+            <summary>
+            Create the necessary directories for the DEA process
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.CleanCacheDirectory">
+            <summary>
+            Cleans the cache directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.RuntimeSupported(System.String)">
+            <summary>
+            Checks weather the runtime is supported.
+            </summary>
+            <param name="runtime">The runtime.</param>
+            <returns>True if the runtime is supported.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.SetupRuntimes">
+            <summary>
+            Setups the runtimes.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.StageAppDirectory(System.String,System.Uri,System.String,System.String,Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Stages the app directory.
+            </summary>
+            <param name="bitsFile">The bits file.</param>
+            <param name="bitsUri">The bits URI.</param>
+            <param name="hash">The sha1.</param>
+            <param name="tarZipFile">The TGZ file.</param>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Stager.DownloadAppBits(System.Uri,System.String,System.String)">
+            <summary>
+            Downloads the app bits.
+            </summary>
+            <param name="bitsUri">The bits URI.</param>
+            <param name="sha1">The sha1 of the download.</param>
+            <param name="tgzFile">The TGZ file.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.Runtimes">
+            <summary>
+            Gets or sets the supported runtimes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.DropletDir">
+            <summary>
+            Gets or sets the droplet directory. 
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.StagedDir">
+            <summary>
+            Gets or sets the staged directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.AppsDir">
+            <summary>
+            Gets or sets the apps directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.DBDir">
+            <summary>
+            Gets or sets the database directory. It is where the snapshot app state saves the instances.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.ForceHttpFileSharing">
+            <summary>
+            Gets or sets a value indicating whether only http should be used to get the application file.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Stager.DisableDirCleanup">
+            <summary>
+            Gets or sets a value indicating whether not to clean up the directory cleanup.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage">
+            <summary>
+            This encapsulates a message that is sent after a droplet instance has exited.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.DropletId">
+            <summary>
+            Gets or sets the id of the droplet the instance belongs to.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.Version">
+            <summary>
+            Gets or sets the droplet version.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.InstanceId">
+            <summary>
+            Gets or sets the id of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.Index">
+            <summary>
+            Gets or sets the index of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.ExitReason">
+            <summary>
+            Gets or sets the reason, if known, why the droplet instance has exited.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.StateTimestampInterchangeableFormat">
+            <summary>
+            Gets or sets the timestamp corresponding to the moment the instance has crashed (if that is what happened), in interchangeable format.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletExitedMessage.CrashedTimestamp">
+            <summary>
+            Gets or sets the timestamp corresponding to the moment the instance has crashed (if that is what happened).
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.ForEachCallback">
+            <summary>
+            Callback used to iterate all droplet instances.
+            </summary>
+            <param name="instance">The instance.</param>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletCollection">
+            <summary>
+            The collection of droplets.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletCollection.droplets">
+            <summary>
+            Where the droplet collection is stored, keyed with the droplet ID.
+            DropletId -> Droplet
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletCollection.readerWriterLock">
+            <summary>
+            The collection's lock.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletCollection.snapshotScheduled">
+            <summary>
+            If the snapshot has been scheduled to avoid saving it two times with the same value.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.GenerateHeartbeatMessage">
+            <summary>
+            Generates the heartbeat message.
+            </summary>
+            <returns>Return the heartbeat message</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.NoMonitorableApps">
+            <summary>
+            Checks if there are applications to me monitored.
+            </summary>
+            <returns>Return true if there are no applications to be monitored.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.ForEach(System.Boolean,Uhuru.CloudFoundry.DEA.ForEachCallback)">
+            <summary>
+            Iterates through all the droplet instances.
+            </summary>
+            <param name="upgradableReadLock">Set it to true if a write lock on the Droplet Collection.</param>
+            <param name="doThat">The code to execute on each instance.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.ForEach(Uhuru.CloudFoundry.DEA.ForEachCallback)">
+            <summary>
+            For each with upgradableReadLock set to false.
+            </summary>
+            <param name="doThat">The callback for each instance.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.SnapshotAppState">
+            <summary>
+            Snapshots the state of the applications.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.ScheduleSnapshotAppState">
+            <summary>
+            Schedules snapshot application state.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.RemoveDropletInstance(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Removes a droplet instance from the collection.
+            </summary>
+            <param name="instance">The droplet instance to remove.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.AddDropletInstance(Uhuru.CloudFoundry.DEA.DropletInstance)">
+            <summary>
+            Adds a droplet instance to the collection.
+            </summary>
+            <param name="instance">The droplet instance to add.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.CreateDropletInstance(Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest)">
+            <summary>
+            Creates a new droplet instance.
+            </summary>
+            <param name="message">The NATS message</param>
+            <returns>The DropletInstance generated.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletCollection.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletCollection.Droplets">
+            <summary>
+            Gets or sets the collection members, organized by IDs.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletCollection.Lock">
+            <summary>
+            Gets or sets the lock.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletCollection.AppStateFile">
+            <summary>
+            Gets or sets the app state file. This is where the recovery is made from.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletCollection.RecoveredDroplets">
+            <summary>
+            Gets or sets a value indicating whether the droplets have been recovered so that there a snapshot is not made only after the recovery.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaUpdateMessageRequest">
+            <summary>
+            This class encapsulates a request message to udpate a droplet with new URLs
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaUpdateMessageRequest.DropletId">
+            <summary>
+            Gets or sets the droplet id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaUpdateMessageRequest.Uris">
+            <summary>
+            Gets or sets the new uris of the droplet.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest">
+            <summary>
+            This class encapsulates a request message to start a droplet instance.
+            Sample:
+            [#10005] Received on [dea.2134fafa645b42278f96cb619067a1e0.start] : '
+            {"droplet" :198,"name" :"helloworld","uris" :["helloworld.uhurucloud.net"],"runtime" :"iis","framework" :"net","sha1" :"98b1159c7d3539dd450fd86f92647d3902a0067b",
+            "executableFile":"/var/vcap/shared/droplets/98b1159c7d3539dd450fd86f92647d3902a0067b","executableUri" :"http://192.168.1.160:9022/staged_droplets/198/98b1159c7d3539dd450fd86f92647d3902a0067b",
+            "version" :"98b1159c7d3539dd450fd86f92647d3902a0067b-1","services" :[],
+            "limits" :{"mem":128,"disk":2048,"fds":256},"env" :[],"users" :["dev@cloudfoundry.org"],"index" :0}'
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest"/> class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.DropletId">
+            <summary>
+            Gets or sets the droplet id of the instance that has to be started.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Index">
+            <summary>
+            Gets or sets the index of the instance that has to be started.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Name">
+            <summary>
+            Gets or sets the name of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Uris">
+            <summary>
+            Gets or sets the URLs that are mapped to the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Runtime">
+            <summary>
+            Gets or sets the runtime that the droplet needs to run.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Framework">
+            <summary>
+            Gets or sets the framework used by the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.SHA1">
+            <summary>
+            Gets or sets the unique hash identifying the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.ExecutableFile">
+            <summary>
+            Gets or sets the executable file.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.ExecutableUri">
+            <summary>
+            Gets or sets the executable URI.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Version">
+            <summary>
+            Gets or sets the version of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Services">
+            <summary>
+            Gets or sets the services that are bound to this droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Environment">
+            <summary>
+            Gets or sets the environment variables for the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Users">
+            <summary>
+            Gets or sets the users that own the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaStartMessageRequest.Limits">
+            <summary>
+            Gets or sets the usage limits of the app.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse">
+            <summary>
+            This class encapsulates a response message to a <see cref="T:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest"/>
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.DeaId">
+            <summary>
+            Gets or sets the DEA service ID.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.Version">
+            <summary>
+            Gets or sets the version of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.DropletId">
+            <summary>
+            Gets or sets the droplet id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.InstanceId">
+            <summary>
+            Gets or sets the instance id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.Index">
+            <summary>
+            Gets or sets the index of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.State">
+            <summary>
+            Gets or sets the state of the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.StateTimestampInterchangeableFormat">
+            <summary>
+            Gets or sets the last snapshot timestamp for the droplet instance state in a ruby-compatible format.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.StateTimestamp">
+            <summary>
+            Gets or sets the last snapshot timestamp for the droplet instance state.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.FileUri">
+            <summary>
+            Gets or sets the URI to the file server that can serve the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.FileAuth">
+            <summary>
+            Gets or sets the authentication credentials for the file server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.Staged">
+            <summary>
+            Gets or sets the staged value.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.DebugIP">
+            <summary>
+            Gets or sets the debug IP for the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.DebugPort">
+            <summary>
+            Gets or sets the debug port for the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageResponse.Stats">
+            <summary>
+            Gets or sets the stats of the droplet instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest">
+            <summary>
+            This class encapsulates a request message to find a droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.DropletId">
+            <summary>
+            Gets or sets the droplet id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.Version">
+            <summary>
+            Gets or sets the version of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.InstanceIds">
+            <summary>
+            Gets or sets the instance ids of the droplet that we have to find.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.Indexes">
+            <summary>
+            Gets or sets the indexes of the instances that we have to find..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.StatesInterchangeableFormat">
+            <summary>
+            Gets or sets the desired states of the instances that have to be found.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.States">
+            <summary>
+            Gets or sets the states of the instances that have to be found.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DeaFindDropletMessageRequest.IncludeStates">
+            <summary>
+            Gets or sets a value indicating whether to include states in the response message.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.StreamWriterCallback">
+            <summary>
+            Callback for the process stream.
+            </summary>
+            <param name="stream">The stream.</param>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.ProcessDoneCallback">
+            <summary>
+            The callback that is executed after a process stopped.
+            </summary>
+            <param name="output">The output stream.</param>
+            <param name="statusCode">The status code.</param>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DEAUtilities">
+            <summary>
+            A class containing a set of file- and process-related methods. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DEAUtilities.zlibLock">
+            <summary>
+            The lock for SevenZipSharp initialization
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DEAUtilities.zlibInitalized">
+            <summary>
+            Flag if the SevenZipShparp library as initalized.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.#ctor">
+            <summary>
+            Prevents a default instance of the <see cref="T:Uhuru.CloudFoundry.DEA.DEAUtilities"/> class from being created.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.ZipFile(System.String,System.String)">
+            <summary>
+            Compresses a file using the .zip format.
+            </summary>
+            <param name="sourceDir">The directory to compress.</param>
+            <param name="fileName">The name of the archive to be created.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.UnzipFile(System.String,System.String)">
+            <summary>
+            Extracts data from a .zip archive.
+            </summary>
+            <param name="targetDir">The directory to put the extracted data in.</param>
+            <param name="zipFile">The file to extract data from.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.RunCommandAndGetOutput(System.String,System.String)">
+            <summary>
+            Starts up a new process and executes a command.
+            </summary>
+            <param name="command"> The command to execute. </param>
+            <param name="arguments"> The arguments of the command. </param>
+            <returns>The output of the executed command.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.RunCommandAndGetOutputAndErrors(System.String,System.String)">
+            <summary>
+            Starts up a new process and executes a command.
+            </summary>
+            <param name="command"> The command to execute. </param>
+            <param name="arguments"> The arguments of the command. </param>
+            <returns>The output of the executed command, including errors.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.ExecuteCommands(System.String,System.String,Uhuru.CloudFoundry.DEA.StreamWriterCallback,Uhuru.CloudFoundry.DEA.ProcessDoneCallback)">
+            <summary>
+            starts a new process and executes a command
+            </summary>
+            <param name="shell">The command to be executed.</param>
+            <param name="arguments">The arguments of the command.</param>
+            <param name="writerCallback">The callback to process the input.</param>
+            <param name="doneCallback">The callback to process the output.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.ExecuteCommand(System.String)">
+            <summary>
+            Starts up a cmd shell and executes a command.
+            </summary>
+            <param name="command">The command to be executed.</param>
+            <returns>The process' exit code.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.DateTimeFromRubyString(System.String)">
+            <summary>
+            Converts a Ruby date string into a DateTime.
+            </summary>
+            <param name="date">The string to convert.</param>
+            <returns>The converted data.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.NumberOfCores">
+            <summary>
+            Returns the number of cores on the current machine.
+            </summary>
+            <returns>The number of cores on the current machine.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.EnsureWritableDirectory(System.String)">
+            <summary>
+            Tries to write a file to a directory to make sure writing is allowed.
+            </summary>
+            <param name="directory"> The directory to write in.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.RunCommandAndGetOutput(System.String,System.String,System.Boolean)">
+            <summary>
+            Starts up a new process and executes a command.
+            </summary>
+            <param name="command"> The command to execute. </param>
+            <param name="arguments"> The arguments of the command. </param>
+            <param name="outputIncludesErrors"> A value indicated whether the errors are to be included in output or not. </param>
+            <returns>The output of the executed command.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DEAUtilities.SetupZlib">
+            <summary>
+            Setups the zlib library; gets the proper 32 or 64 bit library as a stream from a resource, and loads it.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DeaRuntime">
+            <summary>
+            The runtime description supported by the DEA.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DeaRuntime.#ctor">
+            <summary>
+            Initializes a new instance of the DeaRuntime class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.Executable">
+            <summary>
+            Gets or sets the executable of the runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.Version">
+            <summary>
+            Gets or sets the version of the runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.VersionArgument">
+            <summary>
+            Gets or sets the version flag.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.AdditionalChecks">
+            <summary>
+            Gets or sets the additional checks for the runtime.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.DebugEnvironmentVariables">
+            <summary>
+            Gets or sets the debug environment of the runtime. Passed to the appliction instance as needed.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.Environment">
+            <summary>
+            Gets or sets the environment variables for the runtime. Passed to the application instance when started.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DeaRuntime.Enabled">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.DEA.DeaRuntime"/> is enabled.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstanceUsage">
+            <summary>
+            This class encapsulates all resource usage for a droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceUsage.MemoryKbytes">
+            <summary>
+            Gets or sets the used memory kbytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceUsage.Cpu">
+            <summary>
+            Gets or sets the cpu.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceUsage.DiskBytes">
+            <summary>
+            Gets or sets the disk bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceUsage.TimeInterchangeableFormat">
+            <summary>
+            Gets or sets the running time of the droplet instance as a ruby compatible string.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceUsage.Time">
+            <summary>
+            Gets or sets the running time of the droplet instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstance">
+            <summary>
+            Represents a droplet instance.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstance.MaxUsageSamples">
+            <summary>
+            The total usage history samples to store.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstance.readerWriterLock">
+            <summary>
+            The lock for the droplet instance.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstance.properties">
+            <summary>
+            Properties for the droplet instance which are saved when snapshooting the applications.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstance.usage">
+            <summary>
+            The history of resource usage of the instance.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.GenerateInstanceHeartbeat">
+            <summary>
+            Returns the heartbeat info of the current droplet instance.
+            </summary>
+            <returns>The requested heartbeat info.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.GenerateHeartbeat">
+            <summary>
+            Generates the heartbeat of the instance ready to be sent to the message bus.
+            </summary>
+            <returns>The heartbeat.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.GenerateDropletExitedMessage">
+            <summary>
+            returns the instances exited message
+            </summary>
+            <returns>A DropletExitedMessage instance that has all members initialized.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.GenerateDropletStatusMessage">
+            <summary>
+            Generates a status message reflecting the properties of the current droplet instance.
+            </summary>
+            <returns>The generated status message.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.PopulateApplicationInfo(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationInfo)">
+            <summary>
+            Updates an ApplicationInfo object with the information of the current droplet instance.
+            </summary>
+            <param name="appInfo">The object whose info is to be updated (if this is null a new ApplicationInfo object will be used instead).</param>
+            <returns>The updated ApplicationInfo object.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.LoadPlugin">
+            <summary>
+            Loads the plugin associated with this droplet.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.AddUsage(System.Int64,System.Int64,System.Int64)">
+            <summary>
+            Updates the usage and adds it to the usage history.
+            </summary>
+            <param name="memoryBytes">The memory bytes.</param>
+            <param name="cpu">The cpu.</param>
+            <param name="diskBytes">The disk memory in bytes.</param>
+            <returns>A droplet instance usage instance containing all the usage information.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.DropletInstance.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.Plugin">
+            <summary>
+            Gets or sets the plugin associated with the instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.Lock">
+            <summary>
+            Gets or sets the instances lock.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.Properties">
+            <summary>
+            Gets or sets the instance properties.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.Usage">
+            <summary>
+            Gets or sets usage history for the droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.IsProcessIdRunning">
+            <summary>
+            Gets a value indicating whether the Pid is still valid and running
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.IsPortReady">
+            <summary>
+            Gets a value indicating whether this instance has opened up a port and it's listening on it.
+            </summary>
+            <value>
+                <c>true</c> if this instance is port ready; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.ErrorLog">
+            <summary>
+            Gets or sets the error log of the instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfoLogs">
+            <summary>
+            This class contains information about which type of plugin to load, and how to configure it.
+            Information comes from the cloud controller stager, more specifically a framework plugin.rb file.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfoLogs.DeaErrorLog">
+            <summary>
+            Gets or sets the DEA error log.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfo">
+            <summary>
+            The staging information sent by the cloud controller with the droplet bits.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfo.Assembly">
+            <summary>
+            Gets or sets the assembly of the plug-in.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfo.ClassName">
+            <summary>
+            Gets or sets the name of the class name of the plug-in.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstance.VcapPluginStagingInfo.Logs">
+            <summary>
+            Gets or sets the logs.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ActualUsageWasProcessTerminated">
+            <summary>
+              Looks up a localized string similar to Actual usage was {0}M, process terminated..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Allowingmultitenancy">
+            <summary>
+              Looks up a localized string similar to Allowing multi-tenancy.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.AppsDuDetails">
+            <summary>
+              Looks up a localized string similar to apps.du.{0}.details.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.AppsDuSummary">
+            <summary>
+              Looks up a localized string similar to apps.du.{0}.summary.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ByeMessage">
+            <summary>
+              Looks up a localized string similar to Bye...
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CannotCreateSupported">
+            <summary>
+              Looks up a localized string similar to Can&apos;t create supported directories: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CannotDetermineApplicationRuntimes">
+            <summary>
+              Looks up a localized string similar to Can&apos;t determine application runtimes, exiting.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CdCommand">
+            <summary>
+              Looks up a localized string similar to cd /D {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Checkingruntimes">
+            <summary>
+              Looks up a localized string similar to Checking runtimes....
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CleandUpDir">
+            <summary>
+              Looks up a localized string similar to {0}: Cleaned up dir {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Clients">
+            <summary>
+              Looks up a localized string similar to Clients: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CloudNotCleanCacheDirectory">
+            <summary>
+              Looks up a localized string similar to Cloud not clean cache directory: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CloudNotRemoveInstance">
+            <summary>
+              Looks up a localized string similar to Cloud not remove instance: {0}, error: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CloudNotStartRuntimeNot">
+            <summary>
+              Looks up a localized string similar to Cloud not start, runtime not supported. ({0}).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CompletedRunningWith">
+            <summary>
+              Looks up a localized string similar to {0} completed running with status = {1}..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.CrashesReaperDeleted">
+            <summary>
+              Looks up a localized string similar to Crashes reaper deleted: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DaysHoursMinutesSecondsDateTimeFormat">
+            <summary>
+              Looks up a localized string similar to {0}d:{1}h:{2}m:{3}s.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedDiscoveryMessage">
+            <summary>
+              Looks up a localized string similar to DEA received discovery message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedFindDroplet">
+            <summary>
+              Looks up a localized string similar to DEA received find droplet message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedHealthmanagerStart">
+            <summary>
+              Looks up a localized string similar to DEA received healthmanager start message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedRouterStart">
+            <summary>
+              Looks up a localized string similar to DEA received router start message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedStartMessage">
+            <summary>
+              Looks up a localized string similar to DEA received start message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DEAreceivedstatusmessage">
+            <summary>
+              Looks up a localized string similar to DEA received status message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedStopMessage">
+            <summary>
+              Looks up a localized string similar to DEA received stop message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaReceivedUpdateMessage">
+            <summary>
+              Looks up a localized string similar to DEA received update message: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DeaRecoveredApplications">
+            <summary>
+              Looks up a localized string similar to DEA recovered {0} applications.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DiskUsageLimitOf">
+            <summary>
+              Looks up a localized string similar to Disk usage limit of {0}M exceeded..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.DonlodedFileFromIs">
+            <summary>
+              Looks up a localized string similar to Donloded file from {0} is corrupt: {1} != {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Donothaveroomforthisclient">
+            <summary>
+              Looks up a localized string similar to Do not have room for this client application.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Downloadcompleate">
+            <summary>
+              Looks up a localized string similar to Download compleate.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Downlodedfileiscorrupt">
+            <summary>
+              Looks up a localized string similar to Downloded file is corrupt..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ErrorRecoveringDropletWarningMessage">
+            <summary>
+              Looks up a localized string similar to Error recovering droplet {0}. Exception: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ErrorStoppingDropletErrorMessage">
+            <summary>
+              Looks up a localized string similar to Error stopping droplet: {0}, instance: {1}, exception:.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.EvacuatingApp">
+            <summary>
+              Looks up a localized string similar to Evacuating app {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Evacuatingapplications">
+            <summary>
+              Looks up a localized string similar to Evacuating applications...
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ExitingNatsError">
+            <summary>
+              Looks up a localized string similar to EXITING! Nats error: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FailedAdditionalChecks">
+            <summary>
+              Looks up a localized string similar to {0} FAILED, additional checks failed.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FailedExecutableNot">
+            <summary>
+              Looks up a localized string similar to {0} FAILED, executable &apos;{1}&apos; not found 
+            Current directory: {2} 
+            Full executable path: {3}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FailedStagingAppDir">
+            <summary>
+              Looks up a localized string similar to Failed staging app dir &apos;{0}&apos;, not starting app {1}, Exception: {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FailedVersionMismatch">
+            <summary>
+              Looks up a localized string similar to {0} FAILED, version mismatch ({1}).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FilerServiceFailedToStart">
+            <summary>
+              Looks up a localized string similar to Filer service failed to start: {0} already in use?: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FileServiceStartedOnPort">
+            <summary>
+              Looks up a localized string similar to File service started on port: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.FoundStagedBitsInLocalCache">
+            <summary>
+              Looks up a localized string similar to Found staged bits in local cache..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.GivingUpDetectingStopFile">
+            <summary>
+              Looks up a localized string similar to Giving up detecting stop file.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.GivingUpOnConnectingApp">
+            <summary>
+              Looks up a localized string similar to Giving up on connecting app.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.GivingUpOnTryingToStartFiler">
+            <summary>
+              Looks up a localized string similar to Giving up on trying to start filer, exiting....
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Home">
+            <summary>
+              Looks up a localized string similar to HOME={0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.HttpDroplets">
+            <summary>
+              Looks up a localized string similar to http://{0}:{1}/droplets/.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.IgnoringRequest">
+            <summary>
+              Looks up a localized string similar to Ignoring request..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.IgnoringRequestNoSuitableRuntimes">
+            <summary>
+              Looks up a localized string similar to Ignoring request, no suitable runtimes available for &apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.IgnoringRequestNotEnoughMemory">
+            <summary>
+              Looks up a localized string similar to Ignoring request, not enough memory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.IgnoringRequestRuntime">
+            <summary>
+              Looks up a localized string similar to Ignoring request, {0} runtime not supported.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.IgnoringRequestRuntimeNot">
+            <summary>
+              Looks up a localized string similar to Ignoring request, runtime not enabled for &apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.InstanceIsReadyForConnections">
+            <summary>
+              Looks up a localized string similar to Instance {0} is ready for connections, notifying system of status.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.LoweringPriorityOnCpuBound">
+            <summary>
+              Looks up a localized string similar to Lowering priority on CPU bound process({0}), new value:{1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.MappingnewURIs">
+            <summary>
+              Looks up a localized string similar to Mapping new URIs.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.MaxMemorySetTo">
+            <summary>
+              Looks up a localized string similar to Max memory set to {0}M.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.MemoryLimitOfExceeded">
+            <summary>
+              Looks up a localized string similar to Memory limit of {0}M exceeded..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NameAppIdInstance">
+            <summary>
+              Looks up a localized string similar to name={0} app_id={1} instance={2} index={3}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NatsError">
+            <summary>
+              Looks up a localized string similar to Nats error: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NatsMessageDeaSentinel">
+            <summary>
+              Looks up a localized string similar to dea.{0}.sentinel.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NatsMessageDeaStart">
+            <summary>
+              Looks up a localized string similar to dea.{0}.start.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NatsSubjectVcapComponentAnnounce">
+            <summary>
+              Looks up a localized string similar to vcap.component.announce.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NatsSubjectVcapComponentDiscover">
+            <summary>
+              Looks up a localized string similar to vcap.component.discover.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Needtodownloadappbitsfrom">
+            <summary>
+              Looks up a localized string similar to Need to download app bits from {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.NewCurrent">
+            <summary>
+              Looks up a localized string similar to New: {0} Current: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Pending">
+            <summary>
+              Looks up a localized string similar to {0}.pending.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.PidAssignedToDroplet">
+            <summary>
+              Looks up a localized string similar to PID:{0} assigned to droplet instance: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.RemovingInstanceDoesn">
+            <summary>
+              Looks up a localized string similar to Removing instance &apos;{0}&apos;, doesn&apos;t correspond to any instance entry..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ReservedMemoryUsageMb">
+            <summary>
+              Looks up a localized string similar to Reserved Memory Usage: {0} MB of {1} MB TOTAL.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.RestrictingToSingleTenant">
+            <summary>
+              Looks up a localized string similar to Restricting to single tenant.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.RuntimeOk">
+            <summary>
+              Looks up a localized string similar to {0} OK.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SchedulingShutdownIn">
+            <summary>
+              Looks up a localized string similar to Scheduling shutdown in {0} seconds...
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SendingDeaDiscoverResponse">
+            <summary>
+              Looks up a localized string similar to Sending dea.discover response message with a taint delay of: {0} ms.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SentDropletExited">
+            <summary>
+              Looks up a localized string similar to Sent droplet.exited {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SetCommand">
+            <summary>
+              Looks up a localized string similar to set {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SharingCloudControllerStagingDirectory">
+            <summary>
+              Looks up a localized string similar to Sharing cloud controller&apos;s staging directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.ShuttingDownMessage">
+            <summary>
+              Looks up a localized string similar to Shutting down...
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.SnapshotTemplate">
+            <summary>
+              Looks up a localized string similar to snap_{0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.StartingUpInstanceOnPort">
+            <summary>
+              Looks up a localized string similar to Starting up instance {0} on port {1} .
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.StartingVcapDea">
+            <summary>
+              Looks up a localized string similar to Starting VCAP DEA {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.StartRequestMissingProper">
+            <summary>
+              Looks up a localized string similar to Start request missing proper download information, ignoring request. ({0}).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.Stopoperationcompletedrunning">
+            <summary>
+              Looks up a localized string similar to Stop operation completed running with status = {0}..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.StopOperationStdOutputIs">
+            <summary>
+              Looks up a localized string similar to Stop operation std output is: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.StoppingInstance">
+            <summary>
+              Looks up a localized string similar to Stopping instance {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToCopyFromShared">
+            <summary>
+              Looks up a localized string similar to Took {0} to copy from shared directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToDownloadAndWrite">
+            <summary>
+              Looks up a localized string similar to Took {0} to download and write file.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToExecuteDu">
+            <summary>
+              Looks up a localized string similar to Took {0}s to execute du..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToExecutePs">
+            <summary>
+              Looks up a localized string similar to Took {0}s to execute ps. ({1} entries returned).
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToProcessPsAndDu">
+            <summary>
+              Looks up a localized string similar to Took {0}s to process ps and du stats.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToSnapshotApplication">
+            <summary>
+              Looks up a localized string similar to Took {0} to snapshot application state..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXSecondsToStageTheApp">
+            <summary>
+              Looks up a localized string similar to Took {0} to stage the app directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.TookXTimeToLoadConfigureAndStartDebugMessage">
+            <summary>
+              Looks up a localized string similar to Took {0} to load the plugin, configure the application, and start it..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.UnableToDeleteDirectory">
+            <summary>
+              Looks up a localized string similar to Unable to delete directory {0}, UnauthorizedAccessException: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.UptimeWas">
+            <summary>
+              Looks up a localized string similar to {0} uptime was {1}..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.UsingDirectory">
+            <summary>
+              Looks up a localized string similar to Using directory {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.UsingNetwork">
+            <summary>
+              Looks up a localized string similar to Using network {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.UtilizingCpuCores">
+            <summary>
+              Looks up a localized string similar to Utilizing {0} cpu cores.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapAppHost">
+            <summary>
+              Looks up a localized string similar to VCAP_APP_HOST=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapApplication">
+            <summary>
+              Looks up a localized string similar to VCAP_APPLICATION=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapAppPort">
+            <summary>
+              Looks up a localized string similar to VCAP_APP_PORT=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapDebugIp">
+            <summary>
+              Looks up a localized string similar to VCAP_DEBUG_IP=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapDebugPort">
+            <summary>
+              Looks up a localized string similar to VCAP_DEBUG_PORT=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVcapServices">
+            <summary>
+              Looks up a localized string similar to VCAP_SERVICES=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmc">
+            <summary>
+              Looks up a localized string similar to VMC_{0}={1}:{2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppHost">
+            <summary>
+              Looks up a localized string similar to VMC_APP_HOST=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppId">
+            <summary>
+              Looks up a localized string similar to VMC_APP_ID=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppInstance">
+            <summary>
+              Looks up a localized string similar to VMC_APP_INSTANCE=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppName">
+            <summary>
+              Looks up a localized string similar to VMC_APP_NAME=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppPort">
+            <summary>
+              Looks up a localized string similar to VMC_APP_PORT=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcAppVersion">
+            <summary>
+              Looks up a localized string similar to VMC_APP_VERSION=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcDeprecatedWarning">
+            <summary>
+              Looks up a localized string similar to VMC_WARNING_WARNING=&apos;All VMC_* environment variables are deprecated, please use VCAP_* versions.&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.VariableVmcServices">
+            <summary>
+              Looks up a localized string similar to VMC_SERVICES=&apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Strings.WithDebuggerPort">
+            <summary>
+              Looks up a localized string similar to with debugger port {0}.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.PluginData">
+            <summary>
+            The basic data related to a plugin
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginData.ClassName">
+            <summary>
+            the name of the class implementing the IAgentPlugin interface
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.PluginData.FilePath">
+            <summary>
+            the path of the library containing the class that implements the IAgentPlugin interface
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse">
+            <summary>
+            A class containing a set of data reflecting the status of a droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Name">
+            <summary>
+            Gets or sets the name of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Host">
+            <summary>
+            Gets or sets the host of the DEA service hosting the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Port">
+            <summary>
+            Gets or sets the port that the droplet instance uses.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Uris">
+            <summary>
+            Gets or sets the mapped URLs of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Uptime">
+            <summary>
+            Gets or sets the uptime of the droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.MemoryQuotaBytes">
+            <summary>
+            Gets or sets the memory quota in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.DiskQuotaBytes">
+            <summary>
+            Gets or sets the disk quota in bytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.FDSQuota">
+            <summary>
+            Gets or sets the quota files and sockets.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Usage">
+            <summary>
+            Gets or sets the resource usage for a droplet instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Messages.DropletStatusMessageResponse.Cores">
+            <summary>
+            Gets or sets the number of cores available to the droplet instance.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstanceState">
+            <summary>
+            An enum containing the possible states a droplet instance can be in.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceState.Starting">
+            <summary>
+            The instance is in a starting state.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceState.Running">
+            <summary>
+            The instance is healthy and running.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceState.Stopped">
+            <summary>
+            The instance is stopped gracefully.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceState.Deleted">
+            <summary>
+            A crashed instance was deleted.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceState.Crashed">
+            <summary>
+            The instance crashed after starting or running.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletExitReason">
+            <summary>
+            An enum containing the possible exit reasons for a droplet.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletExitReason.DeaEvacuation">
+            <summary>
+            The instance is evacuated. Set when the evacuate routine is invoked.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletExitReason.DeaShutdown">
+            <summary>
+            The instance was stopped because the DEA is shutting down.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletExitReason.Stopped">
+            <summary>
+            The instance was gracefully stopped.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletExitReason.Crashed">
+            <summary>
+            The instance is not running because it crashed.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.DropletInstanceProperties">
+            <summary>
+            JSON serializable instance properties.
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.stopProcessed">
+            <summary>
+            Indicated if the StopDroplet routine was completely invoked on this instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.State">
+            <summary>
+            Gets or sets the state of a droplet instance at a given time.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.ExitReason">
+            <summary>
+            Gets or sets the exit reason.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Orphaned">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.DEA.DropletInstanceProperties"/> is orphaned. It is set when a running instance is recoverd.
+            </summary>
+            <value>
+              <c>true</c> if orphaned; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.StartInterchangeableFormat">
+            <summary>
+            Gets or sets the instance start timestamp in ruby format.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Start">
+            <summary>
+            Gets or sets the instance start timestamp.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.StateTimestampInterchangeableFormat">
+            <summary>
+            Gets or sets the state timestamp interchangeable format. The state timestamp is updated when the instance state is changed.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.StateTimestamp">
+            <summary>
+            Gets or sets the state timestamp. The state timestamp is updated when the instance state is changed.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.ResourcesTracked">
+            <summary>
+            Gets or sets a value indicating whether [resources tracked]. Flag if the instance resources have been accounted to avoid tracking or untracking them several times.
+            </summary>
+            <value>
+              <c>true</c> if [resources tracked]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.StopProcessed">
+            <summary>
+            Gets or sets a value indicating whether [stop processed]. Indicated if the StopDroplet routine was completely invoked on this instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.DebugMode">
+            <summary>
+            Gets or sets the debug mode. This is received from the start message.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Port">
+            <summary>
+            Gets or sets the port the application is listening on.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.DebugPort">
+            <summary>
+            Gets or sets the debug port the application is listening on.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.DebugIP">
+            <summary>
+            Gets or sets the debug IP to connect to.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Runtime">
+            <summary>
+            Gets or sets the runtime the application is using.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Framework">
+            <summary>
+            Gets or sets the framework the application is using.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.FDSQuota">
+            <summary>
+            Gets or sets the File Descriptors Quota.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.DiskQuotaBytes">
+            <summary>
+            Gets or sets the disk memory quota.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.MemoryQuotaBytes">
+            <summary>
+            Gets or sets the RAM quota.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Name">
+            <summary>
+            Gets or sets the name of the application/droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.InstanceId">
+            <summary>
+            Gets or sets the unique instance id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Version">
+            <summary>
+            Gets or sets the version of the application/droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.DropletId">
+            <summary>
+            Gets or sets the droplet/application id.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.InstanceIndex">
+            <summary>
+            Gets or sets the index of the instance respective to a specific droplet/application.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Directory">
+            <summary>
+            Gets or sets the directory the instance is stored.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Uris">
+            <summary>
+            Gets or sets the uris the application/droplet is assigned.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Users">
+            <summary>
+            Gets or sets the VCAP users that are associated to the application/droplet.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.LoggingId">
+            <summary>
+            Gets or sets the ID used for logging events for the instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Evacuated">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:Uhuru.CloudFoundry.DEA.DropletInstanceProperties"/> is evacuated.
+            </summary>
+            <value>
+              <c>true</c> if evacuated; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.ProcessId">
+            <summary>
+            Gets or sets the process id associated to the instance. Used to track the application resource usage.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.NotifiedExited">
+            <summary>
+            Gets or sets a value indicating whether the droplet.exited is sent through the message bus.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Nice">
+            <summary>
+            Gets or sets the nice/priority value of the process associated to the instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.SecureUser">
+            <summary>
+            Gets or sets the secure user.
+            </summary>s
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.Staged">
+            <summary>
+            Gets or sets the staged directory.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.LastUsage">
+            <summary>
+            Gets or sets the last usage
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.WindowsUserName">
+            <summary>
+            Gets or sets the windows username used for the instance.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.WindowsPassword">
+            <summary>
+            Gets or sets the windows password associated with the windows user.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.DropletInstanceProperties.EnvironmentVariables">
+            <summary>
+            Gets or sets the application variables used to start the instance. Also used when trying to recover the instance.
+            </summary>
+        </member>
+    </members>
+</doc>

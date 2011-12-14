@@ -1,0 +1,561 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.CloudFoundry.DEA.Plugins</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase">
+            <summary>
+            Interface exposing reconfiguration logic for an individual section in a web.config file
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.Register(Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager)">
+            <summary>
+            Registers with the specified site config manager.
+            </summary>
+            <param name="siteConfigManager">The site config manager.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.RewireConfig(System.Xml.XPath.IXPathNavigable,System.Boolean)">
+            <summary>
+            Rewires the configuration section.
+            </summary>
+            <param name="configNode">The original configuration node, received from the site manager it registered with</param>
+            <param name="createNewIfNotPresent">if set to <c>true</c> request a new node from the site manager, if none exists.</param>
+            <returns> A node containing the new settings</returns>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.ConfigSectionName">
+            <summary>
+            Gets or sets the name of the config section.
+            </summary>
+            <value>
+            The name of the config section.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.ConfigParent">
+            <summary>
+            Gets or sets the config parent node in web.config.
+            </summary>
+            <value>
+            The config parent.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.HasExternalSource">
+            <summary>
+            Gets or sets a value indicating whether this configurator references an external config file.
+            </summary>
+            <value>
+            <c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase.ExternalSource">
+            <summary>
+            Gets or sets name of the external configuration file.
+            </summary>
+            <value>
+            The external configuration file.
+            </value>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Plugins.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.AppStartOperationExceeded">
+            <summary>
+              Looks up a localized string similar to App start operation exceeded maximum time.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.ArgumentNullOrEmpty">
+            <summary>
+              Looks up a localized string similar to Argument null or empty.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.ConfiguringService">
+            <summary>
+              Looks up a localized string similar to Configuring service .
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.CopiedLoggingBinariesToBin">
+            <summary>
+              Looks up a localized string similar to Copied logging binaries to bin directory..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.CreationOfNewConfigSection">
+            <summary>
+              Looks up a localized string similar to Creation of a new config section not allowed..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.DeployingAppOnIis">
+            <summary>
+              Looks up a localized string similar to Deploying app on IIS..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.DetectedNet">
+            <summary>
+              Looks up a localized string similar to Detected .Net application..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.DeterminingApplication">
+            <summary>
+              Looks up a localized string similar to Determining application framework version..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.DoneSettingUpApplication">
+            <summary>
+              Looks up a localized string similar to Done setting up application variables..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.FinishedAppDeploymentOnIis">
+            <summary>
+              Looks up a localized string similar to Finished app deployment on IIS.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.FinishedStartingIisSite">
+            <summary>
+              Looks up a localized string similar to Finished starting IIS site.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.Host">
+            <summary>
+              Looks up a localized string similar to {host}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.LoggingAutoWiringOnly">
+            <summary>
+              Looks up a localized string similar to logging auto-wiring only supports configuration from an external source at this time.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.Name">
+            <summary>
+              Looks up a localized string similar to {name}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.Password">
+            <summary>
+              Looks up a localized string similar to {password}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.Port">
+            <summary>
+              Looks up a localized string similar to {port}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.SavedConfigurationFile">
+            <summary>
+              Looks up a localized string similar to Saved configuration file..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.SettingUpApplicationVariables">
+            <summary>
+              Looks up a localized string similar to Setting up application variables..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.SettingUpLogging">
+            <summary>
+              Looks up a localized string similar to Setting up logging..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.SiteConfigConfiguration">
+            <summary>
+              Looks up a localized string similar to Site config: Configuration backup not implemented yet..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.StartingApplicationAutoWiring">
+            <summary>
+              Looks up a localized string similar to Starting application auto-wiring..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.StartingIisSite">
+            <summary>
+              Looks up a localized string similar to Starting IIS site..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.UpdatedLoggingConfiguration">
+            <summary>
+              Looks up a localized string similar to Updated logging configuration settings..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.Plugins.Strings.User">
+            <summary>
+              Looks up a localized string similar to {user}.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig">
+            <summary>
+            A class that acts as a config manager and has a one to one mapping with a web.config file
+            Individual settings section configurators register with this class
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager">
+            <summary>
+            Interface that exposes functionality for reconfiguring various sections of a web.config file
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager.RegisterSectionRewire(Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase)">
+            <summary>
+            Registers an individual section configurator and ads it to an internal collection
+            </summary>
+            <param name="nodeConfig">The node config.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager.CreateNewSection(Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase)">
+            <summary>
+            Creates a new configuration section on behalf of an individual configurator
+            </summary>
+            <param name="nodeConfig">The configurator.</param>
+            <returns>Returns a new configuration section node to the configurator</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager.Rewire(System.Boolean)">
+            <summary>
+            Calls the rewire method on each registered configurator
+            </summary>
+            <param name="backupOriginal">if set to <c>true</c> each individual configurator backs up the original settings.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager.CommitChanges">
+            <summary>
+            Commits the changes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager.AllowExternalSource">
+            <summary>
+            Gets or sets a value indicating whether any individual reconfigurators are allowed to reference external config files.
+            </summary>
+            <value>
+              <c>true</c> if external references are allowed; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.fileStreamWebSiteConfig">
+            <summary>
+            The web.config file stream
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.xmlConfigRoot">
+            <summary>
+            An XMLDocument containing the whole web.config file
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.rootConfigNode">
+            <summary>
+            The root configuration node
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.configFilePath">
+            <summary>
+            The full path to the web.config file
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.sitePath">
+            <summary>
+            The application root directory path
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.allowExternalSource">
+            <summary>
+            If set to <c>true</c>, allow external config file references
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.sectionConfigurators">
+            <summary>
+            A collection of all the registered configurators. The key is the hash code of the configurator object ( so we don't allow multiple instances per section )
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.configParents">
+            <summary>
+            A collection of key - value pairs containing the textual name for each parent section
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of the SiteConfig class
+            </summary>
+            <param name="webConfigPath">The path to the application root folder</param>
+            <param name="allowExternalSource">If set to true, each individual configurator can reference an external config file</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.RegisterSectionRewire(Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase)">
+            <summary>
+            Registers an individual section configurator and add it to the internal collection
+            </summary>
+            <param name="nodeConfig">The section configurator to register.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.Rewire(System.Boolean)">
+            <summary>
+            Calls the rewire method on each registered configurator
+            </summary>
+            <param name="backupOriginal">if set to <c>true</c>, each configurator backs up the original settings.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.CommitChanges">
+            <summary>
+            Writes the new settings to the web.config file.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.CreateNewSection(Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase)">
+            <summary>
+            creates a new xml node corresponding to a new section
+            </summary>
+            <param name="nodeConfig">the configuration info of the new section</param>
+            <returns>the corresponding xml node</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.RewireIndividualSection(Uhuru.CloudFoundry.DEA.AutoWiring.INodeConfigRewireBase)">
+            <summary>
+            Calls an individual configurator to rewire itself
+            </summary>
+            <param name="node">The configurator.</param>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.SiteConfig.AllowExternalSource">
+            <summary>
+            Gets or sets a value indicating whether it is allowed to specify an external 'configSource' for any specific section in web.config.
+            </summary>
+            <value>
+              <c>true</c> if it is allowed; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.AutoWiring.ParentSection">
+            <summary>
+            An enumeration specifying the parent node of a settings section that a configurator is responsible for
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.ParentSection.SystemWeb">
+            <summary>
+            The system.web configurations section
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire">
+            <summary>
+            A concrete configurator for handling the ASP.NET health monitoring reconfiguration
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.healthMonExtSource">
+            <summary>
+            The name of the external configuration file to be referenced
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.configmanager">
+            <summary>
+            The configuration manager instance to register with
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.Register(Uhuru.CloudFoundry.DEA.AutoWiring.ISiteConfigManager)">
+            <summary>
+            Registers with the specified site config manager.
+            </summary>
+            <param name="siteConfigManager">The site config manager.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.RewireConfig(System.Xml.XPath.IXPathNavigable,System.Boolean)">
+            <summary>
+            Rewires the configuration section.
+            </summary>
+            <param name="configNode">The original configuration node, received from the site manager it registered with</param>
+            <param name="createNewIfNotPresent">if set to <c>true</c> request a new node from the site manager, if none exists.</param>
+            <returns>
+            A node containing the new settings
+            </returns>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.ConfigSectionName">
+            <summary>
+            Gets or sets the name of the config section.
+            </summary>
+            <value>
+            The name of the config section.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.ConfigParent">
+            <summary>
+            Gets or sets the config parent node in web.config.
+            </summary>
+            <value>
+            The config parent.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.HasExternalSource">
+            <summary>
+            Gets or sets a value indicating whether this configurator references an external config file.
+            </summary>
+            <value>
+            <c>true</c> if this configurator references an external source; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.DEA.AutoWiring.HealthMonRewire.ExternalSource">
+            <summary>
+            Gets or sets name of the external configuration file.
+            </summary>
+            <value>
+            The external configuration file.
+            </value>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin">
+            <summary>
+            Class implementing the IAgentPlugin interface
+            Responsible for automatically deploying and managing an IIS .Net application
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.mut">
+            <summary>
+            Mutex for protecting access to the ServerManager
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.appName">
+            <summary>
+            The application name
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.appPath">
+            <summary>
+            The application path
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.startupLogger">
+            <summary>
+            The file logger instance
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.autoWireTemplates">
+            <summary>
+            A list of connection string templates for services
+            </summary>
+        </member>
+        <member name="F:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.applicationInfo">
+            <summary>
+            The ApplicationInfo structure containing various info about the app ( name, path, port, etc )
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.ConfigureApplication(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationVariable[])">
+            <summary>
+            sets the initial data for an application
+            </summary>
+            <param name="variables">All variables needed to run the application.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.RecoverApplication(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationVariable[])">
+            <summary>
+            recovers a running application
+            </summary>
+            <param name="variables">All variables needed to run the application.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.StartApplication">
+            <summary>
+            Starts the application
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.GetApplicationProcessId">
+            <summary>
+            Returns the process ID of the worker process associated with the running application
+            </summary>
+            <returns>
+            the ids of the processes, as an array
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.StopApplication">
+            <summary>
+            Shuts down the application
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.CleanupApplication(System.String)">
+            <summary>
+            Cleans up the application.
+            </summary>
+            <param name="applicationPath">The path.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.InitializeLifetimeService">
+            <summary>
+            Implementation for MarshallByRefObject
+            </summary>
+            <returns>Allways return null, so the plugin is not collected.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.Cleanup(System.String)">
+            <summary>
+            Cleans up everything associated with the application deployed at the specified path.
+            </summary>
+            <param name="path">The application path.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.Delete(System.Int32)">
+            <summary>
+            Removes the application - reachable at the specified port - and its application pools from IIS.
+            Note: Stops the application pools and the application if necessary
+            </summary>
+            <param name="port">The port.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.KillApplicationProcesses(System.String)">
+            <summary>
+            Forcefully kills the application processes.
+            </summary>
+            <param name="appPoolName">Name of the app pool associated with the application.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.GetAspDotNetVersion(Uhuru.Utilities.DotNetVersion)">
+            <summary>
+            Gets the ASP dot net version in string format from the dot net framework version
+            </summary>
+            <param name="version">The dot net framework version.</param>
+            <returns>Asp.NET version in string format. Returns null if version is not supported</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.RemoveSpecialCharacters(System.String)">
+            <summary>
+            Removes special characters from an input string.
+            Note: special characters are considered the ones illegal in a Windows account name
+            </summary>
+            <param name="input">The input string.</param>
+            <returns>A copy of the input string, with special characters removed</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.WaitApp(Microsoft.Web.Administration.ObjectState,System.Int32)">
+            <summary>
+            Blocks until the application is in the specified state or until the timeout expires
+            Note: If the timeout expires without the state condition being true, the method throws a TimeoutException
+            </summary>
+            <param name="waitForState">State to wait on.</param>
+            <param name="milliseconds">Timeout in milliseconds.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.GetAppVersion(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationInfo)">
+            <summary>
+            Gets the dot net version that the application runs on.
+            </summary>
+            <param name="appInfo">The application info structure.</param>
+            <returns>The .net version supported by the application</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.DeployApp(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationInfo,Uhuru.Utilities.DotNetVersion)">
+            <summary>
+            Creates a per application user, sets security access rules for the application deployment directory
+            and adds a new site to IIS without starting it
+            </summary>
+            <param name="appInfo">Structure that contains parameters required for deploying the application.</param>
+            <param name="version">The dot net framework version supported by the application.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.AutowireApp(Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationInfo,Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationVariable[],Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationService[],System.String,System.String)">
+            <summary>
+            Autowires the service connections and ASP.NET health monitoring in the application's web.config
+            </summary>
+            <param name="appInfo">The application info structure.</param>
+            <param name="variables">All application variables.</param>
+            <param name="services">The services.</param>
+            <param name="logFilePath">The ASP.NET "Heartbeat" and "Lifetime Events" log file path.</param>
+            <param name="errorLogFilePath">The ASP.NET "All Errors" events log file path.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.SetApplicationVariables(System.String,Uhuru.CloudFoundry.Server.DEA.PluginBase.ApplicationVariable[],System.String,System.String)">
+            <summary>
+            Autowires the application variables and the log file path in the web.config file.
+            </summary>
+            <param name="configFileContents">The config file contents.</param>
+            <param name="variables">The variables.</param>
+            <param name="logFilePath">The log file path.</param>
+            <param name="errorLogFilePath">The error log file path.</param>
+            <returns>An xml document ready containing the updated configuration file.</returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.StartApp">
+            <summary>
+            Starts the application and blocks until the application is in the started state.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.StopApp">
+            <summary>
+            Stops the application and blocks until the application is in the stopped state.
+            </summary>
+        </member>
+    </members>
+</doc>

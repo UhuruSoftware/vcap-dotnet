@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Uhuru.CloudFoundry.Server.MSSqlNode</name>
+    </assembly>
+    <members>
+        <member name="T:Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions">
+            <summary>
+            This is a class containing information about connecting to an MS Sql Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions.Host">
+            <summary>
+            Gets or sets the host for connecting to the service.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions.User">
+            <summary>
+            Gets or sets the user for connecting to the SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions.Password">
+            <summary>
+            Gets or sets the password for connection to the SQL Server.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions.Port">
+            <summary>
+            Gets or sets the port for connection to the SQL Server.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.Server.MSSqlNode.Node">
+            <summary>
+            This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.
+            </summary>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.ServiceName">
+            <summary>
+            Gets the service name.
+            </summary>
+            <returns>
+            "MssqlaaS"
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Start(Uhuru.CloudFoundry.ServiceBase.Options)">
+            <summary>
+            Starts the node.
+            </summary>
+            <param name="options">The configuration options for the node.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Start(Uhuru.CloudFoundry.ServiceBase.Options,Uhuru.CloudFoundry.Server.MSSqlNode.MSSqlOptions)">
+            <summary>
+            Starts the node.
+            </summary>
+            <param name="options">The configuration options for the node.</param>
+            <param name="msSqlOptions">The MS SQL Server options.</param>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Provision(Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType)">
+            <summary>
+            Provisions an MS Sql Server database.
+            </summary>
+            <param name="plan">The payment plan for the service.</param>
+            <returns>
+            Credentials for the provisioned service.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Provision(Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Provisions an MS Sql Server database.
+            </summary>
+            <param name="plan">The payment plan for the service.</param>
+            <param name="credentials">Existing credentials for the service.</param>
+            <returns>
+            Credentials for the provisioned service.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Unprovision(System.String,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials[])">
+            <summary>
+            Unprovisions a SQL Server database.
+            </summary>
+            <param name="name">The name of the service to unprovision.</param>
+            <param name="bindings">Array of bindings for the service that have to be unprovisioned.</param>
+            <returns>
+            A boolean specifying whether the unprovision request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Bind(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Binds a SQL Server database to an app.
+            </summary>
+            <param name="name">The name of the service.</param>
+            <param name="bindOptions">Binding options.</param>
+            <returns>
+            A new set of credentials used for binding.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Bind(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Binds a SQL Server database to an app.
+            </summary>
+            <param name="name">The name of the service.</param>
+            <param name="bindOptions">Binding options.</param>
+            <param name="credentials">Already existing credentials.</param>
+            <returns>
+            A new set of credentials used for binding.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Unbind(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            Unbinds a SQL Server database from an app.
+            </summary>
+            <param name="credentials">The credentials that have to be unprovisioned.</param>
+            <returns>
+            A bool indicating whether the unbind request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.Restore(System.String,System.String)">
+            <summary>
+            Restore a given instance using backup file.
+            </summary>
+            <param name="instanceId">The instance id.</param>
+            <param name="backupPath">The backup path.</param>
+            <returns>
+            A bool indicating whether the request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.DisableInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials)">
+            <summary>
+            This methos disables all credentials and kills user sessions.
+            </summary>
+            <param name="provisionedCredential">The provisioned credentials.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <returns>
+            A bool indicating whether the request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.DumpInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,System.String)">
+            <summary>
+            Dumps database content into a given path.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <param name="filePath">The file path where to dump the service.</param>
+            <returns>
+            A bool indicating whether the request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.ImportInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,Uhuru.CloudFoundry.ServiceBase.ServiceCredentials,System.String,Uhuru.CloudFoundry.ServiceBase.ProvisionedServicePlanType)">
+            <summary>
+            Imports an instance from a path.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentials">The binding credentials.</param>
+            <param name="filePath">The file path from which to import the service.</param>
+            <param name="plan">The payment plan.</param>
+            <returns>
+            A bool indicating whether the request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.EnableInstance(Uhuru.CloudFoundry.ServiceBase.ServiceCredentials@,System.Collections.Generic.Dictionary{System.String,System.Object}@)">
+            <summary>
+            Re-enables the instance, re-binds credentials.
+            </summary>
+            <param name="provisionedCredential">The provisioned credential.</param>
+            <param name="bindingCredentialsHash">The binding credentials hash.</param>
+            <returns>
+            A bool indicating whether the request was successful.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.VarzDetails">
+            <summary>
+            Gets varz details about the SQL Server Node.
+            </summary>
+            <returns>
+            A dictionary containing varz details.
+            </returns>
+        </member>
+        <member name="M:Uhuru.CloudFoundry.Server.MSSqlNode.Node.HealthzDetails">
+            <summary>
+            Gets healthz details about the SQL Server Node.
+            </summary>
+            <returns>
+            A dictionary containing healthz details.
+            </returns>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Node.AnnouncementDetails">
+            <summary>
+            Gets any service-specific announcement details.
+            </summary>
+        </member>
+        <member name="T:Uhuru.CloudFoundry.Server.MSSqlNode.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeBindResponseDebugMessage">
+            <summary>
+              Looks up a localized string similar to Bind response: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeBindServiceDebugMessage">
+            <summary>
+              Looks up a localized string similar to Bind service for db:{0}, bind_opts = {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCalculatingQPSDebugMessage">
+            <summary>
+              Looks up a localized string similar to Calculate queries per seconds..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCannotDeleteDBFatalMessage">
+            <summary>
+              Looks up a localized string similar to Could not delete database: [{0}].
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCannotDeleteUserFatalMessage">
+            <summary>
+              Looks up a localized string similar to Could not delete user &apos;{0}&apos;: [{1}].
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage">
+            <summary>
+              Looks up a localized string similar to Could not save entry: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeConnectionLostWarningMessage">
+            <summary>
+              Looks up a localized string similar to MsSql connection lost: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeConnectionString">
+            <summary>
+              Looks up a localized string similar to Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeConnectionUnrecoverableFatalMessage">
+            <summary>
+              Looks up a localized string similar to MsSql connection unrecoverable.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCouldNotCreateDBWarningMessage">
+            <summary>
+              Looks up a localized string similar to Could not create database: [{0}].
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCreateDatabaseDebugMessage">
+            <summary>
+              Looks up a localized string similar to Creating: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCreateDatabaseSQL">
+            <summary>
+              Looks up a localized string similar to CREATE DATABASE {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCreateLoginSQL">
+            <summary>
+              Looks up a localized string similar to CREATE LOGIN {0} WITH PASSWORD = &apos;{1}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCreateUserSQL">
+            <summary>
+              Looks up a localized string similar to CREATE USER {0} FOR LOGIN {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeCreatingCredentialsInfoMessage">
+            <summary>
+              Looks up a localized string similar to Creating credentials: {0}/{1} for database {2}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDeleteServiceErrorMessage">
+            <summary>
+              Looks up a localized string similar to Could not delete service: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDeleteUserInfoMessage">
+            <summary>
+              Looks up a localized string similar to Delete user {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDeletingDatabaseInfoMessage">
+            <summary>
+              Looks up a localized string similar to Deleting database: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDoneCreatingDBDebugMessage">
+            <summary>
+              Looks up a localized string similar to Done creating {0}. Took {1} s..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDropDatabaseSQL">
+            <summary>
+              Looks up a localized string similar to DROP DATABASE {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeDropLoginSQL">
+            <summary>
+              Looks up a localized string similar to DROP LOGIN {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeGenerateVarzDebugMessage">
+            <summary>
+              Looks up a localized string similar to Generate varz..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeGenerateVarzErrorMessage">
+            <summary>
+              Looks up a localized string similar to Error during generate varz: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeGetUserSessionsSQL">
+            <summary>
+              Looks up a localized string similar to SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = &apos;{0}&apos;.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeKeepAliveSQL">
+            <summary>
+              Looks up a localized string similar to select CURRENT_TIMESTAMP.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeKillSessionSQL">
+            <summary>
+              Looks up a localized string similar to KILL {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeTakeDBOfflineSQL">
+            <summary>
+              Looks up a localized string similar to ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeUnbindServiceDebugMessage">
+            <summary>
+              Looks up a localized string similar to Unbind service: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeUnprovisionDatabaseDebugMessage">
+            <summary>
+              Looks up a localized string similar to Unprovision database:{0}, bindings: {1}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlNodeUnprovisionSuccessDebugMessage">
+            <summary>
+              Looks up a localized string similar to Successfully fulfilled unprovision request: {0}.
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlServerErrorMessageConfigurationNotFound">
+            <summary>
+              Looks up a localized string similar to MsSql configuration {0} not found..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlServerErrorMessageCredentialNotFound">
+            <summary>
+              Looks up a localized string similar to MsSql credential {0} not found..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlServerErrorMessageDiskFull">
+            <summary>
+              Looks up a localized string similar to Node disk is full..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlServerErrorMessageInvalidPlan">
+            <summary>
+              Looks up a localized string similar to Invalid plan {0}..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.SqlServerErrorMessageLocalDBError">
+            <summary>
+              Looks up a localized string similar to MsSql node local db error..
+            </summary>
+        </member>
+        <member name="P:Uhuru.CloudFoundry.Server.MSSqlNode.Strings.StorageQuotaDbListingFormatString">
+            <summary>
+              Looks up a localized string similar to &lt;user: &apos;{0}&apos; name: &apos;{1}&apos; size: {2}&gt;.
+            </summary>
+        </member>
+    </members>
+</doc>
