@@ -58,7 +58,7 @@ namespace Uhuru.Utilities
 
             foreach (string obj in allObjects.Keys)
             {
-                DiskUsageEntry entry = new DiskUsageEntry(GetReadableForm(allObjects[obj]), allObjects[obj], obj.Replace(directory, string.Empty));
+                DiskUsageEntry entry = new DiskUsageEntry(GetReadableForm(allObjects[obj]), allObjects[obj], obj);
                 result.Add(entry);
             }
 

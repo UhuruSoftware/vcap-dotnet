@@ -451,9 +451,10 @@ namespace Uhuru.CloudFoundry.DEA
             // Allows messages to get out.
             Thread.Sleep(250);
 
-            this.droplets.SnapshotAppState();
             this.fileViewer.Stop();
             this.deaReactor.NatsClient.Stop();
+            this.TheReaper();
+            this.droplets.SnapshotAppState();
             Logger.Info(Strings.ByeMessage);
         }
 
@@ -1476,7 +1477,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime diskUsageStart = DateTime.Now;
 
-            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, false);
+            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, true);
 
             TimeSpan diskUsageElapsed = DateTime.Now - diskUsageStart;
 
@@ -1506,7 +1507,7 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    if (!instance.Lock.TryEnterWriteLock(10))
+                    if (instance.Properties.State != DropletInstanceState.Running || !instance.Lock.TryEnterWriteLock(10))
                     {
                         return;
                     }
