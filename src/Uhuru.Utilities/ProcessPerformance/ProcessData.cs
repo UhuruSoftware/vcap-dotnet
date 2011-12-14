@@ -124,7 +124,7 @@ namespace Uhuru.Utilities.ProcessPerformance
 
             updateDelay = DateTime.Now.Ticks - this.oldUpdate.Ticks;
 
-            rawUsage = (int)(((userTime + kernelTime) * 100) / updateDelay);
+            rawUsage = (int)((((userTime + kernelTime) * 100) / updateDelay) / Environment.ProcessorCount);
             this.Cpu = rawUsage;
 
             this.oldUserTime = newUserTime;

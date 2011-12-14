@@ -461,4 +461,7 @@
   <data name="TookXTimeToLoadConfigureAndStartDebugMessage" xml:space="preserve">
     <value>Took {0} to load the plugin, configure the application, and start it.</value>
   </data>
+  <data name="LoggerLoweringPriority" xml:space="preserve">
+    <value>Lowering instance process priority to: {0}</value>
+  </data>
 </root>

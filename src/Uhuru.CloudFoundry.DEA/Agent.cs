@@ -449,11 +449,12 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             // Allows messages to get out.
-            Thread.Sleep(250);
+            Thread.Sleep(100);
 
-            this.droplets.SnapshotAppState();
             this.fileViewer.Stop();
             this.deaReactor.NatsClient.Stop();
+            this.TheReaper();
+            this.droplets.ScheduleSnapshotAppState();
             Logger.Info(Strings.ByeMessage);
         }
 
@@ -1474,7 +1475,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime diskUsageStart = DateTime.Now;
 
-            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, false);
+            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, true);
 
             TimeSpan diskUsageElapsed = DateTime.Now - diskUsageStart;
 
@@ -1504,15 +1505,20 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    if (!instance.Lock.TryEnterWriteLock(10))
+                    if (instance.Properties.State != DropletInstanceState.Running || !instance.Lock.TryEnterWriteLock(10))
                     {
                         return;
                     }
 
-                    // TODO: consider only checking for starting and running apps
+                    Process instanceProcess = null;
+
                     try
                     {
                         instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessId();
+                        if (instance.Properties.ProcessId != 0)
+                        {
+                            instanceProcess = Process.GetProcessById(instance.Properties.ProcessId);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1524,14 +1530,24 @@ namespace Uhuru.CloudFoundry.DEA
 
                     try
                     {
-                        int pid = instance.Properties.ProcessId;
-                        if ((pid != 0 && pidInfo.ContainsKey(pid)) || instance.IsPortReady)
+                        if (instanceProcess != null || instance.IsPortReady)
                         {
-                            long memBytes = pid != 0 && pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].WorkingSetBytes : 0;
-                            long cpu = pid != 0 && pidInfo.ContainsKey(pid) ? (long)pidInfo[pid].Cpu : 0;
+                            long currentTicks = instanceProcess != null ? instanceProcess.TotalProcessorTime.Ticks : 0;
+                            DateTime currentTicksTimestamp = DateTime.Now;
+
+                            long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
+                            DateTime lastTickTimestamp  = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
+
+                            long ticksDelta = currentTicks - lastTicks;
+                            long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
+
+                            float cpu = tickTimespan != 0 ? ((float)ticksDelta / tickTimespan) * 100 / Environment.ProcessorCount : 0;
+
+                            long memBytes = instanceProcess != null ? instanceProcess.WorkingSet64 : 0;
+
                             long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
 
-                            instance.AddUsage(memBytes, cpu, diskBytes);
+                            instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
 
                             if (this.secure)
                             {
@@ -1573,7 +1589,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 metric["used_memory"] += memBytes / 1024;
                                 metric["reserved_memory"] += instance.Properties.MemoryQuotaBytes / 1024;
                                 metric["used_disk"] += diskBytes;
-                                metric["used_cpu"] += cpu;
+                                metric["used_cpu"] += (long)cpu;
                             }
 
                             // Track running apps for varz tracking
@@ -1621,32 +1637,25 @@ namespace Uhuru.CloudFoundry.DEA
         private void CheckUsage(DropletInstance instance)
         {
             DropletInstanceUsage curUsage = instance.Properties.LastUsage;
-            if (curUsage == null)
-            {
-                return;
-            }
 
             if (instance == null || curUsage == null)
             {
                 return;
             }
 
-            // Check Mem
+            // Check Memory
             if (curUsage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024))
             {
-                FileLogger logger = new FileLogger(Path.Combine(instance.Properties.Directory, "logs\\err.log"));
-
-                logger.Fatal(Strings.MemoryLimitOfExceeded, instance.Properties.MemoryQuotaBytes / 1024 / 1024);
-                logger.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.MemoryKbytes / 1024);
+                instance.ErrorLog.Fatal(Strings.MemoryLimitOfExceeded, instance.Properties.MemoryQuotaBytes / 1024 / 1024);
+                instance.ErrorLog.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.MemoryKbytes / 1024);
                 this.StopDroplet(instance);
             }
 
             // Check Disk
             if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes)
             {
-                FileLogger logger = new FileLogger(Path.Combine(instance.Properties.Directory, "logs\\err.log"));
-                logger.Fatal(Strings.DiskUsageLimitOf, instance.Properties.DiskQuotaBytes / 1024 / 1024);
-                logger.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.DiskBytes / 1024 / 1024);
+                instance.ErrorLog.Fatal(Strings.DiskUsageLimitOf, instance.Properties.DiskQuotaBytes / 1024 / 1024);
+                instance.ErrorLog.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.DiskBytes / 1024 / 1024);
                 this.StopDroplet(instance);
             }
 
@@ -1659,23 +1668,24 @@ namespace Uhuru.CloudFoundry.DEA
             if (curUsage.Cpu > Monitoring.BeginReniceCpuThreshold)
             {
                 int nice = instance.Properties.Nice + 1;
-                if (nice < Monitoring.MaxReniceValue)
+                if (nice <= Monitoring.MaxReniceValue)
                 {
                     instance.Properties.Nice = nice;
                     ProcessPriorityClass priority = 
-                        nice == 0 ? ProcessPriorityClass.RealTime : nice == 1 ? ProcessPriorityClass.High :
-                        nice == 2 ? ProcessPriorityClass.AboveNormal : nice == 3 ? ProcessPriorityClass.Normal : 
-                        nice == 4 ? ProcessPriorityClass.BelowNormal : ProcessPriorityClass.Idle;
+                        nice == 0 ? ProcessPriorityClass.Normal : 
+                        nice == 1 ? ProcessPriorityClass.BelowNormal : 
+                                    ProcessPriorityClass.Idle;
 
+                    instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
                     Logger.Info(Strings.LoweringPriorityOnCpuBound, instance.Properties.Name, priority);
 
-                    // TODO: vladi: make sure this works on Windows
                     Process.GetProcessById(instance.Properties.ProcessId).PriorityClass = priority;
                 }
             }
 
             // TODO, Check for an attack, or what looks like one, and look at history?
             // pegged_cpus = @num_cores * 100
+            // also check for opened handles
         }
 
         /// <summary>

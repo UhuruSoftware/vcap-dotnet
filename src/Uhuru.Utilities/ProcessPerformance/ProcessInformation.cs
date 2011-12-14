@@ -19,7 +19,7 @@ namespace Uhuru.Utilities.ProcessPerformance
     public static class ProcessInformation
     {
         /// <summary>
-        /// Numbet of snapshots to take.
+        /// Number of snapshots to take.
         /// </summary>
         private const int SnapshotCount = 2;
 
@@ -30,7 +30,48 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// <returns>A ProcessData object containing metrics.</returns>
         public static ProcessData GetProcessUsage(int processId)
         {
-            return GetProcessUsage().FirstOrDefault(process => process.ProcessId == processId);
+            ProcessData returnValue = null;
+            ProcessTimes processTimes = new ProcessTimes();
+            IntPtr processHandle = NativeMethods.ProcessHandleError;
+            int snapshotIndex = 0;
+
+            while (snapshotIndex < SnapshotCount)
+            {
+                Process currentProcess = Process.GetProcessById(processId);
+
+                try
+                {
+                    processHandle = NativeMethods.OpenProcess(NativeMethods.ProcessAllAccess, false, (uint)currentProcess.Id);
+                    bool snapshotSucceeded = NativeMethods.GetProcessTimes(processHandle, out processTimes.RawCreationTime, out processTimes.RawExitTime, out processTimes.RawKernelTime, out processTimes.RawUserTime);
+
+                    if (snapshotSucceeded)
+                    {
+                        processTimes.ConvertTime();
+
+                        if (returnValue != null)
+                        {
+                            returnValue.UpdateCpuUsage(processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
+                        }
+                        else
+                        {
+                            returnValue = new ProcessData(currentProcess.Id, currentProcess.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks, currentProcess.WorkingSet64);
+                        }
+
+                        snapshotIndex++;
+                    }
+                }
+                finally
+                {
+                    if (processHandle != NativeMethods.ProcessHandleError)
+                    {
+                        NativeMethods.CloseHandle(processHandle);
+                    }
+                }
+
+                Thread.Sleep(250);
+            }
+
+            return returnValue;
         }
 
         /// <summary>
@@ -46,6 +87,7 @@ namespace Uhuru.Utilities.ProcessPerformance
             IntPtr processHandle = NativeMethods.ProcessHandleError;
             ProcessData currentProcessData;
             int total = 0;
+            int retryCount = 0;
 
             for (int snapshotIndex = 0; snapshotIndex < SnapshotCount; snapshotIndex++)
             {
@@ -56,17 +98,28 @@ namespace Uhuru.Utilities.ProcessPerformance
                     try
                     {
                         processHandle = NativeMethods.OpenProcess(NativeMethods.ProcessAllAccess, false, (uint)process.Id);
-                        NativeMethods.GetProcessTimes(processHandle, out processTimes.RawCreationTime, out processTimes.RawExitTime, out processTimes.RawKernelTime, out processTimes.RawUserTime);
-
-                        processTimes.ConvertTime();
-
-                        if (processes.TryGetValue(process.Id, out currentProcessData))
+                        if (processHandle != NativeMethods.ProcessHandleError && processHandle != NativeMethods.ProcessHandleZero)
                         {
-                            total += currentProcessData.UpdateCpuUsage(processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
-                        }
-                        else
-                        {
-                            processes[process.Id] = new ProcessData(process.Id, process.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks, process.WorkingSet64);
+                            bool snapshotSucceeded = NativeMethods.GetProcessTimes(processHandle, out processTimes.RawCreationTime, out processTimes.RawExitTime, out processTimes.RawKernelTime, out processTimes.RawUserTime);
+                            retryCount = 0;
+
+                            // spend a max. of 2 seconds trying to get the usage for a process
+                            while (!snapshotSucceeded && retryCount < 8)
+                            {
+                                retryCount++;
+                                snapshotSucceeded = NativeMethods.GetProcessTimes(processHandle, out processTimes.RawCreationTime, out processTimes.RawExitTime, out processTimes.RawKernelTime, out processTimes.RawUserTime);
+                            }
+
+                            processTimes.ConvertTime();
+
+                            if (processes.TryGetValue(process.Id, out currentProcessData))
+                            {
+                                total += currentProcessData.UpdateCpuUsage(processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks);
+                            }
+                            else
+                            {
+                                processes[process.Id] = new ProcessData(process.Id, process.ProcessName, processTimes.UserTime.Ticks, processTimes.KernelTime.Ticks, process.WorkingSet64);
+                            }
                         }
                     }
                     finally
@@ -77,7 +130,7 @@ namespace Uhuru.Utilities.ProcessPerformance
                         }
                     }
                 }
-                
+
                 for (int i = 0; i < processes.Count; i++)
                 {
                     if (!currentProcesses.Any(p => p.Id == processes.Keys.ElementAt(i)))

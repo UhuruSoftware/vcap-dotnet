@@ -303,14 +303,16 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="memoryBytes">The memory bytes.</param>
         /// <param name="cpu">The cpu.</param>
         /// <param name="diskBytes">The disk memory in bytes.</param>
+        /// /// <param name="totalTicks">Total ticks of the process at this time.</param>
         /// <returns>A droplet instance usage instance containing all the usage information.</returns>
-        public DropletInstanceUsage AddUsage(long memoryBytes, long cpu, long diskBytes)
+        public DropletInstanceUsage AddUsage(long memoryBytes, float cpu, long diskBytes, long totalTicks)
         {
             DropletInstanceUsage curUsage = new DropletInstanceUsage();
             curUsage.Time = DateTime.Now;
             curUsage.Cpu = cpu;
             curUsage.MemoryKbytes = memoryBytes / 1024;
             curUsage.DiskBytes = diskBytes;
+            curUsage.TotalProcessTicks = totalTicks;
 
             this.Usage.Add(curUsage);
             if (this.Usage.Count > DropletInstance.MaxUsageSamples)
