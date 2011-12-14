@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Agent.cs" company="Uhuru Software">
+// <copyright file="Agent.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -552,8 +552,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="callBack">The call back.</param>
         private static void DetectPortReady(DropletInstance instance, BoolStateBlockCallback callBack)
         {
-            int port = instance.Properties.Port;
-
             int attempts = 0;
             bool keep_going = true;
             while (attempts <= 1000 && instance.Properties.State == DropletInstanceState.Starting && keep_going == true)

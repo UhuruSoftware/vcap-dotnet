@@ -37,6 +37,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         /// <exception cref="T:System.ArgumentException">The <paramref name="stateSaver"/> parameter is null. </exception>
         /// Custom install method. Writes configuration values to uhuru.config
         /// <exception cref="T:System.Exception">An exception occurred in the <see cref="E:System.Configuration.Install.Installer.BeforeInstall"/> event handler of one of the installers in the collection.-or- An exception occurred in the <see cref="E:System.Configuration.Install.Installer.AfterInstall"/> event handler of one of the installers in the collection. </exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile", Justification = "No way around this right now.")]
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);

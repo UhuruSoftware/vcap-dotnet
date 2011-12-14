@@ -162,7 +162,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         private class EnumHash : JsonConvertibleObject
         {
             [JsonName("foo")]
-            public HashSet<testenum> foo;
+            public HashSet<testenum> foo = null;
         }
 
         [TestMethod()]

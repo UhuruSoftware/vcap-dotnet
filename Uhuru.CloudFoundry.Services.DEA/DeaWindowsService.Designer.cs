@@ -1,6 +1,15 @@
-﻿namespace Uhuru.CloudFoundry.DEA.WindowsService
+﻿// -----------------------------------------------------------------------
+// <copyright file="DeaWindowsService.designer.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.CloudFoundry.DEA.WindowsService
 {
-    partial class DeaWindowsService
+    /// <summary>
+    /// The Windows Service hosting the DEA.
+    /// </summary>
+    public partial class DeaWindowsService
     {
         /// <summary> 
         /// Required designer variable.
@@ -13,10 +22,19 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (this.components != null)
+                {
+                    this.components.Dispose();
+                }
+
+                if (this.agent != null)
+                {
+                    this.agent.Dispose();
+                }
             }
+
             base.Dispose(disposing);
         }
 

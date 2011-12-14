@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Uhuru.CloudFoundry.MSSqlService.WindowsService</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.MSSqlService.WindowsService</AssemblyName>
+    <AssemblyName>MSSqlNode</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -19,9 +19,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\bin-vcap-dotnet\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>..\..\bin-vcap-dotnet\Uhuru.CloudFoundry.MSSqlService.WindowsService.XML</DocumentationFile>
+    <DocumentationFile>..\..\doc\MSSqlNode.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,9 +37,9 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>..\..\bin-vcap-dotnet\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>..\..\bin-vcap-dotnet\Uhuru.CloudFoundry.MSSqlService.WindowsService.XML</DocumentationFile>
+    <DocumentationFile>..\..\doc\MSSqlNode.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>pdbonly</DebugType>

@@ -1,7 +1,26 @@
-﻿namespace Uhuru.CloudFoundry.DEA.WindowsService
+﻿// -----------------------------------------------------------------------
+// <copyright file="ProjectInstaller.Designer.cs" company="Uhuru Software, Inc.">
+// Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Uhuru.CloudFoundry.DEA.WindowsService
 {
-    partial class ProjectInstaller
+    /// <summary>
+    /// Installer class for the Windows Service.
+    /// </summary>
+    public partial class ProjectInstaller
     {
+        /// <summary>
+        /// Service project installer.
+        /// </summary>
+        private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
+
+        /// <summary>
+        /// Service installer.
+        /// </summary>
+        private System.ServiceProcess.ServiceInstaller serviceInstaller1;
+            
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -13,10 +32,11 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (this.components != null))
             {
-                components.Dispose();
+                this.components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
@@ -53,8 +73,5 @@
         }
 
         #endregion
-
-        private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
-        private System.ServiceProcess.ServiceInstaller serviceInstaller1;
     }
 }

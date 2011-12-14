@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DropletCollection.cs" company="Uhuru Software">
+// <copyright file="DropletCollection.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -353,7 +353,6 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
 
             this.AddDropletInstance(instance);
-
 
             return instance;
         }
