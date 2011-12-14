@@ -1457,22 +1457,7 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
             }
 
-            DateTime processInfoStart = DateTime.Now;
-
-            ProcessData[] processStatuses = ProcessInformation.GetProcessUsage();
-
-            TimeSpan elapsed = DateTime.Now - processInfoStart;
-            if (elapsed.TotalMilliseconds > 800)
-            {
-                Logger.Warning(Strings.TookXSecondsToExecutePs, elapsed.TotalSeconds, processStatuses.Length);
-            }
-
-            Dictionary<int, ProcessData> pidInfo = new Dictionary<int, ProcessData>();
-            foreach (ProcessData processStatus in processStatuses)
-            {
-                pidInfo[processStatus.ProcessId] = processStatus;
-            }
-
+            DateTime monitorStart = DateTime.Now;
             DateTime diskUsageStart = DateTime.Now;
 
             DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, true);
@@ -1623,7 +1608,7 @@ namespace Uhuru.CloudFoundry.DEA
                 VarzLock.ExitWriteLock();
             }
 
-            TimeSpan ttlog = DateTime.Now - processInfoStart;
+            TimeSpan ttlog = DateTime.Now - monitorStart;
             if (ttlog.TotalMilliseconds > 1000)
             {
                 Logger.Warning(Strings.TookXSecondsToProcessPsAndDu, ttlog.TotalSeconds);
