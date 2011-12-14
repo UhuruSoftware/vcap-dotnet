@@ -141,8 +141,8 @@ MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /cate
 ### Integration Tests
 This type of tests ensure that all the functional requirements are met at the component level.
 #### Configure
-This tests require a working NATS Serve deployment.
-To edit the NATS Server used for the tests follow the steps:
+  These tests require a working NATS Server deployment.
+  To edit the NATS Server used for the tests follow the steps:
 1. Go to Uhuru.CloudFoundtry.Test project
 cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
@@ -161,8 +161,8 @@ MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /cate
 ### System Tests
 System testing is conducted on the complete, integrated system to evaluate the system’s compliance with the specified requirements.
 #### Configure
-To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
- 1. Go to Uhuru.CloudFoundtry.Test project
+  To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
+1. Go to Uhuru.CloudFoundtry.Test project
 cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 2. Edit the App.config file
 notepad App.config 
