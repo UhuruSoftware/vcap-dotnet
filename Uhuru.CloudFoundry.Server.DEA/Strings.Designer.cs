@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.DEA
-{
-
-
+namespace Uhuru.CloudFoundry.DEA {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -545,6 +545,15 @@ namespace Uhuru.CloudFoundry.DEA
         internal static string InstanceIsReadyForConnections {
             get {
                 return ResourceManager.GetString("InstanceIsReadyForConnections", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lowering instance process priority to: {0}.
+        /// </summary>
+        internal static string LoggerLoweringPriority {
+            get {
+                return ResourceManager.GetString("LoggerLoweringPriority", resourceCulture);
             }
         }
         

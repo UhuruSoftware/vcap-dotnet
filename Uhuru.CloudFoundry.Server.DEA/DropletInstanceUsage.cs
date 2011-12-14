@@ -14,6 +14,16 @@ namespace Uhuru.CloudFoundry.DEA
     /// </summary>
     public class DropletInstanceUsage : JsonConvertibleObject
     {
+
+        /// <summary>
+        /// Gets or sets the total process ticks at that time.
+        /// </summary>
+        public long TotalProcessTicks
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Gets or sets the used memory kbytes.
         /// </summary>
@@ -28,7 +38,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the cpu.
         /// </summary>
         [JsonName("cpu")]
-        public long Cpu
+        public float Cpu
         {
             get;
             set;

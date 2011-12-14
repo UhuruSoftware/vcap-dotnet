@@ -24,7 +24,12 @@ namespace Uhuru.Utilities.ProcessPerformance
         /// This is an IntPtr that looks like an error response. We use it for comparison.
         /// </summary>
         public static readonly IntPtr ProcessHandleError = new IntPtr(-1);
-        
+
+        /// <summary>
+        /// This is an IntPtr that looks like an error response. We use it for comparison.
+        /// </summary>
+        public static readonly IntPtr ProcessHandleZero = new IntPtr(0);
+
         /// <summary>
         /// Closes handles.
         /// </summary>

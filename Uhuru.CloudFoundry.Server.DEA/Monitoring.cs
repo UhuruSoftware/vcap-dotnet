@@ -94,7 +94,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// The maximum priority value.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Renice", Justification = "Word is in dictionary, but warning is still generated.")]
-        public const int MaxReniceValue = 20;
+        public const int MaxReniceValue = 3;
 
         /// <summary>
         /// Lock for resource tracking.
