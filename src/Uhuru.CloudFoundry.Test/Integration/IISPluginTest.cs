@@ -18,6 +18,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
     {
         string user;
         string password;
+        string testAppLoc = Path.GetFullPath(@"..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp");
 
         [TestInitialize()]
         public void TestInitialize()
@@ -102,7 +103,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(testAppLoc) }
             };
 
 
@@ -148,7 +149,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(testAppLoc) }
             };
 
                 appInfos.Add(appInfo);
@@ -245,7 +246,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             IISPlugin target = new IISPlugin();
 
 
-            string path = TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\TestApps\CloudTestApp"));
+            string path = TestUtil.CopyFolderToTemp(testAppLoc);
 
             string logPath = Path.Combine(path, "logs");
 
@@ -328,7 +329,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     new ApplicationVariable() { Name = "VCAP_APP_PORT", Value = port.ToString() },
                     new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
                     new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(Path.GetFullPath(@"..\..\..\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp")) }
+                    new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(testAppLoc) }
                 };
 
 
