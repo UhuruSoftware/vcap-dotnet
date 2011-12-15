@@ -175,7 +175,7 @@ To edit the NATS Server used for the tests follow the steps:
 
 * Build CloudTestApp solution
 
-        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
+        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\App\CloudTestApp.sln
 
 * Run tests in the "Integration" category using MSTest
 
@@ -226,7 +226,7 @@ System testing is conducted on the complete, integrated system to evaluate the s
 
 * Build CloudTestApp solution
 
-        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
+        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\App\CloudTestApp.sln
 
 * Run tests in the "System" category using MSTest
 
