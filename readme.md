@@ -25,10 +25,13 @@ This project uses the Apache 2 license.  See LICENSE for details.
 Development Tools
 -----------------
 
-* Visual Studio 2010 Ultimate (needed for code analysis)
+This is a list of tools used by the Uhuru Software development team:
+
+* Visual Studio 2010 Ultimate
 * Style Cop (needed for code analysis)
-* Power Tools
-* Ghost Doc
+* Visual Studio Power Tools (makes life easier)
+* Ghost Doc (helps with documenting the code)
+* PowerCommands for Visual Studio (makes life easier)
 * Sandcastle Help File Builder (needed for creating .chm documentation)
 
 
