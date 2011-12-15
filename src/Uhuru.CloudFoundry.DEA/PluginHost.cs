@@ -10,7 +10,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.CloudFoundry.DEA.PluginBase;
     
     /// <summary>
     /// the class through which the plugins are consumed

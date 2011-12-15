@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
+namespace Uhuru.CloudFoundry.DEA.PluginBase
 {
     using System.Collections.Generic;
 

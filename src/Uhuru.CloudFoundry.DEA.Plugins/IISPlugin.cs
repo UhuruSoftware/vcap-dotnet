@@ -8,13 +8,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Diagnostics;
-    using System.DirectoryServices;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Security.AccessControl;
     using System.Text;
@@ -23,8 +19,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.Xml.XPath;
     using Microsoft.Web.Administration;
     using Uhuru.CloudFoundry.DEA.AutoWiring;
+    using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
     using Uhuru.Utilities;
 
     /// <summary>

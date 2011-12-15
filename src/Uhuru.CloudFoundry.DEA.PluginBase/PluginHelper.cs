@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.DEA.PluginBase
+namespace Uhuru.CloudFoundry.DEA.PluginBase
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources;
+    using Uhuru.CloudFoundry.DEA.PluginBase.Resources;
     using Uhuru.Utilities;
 
     /// <summary>

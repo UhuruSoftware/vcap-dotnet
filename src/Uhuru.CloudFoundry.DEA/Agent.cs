@@ -14,7 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Linq;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;

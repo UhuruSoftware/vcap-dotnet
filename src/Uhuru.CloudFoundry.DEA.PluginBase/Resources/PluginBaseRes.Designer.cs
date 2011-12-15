@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources {
+namespace Uhuru.CloudFoundry.DEA.PluginBase.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uhuru.CloudFoundry.Server.DEA.PluginBase.Resources.PluginBaseRes", typeof(PluginBaseRes).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uhuru.CloudFoundry.DEA.PluginBase.Resources.PluginBaseRes", typeof(PluginBaseRes).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

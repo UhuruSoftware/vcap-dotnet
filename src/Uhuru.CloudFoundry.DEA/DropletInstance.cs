@@ -12,7 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Net.Sockets;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
-    using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+    using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.ProcessPerformance;
 
