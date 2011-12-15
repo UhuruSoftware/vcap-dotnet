@@ -61,7 +61,7 @@ You have to run DEAInstaller.msi in order to install the service. There are two 
 
 #### Install from from command line using following command and parameters: 
 
->msiexec /i DEAInstaller.msi [parameterName=parameterValue]
+    msiexec /i DEAInstaller.msi [parameterName=parameterValue]
 
 Valid parameters that can be used are: 
 	
@@ -78,7 +78,7 @@ Valid parameters that can be used are:
 
 Example: 
 
->msiexec /i DEAInstaller.msi baseDir=C:\Droplets localRoute=192.168.1.1 filerPort=12345 messageBus=nats://user:password@192.168.1.100:4222/ secure=true maxMemory=4096
+    msiexec /i DEAInstaller.msi baseDir=C:\Droplets localRoute=192.168.1.1 filerPort=12345 messageBus=nats://user:password@192.168.1.100:4222/ secure=true maxMemory=4096
 
 #### Install using the UI. 
 
@@ -96,7 +96,7 @@ You have to run  MSSqlNodeInstaller.msi in order to install the service. There a
 
 #### Install from from command line using following command and parameters: 
 
->msiexec /i MSSqlNodeInstaller.msi [parameterName=parameterValue]
+     msiexec /i MSSqlNodeInstaller.msi [parameterName=parameterValue]
 
 Valid parameters that can be used are: 
 
@@ -119,7 +119,7 @@ Valid parameters that can be used are:
 
 Example: 
 
->msiexec /i MSSqlNodeInstaller.msi nodeId=0 mbus=nats://user:password@192.168.1.100:4222/ localRoute=192.168.1.1 host=localhost user=admin password=password port=1433
+    msiexec /i MSSqlNodeInstaller.msi nodeId=0 mbus=nats://user:password@192.168.1.100:4222/ localRoute=192.168.1.1 host=localhost user=admin password=password port=1433
 
 #### Install using the UI. 
 
@@ -143,11 +143,11 @@ The Unit Tests run out of the box, no additional configuration is needed.
 * Open Visual studio command prompt
 * Build vcap-dotnet solution
 
->msbuild {cloneDirectory}\src\vcap-dotnet.sln
+        msbuild {cloneDirectory}\src\vcap-dotnet.sln
 
 * Run tests in the "Unit" category using MSTest
 
->MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Unit"
+        MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Unit"
 
 ### Integration Tests
 This type of tests ensure that all the functional requirements are met at the component level.
@@ -157,29 +157,29 @@ To edit the NATS Server used for the tests follow the steps:
 
 * Go to Uhuru.CloudFoundtry.Test project
 
-> cd {clonePath}\src\Uhuru.CloudFoundry.Test\
+        cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 
 * Edit the App.config file
 
->notepad App.config
+        notepad App.config
 
 * Set a valid NATS Server for the "nats" key:
 
->\<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
+    `<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>`
 
 #### Run
 * Open Visual studio command prompt
 * Build vcap-dotnet solution
 
->msbuild {cloneDirectory}\src\vcap-dotnet.sln
+        msbuild {cloneDirectory}\src\vcap-dotnet.sln
 
 * Build CloudTestApp solution
 
->msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
+        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
 
 * Run tests in the "Integration" category using MSTest
 
->MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Integration"
+        MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Integration"
 
 ### System Tests
 System testing is conducted on the complete, integrated system to evaluate the system's compliance with the specified requirements.
@@ -188,46 +188,46 @@ System testing is conducted on the complete, integrated system to evaluate the s
 
 * Go to Uhuru.CloudFoundtry.Test project
 
->cd {clonePath}\src\Uhuru.CloudFoundry.Test\
+        cd {clonePath}\src\Uhuru.CloudFoundry.Test\
 
 * Edit the App.config file
 
->notepad App.config
+        notepad App.config
 
 * Set a valid NATS Server for the nats key:
 
->\<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>
+    `<add key="nats" value="nats://nats:nats@192.168.1.120:4222"/>`
 
 * Set the target CloudFoundry deployment
 
->\<add key="target" value="api.uhurucloud.net"/>
+    `<add key="target" value="api.uhurucloud.net"/>`
 
 * Set the user name for the deployment
 
->\<add key="username" value="continuousintegration@uhurusoftware.com"/>
+    `<add key="username" value="continuousintegration@uhurusoftware.com"/>`
 
 * Set the password for the deployment
 
->\<add key="password" value="myPassword"/>
+    `<add key="password" value="myPassword"/>`
 
 * We use Umbraco as a test app, you can download it from [http://umbraco.codeplex.com/](here)) and edit its web.config file like so:
 
->\<add key="umbracoDbDSN" value="{mssql-2008#umbracosvc}" />
+    `<add key="umbracoDbDSN" value="{mssql-2008#umbracosvc}" />`
 
 * Set the Umbraco root directory
 
->\<add key="umbracoRootDir" value="C:\PathToUmbraco"/>
+    `<add key="umbracoRootDir" value="C:\PathToUmbraco"/>`
 
 #### Run
 * Open Visual studio command prompt
 * Build vcap-dotnet solution
 
->msbuild {cloneDirectory}\src\vcap-dotnet.sln
+        msbuild {cloneDirectory}\src\vcap-dotnet.sln
 
 * Build CloudTestApp solution
 
->msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
+        msbuild {cloneDirectory}\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\CloudTestApp.sln
 
 * Run tests in the "System" category using MSTest
 
->MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"System"
+        MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"System"
