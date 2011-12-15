@@ -40,7 +40,7 @@ To run .Net on Cloud Foundry, the first thing you need is a Cloud Foundry instal
 Once you have a Cloud Foundry setup running, you can either:
 
 * get the code and compile it to get the installers (use the vcap-dotnet-installers solution)
-* grab the latest release from [http://www.uhurusoftware.com/vcap-dotnet/latest](here)
+* grab the latest release from [http://www.uhurusoftware.com/products.aspx](here)
 
 Install "DEAInstaller.msi" and "MSSqlNodeInstaller.msi" on a box that meets the following prerequisites:
 
