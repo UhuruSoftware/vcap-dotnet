@@ -30,10 +30,10 @@
     <CopyrightHref>http://www.uhurusoftware.com</CopyrightHref>
     <CopyrightText>Copyright %28c%29 2011 Uhuru Software, Inc., All Rights Reserved</CopyrightText>
     <NamespaceSummaries>
-      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Integration" isDocumented="False" xmlns="" />
-      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.System" isDocumented="False" xmlns="" />
-      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Unit" isDocumented="False" xmlns="" />
-    </NamespaceSummaries>
+      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Integration" isDocumented="False" />
+<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.System" isDocumented="False" />
+<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Unit" isDocumented="False" />
+<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test" isDocumented="False" /></NamespaceSummaries>
     <BuildLogFile />
     <HtmlHelp1xCompilerPath />
     <HtmlHelp2xCompilerPath />
