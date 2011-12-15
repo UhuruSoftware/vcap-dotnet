@@ -203,6 +203,10 @@ System testing is conducted on the complete, integrated system to evaluate the s
 * Set the target CloudFoundry deployment
 
     `<add key="target" value="api.uhurucloud.net"/>`
+
+* Set a proxy for CloudFoundry deployment if necessary, else delete it
+
+    `<proxy proxyaddress="http://192.168.1.120:80" bypassonlocal="False"/>`
     
 * Set the user name for the deployment
 
