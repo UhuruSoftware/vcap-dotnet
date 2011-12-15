@@ -40,13 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
-        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
-        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
+        "OwnerKey" = "8:_7F23E44DABEA5DFCDAEB59AD7623C4C0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -58,7 +52,13 @@
         "Entry"
         {
         "MsmKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
-        "OwnerKey" = "8:_7F23E44DABEA5DFCDAEB59AD7623C4C0"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
+        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -118,25 +118,19 @@
         "Entry"
         {
         "MsmKey" = "8:_B6478C8410CF91A342A4FF6C861F56D6"
-        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_B6478C8410CF91A342A4FF6C861F56D6"
-        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B77709389C1DEDBB828E107AB8FB3021"
-        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B77709389C1DEDBB828E107AB8FB3021"
         "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B77709389C1DEDBB828E107AB8FB3021"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -147,6 +141,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_B77709389C1DEDBB828E107AB8FB3021"
+        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C93E197568654A2EC18E9F0451D147B1"
         "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
@@ -154,13 +154,13 @@
         "Entry"
         {
         "MsmKey" = "8:_C93E197568654A2EC18E9F0451D147B1"
-        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "OwnerKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_C93E197568654A2EC18E9F0451D147B1"
-        "OwnerKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
+        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -190,55 +190,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_6CCCC19B5A613503537D0F09F60A243B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_2D5323A151364CEADEA390EBBEAB28EA"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FA9A572575AA2D923ADD3FEA337728B1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7F23E44DABEA5DFCDAEB59AD7623C4C0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3E6C54B47637ABFF8B1C8BEBED1A1C56"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B6478C8410CF91A342A4FF6C861F56D6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0CBFDA738FBE3830B2F947D4B4CF3DFC"
+        "OwnerKey" = "8:_C93E197568654A2EC18E9F0451D147B1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -250,7 +202,55 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C93E197568654A2EC18E9F0451D147B1"
+        "OwnerKey" = "8:_0CBFDA738FBE3830B2F947D4B4CF3DFC"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_1C1EE2E80AB6253606C98512FC4C0986"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_B6478C8410CF91A342A4FF6C861F56D6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3E6C54B47637ABFF8B1C8BEBED1A1C56"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7F23E44DABEA5DFCDAEB59AD7623C4C0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FA9A572575AA2D923ADD3FEA337728B1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2D5323A151364CEADEA390EBBEAB28EA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_6CCCC19B5A613503537D0F09F60A243B"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -421,11 +421,6 @@
             "AssemblyAsmDisplayName" = "8:SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_0CBFDA738FBE3830B2F947D4B4CF3DFC"
-                    {
-                    "Name" = "8:SevenZipSharp.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:SevenZipSharp.dll"
             "TargetName" = "8:"
@@ -452,11 +447,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.Utilities, Version=0.9.0.0, Culture=neutral, PublicKeyToken=14594b8a48a91b15, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1C1EE2E80AB6253606C98512FC4C0986"
-                    {
-                    "Name" = "8:Uhuru.Utilities.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.Utilities.dll"
             "TargetName" = "8:"
@@ -483,11 +473,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging, Version=0.9.0.0, Culture=neutral, PublicKeyToken=27f9c2d85571a642, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_2D5323A151364CEADEA390EBBEAB28EA"
-                    {
-                    "Name" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.dll"
             "TargetName" = "8:"
@@ -514,11 +499,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.Configuration, Version=0.9.0.0, Culture=neutral, PublicKeyToken=5a3403938664750e, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3E6C54B47637ABFF8B1C8BEBED1A1C56"
-                    {
-                    "Name" = "8:Uhuru.Configuration.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.Configuration.dll"
             "TargetName" = "8:"
@@ -616,11 +596,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.NatsClient, Version=0.9.0.0, Culture=neutral, PublicKeyToken=a66a33d7a72b2d95, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_7F23E44DABEA5DFCDAEB59AD7623C4C0"
-                    {
-                    "Name" = "8:Uhuru.NatsClient.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.NatsClient.dll"
             "TargetName" = "8:"
@@ -647,11 +622,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.Server.DEA.PluginBase, Version=0.9.0.0, Culture=neutral, PublicKeyToken=796eafddae9ffe4d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B6478C8410CF91A342A4FF6C861F56D6"
-                    {
-                    "Name" = "8:Uhuru.CloudFoundry.Server.DEA.PluginBase.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.Server.DEA.PluginBase.dll"
             "TargetName" = "8:"
@@ -678,11 +648,6 @@
             "AssemblyAsmDisplayName" = "8:Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B77709389C1DEDBB828E107AB8FB3021"
-                    {
-                    "Name" = "8:Newtonsoft.Json.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Newtonsoft.Json.dll"
             "TargetName" = "8:"
@@ -709,11 +674,6 @@
             "AssemblyAsmDisplayName" = "8:log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_C93E197568654A2EC18E9F0451D147B1"
-                    {
-                    "Name" = "8:log4net.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:log4net.dll"
             "TargetName" = "8:"
@@ -760,11 +720,6 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.DEA, Version=0.9.0.0, Culture=neutral, PublicKeyToken=585062330108031d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_FA9A572575AA2D923ADD3FEA337728B1"
-                    {
-                    "Name" = "8:Uhuru.CloudFoundry.DEA.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.DEA.dll"
             "TargetName" = "8:"
@@ -849,7 +804,7 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:0.9.0"
-        "Manufacturer" = "8:Uhuru Software, Inc."
+        "Manufacturer" = "8:Uhuru Software"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.uhurusoftware.com/support.aspx"
         "Title" = "8:Uhuru .NET Droplet Execution Agent"

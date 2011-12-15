@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.MSSqlNode
+namespace Uhuru.CloudFoundry.MSSqlService
 {
     /// <summary>
     /// This is a class containing information about connecting to an MS Sql Server.

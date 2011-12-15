@@ -1,4 +1,4 @@
-﻿using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+﻿using Uhuru.CloudFoundry.DEA.PluginBase;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 

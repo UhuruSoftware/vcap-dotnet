@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.Server.MSSqlNode
+namespace Uhuru.CloudFoundry.MSSqlService
 {
     using System;
     using System.Collections.Generic;

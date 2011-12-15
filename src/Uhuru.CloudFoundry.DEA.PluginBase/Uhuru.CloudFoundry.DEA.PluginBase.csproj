@@ -8,8 +8,8 @@
     <ProjectGuid>{2EFB2C3D-89A1-439E-B1CA-B75FA8217314}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.CloudFoundry.Server.DEA.PluginBase</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.Server.DEA.PluginBase</AssemblyName>
+    <RootNamespace>Uhuru.CloudFoundry.DEA.PluginBase</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.DEA.PluginBase</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>

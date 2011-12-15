@@ -6,7 +6,7 @@
 
 namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 {
-    using Uhuru.CloudFoundry.Server.MSSqlNode;
+    using Uhuru.CloudFoundry.MSSqlService;
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Configuration;
     using Uhuru.Configuration.Service;

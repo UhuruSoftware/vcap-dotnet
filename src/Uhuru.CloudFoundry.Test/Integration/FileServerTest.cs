@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.CloudFoundry.DEA.Plugins;
-using Uhuru.CloudFoundry.Server.DEA.PluginBase;
+using Uhuru.CloudFoundry.DEA.PluginBase;
 using System.Threading;
 using Uhuru.Utilities;
 using System.Net;

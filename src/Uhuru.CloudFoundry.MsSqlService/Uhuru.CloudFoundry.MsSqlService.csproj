@@ -8,8 +8,8 @@
     <ProjectGuid>{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.CloudFoundry.Server.MSSqlNode</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.Server.MSSqlNode</AssemblyName>
+    <RootNamespace>Uhuru.CloudFoundry.MSSqlService</RootNamespace>
+    <AssemblyName>Uhuru.CloudFoundry.MSSqlService</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
