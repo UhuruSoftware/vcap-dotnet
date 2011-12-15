@@ -203,14 +203,14 @@ System testing is conducted on the complete, integrated system to evaluate the s
 * Set the target CloudFoundry deployment
 
     `<add key="target" value="api.uhurucloud.net"/>`
-
+    
 * Set the user name for the deployment
 
-    `<add key="username" value="continuousintegration@uhurusoftware.com"/>`
+    `<add key="adminUsername" value="continuousintegration@uhurusoftware.com"/>`
 
 * Set the password for the deployment
 
-    `<add key="password" value="myPassword"/>`
+    `<add key="adminPassword" value="myPassword"/>`
 
 * We use Umbraco as a test app, you can download it from [http://umbraco.codeplex.com/](here)) and edit its web.config file like so:
 
