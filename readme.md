@@ -182,7 +182,7 @@ To edit the NATS Server used for the tests follow the steps:
 >MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Integration"
 
 ### System Tests
-System testing is conducted on the complete, integrated system to evaluate the system’s compliance with the specified requirements.
+System testing is conducted on the complete, integrated system to evaluate the system's compliance with the specified requirements.
 #### Configure
   To run the System Tests you must have a full deployment as described above, in the deployment section. Additional configuration steps are described bellow:
 
