@@ -147,6 +147,7 @@ The Unit Tests run out of the box, no additional configuration is needed.
 
 * Run tests in the "Unit" category using MSTest
 
+        cd {clonePath}\src
         MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Unit"
 
 ### Integration Tests
@@ -179,6 +180,7 @@ To edit the NATS Server used for the tests follow the steps:
 
 * Run tests in the "Integration" category using MSTest
 
+        cd {clonePath}\src
         MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"Integration"
 
 ### System Tests
@@ -230,4 +232,5 @@ System testing is conducted on the complete, integrated system to evaluate the s
 
 * Run tests in the "System" category using MSTest
 
+        cd {clonePath}\src
         MSTest.exe /testcontainer:{cloneDirectory}\bin\Uhuru.CloudFoundry.Test.dll /category:"System"
