@@ -1,0 +1,34 @@
+<Dictionary>
+  <Words>
+    <Recognized>
+      <Word>Uhuru</Word>
+      <Word>DEA</Word>
+      <Word>Unmap</Word>
+      <Word>Nats</Word>
+      <Word>Vmc</Word>
+      <Word>Healthz</Word>
+      <Word>Varz</Word>
+      <word>Unprovision</word>
+      <word>Vcap</word>
+      <word>Uuid</word>
+      <word>Sha</word>
+      <word>Plugin</word>
+      <word>Plugins</word>
+      <word>Renice</word>
+      <word>Ulimit</word>
+    </Recognized>
+  </Words>
+  <Acronyms>
+    <CasingExceptions>
+      <Acronym>DEA</Acronym>
+      <Acronym>VMC</Acronym>
+      <Acronym>NFS</Acronym>
+      <Acronym>VCAP</Acronym>
+      <Acronym>UUID</Acronym>
+      <Acronym>Plugin</Acronym>
+      <Acronym>IIS</Acronym>
+      <Acronym>SHA</Acronym>
+      <Acronym>FDS</Acronym>
+    </CasingExceptions>
+  </Acronyms>
+</Dictionary>

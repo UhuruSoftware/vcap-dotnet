@@ -1,0 +1,15 @@
+obj
+*.exe
+TestResults
+bin
+*.suo
+*.vsmdi
+*.opensdf
+*.sdf
+Uhuru.Utilities.WindowsProcess/x64
+*.user
+StyleCop.Cache
+*.testsettings
+*.trx
+doc/*.xml
+doc/*.XML

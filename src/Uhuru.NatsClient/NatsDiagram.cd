@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Uhuru.NatsClient.Reactor">
+    <Position X="0.5" Y="0.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AgQAgAAUg6iIACAACEAAAJEAIAEHgAQRbQSAAAQAAQA=</HashCode>
+      <FileName>Reactor.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Uhuru.NatsClient.Resources.ClientConnection" Collapsed="true">
+    <Position X="6.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEgBAAABAAAAAIgAABEAAAIQYAIAAAAAABBAAAQIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Uhuru.NatsClient.Subscription">
+    <Position X="3.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABABAAAAAAAIAAAAAAQAAAAAIAAAAAAAAAQAA=</HashCode>
+      <FileName>Subscription.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Uhuru.NatsClient.Resource" Collapsed="true">
+    <Position X="3.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEkBAAABAAAAAIAAAAAABACAJAIAAAWAQBBAAAQQA=</HashCode>
+      <FileName>Resource.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Uhuru.NatsClient.ConnectionStatus">
+    <Position X="6.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAIQAAAAAAAAAABAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>ConnectionStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Uhuru.NatsClient.ParseState">
+    <Position X="6.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ParseState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Tahoma" Size="8.25" />
+</ClassDiagram>
