@@ -78,6 +78,14 @@
     <Compile Include="DiskUsageEntry.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HealthzRequestEventArgs.cs" />
+    <Compile Include="HttpTunnel\ClientEnd.cs" />
+    <Compile Include="HttpTunnel\ITunnel.cs" />
+    <Compile Include="HttpTunnel\ServerEnd.cs" />
+    <Compile Include="HttpTunnel\TunnelErrorMessages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TunnelErrorMessages.resx</DependentUpon>
+    </Compile>
     <Compile Include="JsonConvertibleObject.cs" />
     <Compile Include="JsonNameAttribute.cs" />
     <Compile Include="JsonTools.cs" />
@@ -124,6 +132,12 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HttpTunnel\TunnelErrorMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TunnelErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\StyleCop.targets" />
