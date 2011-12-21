@@ -118,34 +118,6 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance has opened up a port and it's listening on it.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance is port ready; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsPortReady
-        {
-            get
-            {
-                using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
-                {
-                    using (TcpClient client = new TcpClient())
-                    {
-                        IAsyncResult result = client.BeginConnect("localhost", this.properties.Port, null, null);
-                        result.AsyncWaitHandle.WaitOne(150);
-
-                        if (client.Connected)
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the error log of the instance.
         /// </summary>
         public FileLogger ErrorLog { get; set; }
@@ -174,6 +146,43 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             return beat;
+        }
+
+        /// <summary>
+        /// Indicating whether this instance has opened up a port and it's listening on it.
+        /// </summary>
+        /// <param name="timeOut">The time out of the TCP connection.</param>
+        /// <returns>
+        ///   <c>true</c> if [is port ready] [the specified time out]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsPortReady(int timeOut)
+        {
+            using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
+            {
+                using (TcpClient client = new TcpClient())
+                {
+                    IAsyncResult result = client.BeginConnect("localhost", this.properties.Port, null, null);
+                    result.AsyncWaitHandle.WaitOne(timeOut);
+
+                    if (client.Connected)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Indicating whether this instance has opened up a port and it's listening on it with 150 ms timeout.
+        /// </summary>
+        /// <returns>
+        ///   <c>true</c> if [is port ready]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsPortReady()
+        {
+            return IsPortReady(150);
         }
 
         /// <summary>

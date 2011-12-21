@@ -557,7 +557,7 @@ namespace Uhuru.CloudFoundry.DEA
             bool keep_going = true;
             while (attempts <= 1000 && instance.Properties.State == DropletInstanceState.Starting && keep_going == true)
             {
-                if (instance.IsPortReady)
+                if (instance.IsPortReady(150))
                 {
                     keep_going = false;
                     callBack(true);
@@ -1515,7 +1515,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                     try
                     {
-                        if (instanceProcess != null || instance.IsPortReady)
+                        if (instanceProcess != null || instance.IsPortReady(1500))
                         {
                             long currentTicks = instanceProcess != null ? instanceProcess.TotalProcessorTime.Ticks : 0;
                             DateTime currentTicksTimestamp = DateTime.Now;
@@ -1583,7 +1583,7 @@ namespace Uhuru.CloudFoundry.DEA
                         else
                         {
                             instance.Properties.ProcessId = 0;
-                            if (instance.Properties.State == DropletInstanceState.Running && !instance.IsPortReady)
+                            if (instance.Properties.State == DropletInstanceState.Running)
                             {
                                 Logger.Warning(Strings.AppNotDetectedReady, instance.Properties.Name, instance.Properties.InstanceId);
                                 this.StopDroplet(instance);
