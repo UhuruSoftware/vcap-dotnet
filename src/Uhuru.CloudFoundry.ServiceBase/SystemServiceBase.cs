@@ -177,7 +177,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
         public void Shutdown()
         {
             Logger.Info(Strings.ShuttingDownLogMessage, this.ServiceDescription());
-           this.NodeNats.Stop();
+            if (this.NodeNats != null)
+            {
+                this.NodeNats.Stop();
+            }
         }
 
         /// <summary>

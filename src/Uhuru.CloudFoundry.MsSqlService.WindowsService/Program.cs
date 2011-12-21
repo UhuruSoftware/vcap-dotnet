@@ -39,7 +39,9 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
                 using (MSSqlWindowsService sqlService = new MSSqlWindowsService())
                 {
                     sqlService.Start();
-                    System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+                    Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
+                    Console.ReadLine();
+                    sqlService.Stop();
                 }
             }
         }

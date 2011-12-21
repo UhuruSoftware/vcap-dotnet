@@ -489,7 +489,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (Exception ex)
             {
-                Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.Message);
+                Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.ToString());
             }
         }
 
@@ -554,7 +554,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (Exception ex)
             {
-                Logger.Fatal(Strings.SqlNodeCannotDeleteDBFatalMessage, ex.Message);
+                Logger.Fatal(Strings.SqlNodeCannotDeleteDBFatalMessage, ex.ToString());
             }
         }
 
@@ -564,6 +564,18 @@ namespace Uhuru.CloudFoundry.MSSqlService
             Logger.Info(Strings.SqlNodeDeleteUserInfoMessage, user);
             try
             {
+                ////Disable the login before kill the users session. So that other connections cannot be made between the killing
+                ////of user sessions and dropping the login.
+                using (TransactionScope ts = new TransactionScope())
+                {
+                    using (SqlCommand disableLoginCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDisableLoginSQL, user), connection))
+                    {
+                        disableLoginCommand.ExecuteNonQuery();
+                    }
+
+                    ts.Complete();
+                }
+
                 kill_user_session(user);
 
                 using (TransactionScope ts = new TransactionScope())
@@ -578,11 +590,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (Exception ex)
             {
-                Logger.Fatal(Strings.SqlNodeCannotDeleteUserFatalMessage, user, ex.Message);
+                Logger.Fatal(Strings.SqlNodeCannotDeleteUserFatalMessage, user, ex.ToString());
             }
         }
 
-        // end active sesions for USER, to be able to drop the table
+        // end active sessions for USER, to be able to drop the table
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         private void kill_user_session(string user)
         {
@@ -594,7 +606,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                     while (sessionsToKill.Read())
                     {
-                        int sessionId = sessionsToKill.GetInt32(0);
+                        int sessionId = sessionsToKill.GetInt16(0);
                         using (SqlCommand killSessionCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, sessionId), connection))
                         {
                             killSessionCommand.ExecuteNonQuery();
@@ -719,7 +731,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (Exception ex)
             {
-                Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.Message);
+                Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.ToString());
                 return new Dictionary<string, object>();
             }
         }
