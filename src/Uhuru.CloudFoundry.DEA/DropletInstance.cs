@@ -151,18 +151,18 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Indicating whether this instance has opened up a port and it's listening on it.
         /// </summary>
-        /// <param name="timeOut">The time out of the TCP connection.</param>
+        /// <param name="timeout">The time out of the TCP connection.</param>
         /// <returns>
         ///   <c>true</c> if [is port ready] [the specified time out]; otherwise, <c>false</c>.
         /// </returns>
-        public bool IsPortReady(int timeOut)
+        public bool IsPortReady(int timeout)
         {
             using (AutoResetEvent connectedEvent = new AutoResetEvent(false))
             {
                 using (TcpClient client = new TcpClient())
                 {
                     IAsyncResult result = client.BeginConnect("localhost", this.properties.Port, null, null);
-                    result.AsyncWaitHandle.WaitOne(timeOut);
+                    result.AsyncWaitHandle.WaitOne(timeout);
 
                     if (client.Connected)
                     {
