@@ -61,6 +61,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private ApplicationInfo applicationInfo = null;
 
         /// <summary>
+        /// Asp .net version of the app
+        /// </summary>
+        private DotNetVersion aspDotNetVersion = DotNetVersion.Four;
+
+        /// <summary>
         /// sets the initial data for an application
         /// </summary>
         /// <param name="variables">All variables needed to run the application.</param>
@@ -77,6 +82,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 this.applicationInfo = parsedData.AppInfo;
 
                 this.autoWireTemplates = parsedData.AutoWireTemplates;
+
+                this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
             }
@@ -116,9 +123,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                DotNetVersion version = this.GetAppVersion(this.applicationInfo);
-
-                this.DeployApp(this.applicationInfo, version);
+                this.DeployApp(this.applicationInfo, this.aspDotNetVersion);
 
                 this.StartApp();
             }
@@ -472,6 +477,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
             DotNetVersion version = DotNetVersion.Four;
+
+            if (allAssemblies.Length == 0)
+            {
+                version = NetFrameworkVersion.GetFrameworkFromConfig(Path.Combine(appInfo.Path, "web.config"));
+            }
 
             foreach (string assembly in allAssemblies)
             {
