@@ -186,7 +186,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
             foreach (string uri in umbracoUris)
             {
@@ -235,7 +235,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
         }
 
@@ -290,7 +290,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
             foreach (string uri in umbracoUris)
             {
@@ -339,7 +339,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
         }
 
@@ -361,7 +361,26 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
-            cl.CreateService(serviceName, "mssql");
+            /*
+            bool serviceCreated = false;
+            for (int retires = 5; retires > 0; retires--)
+            {
+                if (cl.CreateService(serviceName, "mssql"))
+                {
+                    serviceCreated = true;
+                    break;
+                }
+            }
+            if(!serviceCreated)
+            {
+                throw new Exception("Unable to create service :(");
+            }
+             */
+
+            if (!cl.CreateService(serviceName, "mssql"))
+            {
+                throw new Exception("Unable to create service :(");
+            }
             cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             cl.BindService(appName, serviceName);
             cl.StartApp(appName, true, false);
