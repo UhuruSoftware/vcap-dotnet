@@ -182,7 +182,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </returns>
         public bool IsPortReady()
         {
-            return IsPortReady(150);
+            return this.IsPortReady(150);
         }
 
         /// <summary>
