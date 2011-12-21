@@ -132,7 +132,7 @@ namespace Uhuru.CloudFoundry.DEA
                     using (TcpClient client = new TcpClient())
                     {
                         IAsyncResult result = client.BeginConnect("localhost", this.properties.Port, null, null);
-                        result.AsyncWaitHandle.WaitOne(100);
+                        result.AsyncWaitHandle.WaitOne(150);
 
                         if (client.Connected)
                         {

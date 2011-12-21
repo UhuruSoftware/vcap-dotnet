@@ -1585,6 +1585,7 @@ namespace Uhuru.CloudFoundry.DEA
                             instance.Properties.ProcessId = 0;
                             if (instance.Properties.State == DropletInstanceState.Running && !instance.IsPortReady)
                             {
+                                Logger.Warning(Strings.AppNotDetectedReady, instance.Properties.Name, instance.Properties.InstanceId);
                                 this.StopDroplet(instance);
                             }
                         }
