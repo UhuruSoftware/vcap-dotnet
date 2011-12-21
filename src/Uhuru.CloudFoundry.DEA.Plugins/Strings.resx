@@ -189,4 +189,10 @@
   <data name="DoneSettingUpApplication" xml:space="preserve">
     <value>Done setting up application variables.</value>
   </data>
+  <data name="DetectedCpuTarget" xml:space="preserve">
+    <value>Detected CPU target runtime: {0}.</value>
+  </data>
+  <data name="DetectingCpuTarget" xml:space="preserve">
+    <value>Detecting CPU target runtime.</value>
+  </data>
 </root>

@@ -50,9 +50,9 @@ namespace Uhuru.Utilities
             try
             {
                 string fileName = assemblyPath.Normalize();
-                
+
                 if (!System.IO.File.Exists(fileName))
-                { 
+                {
                     return DotNetVersion.Two;
                 }
 
@@ -67,7 +67,7 @@ namespace Uhuru.Utilities
                 string version = obj.GetDotNetVersion(assemblyPath);
 
                 AppDomain.Unload(domain);
-                
+
                 if (Convert.ToInt32(version, CultureInfo.InvariantCulture) < 4)
                 {
                     return DotNetVersion.Two;
@@ -77,11 +77,11 @@ namespace Uhuru.Utilities
                     return DotNetVersion.Four;
                 }
             }
-            catch (System.BadImageFormatException) 
+            catch (System.BadImageFormatException)
             {
                 return DotNetVersion.Two;
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
             }

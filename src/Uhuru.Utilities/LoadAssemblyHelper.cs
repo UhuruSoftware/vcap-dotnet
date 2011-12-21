@@ -26,5 +26,35 @@ namespace Uhuru.Utilities
             Assembly a = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
             return a.ImageRuntimeVersion.Split('.')[0].Replace("v", string.Empty);
         }
+
+        /// <summary>
+        /// Detects the platform.
+        /// </summary>
+        /// <param name="assemblyPath">The assembly path.</param>
+        /// <returns>CPU target</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "This method is called through reflection.")]
+        public CpuTarget DetectPlatform(string assemblyPath)
+        {
+            Assembly a = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
+            PortableExecutableKinds kind;
+            ImageFileMachine machine;
+            a.ManifestModule.GetPEKind(out kind, out machine);
+
+            switch (kind)
+            {
+                case PortableExecutableKinds.ILOnly:
+                    return CpuTarget.AnyCpu;
+                case PortableExecutableKinds.PE32Plus:
+                    return CpuTarget.X64;
+                case PortableExecutableKinds.PE32Plus | PortableExecutableKinds.ILOnly:
+                    return CpuTarget.X64;
+                case PortableExecutableKinds.Required32Bit:
+                    return CpuTarget.X86;
+                case PortableExecutableKinds.Required32Bit | PortableExecutableKinds.ILOnly:
+                    return CpuTarget.X86;
+                default:
+                    return CpuTarget.Unknown;
+            }
+        }
     }
 }

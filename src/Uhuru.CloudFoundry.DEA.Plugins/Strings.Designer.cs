@@ -115,11 +115,29 @@ namespace Uhuru.CloudFoundry.DEA.Plugins {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Detected CPU target runtime: {0}..
+        /// </summary>
+        internal static string DetectedCpuTarget {
+            get {
+                return ResourceManager.GetString("DetectedCpuTarget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Detected .Net application..
         /// </summary>
         internal static string DetectedNet {
             get {
                 return ResourceManager.GetString("DetectedNet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detecting CPU target runtime..
+        /// </summary>
+        internal static string DetectingCpuTarget {
+            get {
+                return ResourceManager.GetString("DetectingCpuTarget", resourceCulture);
             }
         }
         

@@ -66,6 +66,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private DotNetVersion aspDotNetVersion = DotNetVersion.Four;
 
         /// <summary>
+        /// Cpu platform of the app
+        /// </summary>
+        private CpuTarget cpuTarget;
+
+        /// <summary>
         /// sets the initial data for an application
         /// </summary>
         /// <param name="variables">All variables needed to run the application.</param>
@@ -86,6 +91,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
+
+                this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
             }
             catch (Exception ex)
             {
@@ -476,7 +483,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
             string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
-            DotNetVersion version = DotNetVersion.Four;
+            DotNetVersion version = DotNetVersion.Two;
 
             if (allAssemblies.Length == 0)
             {
@@ -495,6 +502,33 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             this.startupLogger.Info(Strings.DetectedNet + GetAspDotNetVersion(version));
 
             return version;
+        }
+
+        /// <summary>
+        /// Gets the cpu target for the application.
+        /// </summary>
+        /// <param name="appInfo">The application info structure.</param>
+        /// <returns>CPU target</returns>
+        private CpuTarget GetCpuTarget(ApplicationInfo appInfo)
+        {
+            this.startupLogger.Info(Strings.DetectingCpuTarget);
+            
+            string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
+
+            CpuTarget target = CpuTarget.X64;
+
+            foreach (string assembly in allAssemblies)
+            {
+                target = PlatformTarget.DetectPlatform(assembly);
+                if (target == CpuTarget.X86)
+                {
+                    break;
+                }
+            }
+
+            this.startupLogger.Info(Strings.DetectedCpuTarget, target.ToString());
+
+            return target;
         }
 
         /// <summary>
@@ -542,7 +576,14 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         applicationPool.ProcessModel.IdentityType = ProcessModelIdentityType.SpecificUser;
                         applicationPool.ProcessModel.UserName = userName;
                         applicationPool.ProcessModel.Password = password;
-                        applicationPool.Enable32BitAppOnWin64 = true;
+                        if (this.cpuTarget == CpuTarget.X86)
+                        {
+                            applicationPool.Enable32BitAppOnWin64 = true;
+                        }
+                        else
+                        {
+                            applicationPool.Enable32BitAppOnWin64 = false;
+                        }
                     }
 
                     mySite.Applications["/"].ApplicationPoolName = this.appName;

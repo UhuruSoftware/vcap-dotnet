@@ -72,6 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlatformTarget.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="FileLogger.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="FirewallTools.cs" />
@@ -103,6 +106,7 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
+      <SubType>Designer</SubType>
     </CodeAnalysisDictionary>
     <Content Include="lib\log4net.dll" />
     <Content Include="lib\log4net.xml" />
