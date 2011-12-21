@@ -11,6 +11,7 @@ namespace Uhuru.Utilities
     using System.IO;
     using System.Reflection;
     using System.Security.Permissions;
+    using System.Xml;
     
     /// <summary>
     /// a DotNet version
@@ -49,9 +50,9 @@ namespace Uhuru.Utilities
             try
             {
                 string fileName = assemblyPath.Normalize();
-                
+
                 if (!System.IO.File.Exists(fileName))
-                { 
+                {
                     return DotNetVersion.Two;
                 }
 
@@ -66,7 +67,7 @@ namespace Uhuru.Utilities
                 string version = obj.GetDotNetVersion(assemblyPath);
 
                 AppDomain.Unload(domain);
-                
+
                 if (Convert.ToInt32(version, CultureInfo.InvariantCulture) < 4)
                 {
                     return DotNetVersion.Two;
@@ -76,13 +77,38 @@ namespace Uhuru.Utilities
                     return DotNetVersion.Four;
                 }
             }
-            catch (System.BadImageFormatException) 
+            catch (System.BadImageFormatException)
             {
                 return DotNetVersion.Two;
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Gets the framework from web.config file for web sites that don't have any dlls, but have asp code that is being compiled at runtime.
+        /// </summary>
+        /// <param name="webConfig">Path to the web.config.</param>
+        /// <returns>the dot net framewrok version</returns>
+        public static DotNetVersion GetFrameworkFromConfig(string webConfig)
+        {
+            if (string.IsNullOrEmpty(webConfig))
+            {
+                throw new ArgumentException("Argument null or empty", "webConfig");
+            }
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(webConfig);
+            XmlNode node = doc.SelectSingleNode("/configuration/system.web/compilation/@targetFramework");
+            if (node == null)
+            {
+                return DotNetVersion.Two;
+            }
+            else
+            {
+                return DotNetVersion.Four;
             }
         }
     }

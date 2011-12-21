@@ -665,7 +665,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
             catch (Exception ex)
             {
-                Logger.Warning(ex.Message);
+                Logger.Warning(ex.ToString());
                 NodeNats.Publish(reply, null, EncodeFailure(response, ex));
             }
         }
@@ -698,7 +698,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 }
                 catch (Exception ex)
                 {
-                    Logger.Debug(Strings.PurgeOrphanErrorLogMessage, ins, ex.Message);
+                    Logger.Debug(Strings.PurgeOrphanErrorLogMessage, ins, ex.ToString());
                 }
             }
 

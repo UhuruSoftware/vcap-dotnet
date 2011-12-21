@@ -79,6 +79,15 @@ namespace Uhuru.CloudFoundry.DEA {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The &apos;{0}&apos; app instance &apos;{1}&apos; is not detected to be running. App considered crashes and stoping instance....
+        /// </summary>
+        internal static string AppNotDetectedReady {
+            get {
+                return ResourceManager.GetString("AppNotDetectedReady", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to apps.du.{0}.details.
         /// </summary>
         internal static string AppsDuDetails {

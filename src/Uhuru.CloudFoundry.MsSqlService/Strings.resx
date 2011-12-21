@@ -171,6 +171,9 @@
   <data name="SqlNodeDeletingDatabaseInfoMessage" xml:space="preserve">
     <value>Deleting database: {0}</value>
   </data>
+  <data name="SqlNodeDisableLoginSQL" xml:space="preserve">
+    <value>ALTER LOGIN {0} DISABLE</value>
+  </data>
   <data name="SqlNodeDoneCreatingDBDebugMessage" xml:space="preserve">
     <value>Done creating {0}. Took {1} s.</value>
   </data>

@@ -186,7 +186,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
             foreach (string uri in umbracoUris)
             {
@@ -235,7 +235,111 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
+            }
+        }
+
+        [TestMethod, Timeout(1000000), TestCategory("System")]
+        public void TC005_Create_10Parallel()
+        {
+            Dictionary<string, string> apps = new Dictionary<string, string>();
+            List<Thread> threads = new List<Thread>();
+            List<Exception> exceptions = new List<Exception>();
+            List<string> umbracoUris = new List<string>();
+
+            for (int i = 0; i < 10; i++)
+            {
+                string name = "u" + Guid.NewGuid().ToString().Substring(0, 6);
+                string service = name + "service";
+                string url = "http://" + name + ".uhurucloud.net";
+                umbracoUris.Add(url);
+                apps.Add(name, service);
+                ThreadStart s = delegate
+                {
+                    try
+                    {
+                        PushUmbraco(name, service, umbracoRootDir, url);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (lck)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    }
+                };
+                Thread t = new Thread(s);
+                t.Name = "umbraco" + i.ToString(CultureInfo.InvariantCulture);
+                threads.Add(t);
+            }
+
+            foreach (Thread t in threads)
+            {
+                t.Start();
+            }
+
+            foreach (Thread t in threads)
+            {
+                t.Join(300000);
+            }
+
+            if (exceptions.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Exception ex in exceptions)
+                {
+                    sb.AppendLine(ex.ToString());
+                }
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
+            }
+            foreach (string uri in umbracoUris)
+            {
+                Assert.IsTrue(TestUtil.TestUrl(uri));
+            }
+
+            threads = new List<Thread>();
+            exceptions = new List<Exception>();
+
+            foreach (KeyValuePair<string, string> pair in apps)
+            {
+                string name = pair.Key;
+                string service = pair.Value;
+                ThreadStart s = delegate
+                {
+                    try
+                    {
+                        DeleteApp(name, service);
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (lck)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    }
+                };
+                Thread t = new Thread(s);
+                t.Name = pair.Key;
+                threads.Add(t);
+            }
+
+            foreach (Thread t in threads)
+            {
+                t.Start();
+            }
+
+            foreach (Thread t in threads)
+            {
+                t.Join();
+            }
+            if (exceptions.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Exception ex in exceptions)
+                {
+                    sb.AppendLine(ex.ToString());
+                }
+                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
         }
 
@@ -257,7 +361,26 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
-            cl.CreateService(serviceName, "mssql");
+            /*
+            bool serviceCreated = false;
+            for (int retires = 5; retires > 0; retires--)
+            {
+                if (cl.CreateService(serviceName, "mssql"))
+                {
+                    serviceCreated = true;
+                    break;
+                }
+            }
+            if(!serviceCreated)
+            {
+                throw new Exception("Unable to create service :(");
+            }
+             */
+
+            if (!cl.CreateService(serviceName, "mssql"))
+            {
+                throw new Exception("Unable to create service :(");
+            }
             cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             cl.BindService(appName, serviceName);
             cl.StartApp(appName, true, false);

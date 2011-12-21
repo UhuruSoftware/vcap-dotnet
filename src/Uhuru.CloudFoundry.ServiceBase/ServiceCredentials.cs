@@ -95,14 +95,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// Gets the bind options for the provisioned service.
+        /// Gets or sets the bind options for the provisioned service.
         /// </summary>
-        [JsonName("bind_opts")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "The setter is used by the json convertible object"), JsonName("bind_opts")]
         public Dictionary<string, object> BindOptions
         { 
             get
             {
                 return this.bindOptions;
+            }
+
+            set
+            {
+                this.bindOptions = value;
             }
         }
     }

@@ -60,7 +60,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
               new ApplicationVariable() { Name = "VCAP_APP_PORT", Value=@"65498" },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER_PASSWORD", Value = password },
               new ApplicationVariable() { Name = "VCAP_WINDOWS_USER", Value = user },
-              new ApplicationVariable() { Name = "HOME", Value=@"c:\droplets\mydroplet" }
+              new ApplicationVariable() { Name = "HOME", Value=TestUtil.CopyFolderToTemp(testAppLoc) }
             };
 
             Exception exception = null;
