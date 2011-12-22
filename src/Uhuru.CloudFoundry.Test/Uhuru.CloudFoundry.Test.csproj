@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="System\CloudTestAppTest.cs" />
+    <Compile Include="Unit\HttpTunnelTest.cs" />
     <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />
     <Compile Include="Integration\FileServerTest.cs" />

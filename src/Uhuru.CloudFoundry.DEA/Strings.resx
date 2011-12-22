@@ -464,4 +464,7 @@
   <data name="LoggerLoweringPriority" xml:space="preserve">
     <value>Lowering instance process priority to: {0}</value>
   </data>
+  <data name="AppNotDetectedReady" xml:space="preserve">
+    <value>The '{0}' app instance '{1}' is not detected to be running. App considered crashes and stoping instance...</value>
+  </data>
 </root>

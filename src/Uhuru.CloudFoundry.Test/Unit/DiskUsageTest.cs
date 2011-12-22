@@ -75,7 +75,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
 
             string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 
-            // This is the strcture we are creating
+            // This is the structure we are creating
 
             //  tempdir
             //      dir1 (2)

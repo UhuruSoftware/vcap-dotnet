@@ -223,6 +223,15 @@ namespace Uhuru.CloudFoundry.MSSqlService {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ALTER LOGIN {0} DISABLE.
+        /// </summary>
+        internal static string SqlNodeDisableLoginSQL {
+            get {
+                return ResourceManager.GetString("SqlNodeDisableLoginSQL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Done creating {0}. Took {1} s..
         /// </summary>
         internal static string SqlNodeDoneCreatingDBDebugMessage {
