@@ -13,7 +13,8 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
-
+    using System.Linq;
+    
     /// <summary>
     /// Callback used to iterate all droplet instances.
     /// </summary>
@@ -157,10 +158,7 @@ namespace Uhuru.CloudFoundry.DEA
                     this.Lock.ExitReadLock();
                 }
 
-                foreach (DropletInstance instance in ephemeralInstances)
-                {
-                    doThat(instance);
-                }
+                ephemeralInstances.AsParallel().ForAll(instance => doThat(instance));
             }
             else
             {

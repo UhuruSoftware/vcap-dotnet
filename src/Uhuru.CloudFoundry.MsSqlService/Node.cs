@@ -24,35 +24,119 @@ namespace Uhuru.CloudFoundry.MSSqlService
     /// </summary>
     public partial class Node : NodeBase
     {
-        private const int KEEP_ALIVE_INTERVAL = 15000;
-        private const int LONG_QUERY_INTERVAL = 1;
-        private const int STORAGE_QUOTA_INTERVAL = 1;
+        /// <summary>
+        /// Interval at which the database connection is used so it doesn't die.
+        /// </summary>
+        private const int KeepAliveInterval = 15000;
 
+        /// <summary>
+        /// Interval at which to verify storage quotas.
+        /// </summary>
+        private const int StorageQuotaInterval = 1000;
+
+        /// <summary>
+        /// COnfiguration options for the SQL Server.
+        /// </summary>
         private MSSqlOptions mssqlConfig;
+        
+        /// <summary>
+        /// The maximum database size, in bytes.
+        /// </summary>
         private int maxDbSize;
+
+        /// <summary>
+        /// The maximum duration for a query.
+        /// </summary>
         private int maxLongQuery;
+
+        /// <summary>
+        /// The maximum duration for a transaction.
+        /// </summary>
         private int maxLongTx;
-        SqlConnection connection;
+        
+        /// <summary>
+        /// This is the SQL server connection used to do things on the server.
+        /// </summary>
+        private SqlConnection connection;
+
+        /// <summary>
+        /// The base directory for this service.
+        /// </summary>
         private string baseDir;
+
+        /// <summary>
+        /// Current available storage on the node.
+        /// </summary>
         private int availableStorage;
+
+        /// <summary>
+        /// Maximum storage on the node.
+        /// </summary>
         private int nodeCapacity;
+        
+        /// <summary>
+        /// Number of queries served by the node.
+        /// </summary>
         private int queriesServed;
+
+        /// <summary>
+        /// Indicates when was the last queries/second metric snapshot taken.
+        /// </summary>
         private DateTime qpsLastUpdated;
+
+        /// <summary>
+        /// Number of long queries that were killed by the node.
+        /// </summary>
         private int longQueriesKilled;
+
+        /// <summary>
+        /// Number of long transactions that were killed by the node.
+        /// </summary>
         private int longTxKilled;
+
+        /// <summary>
+        /// Number of database provision requests served by the node.
+        /// </summary>
         private int provisionServed;
+
+        /// <summary>
+        /// Number of binding requests served by the node.
+        /// </summary>
         private int bindingServed;
+
+        /// <summary>
+        /// Local machine IP used by the service.
+        /// </summary>
         private string localIp;
         
         /// <summary>
-        /// Gets the service name.
+        /// Gets any service-specific announcement details.
         /// </summary>
-        /// <returns>
-        /// "MssqlaaS"
-        /// </returns>
-        protected override string ServiceName()
+        protected override Announcement AnnouncementDetails
         {
-            return "MssqlaaS";
+            get
+            {
+                Announcement a = new Announcement();
+                a.AvailableStorage = this.availableStorage;
+                return a;
+            }
+        }
+
+        /// <summary>
+        /// Gets the connection string used to connect to the SQL Server.
+        /// </summary>
+        private string ConnectionString
+        {
+            get
+            {
+                return string.Format(
+                    CultureInfo.InvariantCulture,
+                    Strings.SqlNodeConnectionString,
+                    this.mssqlConfig.Host,
+                    this.mssqlConfig.Port,
+                    this.mssqlConfig.User,
+                    this.mssqlConfig.Password);
+            }
         }
 
         /// <summary>
@@ -68,177 +152,268 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
-        /// <param name="msSqlOptions">The MS SQL Server options.</param>
-        public void Start(Options options, MSSqlOptions msSqlOptions)
+        /// <param name="sqlOptions">The MS SQL Server options.</param>
+        public void Start(Options options, MSSqlOptions sqlOptions)
         {
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
-            if (msSqlOptions == null)
+
+            if (sqlOptions == null)
             {
-                throw new ArgumentNullException("msSqlOptions");
+                throw new ArgumentNullException("sqlOptions");
             }
 
-            this.mssqlConfig = msSqlOptions;
+            this.mssqlConfig = sqlOptions;
             this.maxDbSize = options.MaxDBSize * 1024 * 1024;
             this.maxLongQuery = options.MaxLengthyQuery;
             this.maxLongTx = options.MaxLengthyTX;
             this.localIp = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
-            this.connection = mssql_connect();
+            this.connection = this.ConnectMSSql();
 
-            TimerHelper.RecurringCall(KEEP_ALIVE_INTERVAL, delegate()
-            {
-                mssql_keep_alive();
-            });
-
-            if (maxLongQuery > 0)
-            {
-                TimerHelper.RecurringCall(maxLongQuery / 2, delegate()
+            TimerHelper.RecurringCall(
+                KeepAliveInterval,
+                delegate
                 {
-                    kill_long_queries();
+                    this.KeepAliveMSSql();
                 });
+
+            if (this.maxLongQuery > 0)
+            {
+                TimerHelper.RecurringCall(
+                    this.maxLongQuery / 2,
+                    delegate
+                    {
+                        this.KillLongQueries();
+                    });
             }
 
             if (this.maxLongTx > 0)
             {
-                TimerHelper.RecurringCall(this.maxLongTx / 2, delegate()
-                {
-                    mssql_keep_alive();
-                });
+                TimerHelper.RecurringCall(
+                    this.maxLongTx / 2,
+                    delegate
+                    {
+                        this.KillLongTransactions();
+                    });
+            }
+            else
+            {
+                Logger.Info(Strings.LongTXKillerDisabledInfoMessage);
             }
 
-            TimerHelper.RecurringCall(STORAGE_QUOTA_INTERVAL, delegate()
-            {
-                enforce_storage_quota();
-            });
+            TimerHelper.RecurringCall(
+                StorageQuotaInterval,
+                delegate
+                {
+                    this.EnforceStorageQuota();
+                });
 
             this.baseDir = options.BaseDir;
-            if (!string.IsNullOrEmpty(baseDir))
+            if (!string.IsNullOrEmpty(this.baseDir))
             {
-                Directory.CreateDirectory(baseDir);
+                Directory.CreateDirectory(this.baseDir);
             }
 
             ProvisionedService.Initialize(options.LocalDB);
 
-            check_db_consistency();
+            this.CheckDBConsistency();
 
             this.availableStorage = options.AvailableStorage * 1024 * 1024;
             this.nodeCapacity = this.availableStorage;
 
             foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
             {
-                this.availableStorage -= storage_for_service(provisioned_service);
+                this.availableStorage -= this.StorageForService(provisioned_service);
             }
 
             this.queriesServed = 0;
             this.qpsLastUpdated = DateTime.Now;
+
             // initialize qps counter
-            this.get_qps();
+            this.GetQPS();
             this.longQueriesKilled = 0;
             this.longTxKilled = 0;
             this.provisionServed = 0;
             this.bindingServed = 0;
             this.Start(options);
-
         }
 
         /// <summary>
-        /// Gets any service-specific announcement details.
+        /// Restore a given instance using backup file.
         /// </summary>
-        protected override Announcement AnnouncementDetails
+        /// <param name="instanceId">The instance id.</param>
+        /// <param name="backupPath">The backup path.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool Restore(string instanceId, string backupPath)
         {
-            get
-            {
-                Announcement a = new Announcement();
-                a.AvailableStorage = this.availableStorage;
-                return a;
-            }
+            // todo: vladi: implement this
+            return false;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        private void check_db_consistency()
+        /// <summary>
+        /// This methos disables all credentials and kills user sessions.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credentials.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials)
         {
-            // method present in mysql and postgresql
-            //todo: vladi: this should be replaced with ms sql server code
+            // todo: vladi: Replace with code for odbc object for SQL Server
+            return false;
         }
 
-        private int storage_for_service(ProvisionedService provisioned_service)
+        /// <summary>
+        /// Dumps database content into a given path.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path where to dump the service.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath)
         {
-            switch (provisioned_service.Plan)
-            {
-                case ProvisionedServicePlanType.Free: return maxDbSize;
-                default: throw new MSSqlError(MSSqlError.MSSqlInvalidPlan, provisioned_service.Plan.ToString());
-            }
+            // todo: vladi: Replace with code for odbc object for SQL Server
+            return false;
         }
 
-        private string ConnectionString
+        /// <summary>
+        /// Imports an instance from a path.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="filePath">The file path from which to import the service.</param>
+        /// <param name="plan">The payment plan.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan)
         {
-            get
-            {
-                return String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeConnectionString, 
-                    mssqlConfig.Host, mssqlConfig.Port, mssqlConfig.User, mssqlConfig.Password);
-            }
+            // todo: vladi: Replace with code for odbc object for SQL Server
+            return false;
         }
 
-        private SqlConnection mssql_connect()
+        /// <summary>
+        /// Re-enables the instance, re-binds credentials.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credential.</param>
+        /// <param name="bindingCredentialsHash">The binding credentials hash.</param>
+        /// <returns>
+        /// A bool indicating whether the request was successful.
+        /// </returns>
+        protected override bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash)
         {
-            for (int i = 0; i < 5; i++)
-            {
-                connection = new SqlConnection(ConnectionString);
-
-                try
-                {
-                    connection.Open();
-                    return connection;
-                }
-                catch (InvalidOperationException)
-                {
-                }
-                catch (SqlException)
-                {
-                }
-                Thread.Sleep(5000);
-            }
-
-            Logger.Fatal(Strings.SqlNodeConnectionUnrecoverableFatalMessage);
-            Shutdown();
-            Process.GetCurrentProcess().Kill();
-            return null;
+            // todo: vladi: Replace with code for odbc object for SQL Server
+            return false;
         }
 
-        //keep connection alive, and check db liveness
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-        private void mssql_keep_alive()
+        /// <summary>
+        /// Gets varz details about the SQL Server Node.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing varz details.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        protected override Dictionary<string, object> VarzDetails()
         {
-            // present in both mysql and postgresql
+            Logger.Debug(Strings.SqlNodeGenerateVarzDebugMessage);
+            Dictionary<string, object> varz = new Dictionary<string, object>();
             try
             {
-                using (SqlCommand cmd = new SqlCommand(Strings.SqlNodeKeepAliveSQL, connection))
+                // how many queries served since startup
+                varz["queries_since_startup"] = this.GetQueriesStatus();
+
+                // queries per second
+                varz["queries_per_second"] = this.GetQPS();
+                
+                // disk usage per instance
+                object[] status = this.GetInstanceStatus();
+                varz["database_status"] = status;
+                
+                // node capacity
+                varz["node_storage_capacity"] = this.nodeCapacity;
+                
+                varz["node_storage_used"] = this.nodeCapacity - this.availableStorage;
+                
+                // how many long queries and long txs are killed.
+                varz["long_queries_killed"] = this.longQueriesKilled;
+                
+                varz["long_transactions_killed"] = this.longTxKilled;
+                
+                // how many provision/binding operations since startup.
+                varz["provision_served"] = this.provisionServed;
+                
+                varz["binding_served"] = this.bindingServed;
+                return varz;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.ToString());
+                return new Dictionary<string, object>();
+            }
+        }
+
+        /// <summary>
+        /// Gets healthz details about the SQL Server Node.
+        /// </summary>
+        /// <returns>
+        /// A dictionary containing healthz details.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        protected override Dictionary<string, string> HealthzDetails()
+        {
+            Dictionary<string, string> healthz = new Dictionary<string, string>()
+            {
+                { "self", "ok" }
+            };
+
+            try
+            {
+                using (SqlCommand readDatabases = new SqlCommand("SELECT name FROM master..sysdatabases", this.connection))
                 {
-                    cmd.ExecuteScalar();
+                    using (SqlDataReader reader = readDatabases.ExecuteReader())
+                    {
+                        reader.Read();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warning(Strings.SqlNodeConnectionLostWarningMessage, ex.ToString());
-                connection = mssql_connect();
+                Logger.Error(Strings.ErrorGettingDBListErrorMessage, ex.ToString());
+                healthz["self"] = "fail";
+                return healthz;
             }
+
+            try
+            {
+                foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+                {
+                    healthz[instance.Name] = this.GetInstanceHealthz(instance);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(Strings.ErrorGettingInstanceListErrorMessage, ex.ToString());
+                healthz["self"] = "fail";
+            }
+
+            return healthz;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        private void kill_long_queries()
+        /// <summary>
+        /// Gets the service name.
+        /// </summary>
+        /// <returns>The service name for the MS SQL Node is 'MssqlaaS'</returns>
+        protected override string ServiceName()
         {
-            //present in both mysql and postgresql
-            //todo: vladi: implement this
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        private void kill_long_transaction()
-        {
-            //present in both mysql and postgresql
-            //todo: vladi: implement this
+            return "MssqlaaS";
         }
 
         /// <summary>
@@ -281,25 +456,25 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     provisioned_service.Name = "D4Ta" + Guid.NewGuid().ToString("N");
                     provisioned_service.User = "US3r" + Credentials.GenerateCredential();
                     provisioned_service.Password = "P4Ss" + Credentials.GenerateCredential();
-
                 }
+
                 provisioned_service.Plan = plan;
 
-                create_database(provisioned_service);
+                this.CreateDatabase(provisioned_service);
 
                 if (!ProvisionedService.Save())
                 {
                     Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, provisioned_service.SerializeToJson());
-                    throw new MSSqlError(MSSqlError.MSSqlLocalDBError);
+                    throw new MSSqlErrorException(MSSqlErrorException.MSSqlLocalDBError);
                 }
 
-                ServiceCredentials response = gen_credential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password);
-                provisionServed += 1;
+                ServiceCredentials response = this.GenerateCredential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password);
+                this.provisionServed += 1;
                 return response;
             }
             catch (Exception)
             {
-                delete_database(provisioned_service);
+                this.DeleteDatabase(provisioned_service);
                 throw;
             }
         }
@@ -312,21 +487,21 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <returns>
         /// A boolean specifying whether the unprovision request was successful.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         protected override bool Unprovision(string name, ServiceCredentials[] bindings)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
             {
                 return false;
             }
 
-            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson((bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray())));
+            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray()));
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
 
             if (provisioned_service == null)
             {
-                throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
+                throw new MSSqlErrorException(MSSqlErrorException.MSSqlConfigNotFound, name);
             }
 
             // TODO: validate that database files are not lingering
@@ -337,7 +512,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 {
                     foreach (ServiceCredentials credential in bindings)
                     {
-                        Unbind(credential);
+                        this.Unbind(credential);
                     }
                 }
             }
@@ -346,14 +521,14 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 // ignore
             }
 
-            delete_database(provisioned_service);
-            int storage = storage_for_service(provisioned_service);
+            this.DeleteDatabase(provisioned_service);
+            int storage = this.StorageForService(provisioned_service);
             this.availableStorage += storage;
 
             if (!provisioned_service.Destroy())
             {
                 Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
-                throw new MSSqlError(MSSqlError.MSSqlLocalDBError);
+                throw new MSSqlErrorException(MSSqlErrorException.MSSqlLocalDBError);
             }
 
             Logger.Debug(Strings.SqlNodeUnprovisionSuccessDebugMessage, name);
@@ -391,8 +566,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 ProvisionedService service = ProvisionedService.GetService(name);
                 if (service == null)
                 {
-                    throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
+                    throw new MSSqlErrorException(MSSqlErrorException.MSSqlConfigNotFound, name);
                 }
+
                 // create new credential for binding
                 binding = new Dictionary<string, object>();
 
@@ -406,21 +582,23 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     binding["user"] = "US3R" + Credentials.GenerateCredential();
                     binding["password"] = "P4SS" + Credentials.GenerateCredential();
                 }
+
                 binding["bind_opts"] = bindOptions;
 
-                create_database_user(name, binding["user"] as string, binding["password"] as string);
-                ServiceCredentials response = gen_credential(name, binding["user"] as string, binding["password"] as string);
+                this.CreateDatabaseUser(name, binding["user"] as string, binding["password"] as string);
+                ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string);
 
                 Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
-                bindingServed += 1;
+                this.bindingServed += 1;
                 return response;
             }
             catch (Exception)
             {
                 if (binding != null)
                 {
-                    delete_database_user(binding["user"] as string);
+                    this.DeleteDatabaseUser(binding["user"] as string);
                 }
+
                 throw;
             }
         }
@@ -432,7 +610,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <returns>
         /// A bool indicating whether the unbind request was successful.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "password"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "bind_opts")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file.")]
         protected override bool Unbind(ServiceCredentials credentials)
         {
             if (credentials == null)
@@ -442,50 +620,156 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.SerializeToJson());
 
-            string name = credentials.Name;
             string user = credentials.User;
-            Dictionary<string, object> bind_opts = credentials.BindOptions;
-            string password = credentials.Password;
+            string databaseName = credentials.Name;
 
-            ProvisionedService service = ProvisionedService.GetService(name);
-            if (service == null)
+            using (SqlConnection databaseConnection = new SqlConnection(this.ConnectionString))
             {
-                throw new MSSqlError(MSSqlError.MSSqlConfigNotFound, name);
+                databaseConnection.Open();
+                databaseConnection.ChangeDatabase(databaseName);
+
+                using (SqlCommand cmdUserExists = new SqlCommand(string.Format(CultureInfo.InvariantCulture, "select count(*) from sys.sysusers where name=N'{0}'", user), databaseConnection))
+                {
+                    int userCount = (int)cmdUserExists.ExecuteScalar();
+                    if (userCount != 1)
+                    {
+                        throw new MSSqlErrorException(MSSqlErrorException.MSSqlCredentialsNotFound, user);
+                    }
+                }
             }
-            //todo: vladi: implement this on windows
-            // validate the existence of credential, in case we delete a normal account because of a malformed credential
-            //res = @connection.select_all("SELECT * from mssql.user WHERE user='#{user}' AND password=PASSWORD('#{passwd}')")
-            //raise MsSqlError.new(MsSqlError::MSSQL_CRED_NOT_FOUND, credential.inspect) if res.num_rows()<=0
-            delete_database_user(user);
+
+            this.DeleteDatabaseUser(user);
             return true;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        private void create_database(ProvisionedService provisioned_service)
+        /// <summary>
+        /// Checks local database consistency.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        private void CheckDBConsistency()
         {
-            string name = provisioned_service.Name;
-            string password = provisioned_service.Password;
-            string user = provisioned_service.User;
+            // method present in mysql and postgresql
+            // todo: vladi: this should be replaced with ms sql server code
+        }
+
+        /// <summary>
+        /// Returns storage capacity based on billing plan.
+        /// </summary>
+        /// <param name="provisionedService">The provisioned service.</param>
+        /// <returns>The storage quota in megabytes.</returns>
+        private int StorageForService(ProvisionedService provisionedService)
+        {
+            switch (provisionedService.Plan)
+            {
+                case ProvisionedServicePlanType.Free: return this.maxDbSize;
+                default: throw new MSSqlErrorException(MSSqlErrorException.MSSqlInvalidPlan, provisionedService.Plan.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Connects to the MS SQL database.
+        /// </summary>
+        /// <returns>An open sql connection.</returns>
+        private SqlConnection ConnectMSSql()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                this.connection = new SqlConnection(this.ConnectionString);
+
+                try
+                {
+                    this.connection.Open();
+                    return this.connection;
+                }
+                catch (InvalidOperationException)
+                {
+                }
+                catch (SqlException)
+                {
+                }
+
+                Thread.Sleep(5000);
+            }
+
+            Logger.Fatal(Strings.SqlNodeConnectionUnrecoverableFatalMessage);
+            Shutdown();
+            Process.GetCurrentProcess().Kill();
+            return null;
+        }
+
+        /// <summary>
+        /// Keep connection alive, and check db liveliness
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        private void KeepAliveMSSql()
+        {
+            // present in both mysql and postgresql
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand(Strings.SqlNodeKeepAliveSQL, this.connection))
+                {
+                    cmd.ExecuteScalar();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(Strings.SqlNodeConnectionLostWarningMessage, ex.ToString());
+                this.connection = this.ConnectMSSql();
+            }
+        }
+
+        /// <summary>
+        /// Kills long queries.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        private void KillLongQueries()
+        {
+            // present in both mysql and postgresql
+            // todo: vladi: implement this
+        }
+
+        /// <summary>
+        /// Kills long transactions.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        private void KillLongTransactions()
+        {
+            // present in both mysql and postgresql
+            // todo: vladi: implement this
+        }
+
+        /// <summary>
+        /// Creates the database.
+        /// </summary>
+        /// <param name="provisionedService">The provisioned service for which a database has to be created.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        private void CreateDatabase(ProvisionedService provisionedService)
+        {
+            string name = provisionedService.Name;
+            string password = provisionedService.Password;
+            string user = provisionedService.User;
 
             try
             {
                 DateTime start = DateTime.Now;
-                Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisioned_service.SerializeToJson());
+                Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                using (SqlCommand createDBCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), connection))
+                using (SqlCommand createDBCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), this.connection))
                 {
                     createDBCommand.ExecuteNonQuery();
                 }
 
-                create_database_user(name, user, password);
-                int storage = storage_for_service(provisioned_service);
+                this.CreateDatabaseUser(name, user, password);
+                int storage = this.StorageForService(provisionedService);
                 if (this.availableStorage < storage)
                 {
-                    throw new MSSqlError(MSSqlError.MSSqlDiskFull);
+                    throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
                 }
 
                 this.availableStorage -= storage;
-                Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisioned_service.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
+                Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
             {
@@ -493,30 +777,35 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-        private void create_database_user(string name, string user, string password)
+        /// <summary>
+        /// Creates a database user.
+        /// </summary>
+        /// <param name="name">The name of the database.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="password">The password.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file.")]
+        private void CreateDatabaseUser(string name, string user, string password)
         {
             Logger.Info(Strings.SqlNodeCreatingCredentialsInfoMessage, user, password, name);
             
-
             using (TransactionScope ts = new TransactionScope())
             {
-                using (SqlCommand cmdCreateLogin = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateLoginSQL, user, password), connection))
+                using (SqlCommand cmdCreateLogin = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateLoginSQL, user, password), this.connection))
                 {
                     cmdCreateLogin.ExecuteNonQuery();
                 }
 
-                using (SqlConnection dbConnection = new SqlConnection(ConnectionString))
+                using (SqlConnection databaseConnection = new SqlConnection(this.ConnectionString))
                 {
-                    dbConnection.Open();
-                    dbConnection.ChangeDatabase(name);
+                    databaseConnection.Open();
+                    databaseConnection.ChangeDatabase(name);
 
-                    using (SqlCommand cmdCreateUser = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateUserSQL, user), dbConnection))
+                    using (SqlCommand cmdCreateUser = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateUserSQL, user), databaseConnection))
                     {
                         cmdCreateUser.ExecuteNonQuery();
                     }
 
-                    using (SqlCommand cmdAddRoleMember = new SqlCommand("sp_addrolemember", dbConnection))
+                    using (SqlCommand cmdAddRoleMember = new SqlCommand("sp_addrolemember", databaseConnection))
                     {
                         cmdAddRoleMember.CommandType = CommandType.StoredProcedure;
                         cmdAddRoleMember.Parameters.Add("@rolename", SqlDbType.NVarChar).Value = "db_owner";
@@ -524,31 +813,39 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         cmdAddRoleMember.ExecuteNonQuery();
                     }
                 }
+
                 ts.Complete();
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        private void delete_database(ProvisionedService provisioned_service)
+        /// <summary>
+        /// Deletes a database.
+        /// </summary>
+        /// <param name="provisionedService">The provisioned service for which the database needs to be deleted.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        private void DeleteDatabase(ProvisionedService provisionedService)
         {
-            string name = provisioned_service.Name;
-            string user = provisioned_service.User;
+            string name = provisionedService.Name;
+            string user = provisionedService.User;
 
             try
             {
-                delete_database_user(user);
+                this.DeleteDatabaseUser(user);
                 Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
                 using (TransactionScope ts = new TransactionScope())
                 {
-                    using (SqlCommand takeOfflineCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeTakeDBOfflineSQL, name), connection))
+                    using (SqlCommand takeOfflineCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeTakeDBOfflineSQL, name), this.connection))
                     {
                         takeOfflineCommand.ExecuteNonQuery();
                     }
-                    using (SqlCommand dropDatabaseCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropDatabaseSQL, name), connection))
+
+                    using (SqlCommand dropDatabaseCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropDatabaseSQL, name), this.connection))
                     {
                         dropDatabaseCommand.ExecuteNonQuery();
                     }
+
                     ts.Complete();
                 }
             }
@@ -558,17 +855,22 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        private void delete_database_user(string user)
+        /// <summary>
+        /// Deletes a database user.
+        /// </summary>
+        /// <param name="user">The user that has to be deleted.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        private void DeleteDatabaseUser(string user)
         {
             Logger.Info(Strings.SqlNodeDeleteUserInfoMessage, user);
             try
             {
-                ////Disable the login before kill the users session. So that other connections cannot be made between the killing
-                ////of user sessions and dropping the login.
+                // Disable the login before kill the users session. So that other connections cannot be made between the killing
+                // of user sessions and dropping the login.
                 using (TransactionScope ts = new TransactionScope())
                 {
-                    using (SqlCommand disableLoginCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDisableLoginSQL, user), connection))
+                    using (SqlCommand disableLoginCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDisableLoginSQL, user), this.connection))
                     {
                         disableLoginCommand.ExecuteNonQuery();
                     }
@@ -576,11 +878,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     ts.Complete();
                 }
 
-                kill_user_session(user);
+                this.KillUserSession(user);
 
                 using (TransactionScope ts = new TransactionScope())
                 {
-                    using (SqlCommand dropLoginCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), connection))
+                    using (SqlCommand dropLoginCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), this.connection))
                     {
                         dropLoginCommand.ExecuteNonQuery();
                     }
@@ -594,20 +896,23 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
         }
 
-        // end active sessions for USER, to be able to drop the table
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
-        private void kill_user_session(string user)
+        /// <summary>
+        /// Ends active sessions for USER, to be able to drop the database.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file.")]
+        private void KillUserSession(string user)
         {
             using (TransactionScope ts = new TransactionScope())
             {
-                using (SqlCommand sessionsToKillCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeGetUserSessionsSQL, user), connection))
+                using (SqlCommand sessionsToKillCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeGetUserSessionsSQL, user), this.connection))
                 {
                     SqlDataReader sessionsToKill = sessionsToKillCommand.ExecuteReader();
 
                     while (sessionsToKill.Read())
                     {
                         int sessionId = sessionsToKill.GetInt16(0);
-                        using (SqlCommand killSessionCommand = new SqlCommand(String.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, sessionId), connection))
+                        using (SqlCommand killSessionCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, sessionId), this.connection))
                         {
                             killSessionCommand.ExecuteNonQuery();
                         }
@@ -615,163 +920,73 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                     sessionsToKill.Close();
                 }
+
                 ts.Complete();
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "database"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        private void kill_database_session(string database)
-        {
-            //todo: vladi: implement this
-        }
-
         /// <summary>
-        /// Restore a given instance using backup file.
+        /// Gets the instance health by checking if metadata can be retrieved.
         /// </summary>
-        /// <param name="instanceId">The instance id.</param>
-        /// <param name="backupPath">The backup path.</param>
-        /// <returns>
-        /// A bool indicating whether the request was successful.
-        /// </returns>
-        protected override bool Restore(string instanceId, string backupPath)
+        /// <param name="instance">The instance for which to get health status</param>
+        /// <returns>A string that indicates whether the instance is healthy or not ("ok" / "fail")</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        private string GetInstanceHealthz(ProvisionedService instance)
         {
-            //todo: vladi: implement this
-            return false;
-        }
+            string res = "ok";
 
-        /// <summary>
-        /// This methos disables all credentials and kills user sessions.
-        /// </summary>
-        /// <param name="provisionedCredential">The provisioned credentials.</param>
-        /// <param name="bindingCredentials">The binding credentials.</param>
-        /// <returns>
-        /// A bool indicating whether the request was successful.
-        /// </returns>
-        protected override bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials)
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
-        }
-
-        /// <summary>
-        /// Dumps database content into a given path.
-        /// </summary>
-        /// <param name="provisionedCredential">The provisioned credential.</param>
-        /// <param name="bindingCredentials">The binding credentials.</param>
-        /// <param name="filePath">The file path where to dump the service.</param>
-        /// <returns>
-        /// A bool indicating whether the request was successful.
-        /// </returns>
-        protected override bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath)
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
-        }
-
-        /// <summary>
-        /// Imports an instance from a path.
-        /// </summary>
-        /// <param name="provisionedCredential">The provisioned credential.</param>
-        /// <param name="bindingCredentials">The binding credentials.</param>
-        /// <param name="filePath">The file path from which to import the service.</param>
-        /// <param name="plan">The payment plan.</param>
-        /// <returns>
-        /// A bool indicating whether the request was successful.
-        /// </returns>
-        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan)
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
-        }
-
-        /// <summary>
-        /// Re-enables the instance, re-binds credentials.
-        /// </summary>
-        /// <param name="provisionedCredential">The provisioned credential.</param>
-        /// <param name="bindingCredentialsHash">The binding credentials hash.</param>
-        /// <returns>
-        /// A bool indicating whether the request was successful.
-        /// </returns>
-        protected override bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash)
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
-        }
-
-        /// <summary>
-        /// Gets varz details about the SQL Server Node.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing varz details.
-        /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        protected override Dictionary<string, object> VarzDetails()
-        {
-            Logger.Debug(Strings.SqlNodeGenerateVarzDebugMessage);
-            Dictionary<string, object> varz = new Dictionary<string, object>();
             try
             {
-                // how many queries served since startup
-                varz["queries_since_startup"] = get_queries_status();
-                // queries per second
-                varz["queries_per_second"] = get_qps();
-                // disk usage per instance
-                object[] status = get_instance_status();
-                varz["database_status"] = status;
-                // node capacity
-                varz["node_storage_capacity"] = this.nodeCapacity;
-                varz["node_storage_used"] = this.nodeCapacity - this.availableStorage;
-                // how many long queries and long txs are killed.
-                varz["long_queries_killed"] = longQueriesKilled;
-                varz["long_transactions_killed"] = longTxKilled;
-                // how many provision/binding operations since startup.
-                varz["provision_served"] = provisionServed;
-                varz["binding_served"] = bindingServed;
-                return varz;
+                string instanceConnectionString = string.Format(
+                    CultureInfo.InvariantCulture,
+                    Strings.SqlNodeConnectionString,
+                    this.mssqlConfig.Host,
+                    this.mssqlConfig.Port,
+                    instance.User,
+                    this.mssqlConfig.Password);
+
+                using (SqlConnection databaseConnection = new SqlConnection(instanceConnectionString))
+                {
+                    databaseConnection.Open();
+                    databaseConnection.ChangeDatabase(instance.Name);
+
+                    using (SqlCommand readDatabases = new SqlCommand("SELECT name from sys.tables", this.connection))
+                    {
+                        using (SqlDataReader reader = readDatabases.ExecuteReader())
+                        {
+                            reader.Read();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.ToString());
-                return new Dictionary<string, object>();
+                Logger.Warning(Strings.ErrorGettingDBTablesWarningMessage, instance.Name, ex.ToString());
+                res = "fail";
             }
-        }
 
-        /// <summary>
-        /// Gets healthz details about the SQL Server Node.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing healthz details.
-        /// </returns>
-        protected override Dictionary<string, string> HealthzDetails()
-        {
-            //todo: vladi: Replace with code for odbc object for SQL Server
-            Dictionary<string, string> healthz = new Dictionary<string, string>()
-            {
-                {"self", "ok"}
-            };
-
-            return healthz;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "instance"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        private string get_instance_healthz(ServiceCredentials instance)
-        {
-            //todo: vladi: implement this
-            string res = "ok";
             return res;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        private int get_queries_status()
+        /// <summary>
+        /// Gets the number of queries executed by the SQL Server.
+        /// </summary>
+        /// <returns>The number of queries.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        private int GetQueriesStatus()
         {
-            //todo: vladi: implement this
+            // todo: vladi: implement this
             return 0;
         }
 
-        private double get_qps()
+        /// <summary>
+        /// Gets the Queries/Second metric.
+        /// </summary>
+        /// <returns>A double containing the number of queries per second executed by the SQL server.</returns>
+        private double GetQPS()
         {
             Logger.Debug(Strings.SqlNodeCalculatingQPSDebugMessage);
-            int queries = get_queries_status();
+            int queries = this.GetQueriesStatus();
             DateTime ts = DateTime.Now;
 
             double delta_t = (ts - this.qpsLastUpdated).TotalSeconds;
@@ -783,24 +998,34 @@ namespace Uhuru.CloudFoundry.MSSqlService
             return qps;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-        private object[] get_instance_status()
+        /// <summary>
+        /// Gets instance status, to be used in a varz message.
+        /// </summary>
+        /// <returns>An array containing the status of each instance.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        private object[] GetInstanceStatus()
         {
-            //todo: vladi: implement this
+            // todo: vladi: implement this
             return new object[0];
         }
 
-        private ServiceCredentials gen_credential(string name, string user, string passwd)
+        /// <summary>
+        /// Creates a <see cref="ServiceCredentials"/> object using a database name, a username and a password.
+        /// </summary>
+        /// <param name="name">The name of the database.</param>
+        /// <param name="user">The user.</param>
+        /// <param name="password">The password.</param>
+        /// <returns>A ServiceCredentials object.</returns>
+        private ServiceCredentials GenerateCredential(string name, string user, string password)
         {
             ServiceCredentials response = new ServiceCredentials();
 
             response.Name = name;
-            response.HostName = localIp;
-            response.HostName = localIp;
-            response.Port = mssqlConfig.Port;
+            response.HostName = this.localIp;
+            response.Port = this.mssqlConfig.Port;
             response.User = user;
             response.UserName = user;
-            response.Password = passwd;
+            response.Password = password;
 
             return response;
         }
