@@ -290,7 +290,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
             }
             foreach (string uri in umbracoUris)
             {
@@ -339,7 +339,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     sb.AppendLine(ex.ToString());
                 }
-                Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
+                Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
             }
         }
 
