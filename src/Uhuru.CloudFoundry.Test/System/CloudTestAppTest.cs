@@ -44,10 +44,6 @@ namespace Uhuru.CloudFoundry.Test.System
 
             foreach (App app in client.Apps())
             {
-                if (!String.IsNullOrEmpty(app.Services))
-                {
-                    client.UnbindService(app.Name, app.Services);
-                }
                 client.DeleteApp(app.Name);
             }
 
@@ -81,7 +77,12 @@ namespace Uhuru.CloudFoundry.Test.System
         [TestCleanup]
         public void TestCleanup()
         {
+            foreach (App app in client.Apps())
+            {
+                client.DeleteApp(app.Name);
+            }
             client.Logout();
+            Thread.Sleep(3000);
         }
 
         [TestMethod, TestCategory("System")]
