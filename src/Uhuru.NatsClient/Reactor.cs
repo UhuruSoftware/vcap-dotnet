@@ -857,19 +857,19 @@ namespace Uhuru.NatsClient
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
-            
+
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
-                ThreadPool.QueueUserWorkItem(delegate
-                {
-                    this.Unsubscribe(sid, 0);
-                });
+                this.Unsubscribe(sid, 0);
                 return;
             }
 
             if (nantsSubscription.Callback != null)
             {
-                nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
+                });
             }
 
             // Check for a timeout, and cancel if received >= expected
