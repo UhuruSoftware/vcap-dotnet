@@ -666,13 +666,21 @@ namespace Uhuru.NatsClient
                     localBuffer = new byte[this.readBuffer.Length];
                     Array.Copy(this.readBuffer, localBuffer, this.readBuffer.Length);
 
+                    // Connection may have been closed, check again
+                    if (((NetworkStream)result.AsyncState).CanRead)
+                    {
+                        ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
+                    }
+
                     this.ReceiveData(localBuffer, bytesRead);
                 }
-
-                // Connection may have been closed, check again
-                if (((NetworkStream)result.AsyncState).CanRead)
+                else
                 {
-                    ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
+                    // Connection may have been closed, check again
+                    if (((NetworkStream)result.AsyncState).CanRead)
+                    {
+                        ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
+                    }
                 }
             }
             catch (ArgumentNullException argumentNullException)
@@ -857,7 +865,7 @@ namespace Uhuru.NatsClient
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
-
+            
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
                 this.Unsubscribe(sid, 0);
@@ -866,11 +874,9 @@ namespace Uhuru.NatsClient
 
             if (nantsSubscription.Callback != null)
             {
-                ThreadPool.QueueUserWorkItem(delegate
-                {
-                    nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
-                });
+                nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
             }
+            
 
             // Check for a timeout, and cancel if received >= expected
             if (nantsSubscription.Timeout != null && nantsSubscription.Received >= 0)
