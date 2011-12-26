@@ -860,7 +860,10 @@ namespace Uhuru.NatsClient
             
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
-                this.Unsubscribe(sid, 0);
+                ThreadPool.QueueUserWorkItem(delegate
+                {
+                    this.Unsubscribe(sid, 0);
+                });
                 return;
             }
 
