@@ -666,21 +666,13 @@ namespace Uhuru.NatsClient
                     localBuffer = new byte[this.readBuffer.Length];
                     Array.Copy(this.readBuffer, localBuffer, this.readBuffer.Length);
 
-                    // Connection may have been closed, check again
-                    if (((NetworkStream)result.AsyncState).CanRead)
-                    {
-                        ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
-                    }
-
                     this.ReceiveData(localBuffer, bytesRead);
                 }
-                else
+
+                // Connection may have been closed, check again
+                if (((NetworkStream)result.AsyncState).CanRead)
                 {
-                    // Connection may have been closed, check again
-                    if (((NetworkStream)result.AsyncState).CanRead)
-                    {
-                        ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
-                    }
+                    ((NetworkStream)result.AsyncState).BeginRead(this.readBuffer, 0, this.readBuffer.Length, this.ReadTCPData, ((NetworkStream)result.AsyncState));
                 }
             }
             catch (ArgumentNullException argumentNullException)
