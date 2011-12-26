@@ -876,7 +876,6 @@ namespace Uhuru.NatsClient
             {
                 nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
             }
-            
 
             // Check for a timeout, and cancel if received >= expected
             if (nantsSubscription.Timeout != null && nantsSubscription.Received >= 0)
