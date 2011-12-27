@@ -54,6 +54,11 @@ namespace Uhuru.NatsClient
         private LimitedConcurrencyLevelTaskScheduler messageCallbackScheduler;
 
         /// <summary>
+        /// Used for creating OnMessage tasks.
+        /// </summary>
+        private TaskFactory messageCallbackFactory;
+
+        /// <summary>
         /// Dictionary containing all subscription 
         /// </summary>
         private Dictionary<int, Subscription> subscriptions = new Dictionary<int, Subscription>();
@@ -285,6 +290,10 @@ namespace Uhuru.NatsClient
 
             this.messageCallbackScheduler = new LimitedConcurrencyLevelTaskScheduler(1);
             
+            this.messageCallbackFactory = new TaskFactory(this.messageCallbackScheduler);
+
+            this.messageCallbackFactory.StartNew(() => Console.Write(string.Empty));
+
             this.serverUri = uri;
 
             this.tcpClient = new TcpClient();
@@ -873,12 +882,16 @@ namespace Uhuru.NatsClient
 
             if (nantsSubscription.Callback != null)
             {
-                TaskFactory factory = new TaskFactory(this.messageCallbackScheduler);
+                this.messageCallbackFactory.StartNew(
+                    () => 
+                        {
+                            if (!this.subscriptions.ContainsKey(sid))        
+                            {
+                                return;
+                            }
 
-                factory.StartNew(() =>
-                    {
-                        nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
-                    });
+                            nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
+                        });
             }
 
             // Check for a timeout, and cancel if received >= expected
