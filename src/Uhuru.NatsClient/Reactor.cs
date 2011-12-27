@@ -857,11 +857,10 @@ namespace Uhuru.NatsClient
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
-            
+
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
                 this.Unsubscribe(sid, 0);
-                return;
             }
 
             if (nantsSubscription.Callback != null)
