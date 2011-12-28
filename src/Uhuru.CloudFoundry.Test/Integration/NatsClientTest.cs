@@ -550,7 +550,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     natsClient.Unsubscribe(sid);
                 });
 
-                natsClient.Publish("foo", null, "xxx");
+                natsClient.Publish("foo", delegate() { }, "xxx");
                 natsClient.Publish("foo", delegate()
                 {
                     resetEvent.Set();
