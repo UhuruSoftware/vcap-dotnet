@@ -876,12 +876,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     }
 
                     ts.Complete();
-                }
 
-                this.KillUserSession(user);
+                    this.KillUserSession(user);
 
-                using (TransactionScope ts = new TransactionScope())
-                {
                     using (SqlCommand dropLoginCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), this.connection))
                     {
                         dropLoginCommand.ExecuteNonQuery();
