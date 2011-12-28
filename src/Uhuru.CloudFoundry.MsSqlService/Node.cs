@@ -943,7 +943,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     this.mssqlConfig.Host,
                     this.mssqlConfig.Port,
                     instance.User,
-                    this.mssqlConfig.Password);
+                    instance.Password);
 
                 using (SqlConnection databaseConnection = new SqlConnection(instanceConnectionString))
                 {
