@@ -160,7 +160,7 @@ namespace Uhuru.CloudFoundry.MSSqlService {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true.
+        ///   Looks up a localized string similar to Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true;Pooling=false.
         /// </summary>
         internal static string SqlNodeConnectionString {
             get {

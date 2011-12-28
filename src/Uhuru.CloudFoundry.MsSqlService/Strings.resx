@@ -151,7 +151,7 @@
     <value>MsSql connection lost: {0}</value>
   </data>
   <data name="SqlNodeConnectionString" xml:space="preserve">
-    <value>Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true</value>
+    <value>Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true;Pooling=false</value>
   </data>
   <data name="SqlNodeConnectionUnrecoverableFatalMessage" xml:space="preserve">
     <value>MsSql connection unrecoverable</value>
