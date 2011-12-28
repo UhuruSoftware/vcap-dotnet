@@ -875,8 +875,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         disableLoginCommand.ExecuteNonQuery();
                     }
 
-                    ts.Complete();
-
                     this.KillUserSession(user);
 
                     using (SqlCommand dropLoginCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), this.connection))
