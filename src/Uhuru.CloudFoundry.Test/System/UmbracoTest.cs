@@ -239,7 +239,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
         }
 
-        [TestMethod, Timeout(1000000), TestCategory("System"), Ignore]
+        [TestMethod, Timeout(1000000), TestCategory("System")]
         public void TC005_Create_10Parallel()
         {
             Dictionary<string, string> apps = new Dictionary<string, string>();
