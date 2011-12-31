@@ -758,7 +758,20 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 using (SqlCommand createDBCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), this.connection))
                 {
-                    createDBCommand.BeginExecuteNonQuery();
+                    createDBCommand.BeginExecuteNonQuery(
+                        (IAsyncResult asyncResult) =>
+                        {
+                            try
+                            {
+                                SqlCommand command = (SqlCommand)asyncResult.AsyncState;
+                                command.EndExecuteNonQuery(asyncResult);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.ToString());
+                            }
+                        },
+                        createDBCommand);
                 }
 
                 this.CreateDatabaseUser(name, user, password);
