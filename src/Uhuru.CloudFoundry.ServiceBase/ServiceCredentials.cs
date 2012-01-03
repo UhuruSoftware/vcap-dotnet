@@ -86,12 +86,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 lock (factoriesLock)
                 {
+                    this.name = value;
+
                     if (ServiceNamesInstances.ContainsKey(this.name))
                     {
                         ServiceNamesInstances[this.name].Remove(this.weakThis);
                     }
-
-                    this.name = value;
 
                     if (!ServiceNamesInstances.ContainsKey(this.name))
                     {
