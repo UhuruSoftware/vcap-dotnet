@@ -78,6 +78,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             set
             {
+                if (value == null)
+                {
+                    value = string.Empty;
+                }
+
                 lock (factoriesLock)
                 {
                     if (ServiceNamesInstances.ContainsKey(this.name))
