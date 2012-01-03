@@ -275,13 +275,10 @@ namespace Uhuru.CloudFoundry.Test.Integration
             object receivedCountLock = new object();
             int sid = 0;
 
-            AutoResetEvent resetEvent = new AutoResetEvent(false);
-
             Reactor natsClient = new Reactor();
             natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
-                resetEvent.Set();
             });
 
             natsClient.Start(natsEndpoint);
@@ -295,14 +292,13 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     {
                         natsClient.Unsubscribe(sid);
                     }
-                    resetEvent.Set();
                 }
             });
 
             natsClient.Publish("foo", () => { }, "xxx");
             natsClient.Publish("foo", () => { }, "xxx");
             natsClient.Publish("foo", () => { }, "xxx");
-            resetEvent.WaitOne(5000);
+            Thread.Sleep(5000);
             natsClient.Stop();
 
             Assert.IsFalse(errorThrown);
