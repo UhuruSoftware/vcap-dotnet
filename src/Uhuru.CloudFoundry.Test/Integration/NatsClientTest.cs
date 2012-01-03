@@ -295,9 +295,9 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 resetEvent.Set();
             });
 
-            natsClient.Publish("foo", null, "xxx");
-            natsClient.Publish("foo", null, "xxx");
-            natsClient.Publish("foo", null, "xxx");
+            natsClient.Publish("foo", () => { }, "xxx");
+            natsClient.Publish("foo", () => { }, "xxx");
+            natsClient.Publish("foo", () => { }, "xxx");
             resetEvent.WaitOne(5000);
             natsClient.Stop();
 
