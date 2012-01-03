@@ -272,6 +272,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             bool errorThrown = false;
             int receivedCount = 0;
+            object receivedCountLock = new object();
             int sid = 0;
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
@@ -287,12 +288,15 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             sid = natsClient.Subscribe("foo", delegate(string msg, string reply, string subject)
             {
-                receivedCount++;
-                if (receivedCount == 2)
+                lock (receivedCountLock)
                 {
-                    natsClient.Unsubscribe(sid);
+                    receivedCount++;
+                    if (receivedCount == 2)
+                    {
+                        natsClient.Unsubscribe(sid);
+                    }
+                    resetEvent.Set();
                 }
-                resetEvent.Set();
             });
 
             natsClient.Publish("foo", () => { }, "xxx");
