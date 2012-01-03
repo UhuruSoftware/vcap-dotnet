@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     using System;
     using System.Collections.Generic;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// A class that encapsulates a heartbeat message.

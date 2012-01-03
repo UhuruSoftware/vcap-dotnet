@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Linq;
     using System.Threading.Tasks;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class contains information about service credentials.

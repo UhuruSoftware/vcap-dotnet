@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Threading;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// This is the base class for all Cloud Foundry system services nodes.

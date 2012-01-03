@@ -22,6 +22,7 @@ namespace Uhuru.NatsClient
     using System.Threading.Tasks;
     using Uhuru.NatsClient.Resources;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// Delegate definition for a method to be called by the Reactor when a pong is received.

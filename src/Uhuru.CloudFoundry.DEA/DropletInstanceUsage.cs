@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulates all resource usage for a droplet instance.

@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// A class containing a set of data reflecting the status of a droplet instance.

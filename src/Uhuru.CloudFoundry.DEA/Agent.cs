@@ -18,6 +18,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     using Uhuru.Utilities.ProcessPerformance;
 
     /// <summary>
