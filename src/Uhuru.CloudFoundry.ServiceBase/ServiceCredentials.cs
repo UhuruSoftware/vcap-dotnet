@@ -168,8 +168,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 }
                 else
                 {
-                    LimitedConcurrencyLevelTaskScheduler scheduler = new LimitedConcurrencyLevelTaskScheduler(1);
-                    factory = new TaskFactory(scheduler);
+                    factory = new TaskFactory(TaskCreationOptions.LongRunning, TaskContinuationOptions.ExecuteSynchronously);
                     lock (factoriesLock)
                     {
                         servicesTaskFactories[this.Name] = factory;

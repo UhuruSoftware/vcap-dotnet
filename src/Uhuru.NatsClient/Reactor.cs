@@ -50,11 +50,6 @@ namespace Uhuru.NatsClient
     public sealed class Reactor : IDisposable
     {
         /// <summary>
-        /// Used for running message callbacks on a different thread.
-        /// </summary>
-        private LimitedConcurrencyLevelTaskScheduler messageCallbackScheduler;
-
-        /// <summary>
         /// Used for creating OnMessage tasks.
         /// </summary>
         private TaskFactory messageCallbackFactory;
@@ -289,9 +284,7 @@ namespace Uhuru.NatsClient
                 throw new ArgumentNullException("uri");
             }
 
-            this.messageCallbackScheduler = new LimitedConcurrencyLevelTaskScheduler(1);
-            
-            this.messageCallbackFactory = new TaskFactory(this.messageCallbackScheduler);
+            this.messageCallbackFactory = new TaskFactory(TaskCreationOptions.LongRunning, TaskContinuationOptions.ExecuteSynchronously);
 
             this.serverUri = uri;
 
