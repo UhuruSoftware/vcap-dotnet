@@ -439,25 +439,19 @@ namespace Uhuru.CloudFoundry.MSSqlService
         protected override ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credentials)
         {
             ProvisionedService provisioned_service = new ProvisionedService();
+            if (credentials == null)
+            {
+                throw new ArgumentNullException("credentials");
+            }
+
             try
             {
-                if (credentials != null)
-                {
-                    string name = credentials.Name;
-                    string user = credentials.User;
-                    string password = credentials.Password;
-                    provisioned_service.Name = name;
-                    provisioned_service.User = user;
-                    provisioned_service.Password = password;
-                }
-                else
-                {
-                    // mssql database name should start with alphabet character
-                    provisioned_service.Name = "D4Ta" + Guid.NewGuid().ToString("N");
-                    provisioned_service.User = "US3r" + Credentials.GenerateCredential();
-                    provisioned_service.Password = "P4Ss" + Credentials.GenerateCredential();
-                }
-
+                string name = credentials.Name;
+                string user = credentials.User;
+                string password = credentials.Password;
+                provisioned_service.Name = name;
+                provisioned_service.User = user;
+                provisioned_service.Password = password;
                 provisioned_service.Plan = plan;
 
                 this.CreateDatabase(provisioned_service);
@@ -477,6 +471,20 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 this.DeleteDatabase(provisioned_service);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Generates credentials for a new service instance that has to be provisioned.
+        /// </summary>
+        /// <returns>
+        /// Service credentials - name, user and password.
+        /// </returns>
+        protected override ServiceCredentials GenerateCredentials()
+        {
+            return this.GenerateCredential(
+                "D4Ta" + Guid.NewGuid().ToString("N"),
+                "US3r" + Credentials.GenerateCredential(),
+                "P4Ss" + Credentials.GenerateCredential());
         }
 
         /// <summary>
@@ -758,7 +766,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 using (SqlCommand createDBCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), this.connection))
                 {
-                    createDBCommand.BeginExecuteNonQuery();
+                    createDBCommand.ExecuteNonQuery();
                 }
 
                 this.CreateDatabaseUser(name, user, password);

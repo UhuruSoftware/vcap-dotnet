@@ -174,7 +174,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// Gets the avilable provisioned services.
+        /// Gets the available provisioned services.
         /// </summary>
         /// <returns>An array containing provisioned services.</returns>
         public static ProvisionedService[] GetInstances()

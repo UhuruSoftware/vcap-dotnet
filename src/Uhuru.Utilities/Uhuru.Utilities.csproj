@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LimitedConcurrencyLevelTaskScheduler.cs" />
     <Compile Include="PlatformTarget.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     
@@ -283,32 +284,43 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Logger.Debug(Strings.OnProvisionRequestDebugLogMessage, ServiceDescription(), msg, reply);
             ProvisionResponse response = new ProvisionResponse();
-            try
+            ProvisionRequest provision_req = new ProvisionRequest();
+
+            provision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+
+            ProvisionedServicePlanType plan = provision_req.Plan;
+            ServiceCredentials credentials = provision_req.Credentials;
+
+            if (credentials == null)
             {
-                ProvisionRequest provision_req = new ProvisionRequest();
-
-                provision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
-
-                ProvisionedServicePlanType plan = provision_req.Plan;
-                ServiceCredentials credentials = provision_req.Credentials;
-                ServiceCredentials credential = Provision(plan, credentials);
-                credential.NodeId = this.nodeId;
-
-                response.Credentials = credential;
-
-                Logger.Debug(
-                    Strings.OnProvisionSuccessDebugLogMessage,
-                    ServiceDescription(),
-                    msg,
-                    response.SerializeToJson());
-
-                NodeNats.Publish(reply, null, EncodeSuccess(response));
+                credentials = GenerateCredentials();
             }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response));
-            }
+
+            credentials.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        ServiceCredentials credential = Provision(plan, credentials);
+
+                        credential.NodeId = this.nodeId;
+
+                        response.Credentials = credential;
+
+                        Logger.Debug(
+                            Strings.OnProvisionSuccessDebugLogMessage,
+                            ServiceDescription(),
+                            msg,
+                            response.SerializeToJson());
+
+                        NodeNats.Publish(reply, null, EncodeSuccess(response));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                        NodeNats.Publish(reply, null, EncodeFailure(response));
+                    }
+                });
         }
 
         /// <summary>
@@ -323,30 +335,39 @@ namespace Uhuru.CloudFoundry.ServiceBase
             Logger.Debug(Strings.UnprovisionRequestDebugLogMessage, ServiceDescription(), msg);
 
             SimpleResponse response = new SimpleResponse();
-            try
-            {
-                UnprovisionRequest unprovision_req = new UnprovisionRequest();
-                unprovision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+            
+            UnprovisionRequest unprovision_req = new UnprovisionRequest();
+            unprovision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+            string name = unprovision_req.Name;
 
-                string name = unprovision_req.Name;
-                ServiceCredentials[] bindings = unprovision_req.Bindings;
+            // Create a service credentials object with a name set, so we can run this operation in parallel for different service instances.
+            ServiceCredentials credentials = new ServiceCredentials();
+            credentials.Name = name;
 
-                bool result = this.Unprovision(name, bindings);
-
-                if (result)
+            credentials.ServiceWorkFactory.StartNew(
+                () =>
                 {
-                    this.NodeNats.Publish(reply, null, EncodeSuccess(response));
-                }
-                else
-                {
-                    this.NodeNats.Publish(reply, null, EncodeFailure(response));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response, ex));
-            }
+                    try
+                    {
+                        ServiceCredentials[] bindings = unprovision_req.Bindings;
+
+                        bool result = this.Unprovision(name, bindings);
+
+                        if (result)
+                        {
+                            this.NodeNats.Publish(reply, null, EncodeSuccess(response));
+                        }
+                        else
+                        {
+                            this.NodeNats.Publish(reply, null, EncodeFailure(response));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                    }
+                });
         }
 
         /// <summary>
@@ -360,21 +381,30 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Logger.Debug(Strings.BindRequestLogMessage, ServiceDescription(), msg, reply);
             BindResponse response = new BindResponse();
-            try
-            {
-                BindRequest bind_message = new BindRequest();
-                bind_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
-                string name = bind_message.Name;
-                Dictionary<string, object> bind_opts = bind_message.BindOptions;
-                ServiceCredentials credentials = bind_message.Credentials;
-                response.Credentials = this.Bind(name, bind_opts, credentials);
-                NodeNats.Publish(reply, null, EncodeSuccess(response));
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response, ex));
-            }
+            BindRequest bind_message = new BindRequest();
+            bind_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+            string name = bind_message.Name;
+
+              // Create a service credentials object with a name set, so we can run this operation in parallel for different service instances.
+            ServiceCredentials nameCredentials = new ServiceCredentials();
+            nameCredentials.Name = name;
+
+            nameCredentials.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        Dictionary<string, object> bind_opts = bind_message.BindOptions;
+                        ServiceCredentials credentials = bind_message.Credentials;
+                        response.Credentials = this.Bind(name, bind_opts, credentials);
+                        NodeNats.Publish(reply, null, EncodeSuccess(response));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                    }
+                });
         }
 
         /// <summary>
@@ -388,27 +418,31 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Logger.Debug(Strings.UnbindRequestDebugLogMessage, ServiceDescription(), msg, reply);
             SimpleResponse response = new SimpleResponse();
-            try
-            {
-                UnbindRequest unbind_req = new UnbindRequest();
-                unbind_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+            UnbindRequest unbind_req = new UnbindRequest();
+            unbind_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
-                bool result = this.Unbind(unbind_req.Credentials);
+            unbind_req.Credentials.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        bool result = this.Unbind(unbind_req.Credentials);
 
-                if (result)
-                {
-                    this.NodeNats.Publish(reply, null, EncodeSuccess(response));
-                }
-                else
-                {
-                    this.NodeNats.Publish(reply, null, EncodeFailure(response));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response, ex));
-            }
+                        if (result)
+                        {
+                            this.NodeNats.Publish(reply, null, EncodeSuccess(response));
+                        }
+                        else
+                        {
+                            this.NodeNats.Publish(reply, null, EncodeFailure(response));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                    }
+                });
         }
 
         /// <summary>
@@ -428,7 +462,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 restore_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
                 string instance_id = restore_message.InstanceId;
                 string backup_path = restore_message.BackupPath;
-
+                
+                // TODO: vladi: need to make this parallel when we implement the actual restore for mssql
                 bool result = this.Restore(instance_id, backup_path);
                 if (result)
                 {
@@ -456,35 +491,39 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void OnDisableInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnDisableInstanceDebugLogMessage, ServiceDescription(), msg, reply);
-            try
-            {
-                object[] credentials = new object[0];
-                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
+            object[] credentials = new object[0];
+            credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
-                ServiceCredentials prov_cred = new ServiceCredentials();
-                ServiceCredentials binding_creds = new ServiceCredentials();
+            ServiceCredentials prov_cred = new ServiceCredentials();
+            ServiceCredentials binding_creds = new ServiceCredentials();
 
-                prov_cred.FromJsonIntermediateObject(credentials[0]);
-                binding_creds.FromJsonIntermediateObject(credentials[1]);
+            prov_cred.FromJsonIntermediateObject(credentials[0]);
+            binding_creds.FromJsonIntermediateObject(credentials[1]);
 
-                string instance = prov_cred.Name;
-                string file_path = this.GetMigrationFolder(instance);
-
-                Directory.CreateDirectory(file_path);
-
-                bool result = this.DisableInstance(prov_cred, binding_creds);
-
-                if (result)
+            prov_cred.ServiceWorkFactory.StartNew(
+                () =>
                 {
-                    result = this.DumpInstance(prov_cred, binding_creds, file_path);
-                }
+                    try
+                    {
+                        string instance = prov_cred.Name;
+                        string file_path = this.GetMigrationFolder(instance);
 
-                NodeNats.Publish(reply, null, result.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-            }
+                        Directory.CreateDirectory(file_path);
+
+                        bool result = this.DisableInstance(prov_cred, binding_creds);
+
+                        if (result)
+                        {
+                            result = this.DumpInstance(prov_cred, binding_creds, file_path);
+                        }
+
+                        NodeNats.Publish(reply, null, result.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                    }
+                });
         }
 
         /// <summary>
@@ -498,29 +537,33 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void OnEnableInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnEnableInstanceDebugMessage, ServiceDescription(), msg, reply);
-            try
-            {
-                object[] credentials = new object[0];
-                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
+            object[] credentials = new object[0];
+            credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
-                ServiceCredentials prov_cred = new ServiceCredentials();
-                Dictionary<string, object> binding_creds_hash = new Dictionary<string, object>();
+            ServiceCredentials prov_cred = new ServiceCredentials();
+            Dictionary<string, object> binding_creds_hash = new Dictionary<string, object>();
 
-                prov_cred.FromJsonIntermediateObject(credentials[0]);
-                binding_creds_hash = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(credentials[1]);
+            prov_cred.FromJsonIntermediateObject(credentials[0]);
+            binding_creds_hash = JsonConvertibleObject.ObjectToValue<Dictionary<string, object>>(credentials[1]);
 
-                this.EnableInstance(ref prov_cred, ref binding_creds_hash);
+            prov_cred.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        this.EnableInstance(ref prov_cred, ref binding_creds_hash);
 
-                // Update node_id in provision credentials..
-                prov_cred.NodeId = this.nodeId;
-                credentials[0] = prov_cred;
-                credentials[1] = binding_creds_hash;
-                NodeNats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(credentials));
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-            }
+                        // Update node_id in provision credentials..
+                        prov_cred.NodeId = this.nodeId;
+                        credentials[0] = prov_cred;
+                        credentials[1] = binding_creds_hash;
+                        NodeNats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(credentials));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                    }
+                });
         }
 
         /// <summary>
@@ -534,24 +577,28 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void OnCleanupNfs(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.CleanupNfsLogMessage, ServiceDescription(), msg, reply);
-            try
-            {
-                object[] request = new object[0];
-                request = JsonConvertibleObject.DeserializeFromJsonArray(msg);
-                ServiceCredentials prov_cred = new ServiceCredentials();
-                ServiceCredentials binding_creds = new ServiceCredentials();
-                prov_cred.FromJsonIntermediateObject(request[0]);
-                binding_creds.FromJsonIntermediateObject(request[1]);
+            object[] request = new object[0];
+            request = JsonConvertibleObject.DeserializeFromJsonArray(msg);
+            ServiceCredentials prov_cred = new ServiceCredentials();
+            ServiceCredentials binding_creds = new ServiceCredentials();
+            prov_cred.FromJsonIntermediateObject(request[0]);
+            binding_creds.FromJsonIntermediateObject(request[1]);
 
-                string instance = prov_cred.Name;
-                Directory.Delete(this.GetMigrationFolder(instance), true);
+            prov_cred.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        string instance = prov_cred.Name;
+                        Directory.Delete(this.GetMigrationFolder(instance), true);
 
-                NodeNats.Publish(reply, null, "true");
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-            }
+                        NodeNats.Publish(reply, null, "true");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                    }
+                });
         }
 
         /// <summary>
@@ -570,6 +617,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 CheckOrphanRequest request = new CheckOrphanRequest();
                 request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+
+                // TODO: vladi: investigate further if this needs to be parallelized; seems that this would take a very short time, and it's not tied to a specific instance, so it could run on a new thread
                 this.CheckOrphan(request.Handles);
 
                 response.OrphanInstances = OrphanInstancesHash;
@@ -646,40 +695,46 @@ namespace Uhuru.CloudFoundry.ServiceBase
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private void OnPurgeOrphan(string msg, string reply, string subject)
         {
-            Logger.Debug(Strings.OnPurgeOrphanDebugLogMessage, ServiceDescription());
-            SimpleResponse response = new SimpleResponse();
-            try
-            {
-                PurgeOrphanRequest request = new PurgeOrphanRequest();
-                request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+            // This may take a long time (it can unbind many services), so we run it on a different thread;
+            ThreadPool.QueueUserWorkItem(
+                (data) =>
+                {
+                    Logger.Debug(Strings.OnPurgeOrphanDebugLogMessage, ServiceDescription());
+                    SimpleResponse response = new SimpleResponse();
+                    try
+                    {
+                        PurgeOrphanRequest request = new PurgeOrphanRequest();
+                        request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
-                bool result = this.PurgeOrphan(request.OrphanInsList, request.OrphanBindingList);
-                if (result)
-                {
-                    NodeNats.Publish(reply, null, EncodeSuccess(response));
-                }
-                else
-                {
-                    NodeNats.Publish(reply, null, EncodeFailure(response));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response, ex));
-            }
+                        bool result = this.PurgeOrphan(request.OrphanInsList, request.OrphanBindingList);
+                        if (result)
+                        {
+                            NodeNats.Publish(reply, null, EncodeSuccess(response));
+                        }
+                        else
+                        {
+                            NodeNats.Publish(reply, null, EncodeFailure(response));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                    }
+                });
         }
 
         /// <summary>
         /// Purges orphan services.
         /// </summary>
         /// <param name="orphanInstancesList">The orphan service instances list.</param>
-        /// <param name="orphanBindingsList">The orphan servoce bindings list.</param>
+        /// <param name="orphanBindingsList">The orphan service bindings list.</param>
         /// <returns>A value indicating if the request is successful.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
         private bool PurgeOrphan(string[] orphanInstancesList, ServiceCredentials[] orphanBindingsList)
         {
             bool ret = true;
+
             ServiceCredentials[] allBindingsList = this.AllBindingsList();
 
             foreach (string ins in orphanInstancesList)
@@ -704,15 +759,20 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             foreach (ServiceCredentials credential in orphanBindingsList)
             {
-                try
-                {
-                    Logger.Debug(Strings.PurgeOrphanUnbindBindingDebugLogMessage, credential.SerializeToJson());
-                    ret = ret && this.Unbind(credential);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Debug(Strings.PurgeOrphanUnbindBindingErrorLogMessage, credential.SerializeToJson(), ex.ToString());
-                }
+                // We're running the unbind on the same thread that other stuff is running for this service instance, so we don't get race conditions; need to wait though, so we have a result status
+                credential.ServiceWorkFactory.StartNew(
+                    () =>
+                    {
+                        try
+                        {
+                            Logger.Debug(Strings.PurgeOrphanUnbindBindingDebugLogMessage, credential.SerializeToJson());
+                            ret = ret && this.Unbind(credential);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Debug(Strings.PurgeOrphanUnbindBindingErrorLogMessage, credential.SerializeToJson(), ex.ToString());
+                        }
+                    }).Wait();
             }
 
             return ret;
@@ -738,29 +798,33 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void OnImportInstance(string msg, string reply, string subject)
         {
             Logger.Debug(Strings.OnImportInstanceDebugLogMessage, ServiceDescription(), msg, reply);
-            try
-            {
-                object[] credentials = new object[0];
-                credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
+            object[] credentials = new object[0];
+            credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
-                ProvisionedServicePlanType plan = (ProvisionedServicePlanType)Enum.Parse(typeof(ProvisionedServicePlanType), JsonConvertibleObject.ObjectToValue<string>(credentials[0]));
+            ProvisionedServicePlanType plan = (ProvisionedServicePlanType)Enum.Parse(typeof(ProvisionedServicePlanType), JsonConvertibleObject.ObjectToValue<string>(credentials[0]));
 
-                ServiceCredentials prov_cred = new ServiceCredentials();
-                ServiceCredentials binding_creds = new ServiceCredentials();
+            ServiceCredentials prov_cred = new ServiceCredentials();
+            ServiceCredentials binding_creds = new ServiceCredentials();
 
-                prov_cred.FromJsonIntermediateObject(credentials[1]);
-                binding_creds.FromJsonIntermediateObject(credentials[2]);
+            prov_cred.FromJsonIntermediateObject(credentials[1]);
+            binding_creds.FromJsonIntermediateObject(credentials[2]);
 
-                string instance = prov_cred.Name;
-                string file_path = this.GetMigrationFolder(instance);
+            prov_cred.ServiceWorkFactory.StartNew(
+                () =>
+                {
+                    try
+                    {
+                        string instance = prov_cred.Name;
+                        string file_path = this.GetMigrationFolder(instance);
 
-                bool result = this.ImportInstance(prov_cred, binding_creds, file_path, plan);
-                NodeNats.Publish(reply, null, result.ToString());
-            }
-            catch (Exception ex)
-            {
-                Logger.Warning(ex.ToString());
-            }
+                        bool result = this.ImportInstance(prov_cred, binding_creds, file_path, plan);
+                        NodeNats.Publish(reply, null, result.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warning(ex.ToString());
+                    }
+                });
         }
 
         /// <summary>
