@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.Configuration;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// Represents a Cloud Foundry component, that has to be registered, and uses a NATS connection.

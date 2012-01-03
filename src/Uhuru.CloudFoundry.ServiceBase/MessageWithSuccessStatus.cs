@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 {
     using System.Collections.Generic;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This is a base class for a message that is received through NATS and that has a success status.

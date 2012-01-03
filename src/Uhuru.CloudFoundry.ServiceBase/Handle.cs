@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This is a class containing information about a provisioned service.

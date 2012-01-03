@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulates a message that is sent to the router to register an instance.

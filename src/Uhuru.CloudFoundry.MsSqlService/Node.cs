@@ -18,6 +18,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
     using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.

@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulates a response message to a <see cref="DeaFindDropletMessageRequest"/>

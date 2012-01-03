@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// Callback used to iterate all droplet instances.

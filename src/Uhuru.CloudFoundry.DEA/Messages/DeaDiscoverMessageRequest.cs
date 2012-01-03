@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulates a request message to discover a DEA that can run a droplet.

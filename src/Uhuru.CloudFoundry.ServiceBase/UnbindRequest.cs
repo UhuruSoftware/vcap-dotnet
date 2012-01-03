@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 {
     using System.Collections.Generic;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulated a request to unbind a service from an app.

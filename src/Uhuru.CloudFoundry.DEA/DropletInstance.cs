@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     using Uhuru.Utilities.ProcessPerformance;
 
     /// <summary>

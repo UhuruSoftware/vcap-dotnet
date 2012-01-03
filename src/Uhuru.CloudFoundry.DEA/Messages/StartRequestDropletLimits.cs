@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     using System.Linq;
     using System.Text;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class contains information about the usage limits of a droplet.
