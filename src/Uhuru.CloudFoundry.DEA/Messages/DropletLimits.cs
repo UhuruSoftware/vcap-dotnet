@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class contains information about the resource limits of a droplet.

@@ -89,9 +89,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TunnelErrorMessages.resx</DependentUpon>
     </Compile>
-    <Compile Include="JsonConvertibleObject.cs" />
-    <Compile Include="JsonNameAttribute.cs" />
-    <Compile Include="JsonTools.cs" />
     <Compile Include="LoadAssemblyHelper.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetFrameworkVersion.cs" />

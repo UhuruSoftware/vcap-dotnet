@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorGettingDBListErrorMessage" xml:space="preserve">
+    <value>Error get database list: {0}</value>
+  </data>
+  <data name="ErrorGettingDBTablesWarningMessage" xml:space="preserve">
+    <value>Error get tables of {0}, {1}</value>
+  </data>
+  <data name="ErrorGettingInstanceListErrorMessage" xml:space="preserve">
+    <value>Error get instance list: {0}</value>
+  </data>
+  <data name="LongTXKillerDisabledInfoMessage" xml:space="preserve">
+    <value>Long transaction killer is disabled.</value>
+  </data>
   <data name="SqlNodeBindResponseDebugMessage" xml:space="preserve">
     <value>Bind response: {0}</value>
   </data>
@@ -139,7 +151,7 @@
     <value>MsSql connection lost: {0}</value>
   </data>
   <data name="SqlNodeConnectionString" xml:space="preserve">
-    <value>Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true</value>
+    <value>Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true;Pooling=false</value>
   </data>
   <data name="SqlNodeConnectionUnrecoverableFatalMessage" xml:space="preserve">
     <value>MsSql connection unrecoverable</value>

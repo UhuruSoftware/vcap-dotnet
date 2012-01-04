@@ -18,6 +18,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     using Uhuru.Utilities.ProcessPerformance;
 
     /// <summary>
@@ -997,20 +998,10 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Properties.State = DropletInstanceState.Stopped;
                     instance.Properties.StateTimestamp = DateTime.Now;
-                    if (instance.Plugin != null)
-                    {
-                        try
-                        {
-                            instance.Plugin.StopApplication();
-                        }
-                        catch (Exception ex)
-                        {
-                            instance.ErrorLog.Error(ex.ToString());
-                        }
-                    }
+                    //// this.ScheduleTheReaper
                 }
 
-                this.monitoring.RemoveInstanceResources(instance);
+                // this.monitoring.RemoveInstanceResources(instance);
                 instance.Properties.StopProcessed = true;
             }
             catch (Exception ex)
@@ -1698,6 +1689,23 @@ namespace Uhuru.CloudFoundry.DEA
                         bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
                         bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
 
+                        // Stop the instance gracefully before cleaning up.
+                        if (isStopped)
+                        {
+                            if (instance.Plugin != null)
+                            {
+                                this.monitoring.RemoveInstanceResources(instance);
+                                try
+                                {
+                                    instance.Plugin.StopApplication();
+                                }
+                                catch (Exception ex)
+                                {
+                                    instance.ErrorLog.Error(ex.ToString());
+                                }
+                            }
+                        }
+
                         // Remove the instance system resources, except the instance directory
                         if (isCrashed || isOldCrash || isStopped || isDeleted)
                         {
@@ -1709,12 +1717,15 @@ namespace Uhuru.CloudFoundry.DEA
                                 {
                                     this.monitoring.RemoveInstanceResources(instance);
                                     instance.Plugin.CleanupApplication(instance.Properties.Directory);
-                                    instance.Plugin = null;
                                     WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
                                 }
                                 catch (Exception ex)
                                 {
                                     instance.ErrorLog.Error(ex.ToString());
+                                }
+                                finally
+                                {
+                                    instance.Plugin = null;
                                 }
                             }
                         }

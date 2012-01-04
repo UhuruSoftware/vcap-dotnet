@@ -69,16 +69,21 @@ namespace Uhuru.CloudFoundry.Test
         public static bool TestUrl(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AllowAutoRedirect = false;
-            try
+            // Try 5 times to get the URL
+            for (int i = 0; i < 5; i++)
             {
-                request.GetResponse();
+                request.AllowAutoRedirect = false;
+                try
+                {
+                    request.GetResponse();
+                }
+                catch (WebException)
+                {
+                    continue;
+                }
+                return true;
             }
-            catch (WebException)
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
 
         public static void UpdateWebConfigKey(string fileName, string key, string newValue)

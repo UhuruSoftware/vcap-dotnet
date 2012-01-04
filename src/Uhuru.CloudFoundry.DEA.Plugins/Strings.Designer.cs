@@ -88,6 +88,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Configuring service value: {0}.
+        /// </summary>
+        internal static string ConfiguringServiceValue {
+            get {
+                return ResourceManager.GetString("ConfiguringServiceValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copied logging binaries to bin directory..
         /// </summary>
         internal static string CopiedLoggingBinariesToBin {

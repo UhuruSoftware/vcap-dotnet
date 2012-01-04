@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.Test", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging", "Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging\Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.csproj", "{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities.Json", "Uhuru.Utilities.Json\Uhuru.Utilities.Json.csproj", "{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -86,6 +88,10 @@ Global
 		{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

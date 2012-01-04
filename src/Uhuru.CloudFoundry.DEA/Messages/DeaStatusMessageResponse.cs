@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class is a representation of a DEA status message response.

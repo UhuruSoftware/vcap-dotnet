@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This is the service base for all Cloud Foundry system services.
@@ -207,6 +208,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         /// <returns>On windows, this always returns the value "Node"</returns>
         protected abstract string Flavor();
+
+        /// <summary>
+        /// Generates credentials for a new service instance that has to be provisioned.
+        /// </summary>
+        /// <returns>Service credentials - name, user and password.</returns>
+        protected abstract ServiceCredentials GenerateCredentials();
         
         /// <summary>
         /// Gets the varz details for this service.
