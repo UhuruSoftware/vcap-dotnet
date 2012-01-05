@@ -218,7 +218,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             string tmpFilename = Path.Combine(
                 Path.GetDirectoryName(this.AppStateFile),
-                string.Format(CultureInfo.InvariantCulture, Strings.SnapshotTemplate, start.Ticks));
+                string.Format(CultureInfo.InvariantCulture, Strings.SnapshotTemplate, new Guid().ToString()));
 
             File.WriteAllText(tmpFilename, appState);
 

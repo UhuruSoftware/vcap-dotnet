@@ -463,7 +463,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.fileViewer.Stop();
             this.deaReactor.NatsClient.Stop();
             this.TheReaper();
-            this.droplets.ScheduleSnapshotAppState();
+            this.droplets.SnapshotAppState();
             Logger.Info(Strings.ByeMessage);
         }
 
