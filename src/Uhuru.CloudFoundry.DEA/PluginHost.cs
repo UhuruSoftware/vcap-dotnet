@@ -68,6 +68,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// stops a running application and frees the resources used by it 
         /// </summary>
         /// <param name="agent">the plugin running the app</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The stop call is just for cleanup.")]
         public static void RemoveInstance(IAgentPlugin agent)
         {
             if (agent == null)
@@ -83,7 +84,14 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // throw new KeyNotFoundException("There is no data associated with the given key");
-            agent.StopApplication();
+            try
+            {
+                agent.StopApplication();
+            }
+            catch (Exception)
+            {
+            }
+
             AppDomain.Unload(domain);
 
             mutexInstanceData.WaitOne();
