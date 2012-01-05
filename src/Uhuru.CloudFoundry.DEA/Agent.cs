@@ -1751,11 +1751,15 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 try
                                 {
-                                    Directory.Delete(instance.Properties.Directory, true);
+                                    try
+                                    {
+                                        Directory.Delete(instance.Properties.Directory, true);
+                                    }
+                                    catch (IOException)
+                                    {
+                                    }
+
                                     instance.Properties.Directory = null;
-                                }
-                                catch (IOException) 
-                                { 
                                 }
                                 catch (UnauthorizedAccessException) 
                                 { 
