@@ -213,6 +213,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
         public override void Run()
         {
             Logger.Info(Strings.StartingVcapDea, Version);
@@ -273,7 +274,14 @@ namespace Uhuru.CloudFoundry.DEA
                 Monitoring.MonitorIntervalMilliseconds, 
                 delegate
                 {
-                    this.MonitorApps();
+                    try
+                    {
+                        this.MonitorApps();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(Strings.MonitorException, ex.ToString());
+                    }
                 });
 
             TimerHelper.RecurringLongCall(
@@ -1717,6 +1725,7 @@ namespace Uhuru.CloudFoundry.DEA
                                     this.monitoring.RemoveInstanceResources(instance);
                                     instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                     WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
+                                    PluginHost.RemoveInstance(instance.Plugin);
                                 }
                                 catch (Exception ex)
                                 {

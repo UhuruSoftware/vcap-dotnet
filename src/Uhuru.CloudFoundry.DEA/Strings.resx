@@ -467,4 +467,7 @@
   <data name="AppNotDetectedReady" xml:space="preserve">
     <value>The '{0}' app instance '{1}' is not detected to be running. App considered crashes and stoping instance...</value>
   </data>
+  <data name="MonitorException" xml:space="preserve">
+    <value>"Monitor App Exception: {0}"</value>
+  </data>
 </root>

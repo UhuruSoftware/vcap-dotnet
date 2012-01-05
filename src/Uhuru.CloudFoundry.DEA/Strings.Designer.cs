@@ -603,6 +603,15 @@ namespace Uhuru.CloudFoundry.DEA {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &quot;Monitor App Exception: {0}&quot;.
+        /// </summary>
+        internal static string MonitorException {
+            get {
+                return ResourceManager.GetString("MonitorException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to name={0} app_id={1} instance={2} index={3}.
         /// </summary>
         internal static string NameAppIdInstance {
