@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     using System;
     using System.Collections.Generic;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class encapsulates a request message to stop droplet instances.

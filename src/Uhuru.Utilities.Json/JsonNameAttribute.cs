@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.Utilities
+namespace Uhuru.Utilities.Json
 {
     using System;
     using System.Collections.Generic;

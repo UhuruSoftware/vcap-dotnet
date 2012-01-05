@@ -619,6 +619,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 if (services != null)
                 {
                     Dictionary<string, string> connections = new Dictionary<string, string>();
+                    Dictionary<string, string> connValues = new Dictionary<string, string>();
 
                     foreach (ApplicationService service in services)
                     {
@@ -635,12 +636,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                             connections[string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", key, service.Name)] = template;
                         }
+
+                        char[] charsToTrim = { '{', '}' };
+                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.User.Trim(charsToTrim)), service.User);
+                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Host.Trim(charsToTrim)), service.Host);
+                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Port.Trim(charsToTrim)), service.Port.ToString(CultureInfo.InvariantCulture));
+                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Password.Trim(charsToTrim)), service.Password);
+                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Name.Trim(charsToTrim)), service.InstanceName);
                     }
 
                     foreach (string con in connections.Keys)
                     {
                         this.startupLogger.Info(Strings.ConfiguringService + con);
                         configFileContents = configFileContents.Replace(con, connections[con]);
+                    }
+
+                    foreach (string key in connValues.Keys)
+                    {
+                        this.startupLogger.Info(string.Format(CultureInfo.InvariantCulture, Strings.ConfiguringServiceValue, key));
+                        configFileContents = configFileContents.Replace(key, connValues[key]);
                     }
                 }
 

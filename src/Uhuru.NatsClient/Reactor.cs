@@ -19,8 +19,10 @@ namespace Uhuru.NatsClient
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading;
+    using System.Threading.Tasks;
     using Uhuru.NatsClient.Resources;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// Delegate definition for a method to be called by the Reactor when a pong is received.
@@ -47,6 +49,11 @@ namespace Uhuru.NatsClient
     /// </summary>
     public sealed class Reactor : IDisposable
     {
+        /// <summary>
+        /// Used for creating OnMessage tasks.
+        /// </summary>
+        private TaskFactory messageCallbackFactory;
+
         /// <summary>
         /// Dictionary containing all subscription 
         /// </summary>
@@ -276,6 +283,8 @@ namespace Uhuru.NatsClient
             {
                 throw new ArgumentNullException("uri");
             }
+
+            this.messageCallbackFactory = new TaskFactory(TaskCreationOptions.LongRunning, TaskContinuationOptions.ExecuteSynchronously);
 
             this.serverUri = uri;
 
@@ -857,16 +866,24 @@ namespace Uhuru.NatsClient
 
             // Check for auto_unsubscribe
             nantsSubscription.Received += 1;
-            
+
             if (nantsSubscription.Max > 0 && nantsSubscription.Received > nantsSubscription.Max)
             {
                 this.Unsubscribe(sid, 0);
-                return;
             }
 
             if (nantsSubscription.Callback != null)
             {
-                nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
+                this.messageCallbackFactory.StartNew(
+                    () => 
+                        {
+                            if (!this.subscriptions.ContainsKey(sid))        
+                            {
+                                return;
+                            }
+
+                            nantsSubscription.Callback(msg, replyMessage, nantsSubscription.Subject);
+                        });
             }
 
             // Check for a timeout, and cancel if received >= expected

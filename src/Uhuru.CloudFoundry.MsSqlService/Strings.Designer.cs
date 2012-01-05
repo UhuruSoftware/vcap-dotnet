@@ -61,6 +61,42 @@ namespace Uhuru.CloudFoundry.MSSqlService {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error get database list: {0}.
+        /// </summary>
+        internal static string ErrorGettingDBListErrorMessage {
+            get {
+                return ResourceManager.GetString("ErrorGettingDBListErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error get tables of {0}, {1}.
+        /// </summary>
+        internal static string ErrorGettingDBTablesWarningMessage {
+            get {
+                return ResourceManager.GetString("ErrorGettingDBTablesWarningMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error get instance list: {0}.
+        /// </summary>
+        internal static string ErrorGettingInstanceListErrorMessage {
+            get {
+                return ResourceManager.GetString("ErrorGettingInstanceListErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Long transaction killer is disabled..
+        /// </summary>
+        internal static string LongTXKillerDisabledInfoMessage {
+            get {
+                return ResourceManager.GetString("LongTXKillerDisabledInfoMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bind response: {0}.
         /// </summary>
         internal static string SqlNodeBindResponseDebugMessage {
@@ -124,7 +160,7 @@ namespace Uhuru.CloudFoundry.MSSqlService {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true.
+        ///   Looks up a localized string similar to Data Source={0},{1};User Id={2};Password={3};MultipleActiveResultSets=true;Pooling=false.
         /// </summary>
         internal static string SqlNodeConnectionString {
             get {

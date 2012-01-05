@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using System.Collections.Generic;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// An enum containing the possible states a droplet instance can be in.

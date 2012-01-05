@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
 {
     using System;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
     
     /// <summary>
     /// This encapsulates a message that is sent after a droplet instance has exited.

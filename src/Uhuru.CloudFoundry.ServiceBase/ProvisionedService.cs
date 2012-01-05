@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Runtime.Serialization;
     using System.Xml.Serialization;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// Enum detailing service plan types.
@@ -174,7 +175,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// Gets the avilable provisioned services.
+        /// Gets the available provisioned services.
         /// </summary>
         /// <returns>An array containing provisioned services.</returns>
         public static ProvisionedService[] GetInstances()

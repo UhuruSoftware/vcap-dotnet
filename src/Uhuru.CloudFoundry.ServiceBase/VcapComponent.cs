@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This is a class used to register vcap components to the Cloud Foundry controller.

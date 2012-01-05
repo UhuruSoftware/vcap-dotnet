@@ -5,13 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FC669600-C839-426A-B246-AC19D55F5C51}</ProjectGuid>
+    <ProjectGuid>{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.CloudFoundry.ServiceBase</RootNamespace>
-    <AssemblyName>Uhuru.CloudFoundry.ServiceBase</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>Uhuru.Utilities.Json</RootNamespace>
+    <AssemblyName>Uhuru.Utilities.Json</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
@@ -23,12 +24,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\bin\Uhuru.Utilities.Json.XML</DocumentationFile>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>..\..\doc\Uhuru.CloudFoundry.ServiceBase.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,12 +38,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
-    <DocumentationFile>..\..\doc\Uhuru.CloudFoundry.ServiceBase.XML</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\..\bin\Uhuru.Utilities.Json.XML</DocumentationFile>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -51,70 +51,30 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CheckOrphanResponse.cs" />
-    <Compile Include="CheckOrphanRequest.cs" />
-    <Compile Include="Handle.cs" />
-    <Compile Include="Announcement.cs" />
-    <Compile Include="ServiceCredentials.cs" />
-    <Compile Include="RestoreRequest.cs" />
-    <Compile Include="SimpleResponse.cs" />
-    <Compile Include="UnbindRequest.cs" />
-    <Compile Include="BindResponse.cs" />
-    <Compile Include="BindRequest.cs" />
-    <Compile Include="UnprovisionRequest.cs" />
-    <Compile Include="ProvisionResponse.cs" />
-    <Compile Include="PurgeOrphanRequest.cs" />
-    <Compile Include="ProvisionRequest.cs" />
-    <Compile Include="ServiceErrorCode.cs" />
-    <Compile Include="SystemServiceBase.cs" />
-    <Compile Include="MessageWithSuccessStatus.cs" />
-    <Compile Include="NodeBase.cs" />
-    <Compile Include="ProvisionedService.cs" />
-    <Compile Include="Options.cs" />
+    <Compile Include="JsonConvertibleObject.cs" />
+    <Compile Include="JsonNameAttribute.cs" />
+    <Compile Include="JsonTools.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceException.cs" />
-    <Compile Include="Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="VcapComponent.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Uhuru.NatsClient\Uhuru.NatsClient.csproj">
-      <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
-      <Name>Uhuru.NatsClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Uhuru.Utilities.Json\Uhuru.Utilities.Json.csproj">
-      <Project>{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}</Project>
-      <Name>Uhuru.Utilities.Json</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
-      <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
-      <Name>Uhuru.Utilities</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
-      <SubType>Designer</SubType>
     </CodeAnalysisDictionary>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx" />
-    <EmbeddedResource Include="Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Content Include="lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />

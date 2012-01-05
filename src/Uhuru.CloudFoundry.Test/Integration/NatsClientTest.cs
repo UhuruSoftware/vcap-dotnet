@@ -132,7 +132,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Start(natsEndpoint);
 
-                //TODO: vladi: check to see if nil in Ruby evaluates to boolean true
+                // todo: vladi: check to see if nil in Ruby evaluates to boolean true
                 natsClient.Publish(null);
                 natsClient.Publish(null, null, "hello");
 
@@ -251,7 +251,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Start(natsEndpoint);
 
-                //TODO: vladi: if not testing agains an empty server, this subscription may fail
+                // todo: vladi: if not testing agains an empty server, this subscription may fail
                 natsClient.Subscribe("*", delegate(string msg, string reply, string subject)
                 {
                     receivedMessage = msg;
@@ -272,33 +272,33 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             bool errorThrown = false;
             int receivedCount = 0;
+            object receivedCountLock = new object();
             int sid = 0;
-
-            AutoResetEvent resetEvent = new AutoResetEvent(false);
 
             Reactor natsClient = new Reactor();
             natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
-                resetEvent.Set();
             });
 
             natsClient.Start(natsEndpoint);
 
             sid = natsClient.Subscribe("foo", delegate(string msg, string reply, string subject)
             {
-                receivedCount++;
-                if (receivedCount == 2)
+                lock (receivedCountLock)
                 {
-                    natsClient.Unsubscribe(sid);
+                    receivedCount++;
+                    if (receivedCount == 2)
+                    {
+                        natsClient.Unsubscribe(sid);
+                    }
                 }
-                resetEvent.Set();
             });
 
-            natsClient.Publish("foo", null, "xxx");
-            natsClient.Publish("foo", null, "xxx");
-            natsClient.Publish("foo", null, "xxx");
-            resetEvent.WaitOne(5000);
+            natsClient.Publish("foo", () => { }, "xxx");
+            natsClient.Publish("foo", () => { }, "xxx");
+            natsClient.Publish("foo", () => { }, "xxx");
+            Thread.Sleep(5000);
             natsClient.Stop();
 
             Assert.IsFalse(errorThrown);
@@ -330,7 +330,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 natsClient.Publish(reply, null, "help");
             });
 
-            //TODO: vladi: this doesn't work if no message is sent.
+            // todo: vladi: this doesn't work if no message is sent.
             natsClient.Request("need_help", null, delegate(string msg, string reply, string subject)
             {
                 receivedReply = msg;
@@ -507,7 +507,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 using (Reactor natsClient2 = new Reactor())
                 {
                     natsClient2.Start(natsEndpoint);
-                    //TODO: vladi: this doesn't work if no message is sent.
+                    // todo: vladi: this doesn't work if no message is sent.
                     natsClient2.Request("need_help", null, delegate(string msg, string reply, string subject)
                     {
                         receivedReply = msg;
@@ -550,7 +550,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     natsClient.Unsubscribe(sid);
                 });
 
-                natsClient.Publish("foo", null, "xxx");
+                natsClient.Publish("foo", delegate() { }, "xxx");
                 natsClient.Publish("foo", delegate()
                 {
                     resetEvent.Set();

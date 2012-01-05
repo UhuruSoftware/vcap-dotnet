@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
+    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// Callback used to iterate all droplet instances.
@@ -216,7 +217,7 @@ namespace Uhuru.CloudFoundry.DEA
             DateTime start = DateTime.Now;
 
             string tmpFilename = Path.Combine(
-                Path.GetDirectoryName(this.AppStateFile), 
+                Path.GetDirectoryName(this.AppStateFile),
                 string.Format(CultureInfo.InvariantCulture, Strings.SnapshotTemplate, start.Ticks));
 
             File.WriteAllText(tmpFilename, appState);
@@ -284,7 +285,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.ScheduleSnapshotAppState();
         }
-       
+
         /// <summary>
         /// Adds a droplet instance to the collection.
         /// </summary>
