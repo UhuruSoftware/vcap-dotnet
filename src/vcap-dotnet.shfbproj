@@ -15,7 +15,7 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>..\doc\</OutputPath>
+    <OutputPath>..\doc\html\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <HelpTitle>Uhuru Software Source Code Documentation</HelpTitle>
@@ -26,14 +26,15 @@
     <DocumentationSources>
       <DocumentationSource sourceFile="vcap-dotnet.sln" />
     </DocumentationSources>
-    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
+    <HelpFileFormat>Website</HelpFileFormat>
     <CopyrightHref>http://www.uhurusoftware.com</CopyrightHref>
     <CopyrightText>Copyright %28c%29 2011 Uhuru Software, Inc., All Rights Reserved</CopyrightText>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Integration" isDocumented="False" />
-<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.System" isDocumented="False" />
-<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Unit" isDocumented="False" />
-<NamespaceSummaryItem name="Uhuru.CloudFoundry.Test" isDocumented="False" /></NamespaceSummaries>
+      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.System" isDocumented="False" />
+      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test.Unit" isDocumented="False" />
+      <NamespaceSummaryItem name="Uhuru.CloudFoundry.Test" isDocumented="False" />
+    </NamespaceSummaries>
     <BuildLogFile />
     <HtmlHelp1xCompilerPath />
     <HtmlHelp2xCompilerPath />
