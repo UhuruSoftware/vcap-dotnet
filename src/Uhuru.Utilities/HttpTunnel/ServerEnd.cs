@@ -47,8 +47,8 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <summary>
         /// Initializes the server end of the tunnel with connection information.
         /// </summary>
-        /// <param name="host">The hostname on which to listen (if it's a TCP connection).</param>
-        /// <param name="port">The port on which to listen.</param>
+        /// <param name="host">The hostname on which to connect (if it's a TCP connection).</param>
+        /// <param name="port">The port on which to connect.</param>
         /// <param name="protocol">The protocol to use.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1500:VariableNamesShouldNotMatchFieldNames", Justification = "This method is used instead of a constructor, because the WCF host creates an instance of this class")]
         public void Initialize(string host, int port, TunnelProtocolType protocol)
