@@ -54,7 +54,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="HttpTunnel.svc" />
-    <Content Include="lib\Uhuru.Utilities.dll" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
