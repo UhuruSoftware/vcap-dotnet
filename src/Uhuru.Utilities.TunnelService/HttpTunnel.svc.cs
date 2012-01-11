@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
-using Uhuru.Utilities.HttpTunnel;
 using System.Configuration;
+using Uhuru.Utilities.HttpTunnel;
 
 namespace Uhuru.Utilities.TunnelService
 {
@@ -16,6 +10,7 @@ namespace Uhuru.Utilities.TunnelService
         {
             try
             {
+                Logger.Info("Initializing HTTP Tunnel.");
                 string destinationIp;
                 int destinationPort;
                 string protocol;
@@ -26,6 +21,7 @@ namespace Uhuru.Utilities.TunnelService
 
                 TunnelProtocolType tunnelProtocol = (TunnelProtocolType)Enum.Parse(typeof(TunnelProtocolType), protocol);
                 base.Initialize(destinationIp, destinationPort, tunnelProtocol);
+                Logger.Info("Finished initializing HTTP Tunnel.");
             }
             catch (Exception ex)
             {
