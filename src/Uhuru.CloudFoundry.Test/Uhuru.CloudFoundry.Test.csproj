@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Integration\HttpTunnelWcfServiceTest.cs" />
     <Compile Include="System\CloudTestAppTest.cs" />
+    <Compile Include="System\DifferentDotNetVersionTest.cs" />
     <Compile Include="Unit\HttpTunnelTest.cs" />
     <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />
