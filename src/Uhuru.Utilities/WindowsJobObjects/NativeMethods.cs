@@ -70,7 +70,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IsProcessInJob(IntPtr Process, JobObjectHandle hJob, [MarshalAs(UnmanagedType.SysInt)] out bool Result);
+        public static extern bool IsProcessInJob(IntPtr Process, JobObjectHandle hJob, [MarshalAs(UnmanagedType.Bool)] out bool Result);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

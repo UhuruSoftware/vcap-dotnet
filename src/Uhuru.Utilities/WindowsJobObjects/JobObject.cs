@@ -56,12 +56,12 @@ namespace Uhuru.Utilities.WindowsJobObjects
         /// <summary>
         /// The memory limit of the Job Object.
         /// </summary>
-        private uint jobMemoryLimit = 0;
+        private long jobMemoryLimit = 0;
 
         /// <summary>
         /// The memory limit of each process in the Job Object.
         /// </summary>
-        private uint processMemoryLimit = 0;
+        private long processMemoryLimit = 0;
 
         /// <summary>
         /// Flag if the job processor user time limit has changed.
@@ -302,41 +302,41 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets or sets the memory limit enforced per process.
+        /// Gets or sets the memory in bytes limit enforced per process.
         /// </summary>
         /// <value>
         /// The process memory limit.
         /// </value>
-        public int ProcessMemoryLimit
+        public long ProcessMemoryLimit
         {
             get
             {
-                return (int)this.processMemoryLimit;
+                return (long)this.processMemoryLimit;
             }
 
             set
             {
-                this.processMemoryLimit = (uint)value;
+                this.processMemoryLimit = (long)value;
                 this.UpdateExtendedLimit();
             }
         }
 
         /// <summary>
-        /// Gets or sets the memory limit of the entire Job Object.
+        /// Gets or sets the memory limit in bytes of the entire Job Object.
         /// </summary>
         /// <value>
         /// The job memory limit.
         /// </value>
-        public int JobMemoryLimit
+        public long JobMemoryLimit
         {
             get
             {
-                return (int)this.jobMemoryLimit;
+                return this.jobMemoryLimit;
             }
 
             set
             {
-                this.jobMemoryLimit = (uint)value;
+                this.jobMemoryLimit = value;
                 this.UpdateExtendedLimit();
             }
         }
@@ -515,7 +515,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the peak memory used by the Job Object at any given time.
+        /// Gets the peak memory in bytes used by the Job Object at any given time.
         /// </summary>
         public long PeakJobMemory
         {
@@ -527,7 +527,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the peak memory used by a process.
+        /// Gets the peak memory in bytes used by a process.
         /// </summary>
         public long PeakProcessMemory
         {
@@ -572,7 +572,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the working set memory of the Job Object.
+        /// Gets the working set memory in bytes of the Job Object.
         /// </summary>
         public long WorkingSetMemory
         {
@@ -590,7 +590,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the virtual memory.
+        /// Gets the virtual memory in bytes.
         /// </summary>
         public long VirtualMemory
         {
@@ -608,7 +608,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the private memory.
+        /// Gets the private memory in bytes.
         /// </summary>
         public long PrivateMemory
         {
@@ -626,7 +626,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the paged memory.
+        /// Gets the paged memory in bytes.
         /// </summary>
         public long PagedMemory
         {
@@ -644,7 +644,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the paged system memory.
+        /// Gets the paged system memory in bytes.
         /// </summary>
         public long PagedSystemMemory
         {
@@ -662,7 +662,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets the non paged system memory.
+        /// Gets the non paged system memory in bytes.
         /// </summary>
         public long NonPagedSystemMemory
         {

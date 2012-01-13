@@ -329,6 +329,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.ResourcesTracked = false;
                     this.monitoring.AddInstanceResources(instance);
                     instance.Properties.StopProcessed = false;
+                    instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
 
                     try
                     {
@@ -1083,8 +1084,9 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
-
                 instance.Properties.EnvironmentVariables = this.SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+                //// TODO: set only when enforce ulimit flag is set
+                instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
 
                 this.monitoring.AddInstanceResources(instance);
             }
@@ -1502,6 +1504,10 @@ namespace Uhuru.CloudFoundry.DEA
                         if (instance.Properties.ProcessId != 0)
                         {
                             instanceProcess = Process.GetProcessById(instance.Properties.ProcessId);
+                            if (!instance.JobObject.HasProcess(instanceProcess))
+                            {
+                                instance.JobObject.AddProcess(instanceProcess);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1516,7 +1522,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         if (instanceProcess != null || instance.IsPortReady(1500))
                         {
-                            long currentTicks = instanceProcess != null ? instanceProcess.TotalProcessorTime.Ticks : 0;
+                            long currentTicks = instance.JobObject.TotalProcessorTime.Ticks;
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
@@ -1526,8 +1532,9 @@ namespace Uhuru.CloudFoundry.DEA
                             long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
 
                             float cpu = tickTimespan != 0 ? ((float)ticksDelta / tickTimespan) * 100 / Environment.ProcessorCount : 0;
+                            cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
-                            long memBytes = instanceProcess != null ? instanceProcess.WorkingSet64 : 0;
+                            long memBytes = instance.JobObject.WorkingSetMemory;
 
                             long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
 
