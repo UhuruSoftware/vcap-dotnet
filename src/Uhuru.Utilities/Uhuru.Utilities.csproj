@@ -104,8 +104,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RubyCompatibility.cs" />
     <Compile Include="TimerHelper.cs" />
+    <Compile Include="TunnelPackage.cs" />
     <Compile Include="UserCustomAuthentication.cs" />
     <Compile Include="VarzRequestEventArgs.cs" />
+    <Compile Include="WindowsJobObjects\JobObject.cs" />
+    <Compile Include="WindowsJobObjects\JobObjectHandle.cs" />
+    <Compile Include="WindowsJobObjects\NativeMethods.cs" />
     <Compile Include="WindowsVcapUsers.cs" />
   </ItemGroup>
   <ItemGroup>

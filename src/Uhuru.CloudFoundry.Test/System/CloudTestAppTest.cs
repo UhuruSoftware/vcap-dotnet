@@ -532,7 +532,7 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 directoriesCreated.Add(path);
             }
-            client.Push(appName, url, path, 1, "dotNet", "iis", 64, new List<string>(), false, true);
+            client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
         }
     }
 }

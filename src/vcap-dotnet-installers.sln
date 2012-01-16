@@ -37,6 +37,8 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Uhuru.CloudFoundry.MsSqlSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities.Json", "Uhuru.Utilities.Json\Uhuru.Utilities.Json.csproj", "{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities.TunnelService", "Uhuru.Utilities.TunnelService\Uhuru.Utilities.TunnelService.csproj", "{C5A7FFE8-F5E6-4B12-8C00-6D08AA7D99FE}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -106,6 +108,10 @@ Global
 		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5A7FFE8-F5E6-4B12-8C00-6D08AA7D99FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5A7FFE8-F5E6-4B12-8C00-6D08AA7D99FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5A7FFE8-F5E6-4B12-8C00-6D08AA7D99FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5A7FFE8-F5E6-4B12-8C00-6D08AA7D99FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

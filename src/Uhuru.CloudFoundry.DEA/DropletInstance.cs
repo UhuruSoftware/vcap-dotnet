@@ -16,6 +16,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
     using Uhuru.Utilities.ProcessPerformance;
+    using Uhuru.Utilities.WindowsJobObjects;
 
     /// <summary>
     /// Represents a droplet instance.
@@ -43,6 +44,20 @@ namespace Uhuru.CloudFoundry.DEA
         private List<DropletInstanceUsage> usage = new List<DropletInstanceUsage>();
 
         /// <summary>
+        /// The Windows Job Object for the application instance. Used for security/resource sandboxing.
+        /// </summary>
+        private JobObject jobObject = new JobObject();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DropletInstance"/> class.
+        /// </summary>
+        public DropletInstance()
+        {
+            this.jobObject.DieOnUnhandledException = true;
+            this.jobObject.ActiveProcesses = 10;
+        }
+
+        /// <summary>
         /// Gets or sets the plugin associated with the instance.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
@@ -50,6 +65,17 @@ namespace Uhuru.CloudFoundry.DEA
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets the Windows Job Object for the application instance. Used for security/resource sandboxing.
+        /// </summary>
+        public JobObject JobObject
+        {
+            get
+            {
+                return this.jobObject;
+            }
         }
 
         /// <summary>
@@ -354,6 +380,11 @@ namespace Uhuru.CloudFoundry.DEA
                 if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.Dispose();
+                }
+
+                if (this.jobObject != null)
+                {
+                    this.jobObject.Dispose();
                 }
             }
         }

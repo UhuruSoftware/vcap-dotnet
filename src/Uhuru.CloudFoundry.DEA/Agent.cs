@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
@@ -286,6 +287,20 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             TimerHelper.RecurringLongCall(
+                500, 
+                delegate
+                {
+                    try
+                    {
+                        this.InstanceProcessMonitor();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(Strings.MonitorException, ex.ToString());
+                    }
+                });
+
+            TimerHelper.RecurringLongCall(
                 Monitoring.CrashesReaperIntervalMilliseconds, 
                 delegate
                 {
@@ -329,6 +344,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.ResourcesTracked = false;
                     this.monitoring.AddInstanceResources(instance);
                     instance.Properties.StopProcessed = false;
+                    instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
 
                     try
                     {
@@ -1083,8 +1099,9 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
-
                 instance.Properties.EnvironmentVariables = this.SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
+                //// TODO: set only when enforce ulimit flag is set
+                instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
 
                 this.monitoring.AddInstanceResources(instance);
             }
@@ -1494,29 +1511,11 @@ namespace Uhuru.CloudFoundry.DEA
                         return;
                     }
 
-                    Process instanceProcess = null;
-
                     try
                     {
-                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessId();
-                        if (instance.Properties.ProcessId != 0)
+                        if (instance.IsPortReady(1500))
                         {
-                            instanceProcess = Process.GetProcessById(instance.Properties.ProcessId);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (instance.ErrorLog != null)
-                        {
-                            instance.ErrorLog.Error(ex.ToString());
-                        }
-                    }
-
-                    try
-                    {
-                        if (instanceProcess != null || instance.IsPortReady(1500))
-                        {
-                            long currentTicks = instanceProcess != null ? instanceProcess.TotalProcessorTime.Ticks : 0;
+                            long currentTicks = instance.JobObject.TotalProcessorTime.Ticks;
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
@@ -1526,8 +1525,9 @@ namespace Uhuru.CloudFoundry.DEA
                             long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
 
                             float cpu = tickTimespan != 0 ? ((float)ticksDelta / tickTimespan) * 100 / Environment.ProcessorCount : 0;
+                            cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
-                            long memBytes = instanceProcess != null ? instanceProcess.WorkingSet64 : 0;
+                            long memBytes = instance.JobObject.WorkingSetMemory;
 
                             long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
 
@@ -1777,10 +1777,62 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Lock.ExitWriteLock();
                     }
 
-                    // If the remove droplet flag was set, delete the instance form the Dea. The removal is made here to avoid dealocks.
+                    // If the remove droplet flag was set, delete the instance form the DEA. The removal is made here to avoid deadlocks.
                     if (removeDroplet)
                     {
                         this.droplets.RemoveDropletInstance(instance);
+                    }
+                });
+        }
+
+        /// <summary>
+        /// Monitors the instance process and adds it to the instance JobObject.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
+        private void InstanceProcessMonitor()
+        {
+            this.droplets.ForEach(
+                true,
+                delegate(DropletInstance instance)
+                {
+                    if (instance.Properties.State != DropletInstanceState.Running || !instance.Lock.TryEnterWriteLock(10))
+                    {
+                        return;
+                    }
+
+                    try
+                    {
+                        Process instanceProcess = null;
+
+                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessId();
+                        if (instance.Properties.ProcessId != 0)
+                        {
+                            instanceProcess = Process.GetProcessById(instance.Properties.ProcessId);
+                            if (!instance.JobObject.HasProcess(instanceProcess))
+                            {
+                                try
+                                {
+                                    instance.JobObject.AddProcess(instanceProcess);
+                                }
+                                catch (Win32Exception e)
+                                {
+                                    instanceProcess.Kill();
+                                    Logger.Warning(Strings.InstanceProcessCoudNotBeAdded, instanceProcess.Id, e.ToString());
+                                    throw;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (instance.ErrorLog != null)
+                        {
+                            instance.ErrorLog.Error(ex.ToString());
+                        }
+                    }
+                    finally
+                    {
+                        instance.Lock.ExitWriteLock();
                     }
                 });
         }
