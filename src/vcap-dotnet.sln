@@ -31,9 +31,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Plug
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities.Json", "Uhuru.Utilities.Json\Uhuru.Utilities.Json.csproj", "{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9256B81A-2AEF-4841-94C1-2DAB42596003}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		vcap-dotnet.vsmdi = vcap-dotnet.vsmdi
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = netps.vsmdi
+		CategoryFile = vcap-dotnet.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
