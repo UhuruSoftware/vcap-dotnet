@@ -49,6 +49,15 @@ namespace Uhuru.CloudFoundry.DEA
         private JobObject jobObject = new JobObject();
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DropletInstance"/> class.
+        /// </summary>
+        public DropletInstance()
+        {
+            this.jobObject.DieOnUnhandledException = true;
+            this.jobObject.ActiveProcesses = 10;
+        }
+
+        /// <summary>
         /// Gets or sets the plugin associated with the instance.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]

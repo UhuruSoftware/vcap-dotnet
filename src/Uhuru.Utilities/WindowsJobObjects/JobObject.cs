@@ -545,6 +545,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         {
             get
             {
+                this.QueryBasicAndIoAccounting();
                 return new TimeSpan((long)this.userProcessorTime + (long)this.kernelProcessorTime);
             }
         }
@@ -556,6 +557,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         {
             get
             {
+                this.QueryBasicAndIoAccounting();
                 return new TimeSpan((long)this.userProcessorTime);
             }
         }
@@ -567,6 +569,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         {
             get
             {
+                this.QueryBasicAndIoAccounting();
                 return new TimeSpan((long)this.kernelProcessorTime);
             }
         }

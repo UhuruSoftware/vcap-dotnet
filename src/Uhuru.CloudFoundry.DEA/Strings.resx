@@ -470,4 +470,7 @@
   <data name="MonitorException" xml:space="preserve">
     <value>"Monitor App Exception: {0}"</value>
   </data>
+  <data name="InstanceProcessCoudNotBeAdded" xml:space="preserve">
+    <value>The {0} instance process could not be added to the instance job object: {1}</value>
+  </data>
 </root>
