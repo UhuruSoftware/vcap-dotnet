@@ -89,6 +89,8 @@
     <Compile Include="Integration\HttpTunnelWcfServiceTest.cs" />
     <Compile Include="System\CloudTestAppTest.cs" />
     <Compile Include="System\DifferentDotNetVersionTest.cs" />
+    <Compile Include="System\MongoTestAppTest.cs" />
+    <Compile Include="System\RedisTestAppTest.cs" />
     <Compile Include="Unit\HttpTunnelTest.cs" />
     <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />
