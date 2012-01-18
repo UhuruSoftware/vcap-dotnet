@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.IO;
 using System.Xml;
+using System.Threading;
 
 namespace Uhuru.CloudFoundry.Test
 {
@@ -72,6 +73,7 @@ namespace Uhuru.CloudFoundry.Test
             // Try 5 times to get the URL
             for (int i = 0; i < 5; i++)
             {
+                Thread.Sleep(2000);
                 request.AllowAutoRedirect = false;
                 try
                 {
