@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.DEA.WindowsService
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -21,6 +22,9 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
         /// </summary>
         internal static void Main()
         {
+            // sets the DEA priority higher.
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.AboveNormal;
+
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);

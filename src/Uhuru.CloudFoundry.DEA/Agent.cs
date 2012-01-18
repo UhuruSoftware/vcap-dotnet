@@ -126,6 +126,11 @@ namespace Uhuru.CloudFoundry.DEA
         private bool secure;
 
         /// <summary>
+        /// If the enforcement of usage limit is enabled.
+        /// </summary>
+        private bool enforceUlimit;
+
+        /// <summary>
         /// The DEA reactor. Is is the middleware to the message bus. 
         /// </summary>
         private DeaReactor deaReactor;
@@ -182,6 +187,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.stager.DisableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
             this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
             this.secure = UhuruSection.GetSection().DEA.Secure;
+            this.enforceUlimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
 
             this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
 
@@ -1100,8 +1106,11 @@ namespace Uhuru.CloudFoundry.DEA
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
                 instance.Properties.EnvironmentVariables = this.SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
-                //// TODO: set only when enforce ulimit flag is set
-                instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                
+                if (this.enforceUlimit)
+                {
+                    instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                }
 
                 this.monitoring.AddInstanceResources(instance);
             }
@@ -1664,7 +1673,8 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
                     Logger.Info(Strings.LoweringPriorityOnCpuBound, instance.Properties.Name, priority);
 
-                    Process.GetProcessById(instance.Properties.ProcessId).PriorityClass = priority;
+                    // Process.GetProcessById(instance.Properties.ProcessId).PriorityClass = priority;
+                    instance.JobObject.PriorityClass = priority;
                 }
             }
 
