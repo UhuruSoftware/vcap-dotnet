@@ -110,6 +110,11 @@ namespace Uhuru.NatsClient
         private List<object> pendingCommands = new List<object>();
 
         /// <summary>
+        /// PendingCommands synchronization lock.
+        /// </summary>
+        private object pendingCommandsLock = new object();
+
+        /// <summary>
         /// Queue containing all the pong callbacks
         /// </summary>
         private Queue<SimpleCallback> pongs = new Queue<SimpleCallback>();
@@ -578,9 +583,12 @@ namespace Uhuru.NatsClient
 
             this.SendCommand(string.Format(CultureInfo.InvariantCulture, "CONNECT {0}{1}", JsonConvertibleObject.SerializeToJson(cs), Resource.CRLF));
 
-            if (this.pendingCommands.Count > 0)
+            lock (this.pendingCommandsLock)
             {
-                this.FlushPendingCommands();
+                if (this.pendingCommands.Count > 0)
+                {
+                    this.FlushPendingCommands();
+                }
             }
 
             if (this.OnError == null)
@@ -626,12 +634,18 @@ namespace Uhuru.NatsClient
         {
             if (this.status != ConnectionStatus.Open)
             {
-                if (this.pendingCommands == null)
+                lock (this.pendingCommandsLock)
                 {
-                    this.pendingCommands = new List<object>();
+                    if (this.pendingCommands == null)
+                    {
+                        this.pendingCommands = new List<object>();
+                    }
                 }
 
-                this.pendingCommands.Add(command);
+                lock (this.pendingCommandsLock)
+                {
+                    this.pendingCommands.Add(command);
+                }
             }
             else
             {
@@ -644,17 +658,20 @@ namespace Uhuru.NatsClient
         /// </summary>
         private void FlushPendingCommands()
         {
-            if (this.pendingCommands.Count == 0)
+            lock (this.pendingCommandsLock)
             {
-                return;
-            }
+                if (this.pendingCommands.Count == 0)
+                {
+                    return;
+                }
 
-            foreach (object data in this.pendingCommands)
-            {
-                this.SendData(data);
-            }
+                foreach (object data in this.pendingCommands)
+                {
+                    this.SendData(data);
+                }
 
-            this.pendingCommands.Clear();
+                this.pendingCommands.Clear();
+            }
         }
 
         /// <summary>

@@ -51,7 +51,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         /// <summary>
         /// Maximum number of active processes.
         /// </summary>
-        private uint activeProcesses = 0;
+        private uint activeProcessesLimit = 0;
 
         /// <summary>
         /// The memory limit of the Job Object.
@@ -282,27 +282,27 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets or sets the active processes in the Job Object.
+        /// Gets or sets the active processes in the Job Object. Set to 0 (zero) to disable the limit.
         /// </summary>
         /// <value>
         /// The active processes.
         /// </value>
-        public int ActiveProcesses
+        public int ActiveProcessesLimit
         {
             get
             {
-                return (int)this.activeProcesses;
+                return (int)this.activeProcessesLimit;
             }
 
             set
             {
-                this.activeProcesses = (uint)value;
+                this.activeProcessesLimit = (uint)value;
                 this.UpdateExtendedLimit();
             }
         }
 
         /// <summary>
-        /// Gets or sets the memory in bytes limit enforced per process.
+        /// Gets or sets the memory in bytes limit enforced per process. Set to 0 (zero) to disable the limit.
         /// </summary>
         /// <value>
         /// The process memory limit.
@@ -322,7 +322,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets or sets the memory limit in bytes of the entire Job Object.
+        /// Gets or sets the memory limit in bytes of the entire Job Object. Set to 0 (zero) to disable the limit.
         /// </summary>
         /// <value>
         /// The job memory limit.
@@ -342,7 +342,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets or sets the process user time limit. It is enforced per process.
+        /// Gets or sets the process user time limit. It is enforced per process. Set to 0 (zero) to disable the limit.
         /// </summary>
         /// <value>
         /// The process user time limit.
@@ -362,7 +362,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
-        /// Gets or sets the Job Object user time limit. Every process user time is accounted.
+        /// Gets or sets the Job Object user time limit. Every process user time is accounted. Set to 0 (zero) to disable the limit.
         /// </summary>
         /// <value>
         /// The job user time limit.
@@ -869,10 +869,10 @@ namespace Uhuru.Utilities.WindowsJobObjects
                 basicLimit.LimitFlags |= NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
             }
 
-            if (this.activeProcesses != 0)
+            if (this.activeProcessesLimit != 0)
             {
                 basicLimit.LimitFlags |= NativeMethods.JOBOBJECT_BASIC_LIMIT_INFORMATION.JOB_OBJECT_LIMIT_ACTIVE_PROCESS;
-                basicLimit.ActiveProcessLimit = this.activeProcesses;
+                basicLimit.ActiveProcessLimit = this.activeProcessesLimit;
             }
 
             if (this.processMemoryLimit != 0)

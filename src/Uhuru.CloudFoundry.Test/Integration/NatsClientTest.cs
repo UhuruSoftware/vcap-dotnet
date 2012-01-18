@@ -268,7 +268,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
         [TestMethod, Description("should not receive a message that it has unsubscribed from")]
         [TestCategory("Integration")]
-        public void TC012_ReciveMessageOnUnsubscription()
+        public void TC012_RecieveMessageOnUnsubscription()
         {
             bool errorThrown = false;
             int receivedCount = 0;
@@ -468,6 +468,13 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     resetEvent.Set();
                 });
 
+
+                ManualResetEvent publishDone = new ManualResetEvent(false);
+
+                natsClient.Publish("foobar", delegate { publishDone.Set(); });
+
+                publishDone.WaitOne();
+
                 using (Reactor natsClient2 = new Reactor())
                 {
                     natsClient2.Start(natsEndpoint);
@@ -509,21 +516,17 @@ namespace Uhuru.CloudFoundry.Test.Integration
                     natsClient.Publish(reply, null, "help");
                 });
 
-                using (Reactor natsClient2 = new Reactor())
+                // todo: vladi: this doesn't work if no message is sent.
+                natsClient.Request("need_help", null, delegate(string msg, string reply, string subject)
                 {
-                    natsClient2.Start(natsEndpoint);
-                    // todo: vladi: this doesn't work if no message is sent.
-                    natsClient2.Request("need_help", null, delegate(string msg, string reply, string subject)
-                    {
-                        receivedReply = msg;
-                        resetEvent.Set();
-                    }, "yyy");
+                    receivedReply = msg;
+                    resetEvent.Set();
+                }, "yyy");
 
-                    resetEvent.WaitOne(5000);
+                resetEvent.WaitOne(5000);
 
-                    natsClient.Stop();
-                    natsClient2.Stop();
-                }
+                natsClient.Stop();
+
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage, "yyy");
@@ -538,6 +541,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             int receivedMessageCount = 0;
             int sid = 0;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
+            object receivedMessageCountLock = new object();
 
             using (Reactor natsClient = new Reactor())
             {
@@ -551,15 +555,20 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 sid = natsClient.Subscribe("foo", delegate(string msg, string reply, string subject)
                 {
-                    receivedMessageCount++;
-                    natsClient.Unsubscribe(sid);
+                    lock (receivedMessageCountLock)
+                    {
+                        receivedMessageCount++;
+                        natsClient.Unsubscribe(sid);
+                    }
                 });
 
-                natsClient.Publish("foo", delegate() { }, "xxx");
-                natsClient.Publish("foo", delegate()
-                {
-                    resetEvent.Set();
+                natsClient.Publish("foo", delegate() {
+                    natsClient.Publish("foo", delegate()
+                    {
+                        resetEvent.Set();
+                    }, "xxx");
                 }, "xxx");
+             
 
                 resetEvent.WaitOne(5000);
                 natsClient.Stop();
@@ -641,11 +650,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 for (int i = 0; i < 40; i++)
                 {
                     string subject = Guid.NewGuid().ToString();
-                    Thread workerThread = new Thread(new ParameterizedThreadStart(delegate(object data)
-                        {
-                            natsClient.Publish((string)data);
-                        }));
-                  
 
                     sid = natsClient.Subscribe(subject, delegate(string msg, string reply, string subj)
                     {
@@ -654,6 +658,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
                             callbackNr++;
                         }
                     });
+
+                    Thread workerThread = new Thread(new ParameterizedThreadStart(delegate(object data)
+                    {
+                        natsClient.Publish((string)data);
+                    }));
+
                     workerThread.Start(subject);
                 }
 

@@ -54,7 +54,7 @@ namespace Uhuru.CloudFoundry.DEA
         public DropletInstance()
         {
             this.jobObject.DieOnUnhandledException = true;
-            this.jobObject.ActiveProcesses = 10;
+            this.jobObject.ActiveProcessesLimit = 10;
         }
 
         /// <summary>
