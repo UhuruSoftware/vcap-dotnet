@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     
@@ -42,9 +43,10 @@ namespace Uhuru.CloudFoundry.DEA
         /// creates a new instance of the plugin
         /// </summary>
         /// <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
+        /// <param name="separateAppdomain">true if the plugin should be loaded into another appdomain</param>
         /// <returns>a plugin object</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "plugin", Justification = "Word is in dictionary, but warning is still generated.")]
-        public static IAgentPlugin CreateInstance(Guid pluginId)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Appdomain", Justification = "Not a typo."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "plugin", Justification = "Word is in dictionary, but warning is still generated.")]
+        public static IAgentPlugin CreateInstance(Guid pluginId, bool separateAppdomain)
         {
             PluginData data = GetPluginData(pluginId);
             if (data.Equals(default(PluginData)))
@@ -52,14 +54,24 @@ namespace Uhuru.CloudFoundry.DEA
                 throw new KeyNotFoundException("There is no data associated with the given unique key");
             }
 
-            AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
+            IAgentPlugin agentPlugin;
 
-            IAgentPlugin agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
+            if (separateAppdomain)
+            {
+                AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
+                agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
 
-            // save data to the dictionary
-            mutexInstanceData.WaitOne();
-            runningInstances[agentPlugin.GetHashCode()] = domain;
-            mutexInstanceData.ReleaseMutex();
+                // save data to the dictionary
+                mutexInstanceData.WaitOne();
+                runningInstances[agentPlugin.GetHashCode()] = domain;
+                mutexInstanceData.ReleaseMutex();
+            }
+            else
+            {
+                // Assembly pluginAssembly = Assembly.Load(data.FilePath);
+                // agentPlugin = (IAgentPlugin)pluginAssembly.CreateInstance(data.ClassName);
+                agentPlugin = (IAgentPlugin)AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
+            }
 
             return agentPlugin;
         }

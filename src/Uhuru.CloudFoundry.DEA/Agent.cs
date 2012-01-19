@@ -293,7 +293,7 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             TimerHelper.RecurringLongCall(
-                500, 
+                100, 
                 delegate
                 {
                     try

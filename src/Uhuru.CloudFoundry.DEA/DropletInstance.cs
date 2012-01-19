@@ -323,13 +323,13 @@ namespace Uhuru.CloudFoundry.DEA
             if (File.Exists(Path.Combine(this.Properties.Directory, pluginInfo.Assembly)))
             {
                 Guid pluginId = PluginHost.LoadPlugin(Path.Combine(this.Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId);
+                this.Plugin = PluginHost.CreateInstance(pluginId, false);
             }
             else
             {
                 // if not load the plugin from the dea
                 Guid pluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId);
+                this.Plugin = PluginHost.CreateInstance(pluginId, false);
             }
         }
 
