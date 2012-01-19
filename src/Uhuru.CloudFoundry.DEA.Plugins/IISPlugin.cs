@@ -162,10 +162,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 {
                     serverMgr = new ServerManager();
                 }
-                else
-                {
-                    serverMgr.CommitChanges();
-                }
 
                 if (serverMgr.Sites[this.appName] == null)
                 {
