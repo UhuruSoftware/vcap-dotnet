@@ -30,13 +30,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
     public class IISPlugin : MarshalByRefObject, IAgentPlugin
     {
-        /*
-        /// <summary>
-        /// Mutex for protecting access to the ServerManager
-        /// </summary>
-        private static Mutex mut = new Mutex(false, "Global\\UhuruIIS");
-        */
-         
         /// <summary>
         /// The application name
         /// </summary>
@@ -153,7 +146,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                // mut.WaitOne();
                 using (ServerManager serverMgr = new ServerManager())
                 {
                     if (serverMgr.Sites[this.appName] == null)
@@ -175,10 +167,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             catch (COMException)
             {
                 return 0;
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
             }
 
             return 0;
@@ -218,43 +206,35 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="path">The application path.</param>
         private static void Cleanup(string path)
         {
-            // mut.WaitOne();
-            try
+            using (ServerManager serverMgr = new ServerManager())
             {
-                using (ServerManager serverMgr = new ServerManager())
+                DirectoryInfo root = new DirectoryInfo(path);
+                DirectoryInfo[] childDirectories = root.GetDirectories("*", SearchOption.AllDirectories);
+
+                foreach (Site site in serverMgr.Sites)
                 {
-                    DirectoryInfo root = new DirectoryInfo(path);
-                    DirectoryInfo[] childDirectories = root.GetDirectories("*", SearchOption.AllDirectories);
+                    string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
+                    string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
 
-                    foreach (Site site in serverMgr.Sites)
+                    if (!Directory.Exists(fullPath))
                     {
-                        string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
-                        string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
+                        Delete(site.Bindings[0].EndPoint.Port);
+                    }
 
-                        if (!Directory.Exists(fullPath))
+                    if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
+                    {
+                        Delete(site.Bindings[0].EndPoint.Port);
+                    }
+
+                    foreach (DirectoryInfo di in childDirectories)
+                    {
+                        if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
                         {
                             Delete(site.Bindings[0].EndPoint.Port);
-                        }
-
-                        if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
-                        {
-                            Delete(site.Bindings[0].EndPoint.Port);
-                        }
-
-                        foreach (DirectoryInfo di in childDirectories)
-                        {
-                            if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
-                            {
-                                Delete(site.Bindings[0].EndPoint.Port);
-                                break;
-                            }
+                            break;
                         }
                     }
                 }
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
             }
         }
 
@@ -265,87 +245,78 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="port">The port.</param>
         private static void Delete(int port)
         {
-            // mut.WaitOne();
-
-            try
+            using (ServerManager serverMgr = new ServerManager())
             {
-                using (ServerManager serverMgr = new ServerManager())
+                Site currentSite = null;
+                foreach (Site site in serverMgr.Sites)
                 {
-                    Site currentSite = null;
-                    foreach (Site site in serverMgr.Sites)
+                    if (site.Bindings[0].EndPoint.Port == port)
                     {
-                        if (site.Bindings[0].EndPoint.Port == port)
-                        {
-                            currentSite = site;
-                            break;
-                        }
-                    }
-
-                    int retryCount = 20;
-                    while (retryCount > 0)
-                    {
-                        try
-                        {
-                            serverMgr.Sites[currentSite.Name].Stop();
-                            break;
-                        }
-                        catch (System.Runtime.InteropServices.COMException)
-                        {
-                            // todo log exception
-                        }
-
-                        retryCount--;
-                    }
-
-                    int time = 0;
-                    while (serverMgr.Sites[currentSite.Name].State != ObjectState.Stopped && time < 300)
-                    {
-                        Thread.Sleep(100);
-                        time++;
-                    }
-
-                    if (time == 300)
-                    {
-                        KillApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
-                    }
-
-                    serverMgr.Sites.Remove(currentSite);
-                    serverMgr.CommitChanges();
-                    FirewallTools.ClosePort(port);
-                    ApplicationPool applicationPool = serverMgr.ApplicationPools[currentSite.Applications["/"].ApplicationPoolName];
-                    serverMgr.ApplicationPools[applicationPool.Name].Stop();
-                    time = 0;
-                    while (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time < 300)
-                    {
-                        Thread.Sleep(100);
-                        time++;
-                    }
-
-                    if (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time == 300)
-                    {
-                        KillApplicationProcesses(applicationPool.Name);
-                    }
-
-                    serverMgr.ApplicationPools.Remove(applicationPool);
-                    serverMgr.CommitChanges();
-                    string username = null;
-                    username = applicationPool.ProcessModel.UserName;
-                    if (username != null)
-                    {
-                        string path = currentSite.Applications["/"].VirtualDirectories["/"].PhysicalPath;
-                        if (Directory.Exists(path))
-                        {
-                            DirectoryInfo deploymentDir = new DirectoryInfo(path);
-                            DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
-                            deploymentDirSecurity.RemoveAccessRuleAll(new FileSystemAccessRule(username, FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, AccessControlType.Allow));
-                            deploymentDir.SetAccessControl(deploymentDirSecurity);
-                        }
+                        currentSite = site;
+                        break;
                     }
                 }
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
+
+                int retryCount = 20;
+                while (retryCount > 0)
+                {
+                    try
+                    {
+                        serverMgr.Sites[currentSite.Name].Stop();
+                        break;
+                    }
+                    catch (System.Runtime.InteropServices.COMException)
+                    {
+                        // todo log exception
+                    }
+
+                    retryCount--;
+                }
+
+                int time = 0;
+                while (serverMgr.Sites[currentSite.Name].State != ObjectState.Stopped && time < 300)
+                {
+                    Thread.Sleep(100);
+                    time++;
+                }
+
+                if (time == 300)
+                {
+                    KillApplicationProcesses(currentSite.Applications["/"].ApplicationPoolName);
+                }
+
+                serverMgr.Sites.Remove(currentSite);
+                serverMgr.CommitChanges();
+                FirewallTools.ClosePort(port);
+                ApplicationPool applicationPool = serverMgr.ApplicationPools[currentSite.Applications["/"].ApplicationPoolName];
+                serverMgr.ApplicationPools[applicationPool.Name].Stop();
+                time = 0;
+                while (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time < 300)
+                {
+                    Thread.Sleep(100);
+                    time++;
+                }
+
+                if (serverMgr.ApplicationPools[applicationPool.Name].State != ObjectState.Stopped && time == 300)
+                {
+                    KillApplicationProcesses(applicationPool.Name);
+                }
+
+                serverMgr.ApplicationPools.Remove(applicationPool);
+                serverMgr.CommitChanges();
+                string username = null;
+                username = applicationPool.ProcessModel.UserName;
+                if (username != null)
+                {
+                    string path = currentSite.Applications["/"].VirtualDirectories["/"].PhysicalPath;
+                    if (Directory.Exists(path))
+                    {
+                        DirectoryInfo deploymentDir = new DirectoryInfo(path);
+                        DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
+                        deploymentDirSecurity.RemoveAccessRuleAll(new FileSystemAccessRule(username, FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify, AccessControlType.Allow));
+                        deploymentDir.SetAccessControl(deploymentDirSecurity);
+                    }
+                }
             }
         }
 
@@ -549,55 +520,47 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             string password = appInfo.WindowsPassword;
             string userName = appInfo.WindowsUserName;
 
-            try
+            using (ServerManager serverMgr = new ServerManager())
             {
-                // mut.WaitOne();
-                using (ServerManager serverMgr = new ServerManager())
+                DirectoryInfo deploymentDir = new DirectoryInfo(appInfo.Path);
+
+                DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
+
+                deploymentDirSecurity.SetAccessRule(
+                    new FileSystemAccessRule(
+                        userName,
+                        FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
+                        InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                        PropagationFlags.None,
+                        AccessControlType.Allow));
+
+                deploymentDir.SetAccessControl(deploymentDirSecurity);
+
+                Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
+                mySite.ServerAutoStart = false;
+
+                ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
+                if (applicationPool == null)
                 {
-                    DirectoryInfo deploymentDir = new DirectoryInfo(appInfo.Path);
-
-                    DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
-
-                    deploymentDirSecurity.SetAccessRule(
-                        new FileSystemAccessRule(
-                            userName,
-                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
-                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                            PropagationFlags.None,
-                            AccessControlType.Allow));
-
-                    deploymentDir.SetAccessControl(deploymentDirSecurity);
-
-                    Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
-                    mySite.ServerAutoStart = false;
-
-                    ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
-                    if (applicationPool == null)
+                    serverMgr.ApplicationPools.Add(this.appName);
+                    applicationPool = serverMgr.ApplicationPools[this.appName];
+                    applicationPool.ManagedRuntimeVersion = aspNetVersion;
+                    applicationPool.ProcessModel.IdentityType = ProcessModelIdentityType.SpecificUser;
+                    applicationPool.ProcessModel.UserName = userName;
+                    applicationPool.ProcessModel.Password = password;
+                    if (this.cpuTarget == CpuTarget.X86)
                     {
-                        serverMgr.ApplicationPools.Add(this.appName);
-                        applicationPool = serverMgr.ApplicationPools[this.appName];
-                        applicationPool.ManagedRuntimeVersion = aspNetVersion;
-                        applicationPool.ProcessModel.IdentityType = ProcessModelIdentityType.SpecificUser;
-                        applicationPool.ProcessModel.UserName = userName;
-                        applicationPool.ProcessModel.Password = password;
-                        if (this.cpuTarget == CpuTarget.X86)
-                        {
-                            applicationPool.Enable32BitAppOnWin64 = true;
-                        }
-                        else
-                        {
-                            applicationPool.Enable32BitAppOnWin64 = false;
-                        }
+                        applicationPool.Enable32BitAppOnWin64 = true;
                     }
-
-                    mySite.Applications["/"].ApplicationPoolName = this.appName;
-                    FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
-                    serverMgr.CommitChanges();
+                    else
+                    {
+                        applicationPool.Enable32BitAppOnWin64 = false;
+                    }
                 }
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
+
+                mySite.Applications["/"].ApplicationPoolName = this.appName;
+                FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
+                serverMgr.CommitChanges();
                 this.startupLogger.Info(Strings.FinishedAppDeploymentOnIis);
             }
         }
@@ -860,42 +823,33 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// </summary>
         private void StartApp()
         {
-            try
-            {
-                this.startupLogger.Info(Strings.StartingIisSite);
+            this.startupLogger.Info(Strings.StartingIisSite);
 
-                // mut.WaitOne();
-                using (ServerManager serverMgr = new ServerManager())
+            using (ServerManager serverMgr = new ServerManager())
+            {
+                Site site = serverMgr.Sites[this.appName];
+
+                this.WaitApp(ObjectState.Stopped, 5000);
+
+                if (site.State == ObjectState.Started)
                 {
-                    Site site = serverMgr.Sites[this.appName];
-
-                    this.WaitApp(ObjectState.Stopped, 5000);
-
-                    if (site.State == ObjectState.Started)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        if (site.State == ObjectState.Stopping)
-                        {
-                            this.WaitApp(ObjectState.Stopped, 5000);
-                        }
-
-                        if (site.State != ObjectState.Starting)
-                        {
-                            site.Start();
-                        }
-                    }
-
-                    // ToDo: add configuration for timeout
-                    this.WaitApp(ObjectState.Started, 20000);
+                    return;
                 }
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
-                this.startupLogger.Info(Strings.FinishedStartingIisSite);
+                else
+                {
+                    if (site.State == ObjectState.Stopping)
+                    {
+                        this.WaitApp(ObjectState.Stopped, 5000);
+                    }
+
+                    if (site.State != ObjectState.Starting)
+                    {
+                        site.Start();
+                    }
+                }
+
+                // ToDo: add configuration for timeout
+                this.WaitApp(ObjectState.Started, 20000);
             }
         }
 
@@ -904,29 +858,21 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// </summary>
         private void StopApp()
         {
-            try
+            using (ServerManager serverMgr = new ServerManager())
             {
-                // mut.WaitOne();
-                using (ServerManager serverMgr = new ServerManager())
+                ObjectState state = serverMgr.Sites[this.appName].State;
+
+                if (state == ObjectState.Stopped)
                 {
-                    ObjectState state = serverMgr.Sites[this.appName].State;
-
-                    if (state == ObjectState.Stopped)
-                    {
-                        return;
-                    }
-                    else if (state == ObjectState.Starting || state == ObjectState.Started)
-                    {
-                        this.WaitApp(ObjectState.Started, 5000);
-                        serverMgr.Sites[this.appName].Stop();
-                    }
-
-                    this.WaitApp(ObjectState.Stopped, 5000);
+                    return;
                 }
-            }
-            finally
-            {
-                // mut.ReleaseMutex();
+                else if (state == ObjectState.Starting || state == ObjectState.Started)
+                {
+                    this.WaitApp(ObjectState.Started, 5000);
+                    serverMgr.Sites[this.appName].Stop();
+                }
+
+                this.WaitApp(ObjectState.Stopped, 5000);
             }
         }
     }
