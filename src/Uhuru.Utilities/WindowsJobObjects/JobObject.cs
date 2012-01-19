@@ -397,7 +397,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
 
             set
             {
-                this.jobMemoryLimit = (uint)value;
+                this.priorityClass = (uint)value;
                 this.UpdateExtendedLimit();
             }
         }
