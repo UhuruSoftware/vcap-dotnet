@@ -225,19 +225,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 DirectoryInfo root = new DirectoryInfo(path);
                 DirectoryInfo[] childDirectories = root.GetDirectories("*", SearchOption.AllDirectories);
 
-                foreach (Site site in serverMgr.Sites)
+                // foreach (Site site in siteCollection)
+                for (int i = 0; i < serverMgr.Sites.Count; i++)
                 {
+                    Site site = serverMgr.Sites[i];
                     string sitePath = site.Applications["/"].VirtualDirectories["/"].PhysicalPath;
                     string fullPath = Environment.ExpandEnvironmentVariables(sitePath);
 
                     if (!Directory.Exists(fullPath))
                     {
                         Delete(site.Bindings[0].EndPoint.Port);
+                        i--;
                     }
 
                     if (fullPath.ToUpperInvariant() == root.FullName.ToUpperInvariant())
                     {
                         Delete(site.Bindings[0].EndPoint.Port);
+                        i--;
                     }
 
                     foreach (DirectoryInfo di in childDirectories)
@@ -245,6 +249,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         if (di.FullName.ToUpperInvariant() == fullPath.ToUpperInvariant())
                         {
                             Delete(site.Bindings[0].EndPoint.Port);
+                            i--;
                             break;
                         }
                     }
