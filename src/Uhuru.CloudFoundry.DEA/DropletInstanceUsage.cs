@@ -58,10 +58,10 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the running time of the droplet instance as a ruby compatible string.
         /// </summary>
         [JsonName("time")]
-        public int TimeInterchangeableFormat
+        public string TimeInterchangeableFormat
         {
-            get { return RubyCompatibility.DateTimeToEpochSeconds(this.Time); }
-            set { this.Time = RubyCompatibility.DateTimeFromEpochSeconds(value); }
+            get { return RubyCompatibility.DateTimeToRubyString(this.Time); }
+            set { this.Time = RubyCompatibility.DateTimeFromRubyString(value); }
         }
 
         /// <summary>
