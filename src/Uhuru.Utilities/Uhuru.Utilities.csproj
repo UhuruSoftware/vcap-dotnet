@@ -101,6 +101,7 @@
     <Compile Include="FileServer.cs" />
     <Compile Include="MonitoringServer.cs" />
     <Compile Include="ProcessPerformance\ProcessInformation.cs" />
+    <Compile Include="ProcessUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RubyCompatibility.cs" />
     <Compile Include="TimerHelper.cs" />

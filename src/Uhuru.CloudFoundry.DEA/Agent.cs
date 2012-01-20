@@ -44,52 +44,52 @@ namespace Uhuru.CloudFoundry.DEA
         /// Home variable.
         /// </summary>
         private const string HomeVariable = "HOME";
-       
+
         /// <summary>
         /// Application variable.
         /// </summary>
         private const string VcapApplicationVariable = "VCAP_APPLICATION";
-        
+
         /// <summary>
         /// Services variable.
         /// </summary>
         private const string VcapServicesVariable = "VCAP_SERVICES";
-        
+
         /// <summary>
         /// Vcap Application Host Variable.
         /// </summary>
         private const string VcapAppHostVariable = "VCAP_APP_HOST";
-        
+
         /// <summary>
         /// Vcap Application Port.
         /// </summary>
         private const string VcapAppPortVariable = "VCAP_APP_PORT";
-        
+
         /// <summary>
         /// Vcap Debug Ip.
         /// </summary>
         private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
-        
+
         /// <summary>
         /// Vcap Debug Port.
         /// </summary>
         private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
-        
+
         /// <summary>
         /// Vcap Plugin Stating Info.
         /// </summary>
         private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
-        
+
         /// <summary>
         /// Vcap Windows User.
         /// </summary>
         private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
-        
+
         /// <summary>
         /// Vcap Windows User Password.
         /// </summary>
         private const string VcapWindowsUserPasswordVariable = "VCAP_WINDOWS_USER_PASSWORD";
-        
+
         /// <summary>
         /// Vcap Application Pid.
         /// </summary>
@@ -169,14 +169,14 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     dea.Environment.Add(ienv.Name, ienv.Value);
                 }
-                
+
                 foreach (Configuration.DEA.DebugElement debugEnv in deaConf.Debug)
                 {
                     dea.DebugEnvironmentVariables.Add(debugEnv.Name, new Dictionary<string, string>());
                     foreach (Configuration.DEA.EnvironmentElement ienv in debugEnv.Environment)
                     {
                         dea.DebugEnvironmentVariables[debugEnv.Name].Add(ienv.Name, ienv.Value);
-                    }   
+                    }
                 }
 
                 this.stager.Runtimes.Add(deaConf.Name, dea);
@@ -264,22 +264,22 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.OnRouterStart += new SubscribeCallback(this.RouterStartHandler);
             this.deaReactor.OnHealthManagerStart += new SubscribeCallback(this.HealthmanagerStartHandler);
-            
+
             base.Run();  // Start the nats client
 
             this.RecoverExistingDroplets();
 
             this.DeleteUntrackedInstanceDirs();
-            
+
             TimerHelper.RecurringLongCall(
-                Monitoring.HeartbeatIntervalMilliseconds, 
+                Monitoring.HeartbeatIntervalMilliseconds,
                 delegate
                 {
                     this.SendHeartbeat();
                 });
 
             TimerHelper.RecurringLongCall(
-                Monitoring.MonitorIntervalMilliseconds, 
+                Monitoring.MonitorIntervalMilliseconds,
                 delegate
                 {
                     try
@@ -293,7 +293,7 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             TimerHelper.RecurringLongCall(
-                1000, 
+                500,
                 delegate
                 {
                     try
@@ -307,14 +307,14 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             TimerHelper.RecurringLongCall(
-                Monitoring.CrashesReaperIntervalMilliseconds, 
+                Monitoring.CrashesReaperIntervalMilliseconds,
                 delegate
                 {
                     this.TheReaper();
                 });
-            
+
             TimerHelper.RecurringLongCall(
-                Monitoring.VarzUpdateIntervalMilliseconds, 
+                Monitoring.VarzUpdateIntervalMilliseconds,
                 delegate
                 {
                     this.SnapshotVarz();
@@ -326,7 +326,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Loads the saved droplet instances the last dea process has saved using the ShanpShotAppState method. 
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Object is properly disposed on failure."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Object is properly disposed on failure."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         public void RecoverExistingDroplets()
         {
@@ -444,7 +444,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.droplets.ScheduleSnapshotAppState();
 
             TimerHelper.DelayedCall(
-                this.evacuationDelayMs, 
+                this.evacuationDelayMs,
                 delegate
                 {
                     this.Shutdown();
@@ -460,7 +460,7 @@ namespace Uhuru.CloudFoundry.DEA
             Logger.Info(Strings.ShuttingDownMessage);
 
             this.droplets.ForEach(
-                true, 
+                true,
                 delegate(DropletInstance instance)
                 {
                     try
@@ -765,7 +765,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.IgnoringRequest);
                 return;
             }
-            
+
             DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
@@ -810,7 +810,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.SendingDeaDiscoverResponse, taintMs);
             TimerHelper.DelayedCall(
-                taintMs, 
+                taintMs,
                 delegate
                 {
                     this.deaReactor.SendReply(reply, this.helloMessage.SerializeToJson());
@@ -1106,7 +1106,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
                 instance.Properties.EnvironmentVariables = this.SetupInstanceEnv(instance, pmessage.Environment, pmessage.Services);
-                
+
                 if (this.enforceUlimit)
                 {
                     instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
@@ -1116,9 +1116,9 @@ namespace Uhuru.CloudFoundry.DEA
             }
             finally
             {
-                this.droplets.Lock.ExitWriteLock();    
+                this.droplets.Lock.ExitWriteLock();
             }
-             
+
             // toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
@@ -1220,7 +1220,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.State = DropletInstanceState.Crashed;
                     instance.Properties.ExitReason = DropletExitReason.Crashed;
                     instance.Properties.StateTimestamp = DateTime.Now;
-                                        
+
                     this.StopDroplet(instance);
                 }
                 finally
@@ -1303,7 +1303,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 }
             }
-            
+
             // Do the runtime environment settings
             foreach (KeyValuePair<string, string> runtimeEnv in this.stager.Runtimes[instance.Properties.Runtime].Environment)
             {
@@ -1468,7 +1468,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Stop an instance if it's usage is above its quota.
         /// Update the varz with resouce usage.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Trying to keep similarity to Ruby version."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Trying to keep similarity to Ruby version."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void MonitorApps()
         {
@@ -1528,7 +1528,7 @@ namespace Uhuru.CloudFoundry.DEA
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
-                            DateTime lastTickTimestamp  = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
+                            DateTime lastTickTimestamp = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
 
                             long ticksDelta = currentTicks - lastTicks;
                             long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
@@ -1665,9 +1665,9 @@ namespace Uhuru.CloudFoundry.DEA
                 if (nice <= Monitoring.MaxReniceValue)
                 {
                     instance.Properties.Nice = nice;
-                    ProcessPriorityClass priority = 
-                        nice == 0 ? ProcessPriorityClass.Normal : 
-                        nice == 1 ? ProcessPriorityClass.BelowNormal : 
+                    ProcessPriorityClass priority =
+                        nice == 0 ? ProcessPriorityClass.Normal :
+                        nice == 1 ? ProcessPriorityClass.BelowNormal :
                                     ProcessPriorityClass.Idle;
 
                     instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
@@ -1690,7 +1690,7 @@ namespace Uhuru.CloudFoundry.DEA
         private void TheReaper()
         {
             this.droplets.ForEach(
-                true, 
+                true,
                 delegate(DropletInstance instance)
                 {
                     if (!instance.Lock.TryEnterWriteLock(10))
@@ -1771,8 +1771,8 @@ namespace Uhuru.CloudFoundry.DEA
 
                                     instance.Properties.Directory = null;
                                 }
-                                catch (UnauthorizedAccessException) 
-                                { 
+                                catch (UnauthorizedAccessException)
+                                {
                                 }
                             }
 
@@ -1801,6 +1801,25 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void InstanceProcessMonitor()
         {
+            Dictionary<string, List<Process>> userMappedProcesses = new Dictionary<string, List<Process>>();
+            Process[] pss = Process.GetProcesses();
+            foreach (Process p in pss)
+            {
+                try
+                {
+                    string processUser = ProcessUser.GetProcessUser(p);
+                    if (!userMappedProcesses.ContainsKey(processUser))
+                    {
+                        userMappedProcesses[processUser] = new List<Process>();
+                    }
+
+                    userMappedProcesses[processUser].Add(p);
+                }
+                catch
+                {
+                }
+            }
+
             this.droplets.ForEach(
                 true,
                 delegate(DropletInstance instance)
@@ -1812,12 +1831,16 @@ namespace Uhuru.CloudFoundry.DEA
 
                     try
                     {
-                        Process instanceProcess = null;
-
-                        instance.Properties.ProcessId = instance.Plugin.GetApplicationProcessId();
-                        if (instance.Properties.ProcessId != 0)
+                        if (!userMappedProcesses.ContainsKey(instance.Properties.WindowsUserName))
                         {
-                            instanceProcess = Process.GetProcessById(instance.Properties.ProcessId);
+                            return;
+                        }
+
+                        List<Process> usersProcesses = userMappedProcesses[instance.Properties.WindowsUserName];
+
+                        foreach (Process instanceProcess in usersProcesses)
+                        {
+                            instance.Properties.ProcessId = instanceProcess.Id;
                             if (!instance.JobObject.HasProcess(instanceProcess))
                             {
                                 try
