@@ -13,7 +13,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("Uhuru Cloud Foundry Services Base")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Uhuru Software, Inc.")]
 [assembly: AssemblyProduct("Uhuru Cloud Foundry Services Base")]
 [assembly: AssemblyCopyright("Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved")]
@@ -39,6 +38,5 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.9.0.0")]
-[assembly: AssemblyFileVersion("0.9.0.0")]
 [assembly: CLSCompliant(true)]
 [assembly: NeutralResourcesLanguageAttribute("")]

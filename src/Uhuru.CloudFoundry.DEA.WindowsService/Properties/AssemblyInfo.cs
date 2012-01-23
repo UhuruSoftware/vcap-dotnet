@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("Uhuru .NET Droplet Execution Agent Windows Service")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Uhuru Software, Inc.")]
 [assembly: AssemblyProduct("Uhuru .NET Droplet Execution Agent")]
 [assembly: AssemblyCopyright("Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved")]
@@ -41,5 +40,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.9.0.0")]
-[assembly: AssemblyFileVersion("0.9.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
