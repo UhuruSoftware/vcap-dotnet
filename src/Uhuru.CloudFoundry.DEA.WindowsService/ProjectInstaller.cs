@@ -10,6 +10,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.Collections;
     using System.ComponentModel;
     using System.Configuration;
+    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Net;
@@ -120,6 +121,24 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             section.Service = null;
             config.Save();
+        }
+
+        /// <summary>
+        /// Raises the <see cref="E:System.Configuration.Install.Installer.AfterInstall"/> event.
+        /// </summary>
+        /// <param name="savedState">An <see cref="T:System.Collections.IDictionary"/> that contains the state of the computer after all the installers contained in the <see cref="P:System.Configuration.Install.Installer.Installers"/> property have completed their installations.</param>
+        protected override void OnAfterInstall(IDictionary savedState)
+        {
+            base.OnAfterInstall(savedState);
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.Arguments = "/C sc failure " + this.serviceInstaller1.ServiceName + " actions= restart/0 reset= 0";
+            info.FileName = "cmd.exe";
+
+            Process p = Process.Start(info);
+            p.WaitForExit();
         }
 
         /// <summary>
