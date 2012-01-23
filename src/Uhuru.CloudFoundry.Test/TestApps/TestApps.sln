@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTestApp", "RedisTestAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoTestApp", "MongoTestApp\App\MongoTestApp.csproj", "{23E5CBAB-E7B0-4E0D-B6F1-FA03021168C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc2Application", "Mvc2Application\App\Mvc2Application.csproj", "{01C0A3A1-F140-424E-855A-5B5A6E349E84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mvc3Application", "Mvc3Application\App\Mvc3Application.csproj", "{1C8A5DAE-6387-4CEC-969B-1F209613C8CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +23,14 @@ Global
 		{23E5CBAB-E7B0-4E0D-B6F1-FA03021168C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23E5CBAB-E7B0-4E0D-B6F1-FA03021168C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23E5CBAB-E7B0-4E0D-B6F1-FA03021168C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01C0A3A1-F140-424E-855A-5B5A6E349E84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01C0A3A1-F140-424E-855A-5B5A6E349E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01C0A3A1-F140-424E-855A-5B5A6E349E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01C0A3A1-F140-424E-855A-5B5A6E349E84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C8A5DAE-6387-4CEC-969B-1F209613C8CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C8A5DAE-6387-4CEC-969B-1F209613C8CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C8A5DAE-6387-4CEC-969B-1F209613C8CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C8A5DAE-6387-4CEC-969B-1F209613C8CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
