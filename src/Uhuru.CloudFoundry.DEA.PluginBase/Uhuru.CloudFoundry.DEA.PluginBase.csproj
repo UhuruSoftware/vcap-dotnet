@@ -15,6 +15,12 @@
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
   </PropertyGroup>
+  <PropertyGroup>
+    <Major>0</Major>
+    <Minor>9</Minor>
+    <!--Jenkins sets BUILD_NUMBER-->
+    <Build>$(BUILD_NUMBER)</Build>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -65,6 +71,7 @@
     <Compile Include="ApplicationParsedData.cs" />
     <Compile Include="ApplicationService.cs" />
     <Compile Include="ApplicationVariable.cs" />
+    <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IAgentPlugin.cs" />
     <Compile Include="PluginHelper.cs" />
@@ -108,4 +115,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition="Exists('$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')" />
+  <Target Name="BeforeBuild" Condition="Exists('$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')">
+    <Message Text="Version: $(Major).$(Minor).0.$(Build)" />
+    <AssemblyInfo CodeLanguage="CS" OutputFile="AssemblyFileInfo.cs" AssemblyFileVersion="$(Major).$(Minor).0.$(Build)" AssemblyConfiguration="$(Configuration)" Condition="$(Build) != '' " />
+  </Target>
 </Project>

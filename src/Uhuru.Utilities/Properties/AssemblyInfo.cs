@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("Uhuru Utilities Library")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Uhuru Software, Inc.")]
 [assembly: AssemblyProduct("Uhuru Utilities Library")]
 [assembly: AssemblyCopyright("Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved")]
@@ -40,7 +39,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.9.0.0")]
-[assembly: AssemblyFileVersion("0.9.0.0")]
 [assembly: CLSCompliant(true)]
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 [assembly: NeutralResourcesLanguageAttribute("")]

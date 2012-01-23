@@ -15,6 +15,12 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
+  <PropertyGroup>
+    <Major>0</Major>
+    <Minor>9</Minor>
+    <!--Jenkins sets BUILD_NUMBER-->
+    <Build>$(BUILD_NUMBER)</Build>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -65,6 +71,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="HttpTunnel.svc.cs">
       <DependentUpon>HttpTunnel.svc</DependentUpon>
     </Compile>
@@ -113,4 +120,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition="Exists('$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')" />
+  <Target Name="BeforeBuild" Condition="Exists('$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')">
+    <Message Text="Version: $(Major).$(Minor).0.$(Build)" />
+    <AssemblyInfo CodeLanguage="CS" OutputFile="AssemblyFileInfo.cs" AssemblyFileVersion="$(Major).$(Minor).0.$(Build)" AssemblyConfiguration="$(Configuration)" Condition="$(Build) != '' " />
+  </Target>
 </Project>
