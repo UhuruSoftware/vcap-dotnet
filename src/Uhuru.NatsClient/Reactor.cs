@@ -162,7 +162,7 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Initializes a new instance of the <see cref="Reactor"/> class.
         /// </summary>
-        internal Reactor()
+        public Reactor()
         {
         }
 
