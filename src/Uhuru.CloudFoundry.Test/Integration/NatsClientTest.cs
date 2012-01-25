@@ -24,10 +24,10 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC001_StartStopClient()
         {
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
-                natsClient.Stop();
+                natsClient.Close();
             }
         }
 
@@ -35,11 +35,11 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC002_CheckState()
         {
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
                 Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
-                natsClient.Stop();
+                natsClient.Close();
             }
         }
 
@@ -47,19 +47,19 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC003_CheckReconnect()
         {
-            Reactor natsClient;
-            using (natsClient = new Reactor())
+            IReactor natsClient;
+            using (natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
                 Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
-                natsClient.Stop();
+                natsClient.Close();
             }
 
-            using (natsClient = new Reactor())
+            using (natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
                 Assert.IsTrue(natsClient.Status == ConnectionStatus.Open);
-                natsClient.Stop();
+                natsClient.Close();
             }
         }
 
@@ -70,7 +70,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Pedantic = true;
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
@@ -82,7 +82,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 natsClient.Unsubscribe(10000);
                 natsClient.Publish("done");
                 resetEvent.WaitOne(10000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsTrue(errorThrown);
         }
@@ -94,7 +94,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -110,7 +110,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 resetEvent.WaitOne(5000);
 
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
         }
@@ -122,7 +122,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -138,7 +138,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 resetEvent.WaitOne(5000);
 
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
         }
@@ -147,11 +147,11 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC007_ReciveSidSubscribe()
         {
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Subscribe("foo");
-                natsClient.Stop();
+                natsClient.Close();
                 Assert.IsTrue(0 < mySid);
             }
         }
@@ -160,11 +160,11 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC008_ReciveSidRequest()
         {
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.Start(natsEndpoint);
                 int mySid = natsClient.Request("foo");
-                natsClient.Stop();
+                natsClient.Close();
                 Assert.IsTrue(0 < mySid);
             }
         }
@@ -177,7 +177,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -195,7 +195,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Publish("foo", null, "xxx");
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage, "xxx");
@@ -209,7 +209,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "xxx";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -227,7 +227,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Publish("foo", null, "");
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage, "");
@@ -241,7 +241,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -260,7 +260,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Publish("foo", null, "xxx");
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsTrue(errorThrown == null, errorThrown);
             Assert.AreEqual(receivedMessage, "xxx");
@@ -275,7 +275,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             object receivedCountLock = new object();
             int sid = 0;
 
-            Reactor natsClient = new Reactor();
+            IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor));
             natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
@@ -304,7 +304,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }, "xxx");
             
             Thread.Sleep(5000);
-            natsClient.Stop();
+            natsClient.Close();
 
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(2, receivedCount);
@@ -320,7 +320,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            Reactor natsClient = new Reactor();
+            IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor));
             natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
             {
                 errorThrown = true;
@@ -343,7 +343,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }, "yyy");
 
             resetEvent.WaitOne(5000);
-            natsClient.Stop();
+            natsClient.Close();
 
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage, "yyy");
@@ -359,7 +359,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -377,7 +377,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 });
 
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.IsTrue(done);
@@ -394,7 +394,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -434,7 +434,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 });
 
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
 
@@ -452,7 +452,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -475,15 +475,15 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 publishDone.WaitOne();
 
-                using (Reactor natsClient2 = new Reactor())
+                using (IReactor natsClient2 = ReactorFactory.GetReactor(typeof(Reactor)))
                 {
                     natsClient2.Start(natsEndpoint);
                     natsClient2.Publish("foo", null, "xxx");
 
                     resetEvent.WaitOne(5000);
 
-                    natsClient.Stop();
-                    natsClient2.Stop();
+                    natsClient.Close();
+                    natsClient2.Close();
                 }
             }
             Assert.IsFalse(errorThrown);
@@ -500,7 +500,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -525,7 +525,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 resetEvent.WaitOne(5000);
 
-                natsClient.Stop();
+                natsClient.Close();
 
             }
             Assert.IsFalse(errorThrown);
@@ -543,7 +543,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             AutoResetEvent resetEvent = new AutoResetEvent(false);
             object receivedMessageCountLock = new object();
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -571,7 +571,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
              
 
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(1, receivedMessageCount);
@@ -584,7 +584,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -598,7 +598,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 natsClient.Unsubscribe(sid);
 
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
         }
@@ -610,7 +610,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             bool errorThrown = false;
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -625,7 +625,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 natsClient.Unsubscribe(sid);
 
                 resetEvent.WaitOne(5000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsTrue(errorThrown);
         }
@@ -640,7 +640,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             int callbackNr = 0;
             int sid = 0;
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -674,7 +674,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 }
 
 
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
         }
@@ -687,7 +687,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -707,7 +707,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Publish("foo", null, ascii.GetString(new byte[9000]));
                 resetEvent.WaitOne(10000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage.Length, 9000);
@@ -721,7 +721,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string receivedMessage = "";
             AutoResetEvent resetEvent = new AutoResetEvent(false);
 
-            using (Reactor natsClient = new Reactor())
+            using (IReactor natsClient = ReactorFactory.GetReactor(typeof(Reactor)))
             {
                 natsClient.OnError += new EventHandler<ReactorErrorEventArgs>(delegate(object sender, ReactorErrorEventArgs args)
                 {
@@ -741,7 +741,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 natsClient.Publish("foo", null, ascii.GetString(new byte[90000]));
                 resetEvent.WaitOne(10000);
-                natsClient.Stop();
+                natsClient.Close();
             }
             Assert.IsFalse(errorThrown);
             Assert.AreEqual(receivedMessage.Length, 90000);

@@ -19,7 +19,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public VCAPReactor()
         {
-            this.NatsClient = new Reactor();
+            this.NatsClient = ReactorFactory.GetReactor(typeof(Reactor));
             this.NatsClient.OnError += this.OnNatsError;
         }
 
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the NATS client.
         /// </summary>
-        public Reactor NatsClient
+        public IReactor NatsClient
         {
             get;
             set;

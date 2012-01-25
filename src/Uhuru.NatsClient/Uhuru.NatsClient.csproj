@@ -67,7 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="IReactor.cs" />
     <Compile Include="ReactorErrorEventArgs.cs" />
+    <Compile Include="ReactorFactory.cs" />
     <Compile Include="Resource.cs" />
     <Compile Include="ParseState.cs" />
     <Compile Include="Resources\ClientConnection.Designer.cs">

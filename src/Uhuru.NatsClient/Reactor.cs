@@ -47,7 +47,7 @@ namespace Uhuru.NatsClient
     /// This class is the NATS client, it is used to communicate to the NATS server.
     /// The reactor enables pub/sub style communication.
     /// </summary>
-    public sealed class Reactor : IDisposable
+    public sealed class Reactor : IReactor
     {
         /// <summary>
         /// Used for creating OnMessage tasks.
@@ -158,6 +158,13 @@ namespace Uhuru.NatsClient
         /// the current reply
         /// </summary>
         private string reply;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Reactor"/> class.
+        /// </summary>
+        internal Reactor()
+        {
+        }
 
         /// <summary>
         /// an event raised on connection
@@ -455,7 +462,7 @@ namespace Uhuru.NatsClient
         /// <summary>
         /// Close the client connection. 
         /// </summary>
-        public void Stop()
+        public void Close()
         {
             this.Status = ConnectionStatus.Closing;
             this.CloseConnection();

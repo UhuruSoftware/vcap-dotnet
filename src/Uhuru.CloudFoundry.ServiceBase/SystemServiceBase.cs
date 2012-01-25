@@ -21,7 +21,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// This is the NATS client used for communication with the rest of CLoud Foundry.
         /// </summary>
-        private Reactor nodeNats;
+        private IReactor nodeNats;
 
         /// <summary>
         /// The local IP that we use to publish stuff.
@@ -46,7 +46,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets the nats reactor used for communicating with the cloud controller.
         /// </summary>
-        public Reactor NodeNats
+        public IReactor NodeNats
         {
             get
             {
@@ -104,7 +104,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.OrphanInstancesHash = new Dictionary<string, object>();
             this.OrphanBindingHash = new Dictionary<string, object>();
 
-            this.nodeNats = new Reactor();
+            this.nodeNats = ReactorFactory.GetReactor(typeof(Reactor));
             this.NodeNats.Start(options.Uri);
 
             this.OnConnectNode();
@@ -180,7 +180,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             Logger.Info(Strings.ShuttingDownLogMessage, this.ServiceDescription());
             if (this.NodeNats != null)
             {
-                this.NodeNats.Stop();
+                this.NodeNats.Close();
             }
         }
 
@@ -192,7 +192,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             if (disposing)
             {
-                this.nodeNats.Stop();
+                this.nodeNats.Close();
                 this.nodeNats.Dispose();
                 this.vcapComponent.Dispose();
             }
