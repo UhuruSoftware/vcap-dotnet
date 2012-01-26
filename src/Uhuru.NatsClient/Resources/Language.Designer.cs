@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.NatsClient.Resources
-{
-
-
+namespace Uhuru.NatsClient.Resources {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -57,6 +57,24 @@ namespace Uhuru.NatsClient.Resources
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempting to reconnect to the NATS server..
+        /// </summary>
+        internal static string AttemptingReconnect {
+            get {
+                return ResourceManager.GetString("AttemptingReconnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unhandled exception in the callback..
+        /// </summary>
+        internal static string CallbackException {
+            get {
+                return ResourceManager.GetString("CallbackException", resourceCulture);
             }
         }
         
@@ -120,6 +138,33 @@ namespace Uhuru.NatsClient.Resources
         internal static string ExceptionSocketReadProblem {
             get {
                 return ResourceManager.GetString("ExceptionSocketReadProblem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NATS ReadTCPData failed..
+        /// </summary>
+        internal static string ReadTCPDataException {
+            get {
+                return ResourceManager.GetString("ReadTCPDataException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NATS SendData failed: {0}.
+        /// </summary>
+        internal static string SendDataFailed {
+            get {
+                return ResourceManager.GetString("SendDataFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to reconnect to NATS server..
+        /// </summary>
+        internal static string UnableToReconnect {
+            get {
+                return ResourceManager.GetString("UnableToReconnect", resourceCulture);
             }
         }
     }

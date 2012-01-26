@@ -135,8 +135,14 @@
   <data name="ConnectedLogMessage" xml:space="preserve">
     <value>{0}: Connected to node mbus</value>
   </data>
+  <data name="ExitingNatsError" xml:space="preserve">
+    <value>EXITING! Nats error: {0}</value>
+  </data>
   <data name="InitializingLogMessage" xml:space="preserve">
     <value>{0}: Initializing</value>
+  </data>
+  <data name="NatsError" xml:space="preserve">
+    <value>Nats error: {0}</value>
   </data>
   <data name="NatsSubjectAnnounce" xml:space="preserve">
     <value>{0}.announce</value>

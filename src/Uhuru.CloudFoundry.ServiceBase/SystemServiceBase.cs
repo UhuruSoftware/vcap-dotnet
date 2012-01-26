@@ -105,6 +105,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.OrphanBindingHash = new Dictionary<string, object>();
 
             this.nodeNats = ReactorFactory.GetReactor(typeof(Reactor));
+            this.nodeNats.OnError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
             this.NodeNats.Start(options.Uri);
 
             this.OnConnectNode();
@@ -252,6 +253,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         private void UpdateHealthz()
         {
             this.vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(this.HealthzDetails());
+        }
+
+        /// <summary>
+        /// NATS the error handler.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
+        private void NatsErrorHandler(object sender, ReactorErrorEventArgs args)
+        {
+            string errorThrown = args.Message == null ? string.Empty : args.Message;
+            Logger.Fatal(Strings.ExitingNatsError, errorThrown);
+            Environment.FailFast(string.Format(CultureInfo.InvariantCulture, Strings.NatsError, errorThrown), args.Exception);
         }
     }
 }

@@ -26,6 +26,7 @@ namespace Uhuru.Utilities
         /// <param name="delay">A double specifying the amount of time to sleep before calling the callback method.</param>
         /// <param name="callback">A method that gets called when the timer ticks.</param>
         /// <returns>The timer that is used to delay the call to the callback method.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "To fail fast on every exception.")]
         public static Timer DelayedCall(double delay, TimerCallback callback)
         {
             Timer newTimer = null;
@@ -36,7 +37,15 @@ namespace Uhuru.Utilities
                 newTimer.AutoReset = false;
                 newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
                     {
-                        callback();
+                        try
+                        {
+                            callback();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
+                            Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                        }
                     });
                 newTimer.Enabled = true;
                 returnTimer = newTimer;
@@ -60,6 +69,7 @@ namespace Uhuru.Utilities
         /// <param name="delay">A double specifying the interval between each tick.</param>
         /// <param name="callback">A method that gets called when the timer ticks.</param>
         /// <returns>The timer that is created.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "To fail fast on every exception.")]
         public static Timer RecurringCall(double delay, TimerCallback callback)
         {
             Timer newTimer = null;
@@ -71,7 +81,15 @@ namespace Uhuru.Utilities
                 newTimer.AutoReset = true;
                 newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
                 {
-                    callback();
+                    try
+                    {
+                        callback();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
+                        Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                    }
                 });
                 newTimer.Enabled = true;
                 returnTimer = newTimer;
@@ -96,13 +114,23 @@ namespace Uhuru.Utilities
         /// <param name="delay">A double specifying the interval between each call of the callback method.</param>
         /// <param name="callback">A method that gets called when the timer ticks.</param>
         /// <returns>The timer that is created.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "To fail fast on every exception.")]
         public static Timer RecurringLongCall(double delay, TimerCallback callback)
         {
             Timer newTimer = new Timer(delay);
             newTimer.AutoReset = false;
             newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
             {
-                callback();
+                try
+                {
+                    callback();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
+                    Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                }
+
                 newTimer.Enabled = true;
             });
             newTimer.Enabled = true;

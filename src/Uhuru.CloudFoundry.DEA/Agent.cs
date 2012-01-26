@@ -282,28 +282,14 @@ namespace Uhuru.CloudFoundry.DEA
                 Monitoring.MonitorIntervalMilliseconds,
                 delegate
                 {
-                    try
-                    {
-                        this.MonitorApps();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(Strings.MonitorException, ex.ToString());
-                    }
+                    this.MonitorApps();
                 });
 
             TimerHelper.RecurringLongCall(
                 500,
                 delegate
                 {
-                    try
-                    {
                         this.InstanceProcessMonitor();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(Strings.MonitorException, ex.ToString());
-                    }
                 });
 
             TimerHelper.RecurringLongCall(
@@ -645,9 +631,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="args">The <see cref="Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
         private void NatsErrorHandler(object sender, ReactorErrorEventArgs args)
         {
-            string errorThrown = args.Message == null ? string.Empty : args.Message;
-            Logger.Error(Strings.ExitingNatsError, errorThrown);
-
             // Only snapshot app state if we had a chance to recover saved state. This prevents a connect error
             // that occurs before we can recover state from blowing existing data away.
             if (this.droplets.RecoveredDroplets)
@@ -655,7 +638,9 @@ namespace Uhuru.CloudFoundry.DEA
                 this.droplets.SnapshotAppState();
             }
 
-            throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Strings.NatsError, errorThrown));
+            string errorThrown = args.Message == null ? string.Empty : args.Message;
+            Logger.Fatal(Strings.ExitingNatsError, errorThrown);
+            Environment.FailFast(string.Format(CultureInfo.InvariantCulture, Strings.NatsError, errorThrown), args.Exception);
         }
 
         /// <summary>

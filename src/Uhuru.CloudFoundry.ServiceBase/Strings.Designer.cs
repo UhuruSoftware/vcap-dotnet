@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.ServiceBase
-{
-
-
+namespace Uhuru.CloudFoundry.ServiceBase {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -115,11 +115,29 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to EXITING! Nats error: {0}.
+        /// </summary>
+        internal static string ExitingNatsError {
+            get {
+                return ResourceManager.GetString("ExitingNatsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}: Initializing.
         /// </summary>
         internal static string InitializingLogMessage {
             get {
                 return ResourceManager.GetString("InitializingLogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nats error: {0}.
+        /// </summary>
+        internal static string NatsError {
+            get {
+                return ResourceManager.GetString("NatsError", resourceCulture);
             }
         }
         
