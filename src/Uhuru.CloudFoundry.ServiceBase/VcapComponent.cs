@@ -172,8 +172,16 @@ namespace Uhuru.CloudFoundry.ServiceBase
             TimeSpan span = DateTime.Now - RubyCompatibility.DateTimeFromRubyString((string)this.discover["start"]);
             this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
 
-            this.Varz["cpu"] = Process.GetCurrentProcess().TotalProcessorTime;
+            float cpu = ((float)Process.GetCurrentProcess().TotalProcessorTime.Ticks / span.Ticks) * 100 / Environment.ProcessorCount;
+
+            // trim it to one decimal precision
+            cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+
+            this.Varz["cpu"] = cpu;
             this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64;
+
+            // extra uhuru information
+            this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
         }
 
         /// <summary>

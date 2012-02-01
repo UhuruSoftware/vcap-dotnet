@@ -256,8 +256,16 @@ namespace Uhuru.CloudFoundry.DEA
             TimeSpan span = DateTime.Now - this.StartedAt;
             this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
 
-            this.Varz["cpu"] = Process.GetCurrentProcess().TotalProcessorTime;
+            float cpu = ((float)Process.GetCurrentProcess().TotalProcessorTime.Ticks / span.Ticks) * 100 / Environment.ProcessorCount;
+
+            // trim it to one decimal precision
+            cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+
+            this.Varz["cpu"] = cpu;
             this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64;
+
+            // extra uhuru information
+            this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
         }
 
         /// <summary>
@@ -271,13 +279,13 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 try
                 {
-                    this.VarzLock.ExitWriteLock();
+                    this.VarzLock.EnterWriteLock();
                     this.UpdateVarz();
                     response.VarzMessage = JsonConvertibleObject.SerializeToJson(this.Varz);
                 }
                 finally
                 {
-                    this.VarzLock.ExitReadLock();
+                    this.VarzLock.ExitWriteLock();
                 }
             };
 

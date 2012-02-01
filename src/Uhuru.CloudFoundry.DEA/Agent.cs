@@ -1519,6 +1519,8 @@ namespace Uhuru.CloudFoundry.DEA
                             long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
 
                             float cpu = tickTimespan != 0 ? ((float)ticksDelta / tickTimespan) * 100 / Environment.ProcessorCount : 0;
+
+                            // trim it to one decimal precision
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
                             long memBytes = instance.JobObject.WorkingSetMemory;
