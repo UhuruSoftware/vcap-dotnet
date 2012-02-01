@@ -157,7 +157,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         private void UpdateDiscoverUptime()
         {
-            TimeSpan span = DateTime.Now - (DateTime)this.discover["start"];
+            TimeSpan span = DateTime.Now - RubyCompatibility.DateTimeFromRubyString((string)this.discover["start"]);
             this.discover["uptime"] = string.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
         }
 
