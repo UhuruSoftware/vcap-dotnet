@@ -177,5 +177,63 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             Assert.Fail();
         }
+
+        /// <summary>
+        ///Another test for ConfigureApplication
+        ///</summary>
+        [TestMethod()]
+        [TestCategory("Integration")]
+        public void TC004_FileNamesWithSpacesFileServerTest()
+        {
+            string user = Credentials.GenerateCredential();
+            string password = Credentials.GenerateCredential();
+
+            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempPath);
+
+            Directory.CreateDirectory(Path.Combine(tempPath, "testDir with space"));
+            File.WriteAllText(Path.Combine(tempPath, "test with space.txt"), "this is a test");
+            File.WriteAllText(Path.Combine(tempPath, "test2.txt"), "this is a test");
+
+
+            int port = NetworkInterface.GrabEphemeralPort();
+
+            FileServer fs = new FileServer(port, tempPath, "foobar", user, password);
+
+            fs.Start();
+
+            WebClient client = new WebClient();
+            NetworkCredential credentials = new NetworkCredential(user, password);
+            client.Credentials = credentials;
+
+
+            byte[] gooddata = client.DownloadData(String.Format("http://{0}:{1}/foobar/test.txt", "localhost", port));
+
+            ASCIIEncoding encoding = new ASCIIEncoding();
+            string retrievedContents = encoding.GetString(gooddata);
+
+            Assert.IsTrue(retrievedContents.Contains("this is a test"));
+
+            Trace.WriteLine(String.Format("http://{2}:{3}@{0}:{1}/foobar/../",
+                NetworkInterface.GetLocalIPAddress(), port, user, password));
+
+            try
+            {
+                Uri dl = new Uri(String.Format("http://{0}:{1}/foobar/useless/../../", "localhost", port));
+
+                byte[] data = client.DownloadData(dl);
+            }
+            catch
+            {
+                return;
+            }
+            finally
+            {
+                fs.Stop();
+            }
+
+            Assert.Fail();
+        }
+
     }
 }
