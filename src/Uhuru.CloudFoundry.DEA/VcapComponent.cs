@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Threading;
     using Uhuru.Configuration;
@@ -248,6 +249,18 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Updates the varz structure with uptime, cpu, memory usage ....
+        /// </summary>
+        private void UpdateVarz()
+        {
+            TimeSpan span = DateTime.Now - this.StartedAt;
+            this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
+
+            this.Varz["cpu"] = Process.GetCurrentProcess().TotalProcessorTime;
+            this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64;
+        }
+
+        /// <summary>
         /// Starts the HTTP server used for healthz and varz.
         /// </summary>
         private void StartHttpServer()
@@ -259,6 +272,7 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     this.VarzLock.ExitWriteLock();
+                    this.UpdateVarz();
                     response.VarzMessage = JsonConvertibleObject.SerializeToJson(this.Varz);
                 }
                 finally

@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
@@ -164,6 +165,18 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
+        /// Updates the varz structure with uptime, cpu, memory usage ....
+        /// </summary>
+        private void UpdateVarz()
+        {
+            TimeSpan span = DateTime.Now - RubyCompatibility.DateTimeFromRubyString((string)this.discover["start"]);
+            this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, "{0}d:{1}h:{2}m:{3}s", span.Days, span.Hours, span.Minutes, span.Seconds);
+
+            this.Varz["cpu"] = Process.GetCurrentProcess().TotalProcessorTime;
+            this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64;
+        }
+
+        /// <summary>
         /// Starts the HTTP server used for monitoring.
         /// </summary>
         /// <param name="host">The host that publishes the monitoring server.</param>
@@ -174,7 +187,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
             // TODO: vladi: port this again, this will most likely not work
             this.httpMonitoringServer = new MonitoringServer(port, host, auth[0], auth[1]);
             this.httpMonitoringServer.HealthzRequested += new EventHandler<HealthzRequestEventArgs>(this.HttpMonitoringServer_HealthzRequested);
+            this.httpMonitoringServer.VarzRequested += new EventHandler<VarzRequestEventArgs>(this.HttpMonitoringServer_VarzRequested);
             this.httpMonitoringServer.Start();
+        }
+
+        /// <summary>
+        /// Handles the VarzRequested event of the httpMonitoringServer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="Uhuru.Utilities.VarzRequestEventArgs"/> instance containing the event data.</param>
+        private void HttpMonitoringServer_VarzRequested(object sender, VarzRequestEventArgs e)
+        {
+            this.UpdateVarz();
+            e.VarzMessage = JsonConvertibleObject.SerializeToJson(this.Varz);
         }
 
         /// <summary>
