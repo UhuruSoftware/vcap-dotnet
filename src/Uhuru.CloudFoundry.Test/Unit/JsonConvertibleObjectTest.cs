@@ -277,7 +277,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         public void DeserializeComplicatedJsonTest()
         {
             //Arrange
-            string jString = @"{""v1"":1,""nv1"":1,""child"":{""x"":1}}";
+            string jString = @"{""v1"":1,""nv1"":1,""nv2"":null,""child"":{""x"":1}}";
 
             //Act
             parenttest a = new parenttest();
