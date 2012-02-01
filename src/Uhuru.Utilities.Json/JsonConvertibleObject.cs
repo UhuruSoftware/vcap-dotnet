@@ -238,12 +238,6 @@ namespace Uhuru.Utilities.Json
 
                 Type memberType = field == null ? property.PropertyType : field.FieldType;
 
-                // If the type is nullable, get the actual type (e.g. int? is actually Nullable<int>)
-                if (memberType.IsGenericType && memberType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    memberType = memberType.GetGenericArguments()[0];
-                }
-
                 object memberValue = null;
 
                 if (valueAsJObject != null && valueAsJObject[jsonPropertyName] != null)
@@ -267,7 +261,15 @@ namespace Uhuru.Utilities.Json
         /// <returns>The converted memeber.</returns>
         private static object ConvertMember(object memberValue, Type memberType)
         {
-            if (memberType.IsSubclassOf(typeof(JsonConvertibleObject)))
+            Type actualMemberType = memberType;
+
+            // If the type is nullable, get the actual type (e.g. int? is actually Nullable<int>)
+            if (memberType.IsGenericType && memberType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                actualMemberType = memberType.GetGenericArguments()[0];
+            }
+
+            if (actualMemberType.IsSubclassOf(typeof(JsonConvertibleObject)))
             {
                 if (memberValue != null)
                 {
@@ -276,7 +278,7 @@ namespace Uhuru.Utilities.Json
                     return finalValue;
                 }
             }
-            else if (memberType.IsEnum)
+            else if (actualMemberType.IsEnum)
             {
                 object enumValue = memberValue;
                 JValue enumValueJObject = enumValue as JValue;
@@ -292,7 +294,7 @@ namespace Uhuru.Utilities.Json
                     return null;
                 }
 
-                object valueToSet = GetEnumValueFromString(memberType, strEnumValue);
+                object valueToSet = GetEnumValueFromString(actualMemberType, strEnumValue);
 
                 return valueToSet;
             }
