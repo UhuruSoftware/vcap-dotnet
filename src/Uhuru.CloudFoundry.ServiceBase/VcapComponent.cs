@@ -84,11 +84,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             Reactor nats = (Reactor)options["nats"];
 
-            string[] auth = new string[] 
-            { 
-                options.ContainsKey("user") ? options["user"].ToString() : string.Empty, 
-                options.ContainsKey("password") ? options["password"].ToString() : string.Empty
-            };
+            //// string[] auth = new string[] 
+            //// { 
+            ////     options.ContainsKey("user") ? options["user"].ToString() : string.Empty, 
+            ////     options.ContainsKey("password") ? options["password"].ToString() : string.Empty
+            //// };
+
+            string[] auth = new string[] { Credentials.GenerateCredential(32), Credentials.GenerateCredential(32) };
 
             // Discover message limited
             this.discover = new Dictionary<string, object>() 

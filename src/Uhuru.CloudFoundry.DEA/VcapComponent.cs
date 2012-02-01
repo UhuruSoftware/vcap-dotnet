@@ -45,7 +45,7 @@ namespace Uhuru.CloudFoundry.DEA
             // http server port
             this.Port = NetworkInterface.GrabEphemeralPort();
 
-            this.Authentication = new string[] { Credentials.GenerateCredential(), Credentials.GenerateCredential() };
+            this.Authentication = new string[] { Credentials.GenerateCredential(32), Credentials.GenerateCredential(32) };
         }
 
         /// <summary>
