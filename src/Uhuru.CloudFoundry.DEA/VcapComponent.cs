@@ -170,6 +170,13 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public virtual void Run()
         {
+            // Listen for discovery requests
+            VCAPReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
+            {
+                this.UpdateDiscoverUptime();
+                VCAPReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(this.Discover));
+            };
+
             VCAPReactor.Start();
 
             this.Discover = new Dictionary<string, object>() 
@@ -192,13 +199,6 @@ namespace Uhuru.CloudFoundry.DEA
             this.Varz["num_cores"] = Environment.ProcessorCount;
 
             this.Healthz = "ok\n";
-
-            // Listen for discovery requests
-            VCAPReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
-            {
-                this.UpdateDiscoverUptime();
-                VCAPReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(this.Discover));
-            };
 
             this.StartHttpServer();
 
