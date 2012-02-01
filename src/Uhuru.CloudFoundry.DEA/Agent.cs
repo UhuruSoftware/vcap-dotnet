@@ -1513,11 +1513,11 @@ namespace Uhuru.CloudFoundry.DEA
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
-                            DateTime lastTickTimestamp = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
-
+                            
                             long ticksDelta = currentTicks - lastTicks;
 
                             // this is the case when the cpu utilization is reported between the last sample timestamp and now
+                            // DateTime lastTickTimestamp = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
                             // long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
 
                             // this is the case when the cpu utilization is reported as the total life of the app
