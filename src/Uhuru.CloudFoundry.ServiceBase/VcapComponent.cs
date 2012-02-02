@@ -178,7 +178,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
             this.Varz["cpu"] = cpu;
-            this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64;
+            this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64 / 1024;
 
             // extra uhuru information
             this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
