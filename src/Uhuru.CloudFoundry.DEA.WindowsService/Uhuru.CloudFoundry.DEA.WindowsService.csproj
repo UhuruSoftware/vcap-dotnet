@@ -108,10 +108,6 @@
       <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
       <Name>Uhuru.Configuration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Uhuru.Utilities.Json\Uhuru.Utilities.Json.csproj">
-      <Project>{9A303BC0-891C-4C58-B3F4-BC7423ECA52E}</Project>
-      <Name>Uhuru.Utilities.Json</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
       <Name>Uhuru.Utilities</Name>

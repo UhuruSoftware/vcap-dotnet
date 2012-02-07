@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{36167E76-BAC3-4CB7-B1A4-2D0E9194CEC6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Uhuru.Utilities</RootNamespace>
+    <AssemblyName>Uhuru.Utilities35</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\3.5\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\3.5\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net35, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\log4net35.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.IdentityModel.Selectors" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="Credentials.cs" />
+    <Compile Include="DiskUsageEntry.cs" />
+    <Compile Include="FileLogger.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="HealthzRequestEventArgs.cs" />
+    <Compile Include="HttpTunnel\ClientEnd.cs" />
+    <Compile Include="HttpTunnel\ITunnel.cs" />
+    <Compile Include="HttpTunnel\ServerEnd.cs" />
+    <Compile Include="HttpTunnel\TunnelErrorMessages.Designer.cs" />
+    <Compile Include="Json\JsonConvertibleObject.cs" />
+    <Compile Include="Json\JsonNameAttribute.cs" />
+    <Compile Include="Json\JsonTools.cs" />
+    <Compile Include="LoadAssemblyHelper.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="NetFrameworkVersion.cs" />
+    <Compile Include="NetworkInterface.cs" />
+    <Compile Include="PlatformTarget.cs" />
+    <Compile Include="ProcessPerformance\NativeMethods.cs" />
+    <Compile Include="ProcessPerformance\ProcessData.cs" />
+    <Compile Include="ProcessPerformance\ProcessInformation.cs" />
+    <Compile Include="ProcessPerformance\ProcessTimes.cs" />
+    <Compile Include="ProcessPerformance\SystemTime.cs" />
+    <Compile Include="ProcessUser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RubyCompatibility.cs" />
+    <Compile Include="Strings.Designer.cs" />
+    <Compile Include="TunnelPackage.cs" />
+    <Compile Include="UserCustomAuthentication.cs" />
+    <Compile Include="VarzRequestEventArgs.cs" />
+    <Compile Include="WindowsJobObjects\JobObject.cs" />
+    <Compile Include="WindowsJobObjects\JobObjectHandle.cs" />
+    <Compile Include="WindowsJobObjects\NativeMethods.cs" />
+    <Compile Include="WindowsVcapUsers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HttpTunnel\TunnelErrorMessages.resx" />
+    <EmbeddedResource Include="Strings.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\log4net35.dll" />
+    <Content Include="lib\log4net35.xml" />
+    <Content Include="lib\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="key.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

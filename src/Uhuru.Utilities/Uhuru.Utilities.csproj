@@ -79,6 +79,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="Json\JsonConvertibleObject.cs" />
+    <Compile Include="Json\JsonNameAttribute.cs" />
+    <Compile Include="Json\JsonTools.cs" />
     <Compile Include="PlatformTarget.cs">
       <SubType>Code</SubType>
     </Compile>
