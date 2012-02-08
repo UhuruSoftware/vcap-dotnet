@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{36167E76-BAC3-4CB7-B1A4-2D0E9194CEC6}</ProjectGuid>
+    <ProjectGuid>{16E13234-6A76-46EF-8B98-9BAC1842324A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Uhuru.Utilities</RootNamespace>
-    <AssemblyName>Uhuru.Utilities35</AssemblyName>
+    <AssemblyName>Uhuru.Utilities.v3_5</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -23,6 +23,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\..\doc\3.5\Uhuru.Utilities.v3_5.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +35,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\..\doc\3.5\Uhuru.Utilities.v3_5.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -41,72 +45,39 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net35, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\log4net35.dll</HintPath>
-    </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.IdentityModel" />
-    <Reference Include="System.IdentityModel.Selectors" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Uhuru.Utilities\Json\JsonConvertibleObject.cs">
+      <Link>Json\JsonConvertibleObject.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\Json\JsonNameAttribute.cs">
+      <Link>Json\JsonNameAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\TunnelPackage.cs">
+      <Link>TunnelPackage.cs</Link>
+    </Compile>
     <Compile Include="AssemblyFileInfo.cs" />
-    <Compile Include="Credentials.cs" />
-    <Compile Include="DiskUsageEntry.cs" />
-    <Compile Include="FileLogger.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="HealthzRequestEventArgs.cs" />
-    <Compile Include="HttpTunnel\ClientEnd.cs" />
-    <Compile Include="HttpTunnel\ITunnel.cs" />
-    <Compile Include="HttpTunnel\ServerEnd.cs" />
-    <Compile Include="HttpTunnel\TunnelErrorMessages.Designer.cs" />
-    <Compile Include="Json\JsonConvertibleObject.cs" />
-    <Compile Include="Json\JsonNameAttribute.cs" />
-    <Compile Include="Json\JsonTools.cs" />
-    <Compile Include="LoadAssemblyHelper.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="NetFrameworkVersion.cs" />
-    <Compile Include="NetworkInterface.cs" />
-    <Compile Include="PlatformTarget.cs" />
-    <Compile Include="ProcessPerformance\NativeMethods.cs" />
-    <Compile Include="ProcessPerformance\ProcessData.cs" />
-    <Compile Include="ProcessPerformance\ProcessInformation.cs" />
-    <Compile Include="ProcessPerformance\ProcessTimes.cs" />
-    <Compile Include="ProcessPerformance\SystemTime.cs" />
-    <Compile Include="ProcessUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RubyCompatibility.cs" />
-    <Compile Include="Strings.Designer.cs" />
-    <Compile Include="TunnelPackage.cs" />
-    <Compile Include="UserCustomAuthentication.cs" />
-    <Compile Include="VarzRequestEventArgs.cs" />
-    <Compile Include="WindowsJobObjects\JobObject.cs" />
-    <Compile Include="WindowsJobObjects\JobObjectHandle.cs" />
-    <Compile Include="WindowsJobObjects\NativeMethods.cs" />
-    <Compile Include="WindowsVcapUsers.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HttpTunnel\TunnelErrorMessages.resx" />
-    <EmbeddedResource Include="Strings.resx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\log4net35.dll" />
-    <Content Include="lib\log4net35.xml" />
-    <Content Include="lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
+      <Link>CustomDictionary.xml</Link>
+    </CodeAnalysisDictionary>
+    <Content Include="lib\log4net.dll" />
+    <Content Include="lib\log4net.xml" />
+    <Content Include="lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
