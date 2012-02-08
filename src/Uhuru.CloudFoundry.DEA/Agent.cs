@@ -1464,12 +1464,11 @@ namespace Uhuru.CloudFoundry.DEA
             long memoryUsageKbytes = 0;
             List<object> runningApps = new List<object>();
 
-            if (this.droplets.NoMonitorableApps())
-            {
-                this.monitoring.MemoryUsageKbytes = 0;
-                return;
-            }
-
+            // if (this.droplets.NoMonitorableApps())
+            // {
+            //    this.monitoring.MemoryUsageKbytes = 0;
+            //    return;
+            // }
             DateTime monitorStart = DateTime.Now;
             DateTime diskUsageStart = DateTime.Now;
 
@@ -1598,6 +1597,8 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Lock.ExitWriteLock();
                     }
                 });
+
+            this.monitoring.MemoryUsageKbytes = memoryUsageKbytes;
 
             // export running app information to varz
             try
