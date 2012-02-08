@@ -655,15 +655,18 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Snapshots the varz with basic resource information.
         /// </summary>
-        private void SnapshotVarz()
+        private new void SnapshotVarz()
         {
             try
             {
                 VarzLock.EnterWriteLock();
+
+                base.SnapshotVarz();
+
                 Varz["apps_max_memory"] = this.monitoring.MaxMemoryMbytes;
                 Varz["apps_reserved_memory"] = this.monitoring.MemoryReservedMbytes;
                 Varz["apps_used_memory"] = this.monitoring.MemoryUsageKbytes / 1024;
-                Varz["num_apps"] = this.monitoring.MaxClients;
+                Varz["num_apps"] = this.monitoring.Clients;
                 if (this.shuttingDown)
                 {
                     Varz["state"] = "SHUTTING_DOWN";

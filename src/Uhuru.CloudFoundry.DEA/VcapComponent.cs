@@ -26,7 +26,7 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors", Justification = "No easy way to get around this without a lot of refactoring.")]
         public VCAPComponent()
         {
-            this.VarzLock = new ReaderWriterLockSlim();
+            this.VarzLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
             this.Varz = new Dictionary<string, object>();
             this.Discover = new Dictionary<string, object>();
 
@@ -240,32 +240,41 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Updates the varz structure with uptime, cpu, memory usage ....
+        /// </summary>
+        protected void SnapshotVarz()
+        {
+            try
+            {
+                this.VarzLock.EnterWriteLock();
+
+                TimeSpan span = DateTime.Now - this.StartedAt;
+                this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
+
+                float cpu = ((float)Process.GetCurrentProcess().TotalProcessorTime.Ticks / span.Ticks) * 100;
+
+                // trim it to one decimal precision
+                cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
+
+                this.Varz["cpu"] = cpu;
+                this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64 / 1024;
+
+                // extra uhuru information
+                this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
+            }
+            finally
+            {
+                this.VarzLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
         /// Updates the discover uptime.
         /// </summary>
         private void UpdateDiscoverUptime()
         {
             TimeSpan span = DateTime.Now - this.StartedAt;
             this.Discover["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
-        }
-
-        /// <summary>
-        /// Updates the varz structure with uptime, cpu, memory usage ....
-        /// </summary>
-        private void UpdateVarz()
-        {
-            TimeSpan span = DateTime.Now - this.StartedAt;
-            this.Varz["uptime"] = string.Format(CultureInfo.InvariantCulture, Strings.DaysHoursMinutesSecondsDateTimeFormat, span.Days, span.Hours, span.Minutes, span.Seconds);
-
-            float cpu = ((float)Process.GetCurrentProcess().TotalProcessorTime.Ticks / span.Ticks) * 100;
-
-            // trim it to one decimal precision
-            cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
-
-            this.Varz["cpu"] = cpu;
-            this.Varz["mem"] = Process.GetCurrentProcess().WorkingSet64 / 1024;
-
-            // extra uhuru information
-            this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
         }
 
         /// <summary>
@@ -280,7 +289,6 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     this.VarzLock.EnterWriteLock();
-                    this.UpdateVarz();
                     response.VarzMessage = JsonConvertibleObject.SerializeToJson(this.Varz);
                 }
                 finally
