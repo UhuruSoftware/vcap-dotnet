@@ -8,7 +8,7 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.IdentityModel.Selectors;
-    using System.ServiceModel;
+    using System.Security;
 
     /// <summary>
     /// Class used for custom user/password authentication.
@@ -56,7 +56,7 @@ namespace Uhuru.Utilities
 
             if (!(userName == this.validUsername && password == this.validPassword))
             {
-                throw new FaultException("Unknown username or incorrect password");
+                throw new SecurityException("Unknown username or incorrect password");
             }
         }
     }
