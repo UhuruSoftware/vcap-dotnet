@@ -14,7 +14,7 @@ namespace Uhuru.Utilities
     /// </summary>
     public static class TunnelPackage
     {
-        /// <summary>
+                /// <summary>
         /// Prepares a HttpTunnel Service
         /// </summary>
         /// <param name="sourceDir">The source dir.</param>
@@ -23,6 +23,21 @@ namespace Uhuru.Utilities
         /// <param name="remoteHost">The remote host.</param>
         /// <param name="remoteProtocol">The remote protocol.</param>
         public static void Create(string sourceDir, string destinationDir, string remotePort, string remoteHost, string remoteProtocol)
+        {
+            Create(sourceDir, destinationDir, remotePort, remoteHost, remoteProtocol, null, null);
+        }
+
+        /// <summary>
+        /// Prepares a HttpTunnel Service
+        /// </summary>
+        /// <param name="sourceDir">The source dir.</param>
+        /// <param name="destinationDir">The destination dir.</param>
+        /// <param name="remotePort">The remote port.</param>
+        /// <param name="remoteHost">The remote host.</param>
+        /// <param name="remoteProtocol">The remote protocol.</param>
+        /// <param name="user">The username for the remote service</param>
+        /// <param name="password">The password for the remote service</param>
+        public static void Create(string sourceDir, string destinationDir, string remotePort, string remoteHost, string remoteProtocol, string user, string password)
         {
             CopyAll(new DirectoryInfo(sourceDir), new DirectoryInfo(destinationDir));
             string configFile = Path.Combine(destinationDir, "web.config");
@@ -36,14 +51,55 @@ namespace Uhuru.Utilities
                 switch (childNode.Attributes["key"].Value)
                 {
                     case "destinationIp":
-                        childNode.Attributes["value"].Value = remoteHost;
-                        break;
+                        {
+                            if (remoteHost != null)
+                            {
+                                childNode.Attributes["value"].Value = remoteHost;
+                            }
+
+                            break;
+                        }
+
                     case "destinationPort":
-                        childNode.Attributes["value"].Value = remotePort;
-                        break;
+                        {
+                            if (remotePort != null)
+                            {
+                                childNode.Attributes["value"].Value = remotePort;
+                            }
+
+                            break;
+                        }
+
                     case "protocol":
-                        childNode.Attributes["value"].Value = remoteProtocol;
-                        break;
+                        {
+                            if (remoteProtocol != null)
+                            {
+                                childNode.Attributes["value"].Value = remoteProtocol;
+                            }
+
+                            break;
+                        }
+
+                    case "user":
+                        {
+                            if (user != null)
+                            {
+                                childNode.Attributes["value"].Value = user;
+                            }
+
+                            break;
+                        }
+
+                    case "password":
+                        {
+                            if (password != null)
+                            {
+                                childNode.Attributes["value"].Value = password;
+                            }
+
+                            break;
+                        }
+
                     default:
                         break;
                 }
