@@ -243,8 +243,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             details["orphan_instances"] = this.OrphanInstancesHash;
             details["orphan_bindings"] = this.OrphanBindingHash;
+            
+            foreach (string key in details.Keys)
+            {
+                this.vcapComponent.Varz[key] = details[key];
+            }
 
-            this.vcapComponent.Varz = details;
         }
 
         /// <summary>
