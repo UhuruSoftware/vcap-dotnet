@@ -248,7 +248,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
             {
                 this.vcapComponent.Varz[key] = details[key];
             }
-
         }
 
         /// <summary>
