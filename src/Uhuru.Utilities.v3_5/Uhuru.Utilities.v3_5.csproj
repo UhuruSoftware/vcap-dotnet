@@ -49,17 +49,31 @@
     <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Uhuru.Utilities\HttpTunnel\ClientEnd.cs">
+      <Link>HttpTunnel\ClientEnd.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\HttpTunnel\ITunnel.cs">
+      <Link>HttpTunnel\ITunnel.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\HttpTunnel\TunnelErrorMessages.Designer.cs">
+      <Link>HttpTunnel\TunnelErrorMessages.Designer.cs</Link>
+    </Compile>
     <Compile Include="..\Uhuru.Utilities\Json\JsonConvertibleObject.cs">
       <Link>Json\JsonConvertibleObject.cs</Link>
     </Compile>
     <Compile Include="..\Uhuru.Utilities\Json\JsonNameAttribute.cs">
       <Link>Json\JsonNameAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\Logger.cs">
+      <Link>Logger.cs</Link>
     </Compile>
     <Compile Include="..\Uhuru.Utilities\TunnelPackage.cs">
       <Link>TunnelPackage.cs</Link>
@@ -78,6 +92,11 @@
     <Content Include="lib\log4net.dll" />
     <Content Include="lib\log4net.xml" />
     <Content Include="lib\Newtonsoft.Json.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Uhuru.Utilities\HttpTunnel\TunnelErrorMessages.resx">
+      <Link>HttpTunnel\TunnelErrorMessages.resx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
