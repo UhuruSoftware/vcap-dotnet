@@ -4,92 +4,6 @@
         <name>Uhuru.Utilities.v3_5</name>
     </assembly>
     <members>
-        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelClientEndState">
-            <summary>
-            This is an enum detailing the possible states of a tunnel client end.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.None">
-            <summary>
-            The client end object has been created, but it was never started.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.Started">
-            <summary>
-            The client end is started and can be used for communication.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.Stopped">
-            <summary>
-            The client end has been stopped by a call to the <see cref="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Stop"/> method.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.ServerUnavailable">
-            <summary>
-            The server end of the tunnel went away.
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.ClientEnd">
-            <summary>
-            This class can connect to a remote HTTP Tunnel endpoint and facilitate TCP/IP communication between a client.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.closing">
-            <summary>
-            Indicates whether the client is supposed to be closing.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.state">
-            <summary>
-            Indicates the state of the client end tunnel.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.connectionThreads">
-            <summary>
-            This list contains all the threads that are used to read/write to the actual client.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.tunnelRunner">
-            <summary>
-            This is the thread that runs the tunnel listener.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Start(System.Uri,System.Int32,System.String,Uhuru.Utilities.HttpTunnel.TunnelProtocolType)">
-            <summary>
-            Starts the client end of the tunnel.
-            </summary>
-            <param name="remoteHttpUrl">The remote HTTP URL of the WCF service hosting the server end of the tunnel.</param>
-            <param name="localPort">The local port to open.</param>
-            <param name="localIP">The local IP on which to listen for connections (if it's a TCP tunnel).</param>
-            <param name="protocol">The protocol to use (TCP or UDP).</param>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Stop">
-            <summary>
-            Stops the client end of the tunnel.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartTCPTunnel(System.Uri,System.Int32,System.String)">
-            <summary>
-            Starts a TCP tunnel.
-            </summary>
-            <param name="remoteHttpUrl">The remote HTTP URL.</param>
-            <param name="localPort">The local port.</param>
-            <param name="localIp">The local IP.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartUDPTunnel(System.Uri,System.Int32,System.String,System.Boolean)">
-            <summary>
-            Starts a UDP tunnel.
-            </summary>
-            <param name="remoteHttpUrl">The remote HTTP URL.</param>
-            <param name="localPort">The local port.</param>
-            <param name="localIp">The local ip.</param>
-            <param name="listening">True if the UDP socket is listening mode.</param>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.ClientEnd.State">
-            <summary>
-            Gets the state of the client.
-            </summary>
-        </member>
         <member name="T:Uhuru.Utilities.HttpTunnel.TunnelProtocolType">
             <summary>
             Defines possible protocol types to tunnel
@@ -167,106 +81,6 @@
             Gets or sets the data for this package.
             </summary>
         </member>
-        <member name="T:Uhuru.Utilities.Logger">
-            <summary>
-            This is a helper logger class that is used throughout the code.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.Logger.configureEventLogSourceLock">
-            <summary>
-            A lock object used to make sure multiple threads don't configure an event log source at the same time.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.Logger.log">
-            <summary>
-            The log4net ILog object used for logging.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.Logger.isSourceConfigured">
-            <summary>
-            Specifies whether the Windows Event Log source has been configured.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String)">
-            <summary>
-            Logs a fatal message.
-            This indicates a really severe error, that will probably make the application crash.
-            </summary>
-            <param name="message">The message to be logged.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Error(System.String)">
-            <summary>
-            Logs an error message.
-            This indicates an error, but the application may be able to continue.
-            </summary>
-            <param name="message">The message to be logged.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Warning(System.String)">
-            <summary>
-            Logs a warning message.
-            This indicates a situation that could lead to some bad things.
-            </summary>
-            <param name="message">The message to be logged.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Info(System.String)">
-            <summary>
-            Logs an information message.
-            The message is used to indicate some progress.
-            </summary>
-            <param name="message">The message to be logged.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Debug(System.String)">
-            <summary>
-            Logs a debug message.
-            This is an informational message, that is useful when debugging.
-            </summary>
-            <param name="message">The message to be logged.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String,System.Object[])">
-            <summary>
-            Logs a fatal message and formats it.
-            This indicates a really severe error, that will probably make the application crash.
-            </summary>
-            <param name="message">The message to be logged.</param>
-            <param name="args">The arguments used for formatting.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Error(System.String,System.Object[])">
-            <summary>
-            Logs an error message and formats it.
-            This indicates an error, but the application may be able to continue.
-            </summary>
-            <param name="message">The message to be logged.</param>
-            <param name="args">The arguments used for formatting.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Warning(System.String,System.Object[])">
-            <summary>
-            Logs a warning message and formats it.
-            This indicates a situation that could lead to some bad things.
-            </summary>
-            <param name="message">The message to be logged.</param>
-            <param name="args">The arguments used for formatting.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Info(System.String,System.Object[])">
-            <summary>
-            Logs an information message and formats it.
-            The message is used to indicate some progress.
-            </summary>
-            <param name="message">The message to be logged.</param>
-            <param name="args">The arguments used for formatting.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.Debug(System.String,System.Object[])">
-            <summary>
-            Logs a debug message and formats it.
-            This is an informational message, that is useful when debugging.
-            </summary>
-            <param name="message">The message to be logged.</param>
-            <param name="args">The arguments used for formatting.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Logger.SetEventLogSource">
-            <summary>
-            Sets up the event log source.
-            </summary>
-        </member>
         <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
             <summary>
             This is an attribute that is used to decorate fields/properties/enums with JSON names.
@@ -289,46 +103,6 @@
             <summary>
             Gets the Name of the member.
             </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages">
-            <summary>
-              A strongly-typed resource class, for looking up localized strings, etc.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.ResourceManager">
-            <summary>
-              Returns the cached ResourceManager instance used by this class.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.Culture">
-            <summary>
-              Overrides the current thread's CurrentUICulture property for all
-              resource lookups using this strongly typed resource class.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotCloseConnection">
-             <summary>
-               Looks up a localized string similar to Could not close connection on tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotOpenConnection">
-             <summary>
-               Looks up a localized string similar to Could not open connection on tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotReceiveData">
-             <summary>
-               Looks up a localized string similar to Could not receive data from tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotSendData">
-             <summary>
-               Looks up a localized string similar to Could not send data to tunnel server.
-            {0}.
-             </summary>
         </member>
         <member name="T:Uhuru.Utilities.Json.JsonConvertibleObject">
             <summary>
@@ -434,12 +208,284 @@
             <param name="user">The username for the remote service</param>
             <param name="password">The password for the remote service</param>
         </member>
+        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Prepares a HttpTunnel Service
+            </summary>
+            <param name="sourceDir">The source dir.</param>
+            <param name="destinationDir">The destination dir.</param>
+            <param name="remotePort">The remote port.</param>
+            <param name="remoteHost">The remote host.</param>
+            <param name="remoteProtocol">The remote protocol.</param>
+            <param name="user">The username for the remote service</param>
+            <param name="password">The password for the remote service</param>
+            <param name="databaseName">The name of the remote database</param>
+        </member>
         <member name="M:Uhuru.Utilities.TunnelPackage.CopyAll(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">
             <summary>
             Copies all files and subfolders from one folder to another
             </summary>
             <param name="source">The source directory info</param>
             <param name="target">The target directory info</param>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotCloseConnection">
+             <summary>
+               Looks up a localized string similar to Could not close connection on tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotOpenConnection">
+             <summary>
+               Looks up a localized string similar to Could not open connection on tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotReceiveData">
+             <summary>
+               Looks up a localized string similar to Could not receive data from tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotSendData">
+             <summary>
+               Looks up a localized string similar to Could not send data to tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelClientEndState">
+            <summary>
+            This is an enum detailing the possible states of a tunnel client end.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.None">
+            <summary>
+            The client end object has been created, but it was never started.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.Started">
+            <summary>
+            The client end is started and can be used for communication.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.Stopped">
+            <summary>
+            The client end has been stopped by a call to the <see cref="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Stop"/> method.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelClientEndState.ServerUnavailable">
+            <summary>
+            The server end of the tunnel went away.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.ClientEnd">
+            <summary>
+            This class can connect to a remote HTTP Tunnel endpoint and facilitate TCP/IP communication between a client.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.closing">
+            <summary>
+            Indicates whether the client is supposed to be closing.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.state">
+            <summary>
+            Indicates the state of the client end tunnel.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.connectionThreads">
+            <summary>
+            This list contains all the threads that are used to read/write to the actual client.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.tunnelRunner">
+            <summary>
+            This is the thread that runs the tunnel listener.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Start(System.Uri,System.Int32,System.String,Uhuru.Utilities.HttpTunnel.TunnelProtocolType)">
+            <summary>
+            Starts the client end of the tunnel.
+            </summary>
+            <param name="remoteHttpUrl">The remote HTTP URL of the WCF service hosting the server end of the tunnel.</param>
+            <param name="localPort">The local port to open.</param>
+            <param name="localIP">The local IP on which to listen for connections (if it's a TCP tunnel).</param>
+            <param name="protocol">The protocol to use (TCP or UDP).</param>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Stop">
+            <summary>
+            Stops the client end of the tunnel.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartTCPTunnel(System.Uri,System.Int32,System.String)">
+            <summary>
+            Starts a TCP tunnel.
+            </summary>
+            <param name="remoteHttpUrl">The remote HTTP URL.</param>
+            <param name="localPort">The local port.</param>
+            <param name="localIp">The local IP.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartUDPTunnel(System.Uri,System.Int32,System.String,System.Boolean)">
+            <summary>
+            Starts a UDP tunnel.
+            </summary>
+            <param name="remoteHttpUrl">The remote HTTP URL.</param>
+            <param name="localPort">The local port.</param>
+            <param name="localIp">The local ip.</param>
+            <param name="listening">True if the UDP socket is listening mode.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.ClientEnd.State">
+            <summary>
+            Gets the state of the client.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.Logger">
+            <summary>
+            This is a helper logger class that is used throughout the code.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.configureEventLogSourceLock">
+            <summary>
+            A lock object used to make sure multiple threads don't configure an event log source at the same time.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.log">
+            <summary>
+            The log4net ILog object used for logging.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Logger.isSourceConfigured">
+            <summary>
+            Specifies whether the Windows Event Log source has been configured.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String)">
+            <summary>
+            Logs a fatal message.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String)">
+            <summary>
+            Logs an error message.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String)">
+            <summary>
+            Logs a warning message.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String)">
+            <summary>
+            Logs an information message.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String)">
+            <summary>
+            Logs a debug message.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Fatal(System.String,System.Object[])">
+            <summary>
+            Logs a fatal message and formats it.
+            This indicates a really severe error, that will probably make the application crash.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an error message and formats it.
+            This indicates an error, but the application may be able to continue.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning message and formats it.
+            This indicates a situation that could lead to some bad things.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Info(System.String,System.Object[])">
+            <summary>
+            Logs an information message and formats it.
+            The message is used to indicate some progress.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.Debug(System.String,System.Object[])">
+            <summary>
+            Logs a debug message and formats it.
+            This is an informational message, that is useful when debugging.
+            </summary>
+            <param name="message">The message to be logged.</param>
+            <param name="args">The arguments used for formatting.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Logger.SetEventLogSource">
+            <summary>
+            Sets up the event log source.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.RubyCompatibility">
+            <summary>
+            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
+            <summary>
+            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
+            </summary>
+            <param name="date">DateTime to be converted.</param>
+            <returns>An int containing the number of seconds.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
+            <summary>
+            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
+            </summary>
+            <param name="seconds">An int containing the number of seconds.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
+            <summary>
+            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
+            </summary>
+            <param name="date">The DateTime to be converted.</param>
+            <returns>A string with the formatted date and time.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
+            <summary>
+            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
+            </summary>
+            <param name="date">A string containing the formatted date and time.</param>
+            <returns>A DateTime containing the converted value.</returns>
         </member>
     </members>
 </doc>

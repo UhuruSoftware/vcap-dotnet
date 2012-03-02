@@ -75,6 +75,9 @@
     <Compile Include="..\Uhuru.Utilities\Logger.cs">
       <Link>Logger.cs</Link>
     </Compile>
+    <Compile Include="..\Uhuru.Utilities\RubyCompatibility.cs">
+      <Link>RubyCompatibility.cs</Link>
+    </Compile>
     <Compile Include="..\Uhuru.Utilities\TunnelPackage.cs">
       <Link>TunnelPackage.cs</Link>
     </Compile>
