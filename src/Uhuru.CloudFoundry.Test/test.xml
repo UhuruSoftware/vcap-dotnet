@@ -1,0 +1,10 @@
+<testSuite>
+	<app>
+		<name>DatabaseTestApp</name>
+		<path>app/DatabaseTestApp/DatabaseTestApp.csproj</path>
+		<description>provided sample app</description>
+		<services>databaseTestAppDb|mssql</services>
+		<testUrl>/default.aspx</testUrl>
+		<returnCode>200</returnCode>
+	</app>
+</testSuite>

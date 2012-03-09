@@ -102,6 +102,7 @@
     <Compile Include="System\MongoTestAppTest.cs" />
     <Compile Include="System\MvcTest.cs" />
     <Compile Include="System\RedisTestAppTest.cs" />
+    <Compile Include="System\Tests.cs" />
     <Compile Include="Unit\HttpTunnelTest.cs" />
     <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />

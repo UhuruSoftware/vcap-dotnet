@@ -24,7 +24,7 @@ namespace Uhuru.Utilities
         /// <param name="remoteProtocol">The remote protocol.</param>
         public static void Create(string sourceDir, string destinationDir, string remotePort, string remoteHost, string remoteProtocol)
         {
-            Create(sourceDir, destinationDir, remotePort, remoteHost, remoteProtocol, null, null);
+            Create(sourceDir, destinationDir, remotePort, remoteHost, remoteProtocol, null, null, null);
         }
 
         /// <summary>
@@ -38,6 +38,22 @@ namespace Uhuru.Utilities
         /// <param name="user">The username for the remote service</param>
         /// <param name="password">The password for the remote service</param>
         public static void Create(string sourceDir, string destinationDir, string remotePort, string remoteHost, string remoteProtocol, string user, string password)
+        {
+            Create(sourceDir, destinationDir, remotePort, remoteHost, remoteProtocol, user, password, null);
+        }
+
+        /// <summary>
+        /// Prepares a HttpTunnel Service
+        /// </summary>
+        /// <param name="sourceDir">The source dir.</param>
+        /// <param name="destinationDir">The destination dir.</param>
+        /// <param name="remotePort">The remote port.</param>
+        /// <param name="remoteHost">The remote host.</param>
+        /// <param name="remoteProtocol">The remote protocol.</param>
+        /// <param name="user">The username for the remote service</param>
+        /// <param name="password">The password for the remote service</param>
+        /// <param name="databaseName">The name of the remote database</param>
+        public static void Create(string sourceDir, string destinationDir, string remotePort, string remoteHost, string remoteProtocol, string user, string password, string databaseName)
         {
             CopyAll(new DirectoryInfo(sourceDir), new DirectoryInfo(destinationDir));
             string configFile = Path.Combine(destinationDir, "web.config");
@@ -95,6 +111,16 @@ namespace Uhuru.Utilities
                             if (password != null)
                             {
                                 childNode.Attributes["value"].Value = password;
+                            }
+
+                            break;
+                        }
+
+                    case "databaseName":
+                        {
+                            if (databaseName != null)
+                            {
+                                childNode.Attributes["value"].Value = databaseName;
                             }
 
                             break;
