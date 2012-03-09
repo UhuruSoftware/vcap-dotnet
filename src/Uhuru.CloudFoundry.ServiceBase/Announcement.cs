@@ -34,7 +34,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// Gets or sets the available storage for the service.
         /// </summary>
         [JsonName("available_storage")]
-        public int AvailableStorage
+        public long AvailableStorageBytes
         {
             get;
             set;

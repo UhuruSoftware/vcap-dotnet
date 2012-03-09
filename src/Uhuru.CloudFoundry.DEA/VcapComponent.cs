@@ -167,6 +167,18 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Gets or sets the cpu performance.
+        /// </summary>
+        /// <value>
+        /// The cpu performance.
+        /// </value>
+        protected PerformanceCounter CpuPerformance
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Runs this the VCAP component. This method is non-blocking.
         /// </summary>
         public virtual void Run()
@@ -198,6 +210,20 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             this.Varz["num_cores"] = Environment.ProcessorCount;
+
+            // todo: change this to a more accurate method
+            // consider:
+            // PerformanceCounter upTime = new PerformanceCounter("System", "System Up Time");
+            // upTime.NextValue();
+            // TimeSpan ts2 = TimeSpan.FromSeconds(upTime.NextValue());
+            // Console.WriteLine("{0}d {1}h {2}m {3}s", ts2.Days, ts2.Hours, ts2.Minutes, ts2.Seconds);
+            this.Varz["system_start"] = RubyCompatibility.DateTimeToRubyString(DateTime.Now.AddMilliseconds(-Environment.TickCount));
+
+            this.CpuPerformance = new PerformanceCounter();
+            this.CpuPerformance.CategoryName = "Processor Information";
+            this.CpuPerformance.CounterName = "% Processor Time";
+            this.CpuPerformance.InstanceName = "_Total";
+            this.CpuPerformance.NextValue();
 
             this.Healthz = "ok\n";
 
@@ -261,6 +287,17 @@ namespace Uhuru.CloudFoundry.DEA
 
                 // extra uhuru information
                 this.Varz["cpu_time"] = Process.GetCurrentProcess().TotalProcessorTime;
+
+                // this is the cpu percentage for the time span between the Nextvalue calls;
+                this.Varz["system_cpu"] = this.CpuPerformance.NextValue();
+                this.Varz["system_cpu_ticks"] = this.CpuPerformance.RawValue;
+
+                // todo: add memory usage here
+                // consider:
+                // PerformanceCounter ramCounter;
+                // ramCounter = new PerformanceCounter("Memory", "Available MBytes");
+                // ramCounter.NextValue();
+                this.Varz["system_mem"] = null;
             }
             finally
             {

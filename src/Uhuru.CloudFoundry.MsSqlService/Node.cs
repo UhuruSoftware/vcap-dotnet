@@ -68,12 +68,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Current available storage on the node.
         /// </summary>
-        private int availableStorage;
+        private long availableStorageBytes;
 
         /// <summary>
         /// Maximum storage on the node.
         /// </summary>
-        private int nodeCapacity;
+        private long nodeCapacityBytes;
         
         /// <summary>
         /// Number of queries served by the node.
@@ -118,7 +118,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableStorage = this.availableStorage;
+                a.AvailableStorageBytes = this.availableStorageBytes;
                 return a;
             }
         }
@@ -222,12 +222,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.CheckDBConsistency();
 
-            this.availableStorage = options.AvailableStorage * 1024 * 1024;
-            this.nodeCapacity = this.availableStorage;
+            this.availableStorageBytes = options.AvailableStorage * 1024 * 1024;
+            this.nodeCapacityBytes = this.availableStorageBytes;
 
             foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
             {
-                this.availableStorage -= this.StorageForService(provisioned_service);
+                this.availableStorageBytes -= this.StorageForService(provisioned_service);
             }
 
             this.queriesServed = 0;
@@ -339,9 +339,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 varz["database_status"] = status;
                 
                 // node capacity
-                varz["node_storage_capacity"] = this.nodeCapacity;
+                varz["node_storage_capacity"] = this.nodeCapacityBytes;
                 
-                varz["node_storage_used"] = this.nodeCapacity - this.availableStorage;
+                varz["node_storage_used"] = this.nodeCapacityBytes - this.availableStorageBytes;
                 
                 // how many long queries and long txs are killed.
                 varz["long_queries_killed"] = this.longQueriesKilled;
@@ -532,7 +532,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.DeleteDatabase(provisioned_service);
             int storage = this.StorageForService(provisioned_service);
-            this.availableStorage += storage;
+            this.availableStorageBytes += storage;
 
             if (!provisioned_service.Destroy())
             {
@@ -772,12 +772,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 this.CreateDatabaseUser(name, user, password);
                 int storage = this.StorageForService(provisionedService);
-                if (this.availableStorage < storage)
+                if (this.availableStorageBytes < storage)
                 {
                     throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
                 }
 
-                this.availableStorage -= storage;
+                this.availableStorageBytes -= storage;
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
