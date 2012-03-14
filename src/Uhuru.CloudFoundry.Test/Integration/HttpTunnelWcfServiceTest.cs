@@ -31,7 +31,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         public static void ClassInitialize(TestContext context)
         {
             password = "!@#33Pass";
-            user = Utilities.WindowsVCAPUsers.CreateUser("WcfHttpTunnel" + new Guid().ToString(), password);
+            user = Utilities.WindowsVCAPUsers.CreateUser("Wcf" + Guid.NewGuid().ToString(), password);
         }
 
         [ClassCleanup]
