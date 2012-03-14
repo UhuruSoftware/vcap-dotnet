@@ -30,14 +30,24 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
+            try
+            {
+                Utilities.WindowsVCAPUsers.DeleteUser("WcfTest");
+            }
+            catch { }
+
             password = "!@#33Pass";
-            user = Utilities.WindowsVCAPUsers.CreateUser("Wcf" + Guid.NewGuid().ToString(), password);
+            user = Utilities.WindowsVCAPUsers.CreateUser("WcfTest", password);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Utilities.WindowsVCAPUsers.DeleteUser(user);
+            try
+            {
+                Utilities.WindowsVCAPUsers.DeleteUser("WcfTest");
+            }
+            catch { }
         }
 
         [TestInitialize]

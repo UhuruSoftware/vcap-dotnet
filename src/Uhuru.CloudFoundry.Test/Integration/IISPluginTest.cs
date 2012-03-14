@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Utilities.WindowsVCAPUsers.DeleteUser(user);
+                Utilities.WindowsVCAPUsers.DeleteUser("IISPluginTest");
             }
             catch { }
         }
