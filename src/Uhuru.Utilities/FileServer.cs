@@ -174,8 +174,8 @@ namespace Uhuru.Utilities
             public Message GetFile()
             {
                 Uri uri = WebOperationContext.Current.IncomingRequest.UriTemplateMatch.RequestUri;
-
-                string fullPath = this.GetFullFilePath(uri.PathAndQuery);
+                string uriPath = Uri.UnescapeDataString(uri.PathAndQuery);
+                string fullPath = this.GetFullFilePath(uriPath);
 
                 if (Path.GetDirectoryName(fullPath + "\\") == Path.GetDirectoryName(this.serverPhysicalPath + "\\"))
                 {
