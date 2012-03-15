@@ -207,7 +207,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             client.Credentials = credentials;
 
 
-            byte[] gooddata = client.DownloadData(String.Format("http://{0}:{1}/foobar/test.txt", "localhost", port));
+            byte[] gooddata = client.DownloadData(String.Format("http://{0}:{1}/foobar/test with space.txt", "localhost", port));
 
             ASCIIEncoding encoding = new ASCIIEncoding();
             string retrievedContents = encoding.GetString(gooddata);
