@@ -193,10 +193,10 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
             
-            //Replace the ephemeral monitoring port with the configured one
+            // Replace the ephemeral monitoring port with the configured one
             if (UhuruSection.GetSection().DEA.StatusPort > 0)
             {
-                base.Port = UhuruSection.GetSection().DEA.StatusPort;
+                this.Port = UhuruSection.GetSection().DEA.StatusPort;
             }
 
             this.stager.ForceHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
