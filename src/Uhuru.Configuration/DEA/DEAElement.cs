@@ -29,6 +29,11 @@ namespace Uhuru.Configuration.DEA
         private static ConfigurationProperty propertyFilerPort;
 
         /// <summary>
+        /// Status port configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyStatusPort;
+
+        /// <summary>
         /// Heart beat interval configuration property.
         /// </summary>
         private static ConfigurationProperty propertyHeartBeatInterval;
@@ -101,6 +106,11 @@ namespace Uhuru.Configuration.DEA
                 12345,
                 ConfigurationPropertyOptions.IsRequired);
 
+            propertyStatusPort = new ConfigurationProperty(
+                "statusPort",
+                typeof(int),
+                0);
+
             propertyHeartBeatInterval = new ConfigurationProperty(
                 "heartBeatInterval",
                 typeof(int),
@@ -153,6 +163,7 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertyBaseDir);
             properties.Add(propertyLocalRoute);
             properties.Add(propertyFilerPort);
+            properties.Add(propertyStatusPort);
             properties.Add(propertyHeartBeatInterval);
             properties.Add(propertyDisableDirCleanup);
             properties.Add(propertyMessageBus);
@@ -218,7 +229,24 @@ namespace Uhuru.Configuration.DEA
                 base[propertyFilerPort] = value;
             }
         }
-                
+
+        /// <summary>
+        /// Gets or sets the port for accessing /healthz and /varz info.
+        /// </summary>
+        [ConfigurationProperty("statusPort", IsRequired = false, DefaultValue = 0)]
+        public int StatusPort
+        {
+            get
+            {
+                return (int)base[propertyStatusPort];
+            }
+
+            set
+            {
+                base[propertyStatusPort] = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the time interval to send heartbeat messages to the message bus, in milliseconds.
         /// </summary>

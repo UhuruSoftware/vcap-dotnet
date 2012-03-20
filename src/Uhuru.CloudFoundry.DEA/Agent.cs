@@ -192,6 +192,12 @@ namespace Uhuru.CloudFoundry.DEA
             this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
 
             this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
+            
+            //Replace the ephemeral monitoring port with the configured one
+            if (UhuruSection.GetSection().DEA.StatusPort > 0)
+            {
+                base.Port = UhuruSection.GetSection().DEA.StatusPort;
+            }
 
             this.stager.ForceHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
 
