@@ -34,7 +34,12 @@ namespace Uhuru.Configuration.Service
         /// Index configuration property.
         /// </summary>
         private static ConfigurationProperty propertyIndex;
-      
+
+        /// <summary>
+        /// Status port configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyStatusPort;
+
         /// <summary>
         /// Z-Interval configuration property.
         /// </summary>
@@ -119,6 +124,11 @@ namespace Uhuru.Configuration.Service
                 0,
                 ConfigurationPropertyOptions.IsRequired);
 
+            propertyStatusPort = new ConfigurationProperty(
+                "statusPort",
+                typeof(int),
+                0);
+
             propertyZInterval = new ConfigurationProperty(
                 "zInterval",
                 typeof(int),
@@ -179,6 +189,7 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyMigrationNfs);
             properties.Add(propertyMBus);
             properties.Add(propertyIndex);
+            properties.Add(propertyStatusPort);
             properties.Add(propertyZInterval);
             properties.Add(propertyMaxDbSize);
             properties.Add(propertyMaxLongQuery);
@@ -259,6 +270,23 @@ namespace Uhuru.Configuration.Service
             set
             {
                 base[propertyIndex] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the status port for /health and /varz
+        /// </summary>
+        [ConfigurationProperty("statusPort", IsRequired = false, DefaultValue = 0)]
+        public int StatusPort
+        {
+            get
+            {
+                return (int)base[propertyStatusPort];
+            }
+
+            set
+            {
+                base[propertyStatusPort] = value;
             }
         }
 

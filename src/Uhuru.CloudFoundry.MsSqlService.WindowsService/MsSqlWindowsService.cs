@@ -49,6 +49,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             options.Uri = new System.Uri(serviceConfig.MBus);
             options.ZInterval = serviceConfig.ZInterval;
             options.LocalRoute = serviceConfig.LocalRoute;
+            options.StatusPort = serviceConfig.StatusPort;
 
             MSSqlOptions sqlServerOptions = new MSSqlOptions();
             sqlServerOptions.Host = serviceConfig.MSSql.Host;

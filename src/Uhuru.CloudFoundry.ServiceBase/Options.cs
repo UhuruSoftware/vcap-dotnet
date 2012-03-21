@@ -147,5 +147,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
             get; 
             set; 
         }
+
+        /// <summary>
+        /// Gets or sets the port for the /healthz and /varz monitoring http endpoint.
+        /// </summary>
+        /// <value>
+        /// The status port. Value 0 or less is used to get an ephemeral port.
+        /// </value>
+        public int StatusPort
+        {
+            get;
+            set;
+        }
     }
 }

@@ -119,7 +119,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                     { "type", this.ServiceDescription() },
                     { "host", this.localIP },
                     { "index", options.Index },
-                    { "config", options }
+                    { "config", options },
+                    { "statusPort", options.StatusPort }
                 });
 
             int zInterval = options.ZInterval;

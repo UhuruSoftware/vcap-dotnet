@@ -81,7 +81,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
 
             string host = options["host"].ToString();
-            int port = NetworkInterface.GrabEphemeralPort();
+
+            int port = options.ContainsKey("statusPort") ? (int)options["statusPort"] : 0;
+            if (port < 1)
+            {
+                port = NetworkInterface.GrabEphemeralPort();
+            }
 
             Reactor nats = (Reactor)options["nats"];
 
