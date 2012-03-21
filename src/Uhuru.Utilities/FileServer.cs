@@ -251,7 +251,7 @@ namespace Uhuru.Utilities
                 MemoryStream memoryStream = null;
                 MemoryStream tempMemoryStream = null;
 
-                using (FileStream fileStream = File.OpenRead(filePath))
+                using (FileStream fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Delete | FileShare.ReadWrite))
                 {
                     try
                     {
