@@ -16,6 +16,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
     using System.Net;
     using System.Reflection;
     using Uhuru.Configuration;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// InstallerClass for MSSQLNode Service
@@ -70,6 +71,13 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Index]))
             {
                 section.Service.Index = int.Parse(Context.Parameters[Argument.Index], CultureInfo.InvariantCulture);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.StatusPort]))
+            {
+                int port = Convert.ToInt32(Context.Parameters[Argument.StatusPort], CultureInfo.InvariantCulture);
+                section.Service.StatusPort = port;
+                FirewallTools.OpenPort(port, "MsSqlNode Status");
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.LocalDb]))
@@ -262,6 +270,11 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             /// Parameter name for port
             /// </summary>
             public const string Port = "port";
+
+            /// <summary>
+            /// Parameter name for StatusPort
+            /// </summary>
+            public const string StatusPort = "statusPort";
 
             /// <summary>
             /// Prevents a default instance of the <see cref="Argument"/> class from being created.
