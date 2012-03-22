@@ -16,6 +16,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.Net;
     using System.Reflection;
     using Uhuru.Configuration;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// Installer Class for Windows DEA Service
@@ -67,7 +68,16 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.FilerPort]))
             {
-                section.DEA.FilerPort = Convert.ToInt32(Context.Parameters[Arguments.FilerPort], CultureInfo.InvariantCulture);
+                int port = Convert.ToInt32(Context.Parameters[Arguments.FilerPort], CultureInfo.InvariantCulture);
+                section.DEA.FilerPort = port;
+                FirewallTools.OpenPort(port, "DEA FileServer");
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.StatusPort]))
+            {
+                int port = Convert.ToInt32(Context.Parameters[Arguments.StatusPort], CultureInfo.InvariantCulture);
+                section.DEA.StatusPort = port;
+                FirewallTools.OpenPort(port, "DEA Status");
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.ForceHttpSharing]))
@@ -165,6 +175,11 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             /// Parameter name for FilerPort
             /// </summary>
             public const string FilerPort = "filerPort";
+
+            /// <summary>
+            /// Parameter name for StatusPort
+            /// </summary>
+            public const string StatusPort = "statusPort";
 
             /// <summary>
             /// Parameter name for MessageBus

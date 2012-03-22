@@ -138,7 +138,7 @@ namespace Uhuru.Configuration.Service
             propertyMaxDbSize = new ConfigurationProperty(
                 "maxDbSize",
                 typeof(long),
-                20,
+                20L,
                 ConfigurationPropertyOptions.IsRequired);
 
             propertyMaxLongQuery = new ConfigurationProperty(
@@ -174,7 +174,7 @@ namespace Uhuru.Configuration.Service
             propertyAvailableStorage = new ConfigurationProperty(
                 "availableStorage",
                 typeof(long),
-                1024,
+                1024L,
                 ConfigurationPropertyOptions.IsRequired);
 
             propertyMsSql = new ConfigurationProperty(
@@ -310,7 +310,7 @@ namespace Uhuru.Configuration.Service
         /// <summary>
         /// Gets or sets the maximum database size.
         /// </summary>
-        [ConfigurationProperty("maxDbSize", IsRequired = true, DefaultValue = 20)]
+        [ConfigurationProperty("maxDbSize", IsRequired = true, DefaultValue = 20L)]
         public long MaxDBSize
         {
             get
@@ -378,7 +378,7 @@ namespace Uhuru.Configuration.Service
         /// <summary>
         /// Gets or sets the amount of available storage for this service, in megabytes.
         /// </summary>
-        [ConfigurationProperty("availableStorage", IsRequired = true, DefaultValue = 1024)]
+        [ConfigurationProperty("availableStorage", IsRequired = true, DefaultValue = 1024L)]
         public long AvailableStorage
         {
             get
