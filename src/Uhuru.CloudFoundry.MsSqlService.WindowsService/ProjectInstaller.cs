@@ -59,7 +59,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.AvailableStorage]))
             {
-                section.Service.AvailableStorage = int.Parse(Context.Parameters[Argument.AvailableStorage], CultureInfo.InvariantCulture);
+                section.Service.AvailableStorage = long.Parse(Context.Parameters[Argument.AvailableStorage], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.BaseDir]))
@@ -98,7 +98,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDbSize]))
             {
-                section.Service.MaxDBSize = int.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
+                section.Service.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongQuery]))

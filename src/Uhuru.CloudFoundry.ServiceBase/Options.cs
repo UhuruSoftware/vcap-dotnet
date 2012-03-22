@@ -85,7 +85,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the maximum database size for a provisioned service.
         /// </summary>
-        public int MaxDBSize
+        public long MaxDBSize
         {
             get;
             set;
@@ -121,7 +121,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the maximum available storage for the service.
         /// </summary>
-        public int AvailableStorage
+        public long AvailableStorage
         {
             get;
             set;

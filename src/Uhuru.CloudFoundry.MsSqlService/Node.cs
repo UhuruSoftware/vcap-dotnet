@@ -43,7 +43,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// The maximum database size, in bytes.
         /// </summary>
-        private int maxDbSize;
+        private long maxDbSize;
 
         /// <summary>
         /// The maximum duration for a query.
@@ -531,7 +531,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
 
             this.DeleteDatabase(provisioned_service);
-            int storage = this.StorageForService(provisioned_service);
+            long storage = this.StorageForService(provisioned_service);
             this.availableStorageBytes += storage;
 
             if (!provisioned_service.Destroy())
@@ -665,8 +665,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Returns storage capacity based on billing plan.
         /// </summary>
         /// <param name="provisionedService">The provisioned service.</param>
-        /// <returns>The storage quota in megabytes.</returns>
-        private int StorageForService(ProvisionedService provisionedService)
+        /// <returns>The storage quota in bytes.</returns>
+        private long StorageForService(ProvisionedService provisionedService)
         {
             switch (provisionedService.Plan)
             {
@@ -771,7 +771,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 }
 
                 this.CreateDatabaseUser(name, user, password);
-                int storage = this.StorageForService(provisionedService);
+                long storage = this.StorageForService(provisionedService);
                 if (this.availableStorageBytes < storage)
                 {
                     throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
