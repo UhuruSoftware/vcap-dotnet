@@ -10,6 +10,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using Uhuru.CloudFoundry.DEA.PluginBase.Resources;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
@@ -45,7 +46,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
 
             VcapApplication vcapApplication = new VcapApplication();
             vcapApplication.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(variablesHash[PluginBaseRes.VcapApplicationVariable]));
-
+            
             appInfo.InstanceId = vcapApplication.InstanceId;
             appInfo.LocalIP = variablesHash[PluginBaseRes.VcapAppHostVariable];
             appInfo.Name = vcapApplication.Name;
@@ -95,7 +96,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
                 appInfo, 
                 runtime, 
                 variables, 
-                services.ToArray(), 
+                services.ToArray(),
+                vcapApplication.Urls.Select(url => new Uri(url)).ToArray(),
                 logFilePath, 
                 errorLogFilePath, 
                 startupLogFilePath, 
@@ -369,6 +371,19 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             /// </value>
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("runtime")]
             public string Runtime
+            {
+                get;
+                set;
+            }
+
+            /// <summary>
+            /// Gets or sets the URLs of the app.
+            /// </summary>
+            /// <value>
+            /// An array of strings.
+            /// </value>
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("runtime")]
+            public string[] Urls
             {
                 get;
                 set;

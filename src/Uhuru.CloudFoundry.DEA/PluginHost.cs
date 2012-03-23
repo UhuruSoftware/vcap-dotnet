@@ -8,9 +8,9 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Threading;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     
     /// <summary>
@@ -20,60 +20,47 @@ namespace Uhuru.CloudFoundry.DEA
     public static class PluginHost
     {
         /// <summary>
+        /// Concurrency lock for types cache.
+        /// </summary>
+        private static readonly object pluginLock = new object();
+        
+        /// <summary>
         /// offers an easier way to access a filePath/className pair later on
         /// </summary>
         private static Dictionary<Guid, PluginData> knownPluginData = new Dictionary<Guid, PluginData>();
-        
+
         /// <summary>
-        /// Contains all the app domains that have been registered. The key is an IAgentPlugin's hash.
+        /// Keeps track of plugin instances and their associated IDs
         /// </summary>
-        private static Dictionary<int, AppDomain> runningInstances = new Dictionary<int, AppDomain>();
-        
+        private static Dictionary<IAgentPlugin, Guid> pluginInstanceToPluginId = new Dictionary<IAgentPlugin, Guid>();
+
         /// <summary>
-        /// A mutex used to synchronize access to plugin data across multiple app domains.
+        /// Usage count for a Type
         /// </summary>
-        private static Mutex mutexPluginData = new Mutex();
-        
-        /// <summary>
-        /// A mutex used to synchronize access to instance data across multiple app domains.
-        /// </summary>
-        private static Mutex mutexInstanceData = new Mutex();
+        private static Dictionary<Guid, int> typeChacheUsage = new Dictionary<Guid, int>();
 
         /// <summary>
         /// creates a new instance of the plugin
         /// </summary>
         /// <param name="pluginId">the unique key used to retrieve previously saved plugin information</param>
-        /// <param name="separateAppdomain">true if the plugin should be loaded into another appdomain</param>
         /// <returns>a plugin object</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Appdomain", Justification = "Not a typo."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "plugin", Justification = "Word is in dictionary, but warning is still generated.")]
-        public static IAgentPlugin CreateInstance(Guid pluginId, bool separateAppdomain)
+        public static IAgentPlugin CreateInstance(Guid pluginId)
         {
-            PluginData data = GetPluginData(pluginId);
-            if (data.Equals(default(PluginData)))
+            lock (pluginLock)
             {
-                throw new KeyNotFoundException("There is no data associated with the given unique key");
+                PluginData data = GetPluginData(pluginId);
+                if (data.Equals(default(PluginData)))
+                {
+                    throw new KeyNotFoundException("There is no data associated with the given unique key");
+                }
+                
+                int usage = 0;
+                typeChacheUsage.TryGetValue(pluginId, out usage);
+                typeChacheUsage[pluginId] = usage + 1;
+                
+                return (IAgentPlugin)data.PluginConstructor.Invoke(null);
             }
-
-            IAgentPlugin agentPlugin;
-
-            if (separateAppdomain)
-            {
-                AppDomain domain = AppDomain.CreateDomain(pluginId.ToString());
-                agentPlugin = (IAgentPlugin)domain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
-
-                // save data to the dictionary
-                mutexInstanceData.WaitOne();
-                runningInstances[agentPlugin.GetHashCode()] = domain;
-                mutexInstanceData.ReleaseMutex();
-            }
-            else
-            {
-                // Assembly pluginAssembly = Assembly.Load(data.FilePath);
-                // agentPlugin = (IAgentPlugin)pluginAssembly.CreateInstance(data.ClassName);
-                agentPlugin = (IAgentPlugin)AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(data.FilePath, data.ClassName);
-            }
-
-            return agentPlugin;
         }
 
         /// <summary>
@@ -83,32 +70,46 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The stop call is just for cleanup.")]
         public static void RemoveInstance(IAgentPlugin agent)
         {
-            if (agent == null)
+            lock (pluginLock)
             {
-                throw new ArgumentNullException("agent");
-            }
+                if (agent == null)
+                {
+                    throw new ArgumentNullException("agent");
+                }
 
-            int hash = agent.GetHashCode();
-            AppDomain domain = GetInstanceData(hash);
-            if (domain.Equals(default(AppDomain)))
-            {
-                return; // looks like the data has already been removed
-            }
+                Guid pluginId = Guid.Empty;
+                if (!pluginInstanceToPluginId.TryGetValue(agent, out pluginId))
+                {
+                    return;
+                }
 
-            // throw new KeyNotFoundException("There is no data associated with the given key");
-            try
-            {
-                agent.StopApplication();
-            }
-            catch (Exception)
-            {
-            }
+                try
+                {
+                    agent.StopApplication();
+                }
+                catch (Exception)
+                {
+                }
 
-            AppDomain.Unload(domain);
+                pluginInstanceToPluginId.Remove(agent);
 
-            mutexInstanceData.WaitOne();
-            runningInstances.Remove(hash);
-            mutexInstanceData.ReleaseMutex();
+                int usage = 0;
+                typeChacheUsage.TryGetValue(pluginId, out usage);
+                if (usage != 0)
+                {
+                    if (usage == 1)
+                    {
+                        PluginData pluginData = knownPluginData[pluginId];
+                        AppDomain.Unload(pluginData.PluginDomain);
+                        typeChacheUsage.Remove(pluginId);
+                        knownPluginData.Remove(pluginId);
+                    }
+                    else
+                    {
+                        typeChacheUsage[pluginId] = usage - 1;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -120,30 +121,36 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
         public static Guid LoadPlugin(string pathToPlugin, string className)
         {
-            // check if the path & className have a guid already assigned
-            if (knownPluginData.Any(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin))
+            lock (pluginLock)
             {
-                mutexPluginData.WaitOne();
-                KeyValuePair<Guid, PluginData> keyValue = knownPluginData.Where(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin).FirstOrDefault();
-               
-                // if something was found, return it
-                if (!keyValue.Equals(default(KeyValuePair<Guid, PluginData>)))
+                // check if the path & className have a guid already assigned
+                if (knownPluginData.Any(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin))
                 {
-                    mutexPluginData.ReleaseMutex();
-                    return keyValue.Key;
+                    KeyValuePair<Guid, PluginData> keyValue = knownPluginData.Where(kvp => kvp.Value.ClassName == className && kvp.Value.FilePath == pathToPlugin).FirstOrDefault();
+
+                    // if something was found, return it
+                    if (!keyValue.Equals(default(KeyValuePair<Guid, PluginData>)))
+                    {
+                        return keyValue.Key;
+                    }
                 }
 
-                mutexPluginData.ReleaseMutex();
+                Guid guid = Guid.NewGuid();
+                AppDomain newDomain = null;
+                ConstructorInfo constructor = GetPluginTypeBuilder(pathToPlugin, className, out newDomain);
+
+                PluginData data = new PluginData() 
+                { 
+                    ClassName = className,
+                    FilePath = pathToPlugin,
+                    PluginConstructor = constructor,
+                    PluginDomain = newDomain
+                };
+
+                knownPluginData[guid] = data;
+
+                return guid;
             }
-                        
-            Guid guid = Guid.NewGuid();
-            PluginData data = new PluginData() { ClassName = className, FilePath = pathToPlugin };
-
-            mutexPluginData.WaitOne();
-            knownPluginData[guid] = data;
-            mutexPluginData.ReleaseMutex();
-
-            return guid;
         }
 
         /// <summary>
@@ -153,41 +160,34 @@ namespace Uhuru.CloudFoundry.DEA
         /// <returns>An instance of PluginData that contains the assembly name and the class name associated with the GUID.</returns>
         private static PluginData GetPluginData(Guid guid)
         {
-            PluginData result = default(PluginData);
-            if (knownPluginData.ContainsKey(guid))
+            lock (pluginLock)
             {
-                mutexPluginData.WaitOne();
+                PluginData result = default(PluginData);
                 if (knownPluginData.ContainsKey(guid))
                 {
-                    result = knownPluginData[guid];
+                    if (knownPluginData.ContainsKey(guid))
+                    {
+                        result = knownPluginData[guid];
+                    }
                 }
 
-                mutexPluginData.ReleaseMutex();
+                return result;
             }
-
-            return result;
         }
 
         /// <summary>
-        /// Gets the app domain of a plugin instance.
+        /// Helper method that gets a plugin's constructor, and caches it for future reference. 
         /// </summary>
-        /// <param name="hash">The hash of the plugin instance.</param>
-        /// <returns>The app domain that is used to sandbox the plugin instance.</returns>
-        private static AppDomain GetInstanceData(int hash)
+        /// <param name="assemblyPath">Location of assembly.</param>
+        /// <param name="className">Fully qualified name of the plugin class.</param>
+        /// <param name="domain">Out parameter that will contain the app domain created for the plugin.</param>
+        /// <returns>A ConstructorInfo object that can be used to instantiate the plugin.</returns>
+        private static ConstructorInfo GetPluginTypeBuilder(string assemblyPath, string className, out AppDomain domain)
         {
-            AppDomain result = default(AppDomain);
-            if (runningInstances.ContainsKey(hash))
-            {
-                mutexInstanceData.WaitOne();
-                if (runningInstances.ContainsKey(hash))
-                {
-                    result = runningInstances[hash];
-                }
-
-                mutexInstanceData.ReleaseMutex();
-            }
-
-            return result;
+            AppDomain newDomain = AppDomain.CreateDomain(assemblyPath + ";" + className);
+            Assembly assembly = newDomain.Load(File.ReadAllBytes(assemblyPath));
+            domain = newDomain;
+            return assembly.GetType(className).GetConstructor(null);
         }
     }
 }
