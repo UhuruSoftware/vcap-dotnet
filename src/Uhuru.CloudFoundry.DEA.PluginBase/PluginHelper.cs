@@ -97,7 +97,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
                 runtime, 
                 variables, 
                 services.ToArray(),
-                vcapApplication.Urls.Select(url => new Uri(url)).ToArray(),
+                vcapApplication.Urls,
                 logFilePath, 
                 errorLogFilePath, 
                 startupLogFilePath, 
@@ -343,7 +343,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             /// <value>
             /// The instance id.
             /// </value>
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("instance_id")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), 
+            JsonName("instance_id")]
             public string InstanceId
             {
                 get;
@@ -356,7 +357,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             /// <value>
             /// The name.
             /// </value>
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("name")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), 
+            JsonName("name")]
             public string Name
             {
                 get;
@@ -369,7 +371,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             /// <value>
             /// The runtime.
             /// </value>
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("runtime")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), 
+            JsonName("runtime")]
             public string Runtime
             {
                 get;
@@ -382,7 +385,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             /// <value>
             /// An array of strings.
             /// </value>
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), JsonName("runtime")]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Used for serialization"), 
+            JsonName("uris")]
             public string[] Urls
             {
                 get;

@@ -57,7 +57,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         /// <summary>
         /// A list of URLs that the app is mapped to
         /// </summary>
-        private Uri[] appUrls;
+        private string[] appUrls;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationParsedData"/> class.
@@ -76,7 +76,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             string runtime, 
             ApplicationVariable[] variables, 
             ApplicationService[] services,
-            Uri[] urls,
+            string[] urls,
             string logFilePath, 
             string errorLogFilePath, 
             string startupLogFilePath, 
@@ -181,8 +181,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         /// <summary>
         /// Gets the mapped URLs for an app.
         /// </summary>
-        /// <returns>An array of URL objects.</returns>
-        public Uri[] GetUrls()
+        /// <returns>An array of strings.</returns>
+        public string[] GetUrls()
         {
             return this.appUrls;
         }
