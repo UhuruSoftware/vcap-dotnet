@@ -82,12 +82,7 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <summary>
         /// The buffer size to use for transferring data in the tunnel.
         /// </summary>
-        public const int BufferSize = 1024 * 16;
-
-        /// <summary>
-        /// The interval (in milliseconds) at which to poll the tunnel server end for more data.
-        /// </summary>
-        public const int PollInterval = 50;
+        public const int BufferSize = 1024 * 16 * 6;
 
         /// <summary>
         /// Gets or sets a value indicating whether this package has data.

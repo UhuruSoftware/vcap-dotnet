@@ -66,11 +66,6 @@
             The buffer size to use for transferring data in the tunnel.
             </summary>
         </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.DataPackage.PollInterval">
-            <summary>
-            The interval (in milliseconds) at which to poll the tunnel server end for more data.
-            </summary>
-        </member>
         <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.HasData">
             <summary>
             Gets or sets a value indicating whether this package has data.
