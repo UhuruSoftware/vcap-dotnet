@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Security.Cryptography;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     
     /// <summary>
@@ -137,7 +138,28 @@ namespace Uhuru.CloudFoundry.DEA
 
                 Guid guid = Guid.NewGuid();
                 AppDomain newDomain = null;
-                ConstructorInfo constructor = GetPluginTypeBuilder(pathToPlugin, className, out newDomain);
+
+                string assemblyHash = string.Empty;
+
+                // Create hash for assembly
+                using (FileStream fs = File.OpenRead(pathToPlugin))
+                {
+                    using (SHA1CryptoServiceProvider cryptoProvider = new SHA1CryptoServiceProvider())
+                    {
+                        assemblyHash = BitConverter.ToString(cryptoProvider.ComputeHash(fs)).Replace("-", string.Empty);
+                    }
+                }
+
+                string appPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(PluginHost)).CodeBase), assemblyHash);
+
+                Directory.CreateDirectory(appPath);
+
+                // Copy assembly to destination (no overwrite)
+                string assemblyFileName = Path.GetFileName(pathToPlugin);
+                string finalAssemblyPath = Path.Combine(appPath, assemblyFileName);
+                File.Copy(pathToPlugin, finalAssemblyPath, false);
+
+                ConstructorInfo constructor = GetPluginTypeBuilder(finalAssemblyPath, className, out newDomain);
 
                 PluginData data = new PluginData() 
                 { 
