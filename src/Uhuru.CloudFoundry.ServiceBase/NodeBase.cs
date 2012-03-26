@@ -15,7 +15,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
-    
+
     /// <summary>
     /// This is the base class for all Cloud Foundry system services nodes.
     /// </summary>
@@ -25,6 +25,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// The node ID.
         /// </summary>
         private string nodeId;
+
+        /// <summary>
+        /// The service plan.
+        /// </summary>
+        private string plan;
 
         /// <summary>
         /// Migration Network File System.
@@ -51,6 +56,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
 
             this.nodeId = options.NodeId;
+            this.plan = options.Plan;
             this.migrationNfs = options.MigrationNFS;
             base.Start(options);
         }
@@ -90,7 +96,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             SendNodeAnnouncement();
 
             TimerHelper.RecurringCall(
-                30000, 
+                30000,
                 delegate
                 {
                     SendNodeAnnouncement();
@@ -156,17 +162,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Subclasses have to implement this in order to provision services.
         /// </summary>
-        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="planRequest">The payment plan for the service.</param>
         /// <returns>Credentials for the provisioned service.</returns>
-        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType plan);
-     
+        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType planRequest);
+
         /// <summary>
         /// Subclasses have to implement this in order to provision services.
         /// </summary>
-        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="planRequest">The payment plan for the service.</param>
         /// <param name="credentials">Existing credentials for the service.</param>
         /// <returns>Credentials for the provisioned service.</returns>
-        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credentials);
+        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType planRequest, ServiceCredentials credentials);
 
         /// <summary>
         /// Subclasses have to implement this in order to unprovision services.
@@ -208,7 +214,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <param name="bindingCredentials">The binding credentials.</param>
         /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials);
-   
+
         /// <summary>
         /// Subclasses have to implement this in order to dump an instance.
         /// </summary>
@@ -217,17 +223,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <param name="filePath">The file path where to dump the service.</param>
         /// <returns>A bool indicating whether the request was successful.</returns>
         protected abstract bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath);
-       
+
         /// <summary>
         /// Subclasses have to implement this in order to import an instance.
         /// </summary>
         /// <param name="provisionedCredential">The provisioned credential.</param>
         /// <param name="bindingCredentials">The binding credentials.</param>
         /// <param name="filePath">The file path from which to import the service.</param>
-        /// <param name="plan">The payment plan.</param>
+        /// <param name="planRequest">The payment plan.</param>
         /// <returns>A bool indicating whether the request was successful.</returns>
-        protected abstract bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan);
-        
+        protected abstract bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType planRequest);
+
         /// <summary>
         /// Enables the instance.
         /// </summary>
@@ -236,7 +242,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <returns>A bool indicating whether the request was successful.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", Justification = "This is the most elegant way to achieve what we need")]
         protected abstract bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash);
-        
+
         /// <summary>
         /// Restores the specified instance id.
         /// </summary>
@@ -336,7 +342,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             Logger.Debug(Strings.UnprovisionRequestDebugLogMessage, ServiceDescription(), msg);
 
             SimpleResponse response = new SimpleResponse();
-            
+
             UnprovisionRequest unprovision_req = new UnprovisionRequest();
             unprovision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
             string name = unprovision_req.Name;
@@ -386,7 +392,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             bind_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
             string name = bind_message.Name;
 
-              // Create a service credentials object with a name set, so we can run this operation in parallel for different service instances.
+            // Create a service credentials object with a name set, so we can run this operation in parallel for different service instances.
             ServiceCredentials nameCredentials = new ServiceCredentials();
             nameCredentials.Name = name;
 
@@ -463,7 +469,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 restore_message.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
                 string instance_id = restore_message.InstanceId;
                 string backup_path = restore_message.BackupPath;
-                
+
                 // TODO: vladi: need to make this parallel when we implement the actual restore for mssql
                 bool result = this.Restore(instance_id, backup_path);
                 if (result)
@@ -749,8 +755,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                     // Remove the OBs that are unbinded by unprovision
                     orphanBindingsList = (from ob in orphanBindingsList
-                               where !bindings.Any(binding => binding.Name == ob.Name)
-                               select ob).ToArray();
+                                          where !bindings.Any(binding => binding.Name == ob.Name)
+                                          select ob).ToArray();
                 }
                 catch (Exception ex)
                 {
@@ -836,15 +842,16 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <param name="subject">The subject of the message.</param>
         private void OnDiscover(string msg, string reply, string subject)
         {
-            this.SendNodeAnnouncement(reply);
+            this.SendNodeAnnouncement(msg, reply);
         }
 
         /// <summary>
         /// Sends the node announcement to the cloud controller.
         /// </summary>
+        /// <param name="msg">The request json message.</param>
         /// <param name="reply">The reply subject.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
-        private void SendNodeAnnouncement(string reply = null)
+        private void SendNodeAnnouncement(string msg = null, string reply = null)
         {
             try
             {
@@ -856,9 +863,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 Logger.Debug(Strings.SendNodeAnnouncementDebugLogMessage, ServiceDescription(), reply != null ? reply : "everyone");
 
-                Announcement a = this.AnnouncementDetails;
-                a.Id = this.nodeId;
-                NodeNats.Publish(reply != null ? reply : string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.SerializeToJson());
+                DiscoverMessage discoverMessage = new DiscoverMessage();
+                if (msg != null)
+                {
+                    discoverMessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
+                }
+
+                if (string.IsNullOrEmpty(discoverMessage.Plan) || discoverMessage.Plan == this.plan)
+                {
+                    Announcement a = this.AnnouncementDetails;
+                    a.Id = this.nodeId;
+                    a.Plan = this.plan;
+                    NodeNats.Publish(reply != null ? reply : string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.SerializeToJson());
+                }
             }
             catch (Exception ex)
             {

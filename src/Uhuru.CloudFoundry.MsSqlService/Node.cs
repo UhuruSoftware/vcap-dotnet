@@ -291,11 +291,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <param name="provisionedCredential">The provisioned credential.</param>
         /// <param name="bindingCredentials">The binding credentials.</param>
         /// <param name="filePath">The file path from which to import the service.</param>
-        /// <param name="plan">The payment plan.</param>
+        /// <param name="planRequest">The payment plan.</param>
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType plan)
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType planRequest)
         {
             // todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -420,25 +420,26 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Provisions an MS Sql Server database.
         /// </summary>
-        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="planRequest">The payment plan for the service.</param>
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan)
+        protected override ServiceCredentials Provision(ProvisionedServicePlanType planRequest)
         {
-            return Provision(plan, null);
+            return Provision(planRequest, null);
         }
 
         /// <summary>
         /// Provisions an MS Sql Server database.
         /// </summary>
-        /// <param name="plan">The payment plan for the service.</param>
+        /// <param name="planRequest">The payment plan for the service.</param>
         /// <param name="credentials">Existing credentials for the service.</param>
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(ProvisionedServicePlanType plan, ServiceCredentials credentials)
+        protected override ServiceCredentials Provision(ProvisionedServicePlanType planRequest, ServiceCredentials credentials)
         {
+            //// todo: chek for plan
             ProvisionedService provisioned_service = new ProvisionedService();
             if (credentials == null)
             {
@@ -453,7 +454,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 provisioned_service.Name = name;
                 provisioned_service.User = user;
                 provisioned_service.Password = password;
-                provisioned_service.Plan = plan;
+                provisioned_service.Plan = planRequest;
 
                 this.CreateDatabase(provisioned_service);
 
