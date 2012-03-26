@@ -662,6 +662,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             configFileContents = configFileContents.Replace(key, connValues[key]);
                         }
                     }
+
+                    File.WriteAllText(configFile, configFileContents);
                 }
             }
 
