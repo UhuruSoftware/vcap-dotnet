@@ -187,7 +187,7 @@ namespace Uhuru.CloudFoundry.DEA
             AppDomain newDomain = AppDomain.CreateDomain(assemblyPath + ";" + className);
             Assembly assembly = newDomain.Load(File.ReadAllBytes(assemblyPath));
             domain = newDomain;
-            return assembly.GetType(className).GetConstructor(null);
+            return assembly.GetType(className).GetConstructor(System.Type.EmptyTypes);
         }
     }
 }
