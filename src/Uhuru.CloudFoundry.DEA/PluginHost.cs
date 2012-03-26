@@ -150,7 +150,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 }
 
-                string appPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(PluginHost)).CodeBase), assemblyHash);
+                string appPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(PluginHost)).Location), assemblyHash);
 
                 Directory.CreateDirectory(appPath);
 
