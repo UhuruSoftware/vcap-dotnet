@@ -6,6 +6,7 @@
 
 namespace Uhuru.CloudFoundry.DEA.PluginBase
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -54,12 +55,18 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         private Dictionary<string, string> autoWireTemplates;
 
         /// <summary>
+        /// A list of URLs that the app is mapped to
+        /// </summary>
+        private string[] appUrls;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationParsedData"/> class.
         /// </summary>
         /// <param name="appInfo">The app info.</param>
         /// <param name="runtime">The runtime.</param>
         /// <param name="variables">The variables.</param>
         /// <param name="services">The services.</param>
+        /// <param name="urls">The URLs.</param>
         /// <param name="logFilePath">The log file path.</param>
         /// <param name="errorLogFilePath">The error log file path.</param>
         /// <param name="startupLogFilePath">The startup log file path.</param>
@@ -69,6 +76,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             string runtime, 
             ApplicationVariable[] variables, 
             ApplicationService[] services,
+            string[] urls,
             string logFilePath, 
             string errorLogFilePath, 
             string startupLogFilePath, 
@@ -82,6 +90,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             this.errorLogFilePath = errorLogFilePath;
             this.startupLogFilePath = startupLogFilePath;
             this.autoWireTemplates = autoWireTemplates;
+            this.appUrls = urls;
         }
 
         /// <summary>
@@ -167,6 +176,15 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         public ApplicationService[] GetServices()
         {
             return this.services;
+        }
+
+        /// <summary>
+        /// Gets the mapped URLs for an app.
+        /// </summary>
+        /// <returns>An array of strings.</returns>
+        public string[] GetUrls()
+        {
+            return this.appUrls;
         }
     }
 }

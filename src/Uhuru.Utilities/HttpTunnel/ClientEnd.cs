@@ -268,8 +268,6 @@ namespace Uhuru.Utilities.HttpTunnel
                                         {
                                             client.GetStream().Write(receiveData.Data, 0, receiveData.Data.Length);
                                         }
-
-                                        Thread.Sleep(DataPackage.PollInterval);
                                     }
                                 }));
                             threadReader.IsBackground = true;
@@ -302,8 +300,6 @@ namespace Uhuru.Utilities.HttpTunnel
                                             client.GetStream().Write(data.Data, 0, data.Data.Length);
                                         }
                                     }
-
-                                    Thread.Sleep(DataPackage.PollInterval);
                                 }
                             }));
                             threadWriter.IsBackground = true;
@@ -384,8 +380,6 @@ namespace Uhuru.Utilities.HttpTunnel
                                         Logger.Warning(TunnelErrorMessages.CouldNotSendData, comEx.ToString());
                                         return;
                                     }
-
-                                    Thread.Sleep(DataPackage.PollInterval);
                                 }
                             }));
 
@@ -421,8 +415,6 @@ namespace Uhuru.Utilities.HttpTunnel
                                         listener.Send(data.Data, data.Data.Length);
                                     }
                                 }
-
-                                Thread.Sleep(DataPackage.PollInterval);
                             }
                         }));
 

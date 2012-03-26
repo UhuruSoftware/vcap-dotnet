@@ -311,7 +311,7 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
         public void LoadPlugin()
         {
-            // in startup, we have the classname and assembly to load as a plugin
+            // in startup, we have the class name and assembly to load as a plugin
             string startup = File.ReadAllText(Path.Combine(this.Properties.Directory, "startup"));
 
             VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
@@ -319,17 +319,17 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.ErrorLog = new Utilities.FileLogger(Path.Combine(this.properties.Directory, pluginInfo.Logs.DeaErrorLog));
 
-            // check to see if the pluging is in the instance directory
+            // check to see if the plugin is in the instance directory
             if (File.Exists(Path.Combine(this.Properties.Directory, pluginInfo.Assembly)))
             {
                 Guid pluginId = PluginHost.LoadPlugin(Path.Combine(this.Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId, false);
+                this.Plugin = PluginHost.CreateInstance(pluginId);
             }
             else
             {
                 // if not load the plugin from the dea
                 Guid pluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId, false);
+                this.Plugin = PluginHost.CreateInstance(pluginId);
             }
         }
 

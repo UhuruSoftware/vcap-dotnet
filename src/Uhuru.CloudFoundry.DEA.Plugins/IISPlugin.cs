@@ -612,62 +612,74 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
 
-            string configFile = Path.Combine(appInfo.Path, "web.config");
+            // get all config files
+            string[] allConfigFiles = Directory.GetFiles(appInfo.Path, "*.config", SearchOption.AllDirectories);
 
-            if (File.Exists(configFile))
+            foreach (string configFile in allConfigFiles)
             {
-                string configFileContents = File.ReadAllText(configFile);
-
-                if (services != null)
+                if (File.Exists(configFile))
                 {
-                    Dictionary<string, string> connections = new Dictionary<string, string>();
-                    Dictionary<string, string> connValues = new Dictionary<string, string>();
+                    string configFileContents = File.ReadAllText(configFile);
 
-                    foreach (ApplicationService service in services)
+                    if (services != null)
                     {
-                        string key = service.ServiceLabel;
-                        string template = string.Empty;
+                        Dictionary<string, string> connections = new Dictionary<string, string>();
+                        Dictionary<string, string> connValues = new Dictionary<string, string>();
 
-                        if (this.autoWireTemplates.TryGetValue(key, out template))
+                        foreach (ApplicationService service in services)
                         {
-                            template = template.Replace(Strings.Host, service.Host);
-                            template = template.Replace(Strings.Port, service.Port.ToString(CultureInfo.InvariantCulture));
-                            template = template.Replace(Strings.Name, service.InstanceName);
-                            template = template.Replace(Strings.User, service.User);
-                            template = template.Replace(Strings.Password, service.Password);
+                            string key = service.ServiceLabel;
+                            string template = string.Empty;
 
-                            connections[string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", key, service.Name)] = template;
+                            if (this.autoWireTemplates.TryGetValue(key, out template))
+                            {
+                                template = template.Replace(Strings.Host, service.Host);
+                                template = template.Replace(Strings.Port, service.Port.ToString(CultureInfo.InvariantCulture));
+                                template = template.Replace(Strings.Name, service.InstanceName);
+                                template = template.Replace(Strings.User, service.User);
+                                template = template.Replace(Strings.Password, service.Password);
+
+                                connections[string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", key, service.Name)] = template;
+                            }
+
+                            char[] charsToTrim = { '{', '}' };
+                            connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.User.Trim(charsToTrim)), service.User);
+                            connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Host.Trim(charsToTrim)), service.Host);
+                            connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Port.Trim(charsToTrim)), service.Port.ToString(CultureInfo.InvariantCulture));
+                            connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Password.Trim(charsToTrim)), service.Password);
+                            connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Name.Trim(charsToTrim)), service.InstanceName);
                         }
 
-                        char[] charsToTrim = { '{', '}' };
-                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.User.Trim(charsToTrim)), service.User);
-                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Host.Trim(charsToTrim)), service.Host);
-                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Port.Trim(charsToTrim)), service.Port.ToString(CultureInfo.InvariantCulture));
-                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Password.Trim(charsToTrim)), service.Password);
-                        connValues.Add(string.Format(CultureInfo.InvariantCulture, "{{{0}#{1}}}", service.Name, Strings.Name.Trim(charsToTrim)), service.InstanceName);
+                        foreach (string con in connections.Keys)
+                        {
+                            this.startupLogger.Info(Strings.ConfiguringService + con);
+                            configFileContents = configFileContents.Replace(con, connections[con]);
+                        }
+
+                        foreach (string key in connValues.Keys)
+                        {
+                            this.startupLogger.Info(string.Format(CultureInfo.InvariantCulture, Strings.ConfiguringServiceValue, key));
+                            configFileContents = configFileContents.Replace(key, connValues[key]);
+                        }
                     }
 
-                    foreach (string con in connections.Keys)
-                    {
-                        this.startupLogger.Info(Strings.ConfiguringService + con);
-                        configFileContents = configFileContents.Replace(con, connections[con]);
-                    }
-
-                    foreach (string key in connValues.Keys)
-                    {
-                        this.startupLogger.Info(string.Format(CultureInfo.InvariantCulture, Strings.ConfiguringServiceValue, key));
-                        configFileContents = configFileContents.Replace(key, connValues[key]);
-                    }
+                    File.WriteAllText(configFile, configFileContents);
                 }
+            }
+
+            string webConfigFile = Path.Combine(appInfo.Path, "web.config");
+            if (File.Exists(webConfigFile))
+            {
+                string configFileContents = File.ReadAllText(webConfigFile);
 
                 XmlDocument doc = this.SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
 
-                doc.Save(configFile);
+                doc.Save(webConfigFile);
                 this.startupLogger.Info(Strings.SavedConfigurationFile);
 
                 this.startupLogger.Info(Strings.SettingUpLogging);
 
-                string appDir = Path.GetDirectoryName(configFile);
+                string appDir = Path.GetDirectoryName(webConfigFile);
                 string binDir = Path.Combine(appDir, "bin");
                 string assemblyFile = typeof(LogFileWebEventProvider).Assembly.Location;
                 string destinationAssemblyFile = Path.Combine(binDir, Path.GetFileName(assemblyFile));
@@ -713,9 +725,9 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 logDir.SetAccessControl(logDirSecurity);
             }
         }
-
+        
         /// <summary>
-        /// Autowires the application variables and the log file path in the web.config file.
+        /// Auto-wires the application variables and the log file path in the web.config file.
         /// </summary>
         /// <param name="configFileContents">The config file contents.</param>
         /// <param name="variables">The variables.</param>
