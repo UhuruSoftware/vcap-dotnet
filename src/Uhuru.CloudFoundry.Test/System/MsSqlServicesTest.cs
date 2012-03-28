@@ -61,7 +61,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 cfClient.CreateService(serviceName, "mssql");
-                List<ProvisionedService> services = cfClient.ProvisionedServices();
+                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -88,7 +88,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 cfClient.CreateService(serviceName, "mssql");
-                List<ProvisionedService> services = cfClient.ProvisionedServices();
+                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -106,7 +106,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 cfClient.DeleteService(serviceName);
-                List<ProvisionedService> services = cfClient.ProvisionedServices();
+                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -135,7 +135,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 try
                 {
                     cfClient.CreateService(serviceName, "mssql");
-                    List<ProvisionedService> services = cfClient.ProvisionedServices();
+                    ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
                     foreach (ProvisionedService svc in services)
                     {
                         if (svc.Name == serviceName)
@@ -159,7 +159,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 try
                 {
                     cfClient.DeleteService(serviceName);
-                    List<ProvisionedService> services = cfClient.ProvisionedServices();
+                    ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
                     foreach (ProvisionedService svc in services)
                     {
                         if (svc.Name == serviceName)

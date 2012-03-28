@@ -130,7 +130,7 @@ namespace Uhuru.CloudFoundry.Test.System
             foreach (KeyValuePair<string, string> pair in apps)
             {
                 Assert.IsFalse(client.AppExists(pair.Key));
-                Assert.IsFalse(client.ProvisionedServices().Exists(service => service.Name == pair.Value));
+                Assert.IsFalse(client.ProvisionedServices().Any(service => service.Name == pair.Value));
             }
         }
 
@@ -142,7 +142,7 @@ namespace Uhuru.CloudFoundry.Test.System
 
             if (cl.AppExists(appName))
                 cl.DeleteApp(appName);
-            if (cl.ProvisionedServices().Exists(service => service.Name == serviceName))
+            if (cl.ProvisionedServices().Any(service => service.Name == serviceName))
                 cl.DeleteService(serviceName);
 
             string targetDir = TestUtil.CopyFolderToTemp(deploymentDir);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -280,7 +281,7 @@ namespace Uhuru.CloudFoundry.Test.Performance
 
             if (cl.AppExists(appName))
                 cl.DeleteApp(appName);
-            if (cl.ProvisionedServices().Exists(service => service.Name == serviceName))
+            if (cl.ProvisionedServices().Any(service => service.Name == serviceName))
                 cl.DeleteService(serviceName);
 
             string targetDir = TestUtil.CopyFolderToTemp(deploymentDir);
