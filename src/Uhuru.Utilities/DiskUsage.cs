@@ -32,19 +32,30 @@ namespace Uhuru.Utilities
 
             if (summary)
             {
-                string[] allFiles = Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly);
-                string[] allDirectories = Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly);
+                allObjects = new Dictionary<string, long>();
 
-                allObjects = new Dictionary<string, long>(allFiles.Length + allDirectories.Length);
-
-                foreach (string file in allFiles)
+                try
                 {
-                    allObjects.Add(file, GetFileSize(file));
+                    string[] allFiles = Directory.GetFiles(directory, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string file in allFiles)
+                    {
+                        allObjects.Add(file, GetFileSize(file));
+                    }
+                }
+                catch (DirectoryNotFoundException)
+                {
                 }
 
-                foreach (string dir in allDirectories)
+                try
                 {
-                    allObjects.Add(dir, GetDirectorySize(dir, true, null, null));
+                    string[] allDirectories = Directory.GetDirectories(directory, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string dir in allDirectories)
+                    {
+                        allObjects.Add(dir, GetDirectorySize(dir, true, null, null));
+                    }
+                }
+                catch (DirectoryNotFoundException)
+                {
                 }
             }
             else
@@ -115,21 +126,27 @@ namespace Uhuru.Utilities
 
             if (recurse)
             {
-                string[] subdirEntries = Directory.GetDirectories(directory, "*");
+                try
+                {
+                    string[] subdirEntries = Directory.GetDirectories(directory, "*");
 
-                Parallel.For<double>(
-                    0, 
-                    subdirEntries.Length, 
-                    () => 0, 
-                    (i, loop, subtotal) =>
-                    {
-                        subtotal += GetDirectorySize(subdirEntries[i], true, objects, objectsLock);
-                        return subtotal;
-                    },
-                    (x) =>
-                    {
-                        Interlocked.Add(ref size, (long)x);
-                    });
+                    Parallel.For<double>(
+                        0,
+                        subdirEntries.Length,
+                        () => 0,
+                        (i, loop, subtotal) =>
+                        {
+                            subtotal += GetDirectorySize(subdirEntries[i], true, objects, objectsLock);
+                            return subtotal;
+                        },
+                        (x) =>
+                        {
+                            Interlocked.Add(ref size, (long)x);
+                        });
+                }
+                catch (DirectoryNotFoundException)
+                {
+                }
             }
 
             if (objects != null)
@@ -151,7 +168,14 @@ namespace Uhuru.Utilities
         private static long GetFileSize(string file)
         {
             FileInfo info = new FileInfo(file);
-            return (long)Math.Ceiling(info.Length / 1024.0);
+            try
+            {
+                return (long)Math.Ceiling(info.Length / 1024.0);
+            }
+            catch (FileNotFoundException)
+            {
+                return 0;
+            }
         }
 
         /// <summary>

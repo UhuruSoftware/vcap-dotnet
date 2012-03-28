@@ -19,7 +19,12 @@ namespace Uhuru.Configuration.Service
         /// Node ID configuration property.
         /// </summary>
         private static ConfigurationProperty propertyNodeId;
-       
+
+        /// <summary>
+        /// Node service plan.
+        /// </summary>
+        private static ConfigurationProperty propertyPlan;
+
         /// <summary>
         /// Migration NFS configuration property.
         /// </summary>
@@ -106,6 +111,11 @@ namespace Uhuru.Configuration.Service
                 null,
                 ConfigurationPropertyOptions.IsRequired);
 
+            propertyPlan = new ConfigurationProperty(
+                "plan",
+                typeof(string),
+                "free");
+
             propertyMigrationNfs = new ConfigurationProperty(
                 "migrationNfs",
                 typeof(string),
@@ -186,6 +196,7 @@ namespace Uhuru.Configuration.Service
             properties = new ConfigurationPropertyCollection();
 
             properties.Add(propertyNodeId);
+            properties.Add(propertyPlan);
             properties.Add(propertyMigrationNfs);
             properties.Add(propertyMBus);
             properties.Add(propertyIndex);
@@ -219,6 +230,23 @@ namespace Uhuru.Configuration.Service
             set
             {
                 base[propertyNodeId] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the plan for the service.
+        /// </summary>
+        [ConfigurationProperty("plan", IsRequired = false)]
+        public string Plan
+        {
+            get
+            {
+                return (string)base[propertyPlan];
+            }
+
+            set
+            {
+                base[propertyPlan] = value;
             }
         }
 

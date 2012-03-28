@@ -69,6 +69,7 @@
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="CheckOrphanResponse.cs" />
     <Compile Include="CheckOrphanRequest.cs" />
+    <Compile Include="DiscoverMessage.cs" />
     <Compile Include="Handle.cs" />
     <Compile Include="Announcement.cs" />
     <Compile Include="ServiceCredentials.cs" />

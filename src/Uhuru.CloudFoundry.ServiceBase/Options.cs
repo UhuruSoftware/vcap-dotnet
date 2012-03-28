@@ -33,6 +33,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
+        /// Gets or sets the Node plan.
+        /// </summary>
+        public string Plan
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the network file system used for migrating provisioned services.
         /// </summary>
         public string MigrationNFS

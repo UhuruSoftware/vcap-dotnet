@@ -182,7 +182,8 @@ namespace Uhuru.CloudFoundry.DEA
                 this.stager.Runtimes.Add(deaConf.Name, dea);
             }
 
-            this.stager.DropletDir = UhuruSection.GetSection().DEA.BaseDir;
+            string baseDir = UhuruSection.GetSection().DEA.BaseDir;
+            this.stager.DropletDir = new DirectoryInfo(baseDir).FullName;
 
             this.stager.DisableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
             this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
