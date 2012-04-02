@@ -44,7 +44,7 @@ namespace Uhuru.Utilities
                         catch (Exception ex)
                         {
                             Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
-                            Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                            Environment.FailFast(Strings.UnhandledExceptionCaught2 + "\r\n" + ex.ToString());
                         }
                     });
                 newTimer.Enabled = true;
@@ -88,7 +88,7 @@ namespace Uhuru.Utilities
                     catch (Exception ex)
                     {
                         Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
-                        Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                        Environment.FailFast(Strings.UnhandledExceptionCaught2 + "\r\n" + ex.ToString());
                     }
                 });
                 newTimer.Enabled = true;
@@ -128,7 +128,7 @@ namespace Uhuru.Utilities
                 catch (Exception ex)
                 {
                     Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
-                    Environment.FailFast(Strings.UnhandledExceptionCaught2, ex);
+                    Environment.FailFast(Strings.UnhandledExceptionCaught2 + "\r\n" + ex.ToString());
                 }
 
                 newTimer.Enabled = true;

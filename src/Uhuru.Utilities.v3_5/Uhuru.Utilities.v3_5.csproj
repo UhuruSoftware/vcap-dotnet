@@ -78,6 +78,12 @@
     <Compile Include="..\Uhuru.Utilities\RubyCompatibility.cs">
       <Link>RubyCompatibility.cs</Link>
     </Compile>
+    <Compile Include="..\Uhuru.Utilities\Strings.Designer.cs">
+      <Link>Strings.Designer.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\TimerHelper.cs">
+      <Link>TimerHelper.cs</Link>
+    </Compile>
     <Compile Include="..\Uhuru.Utilities\TunnelPackage.cs">
       <Link>TunnelPackage.cs</Link>
     </Compile>
@@ -99,6 +105,9 @@
   <ItemGroup>
     <EmbeddedResource Include="..\Uhuru.Utilities\HttpTunnel\TunnelErrorMessages.resx">
       <Link>HttpTunnel\TunnelErrorMessages.resx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Uhuru.Utilities\Strings.resx">
+      <Link>Strings.resx</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
