@@ -248,7 +248,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && MonitoringServer != null)
             {
                 MonitoringServer.Dispose();
             }
