@@ -1730,10 +1730,10 @@ namespace Uhuru.CloudFoundry.DEA
                         // Remove the instance system resources, except the instance directory
                         if (isCrashed || isOldCrash || isStopped || isDeleted)
                         {
-                            Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-
                             if (instance.Plugin != null)
                             {
+                                Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
+
                                 try
                                 {
                                     this.monitoring.RemoveInstanceResources(instance);
