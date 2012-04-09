@@ -157,7 +157,7 @@ namespace Uhuru.CloudFoundry.DEA
                 // Copy assembly to destination (no overwrite)
                 string assemblyFileName = Path.GetFileName(pathToPlugin);
                 string finalAssemblyPath = Path.Combine(appPath, assemblyFileName);
-                File.Copy(pathToPlugin, finalAssemblyPath, false);
+                File.Copy(pathToPlugin, finalAssemblyPath, true);
 
                 ConstructorInfo constructor = GetPluginTypeBuilder(finalAssemblyPath, className, out newDomain);
 
