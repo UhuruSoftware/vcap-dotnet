@@ -6,7 +6,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Globalization;
 using System.Configuration;
-using Uhuru.CloudFoundry.Cloud;
+using Uhuru.CloudFoundry.Adaptor;
+using System.Security;
+using Uhuru.CloudFoundry.Adaptor.Objects;
+using Uhuru.CloudFoundry.Connection.JCO;
+using Uhuru.CloudFoundry.Connection;
 
 namespace Uhuru.CloudFoundry.Test.System
 {
@@ -16,39 +20,42 @@ namespace Uhuru.CloudFoundry.Test.System
         private string target;
         private string username = "dbtest@uhurucloud.net";
         private string password = "password1234!";
-        Client cfClient;
+        CloudConnection cloudConnection;
 
         [TestInitialize]
         public void TestFixtureSetup()
         {
-            target = ConfigurationManager.AppSettings["target"];
-            cfClient = new Client();
-            cfClient.Target(target);
-            cfClient.AddUser(username, password);
-            cfClient.AddUser("dev@cloudfoundry.org", "password1234!");
-            cfClient.Login(username, password);
+
+
+            TestUtil.CreateAndImplersonateUser(username, password);
+            
+            //cfClient = new Client();
+            //cfClient.Target(target);
+            //cfClient.AddUser(username, password);
+            //cfClient.AddUser("dev@cloudfoundry.org", "password1234!");
+            //cfClient.Login(username, password);
         }
 
         [TestCleanup]
         public void TestFixtureTeardown()
         {
-            foreach (App app in cfClient.Apps())
-            {
-                if (!String.IsNullOrEmpty(app.Services))
-                {
-                    cfClient.UnbindService(app.Name, app.Services);
-                }
-                cfClient.DeleteApp(app.Name);
-            }
 
-            foreach (ProvisionedService service in cfClient.ProvisionedServices())
-            {
-                cfClient.DeleteService(service.Name);
-            }
+            //foreach (App app in cloudConnection.Apps)
+            //{
+            //    foreach (ProvisionedService provisionedService in app.ProvisionedServices)
+            //        app.UnbindService(provisionedService);
+            //    app.Delete();
+            //}
 
-            cfClient.Logout();
-            cfClient.Login("dev@cloudfoundry.org", "password1234!");
-            cfClient.DeleteUser(username);
+            //foreach (ProvisionedService service in cloudConnection.ProvisionedServices)
+            //{
+            //    service.Delete();
+            //}
+
+            TestUtil.DeleteUser(username, new List<string>());
+            //cfClient.Logout();
+            //cfClient.Login("dev@cloudfoundry.org", "password1234!");
+            //cfClient.DeleteUser(username);
         }
 
         [TestMethod]
@@ -60,8 +67,10 @@ namespace Uhuru.CloudFoundry.Test.System
 
             try
             {
-                cfClient.CreateService(serviceName, "mssql");
-                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
+                RawSystemService systemService = cloudConnection.SystemServices.First(ss => ss.Vendor == "mssql");
+                cloudConnection.CreateProvisionedService(systemService, serviceName, true);
+                
+                ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -87,8 +96,10 @@ namespace Uhuru.CloudFoundry.Test.System
 
             try
             {
-                cfClient.CreateService(serviceName, "mssql");
-                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
+                //cfClient.CreateService(serviceName, "mssql");
+                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.First(), "provisionedService", true);
+                Thread.Sleep(1000);
+                ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -105,8 +116,9 @@ namespace Uhuru.CloudFoundry.Test.System
 
             try
             {
-                cfClient.DeleteService(serviceName);
-                ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
+                ProvisionedService provisionedService = cloudConnection.ProvisionedServices.FirstOrDefault(ps => ps.Name == serviceName);
+                provisionedService.Delete();
+                ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
                     if (svc.Name == serviceName)
@@ -127,6 +139,7 @@ namespace Uhuru.CloudFoundry.Test.System
         public void TC003_3Secquential()
         {
             List<string> serviceNames = new List<string>();
+            
 
             for (int i = 0; i < 3; i++)
             {
@@ -134,8 +147,9 @@ namespace Uhuru.CloudFoundry.Test.System
                 bool serviceProvisioned = false;
                 try
                 {
-                    cfClient.CreateService(serviceName, "mssql");
-                    ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
+                    cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql"), serviceName, true);
+                    Thread.Sleep(1000);
+                    ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                     foreach (ProvisionedService svc in services)
                     {
                         if (svc.Name == serviceName)
@@ -158,8 +172,10 @@ namespace Uhuru.CloudFoundry.Test.System
                 bool serviceDeleted = true;
                 try
                 {
-                    cfClient.DeleteService(serviceName);
-                    ICollection<ProvisionedService> services = cfClient.ProvisionedServices();
+                    ProvisionedService provService = cloudConnection.ProvisionedServices.FirstOrDefault(ps => ps.Name == serviceName);
+                    provService.Delete();
+                    Thread.Sleep(1000);
+                    ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                     foreach (ProvisionedService svc in services)
                     {
                         if (svc.Name == serviceName)
@@ -192,7 +208,8 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     try
                     {
-                        cfClient.CreateService(serviceName, "mssql");
+                        cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql"), serviceName, true);
+                        Thread.Sleep(1000);
 
                     }
                     catch (Exception ex)
@@ -225,7 +242,7 @@ namespace Uhuru.CloudFoundry.Test.System
 
             foreach (string service in services)
             {
-                Assert.IsTrue(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
+                Assert.IsTrue(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
             }
 
             threads = new List<Thread>();
@@ -237,7 +254,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     try
                     {
-                        cfClient.DeleteService(serviceName);
+                        cloudConnection.ProvisionedServices.FirstOrDefault(ps => ps.Name == serviceName).Delete();
                     }
                     catch (Exception ex)
                     {
@@ -267,7 +284,7 @@ namespace Uhuru.CloudFoundry.Test.System
 
             foreach (string service in services)
             {
-                Assert.IsFalse(cfClient.ProvisionedServices().Any(ps => ps.Name == service));
+                Assert.IsFalse(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
             }
         }
 
@@ -275,9 +292,10 @@ namespace Uhuru.CloudFoundry.Test.System
         [TestCategory("System")]
         public void TC005_16Parallel()
         {
-            foreach (ProvisionedService srv in cfClient.ProvisionedServices())
+            foreach (ProvisionedService srv in cloudConnection.ProvisionedServices)
             {
-                cfClient.DeleteService(srv.Name);
+                cloudConnection.ProvisionedServices.FirstOrDefault(pv => pv.Name == srv.Name).Delete();
+                //cfClient.DeleteService(srv.Name);
             }
 
             List<string> services = new List<string>();
@@ -292,7 +310,8 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     try
                     {
-                        cfClient.CreateService(serviceName, "mssql");
+                        cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql"), serviceName, true);
+                        
 
                     }
                     catch (Exception ex)
@@ -332,7 +351,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             foreach (string service in services)
             {
-                if (!cfClient.ProvisionedServices().Any(ps => ps.Name == service))
+                if (!cloudConnection.ProvisionedServices.Any(ps => ps.Name == service))
                 {
                     Assert.Inconclusive("Service " + service + " was not created");
                 }
@@ -347,7 +366,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     try
                     {
-                        cfClient.DeleteService(serviceName);
+                        cloudConnection.ProvisionedServices.FirstOrDefault(pv => pv.Name == serviceName).Delete();
                     }
                     catch (Exception ex)
                     {
@@ -384,7 +403,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
             foreach (string service in services)
             {
-                if (cfClient.ProvisionedServices().Any(ps => ps.Name == service))
+                if (cloudConnection.ProvisionedServices.Any(ps => ps.Name == service))
                 {
                     Assert.Inconclusive("Service " + service + " was not deleted");
                 }

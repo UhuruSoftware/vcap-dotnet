@@ -6,7 +6,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.IO;
 using System.Configuration;
-using Uhuru.CloudFoundry.Cloud;
+using Uhuru.CloudFoundry.Adaptor;
+using Uhuru.CloudFoundry.Adaptor.Objects;
 
 namespace Uhuru.CloudFoundry.Test.Performance
 {
@@ -19,7 +20,7 @@ namespace Uhuru.CloudFoundry.Test.Performance
         static string cloudTestAppDir;
         static List<string> directoriesCreated;
 
-        Client client;
+        static CloudConnection cloudConnection;
         private readonly object lck = new object();
 
         [ClassInitialize]
@@ -31,60 +32,59 @@ namespace Uhuru.CloudFoundry.Test.Performance
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
 
-            Client client = new Client();
-            client.Target(target);
-            client.AddUser(username, password);
+            cloudConnection=  TestUtil.CreateAndImplersonateUser(username, password);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Client client = new Client();
-            client.Target(target);
-            client.Login(username, password);
+            //Client client = new Client();
+            //client.Target(target);
+            //client.Login(username, password);
 
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
+            //foreach (App app in client.Apps())
+            //{
+            //    client.DeleteApp(app.Name);
+            //}
 
-            foreach (ProvisionedService service in client.ProvisionedServices())
-            {
-                client.DeleteService(service.Name);
-            }
+            //foreach (ProvisionedService service in client.ProvisionedServices())
+            //{
+            //    client.DeleteService(service.Name);
+            //}
 
-            client.Logout();
+            //client.Logout();
 
-            string adminUser = ConfigurationManager.AppSettings["adminUsername"];
-            string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
+            //string adminUser = ConfigurationManager.AppSettings["adminUsername"];
+            //string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
 
-            client.Login(adminUser, adminPassword);
-            client.DeleteUser(username);
-            client.Logout();
-            foreach (string str in directoriesCreated)
-            {
-                Directory.Delete(str, true);
-            }
+            //client.Login(adminUser, adminPassword);
+            //client.DeleteUser(username);
+            //client.Logout();
+            //foreach (string str in directoriesCreated)
+            //{
+            //    Directory.Delete(str, true);
+            //}
+            TestUtil.DeleteUser(username, directoriesCreated);
         }
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            client = new Client();
-            client.Target(target);
-            client.Login(username, password);
-        }
+        //[TestInitialize]
+        //public void TestInitialize()
+        //{
+        //    client = new Client();
+        //    client.Target(target);
+        //    client.Login(username, password);
+        //}
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
-            client.Logout();
-            Thread.Sleep(3000);
-        }
+        //[TestCleanup]
+        //public void TestCleanup()
+        //{
+        //    foreach (App app in client.Apps())
+        //    {
+        //        client.DeleteApp(app.Name);
+        //    }
+        //    client.Logout();
+        //    Thread.Sleep(3000);
+        //}
 
         [TestMethod, TestCategory("Performance")]
         public void TC001_CloudTestAppCreate10Parallel()
@@ -137,8 +137,18 @@ namespace Uhuru.CloudFoundry.Test.Performance
             }
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.IsTrue(client.AppExists(pair.Key));
+                bool exists = false;
+                foreach (App app in cloudConnection.Apps)
+                {
+                    if (app.Name == pair.Key)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                Assert.IsTrue(exists);
                 Assert.IsTrue(TestUtil.TestUrl(pair.Value));
+
             }
         }
 
@@ -163,7 +173,8 @@ namespace Uhuru.CloudFoundry.Test.Performance
                 {
                     try
                     {
-                        client.DeleteApp(name);
+                        App currentApp = cloudConnection.Apps.FirstOrDefault(a => a.Name == name);
+                        currentApp.Delete();
                     }
                     catch (Exception ex)
                     {
@@ -199,7 +210,16 @@ namespace Uhuru.CloudFoundry.Test.Performance
             Thread.Sleep(2000);
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.IsFalse(client.AppExists(pair.Key));
+                bool exists = false;
+                foreach (App app in cloudConnection.Apps)
+                {
+                    if (app.Name == pair.Key)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                Assert.IsFalse(exists);
                 Assert.IsFalse(TestUtil.TestUrl(pair.Value));
             }
         }
@@ -255,7 +275,16 @@ namespace Uhuru.CloudFoundry.Test.Performance
             }
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.IsTrue(client.AppExists(pair.Key));
+                bool exists = false;
+                foreach (App app in cloudConnection.Apps)
+                {
+                    if (app.Name == pair.Key)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                Assert.IsTrue(exists);
                 Assert.IsTrue(TestUtil.TestUrl(pair.Value));
             }
         }
@@ -281,7 +310,9 @@ namespace Uhuru.CloudFoundry.Test.Performance
                 {
                     try
                     {
-                        client.DeleteApp(name);
+                        App currentApp = cloudConnection.Apps.FirstOrDefault(a => a.Name == name);
+                        currentApp.Delete();
+                        //client.DeleteApp(name);
                     }
                     catch (Exception ex)
                     {
@@ -317,7 +348,16 @@ namespace Uhuru.CloudFoundry.Test.Performance
             Thread.Sleep(4000);
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.IsFalse(client.AppExists(pair.Key));
+                bool exists = false;
+                foreach (App app in cloudConnection.Apps)
+                {
+                    if (app.Name == pair.Key)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                Assert.IsFalse(exists);
                 Assert.IsFalse(TestUtil.TestUrl(pair.Value));
             }
         }
@@ -329,7 +369,8 @@ namespace Uhuru.CloudFoundry.Test.Performance
             {
                 directoriesCreated.Add(path);
             }
-            client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
+            TestUtil.PushApp(appName, url, path, directoriesCreated, cloudConnection, null);
+            //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
         }
     }
 }

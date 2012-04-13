@@ -54,9 +54,7 @@
       <HintPath>lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL" />
-    <Reference Include="System">
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="System" />
     <Reference Include="System.configuration">
       <Private>False</Private>
     </Reference>
@@ -82,7 +80,12 @@
     <Reference Include="TestDLLToLoad, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>lib\TestDLLToLoad.dll</HintPath>
     </Reference>
-    <Reference Include="Uhuru.CloudFoundry.Cloud, Version=0.9.0.0, Culture=neutral, PublicKeyToken=0f4990e2a96bb020, processorArchitecture=MSIL" />
+    <Reference Include="Uhuru.CloudFoundry.Connection">
+      <HintPath>..\..\lib\Uhuru.CloudFoundry.Connection.dll</HintPath>
+    </Reference>
+    <Reference Include="Uhuru.CloudFoundtry.Adaptor">
+      <HintPath>..\..\lib\Uhuru.CloudFoundtry.Adaptor.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">

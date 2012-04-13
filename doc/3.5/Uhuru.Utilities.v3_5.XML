@@ -4,6 +4,298 @@
         <name>Uhuru.Utilities.v3_5</name>
     </assembly>
     <members>
+        <member name="T:Uhuru.Utilities.RubyCompatibility">
+            <summary>
+            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
+            <summary>
+            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
+            </summary>
+            <param name="date">DateTime to be converted.</param>
+            <returns>An int containing the number of seconds.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
+            <summary>
+            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
+            </summary>
+            <param name="seconds">An int containing the number of seconds.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
+            <summary>
+            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
+            </summary>
+            <param name="date">The DateTime to be converted.</param>
+            <returns>A string with the formatted date and time.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
+            <summary>
+            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
+            </summary>
+            <param name="date">A string containing the formatted date and time.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelProtocolType">
+            <summary>
+            Defines possible protocol types to tunnel
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.Tcp">
+            <summary>
+            Tunnel a TCP port
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.UdpIncoming">
+            <summary>
+            Tunnel a UDP port (incoming data)
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.UdpOutgoing">
+            <summary>
+            Tunnel a UDP port (outgoing data)
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.ITunnel">
+            <summary>
+            This interface is the communication contract between the tunnel server and client.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.ReceiveData(System.Guid)">
+            <summary>
+            Gets data from the server.
+            </summary>
+            <param name="connectionId">The connection id for which to get data.</param>
+            <returns>A <see cref="T:Uhuru.Utilities.HttpTunnel.DataPackage"/> containing the available data (if any).</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.SendData(System.Guid,Uhuru.Utilities.HttpTunnel.DataPackage)">
+            <summary>
+            Sends data to a server, for a specific connection.
+            </summary>
+            <param name="connectionId">The connection id for which to send data.</param>
+            <param name="data">The data to be sent to the actual server.</param>
+            <returns>A DataPackage containing any data that was available on the server after the send was done.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.OpenConnection">
+            <summary>
+            Creates a TCP connection on the server.
+            </summary>
+            <returns>A GUID used to identify the connection for future send/receive or for close.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.CloseConnection(System.Guid)">
+            <summary>
+            Closes a TCP connection on the server.
+            </summary>
+            <param name="connectionId">The connection id to be closed.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.DataPackage">
+            <summary>
+            This class contains data about data that needs to be transferred between the tunnel server and client. 
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.DataPackage.BufferSize">
+            <summary>
+            The buffer size to use for transferring data in the tunnel.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.HasData">
+            <summary>
+            Gets or sets a value indicating whether this package has data.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.Data">
+            <summary>
+            Gets or sets the data for this package.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
+            <summary>
+            This is an attribute that is used to decorate fields/properties/enums with JSON names.
+            The JSON name will be used instead of the member's name when serializing.
+            This is used in conjunction <see cref="T:Uhuru.Utilities.Json.JsonConvertibleObject"/>.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Json.JsonNameAttribute.name">
+            <summary>
+            The JSON name of the member.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.Json.JsonNameAttribute"/> class.
+            </summary>
+            <param name="name">The JSON name of the member.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.Json.JsonNameAttribute.Name">
+            <summary>
+            Gets the Name of the member.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.Json.JsonConvertibleObject">
+            <summary>
+            This object is used for serialization/deserialization of objects into/from JSON.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJsonArray(System.String)">
+            <summary>
+            Deserializes a json string that is supposed to contain an array (i.e. [{"field1" : "value1"}, "value2", 0])
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An array of objects</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJson(System.String)">
+            <summary>
+            Deserializes json string that is supposed to contain an object (i.e. {"field1" : "value1"}).
+            </summary>
+            <param name="json">The json string.</param>
+            <returns>An object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson(System.Object)">
+            <summary>
+            Serializes an intermediate object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) to a JSON string.
+            </summary>
+            <param name="intermediateValue">A Dictionary&lt;string, object&gt; or a newtonsoft JObject.</param>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ObjectToValue``1(System.Object)">
+            <summary>
+            Converts an object into another type.
+            If the object is a JObject or JArray, this method uses their respective methods for conversion.
+            Otherwise, it uses Convert.ChangeType.
+            </summary>
+            <typeparam name="T">The type to convert to.</typeparam>
+            <param name="value">The object to convert.</param>
+            <returns>The converted object.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson">
+            <summary>
+            Serializes the instance to a JSON string.
+            </summary>
+            <returns>The JSON string.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ToJsonIntermediateObject">
+            <summary>
+            Converts this instance to a Dictionary&lt;string, object&gt; that is ready to be serialized to a Ruby-compatible JSON.
+            </summary>
+            <returns>A Dictionary&lt;string, object&gt;</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.FromJsonIntermediateObject(System.Object)">
+            <summary>
+            Goes through a deserialized JSON object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) and updates all field an properties of this instance.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ConvertMember(System.Object,System.Type)">
+            <summary>
+            Converts an individual member.
+            </summary>
+            <param name="memberValue">The member value.</param>
+            <param name="memberType">Type of the member.</param>
+            <returns>The converted memeber.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.GetEnumValueFromString(System.Type,System.String)">
+            <summary>
+            Gets an enum value from a string. The method first tries to match the string value to any defined JsonName attributes, then defaults to Enum.Parse.
+            </summary>
+            <param name="enumType">Type of the enum.</param>
+            <param name="enumValue">The enum value.</param>
+            <returns>The parsed enum value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SetMemberValue(System.Reflection.MemberInfo,System.Object)">
+            <summary>
+            Sets a member's value.
+            </summary>
+            <param name="member">The member (can be a field or a property).</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:Uhuru.Utilities.TunnelPackage">
+            <summary>
+            TODO: Update summary.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Prepares a HttpTunnel Service
+            </summary>
+            <param name="sourceDir">The source dir.</param>
+            <param name="destinationDir">The destination dir.</param>
+            <param name="remotePort">The remote port.</param>
+            <param name="remoteHost">The remote host.</param>
+            <param name="remoteProtocol">The remote protocol.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Prepares a HttpTunnel Service
+            </summary>
+            <param name="sourceDir">The source dir.</param>
+            <param name="destinationDir">The destination dir.</param>
+            <param name="remotePort">The remote port.</param>
+            <param name="remoteHost">The remote host.</param>
+            <param name="remoteProtocol">The remote protocol.</param>
+            <param name="user">The username for the remote service</param>
+            <param name="password">The password for the remote service</param>
+        </member>
+        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Prepares a HttpTunnel Service
+            </summary>
+            <param name="sourceDir">The source dir.</param>
+            <param name="destinationDir">The destination dir.</param>
+            <param name="remotePort">The remote port.</param>
+            <param name="remoteHost">The remote host.</param>
+            <param name="remoteProtocol">The remote protocol.</param>
+            <param name="user">The username for the remote service</param>
+            <param name="password">The password for the remote service</param>
+            <param name="databaseName">The name of the remote database</param>
+        </member>
+        <member name="M:Uhuru.Utilities.TunnelPackage.CopyAll(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">
+            <summary>
+            Copies all files and subfolders from one folder to another
+            </summary>
+            <param name="source">The source directory info</param>
+            <param name="target">The target directory info</param>
+        </member>
+        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotCloseConnection">
+             <summary>
+               Looks up a localized string similar to Could not close connection on tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotOpenConnection">
+             <summary>
+               Looks up a localized string similar to Could not open connection on tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotReceiveData">
+             <summary>
+               Looks up a localized string similar to Could not receive data from tunnel server.
+            {0}.
+             </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotSendData">
+             <summary>
+               Looks up a localized string similar to Could not send data to tunnel server.
+            {0}.
+             </summary>
+        </member>
         <member name="T:Uhuru.Utilities.HttpTunnel.TunnelClientEndState">
             <summary>
             This is an enum detailing the possible states of a tunnel client end.
@@ -190,297 +482,31 @@
             Sets up the event log source.
             </summary>
         </member>
-        <member name="T:Uhuru.Utilities.TunnelPackage">
-            <summary>
-            TODO: Update summary.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Prepares a HttpTunnel Service
-            </summary>
-            <param name="sourceDir">The source dir.</param>
-            <param name="destinationDir">The destination dir.</param>
-            <param name="remotePort">The remote port.</param>
-            <param name="remoteHost">The remote host.</param>
-            <param name="remoteProtocol">The remote protocol.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Prepares a HttpTunnel Service
-            </summary>
-            <param name="sourceDir">The source dir.</param>
-            <param name="destinationDir">The destination dir.</param>
-            <param name="remotePort">The remote port.</param>
-            <param name="remoteHost">The remote host.</param>
-            <param name="remoteProtocol">The remote protocol.</param>
-            <param name="user">The username for the remote service</param>
-            <param name="password">The password for the remote service</param>
-        </member>
-        <member name="M:Uhuru.Utilities.TunnelPackage.Create(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)">
-            <summary>
-            Prepares a HttpTunnel Service
-            </summary>
-            <param name="sourceDir">The source dir.</param>
-            <param name="destinationDir">The destination dir.</param>
-            <param name="remotePort">The remote port.</param>
-            <param name="remoteHost">The remote host.</param>
-            <param name="remoteProtocol">The remote protocol.</param>
-            <param name="user">The username for the remote service</param>
-            <param name="password">The password for the remote service</param>
-            <param name="databaseName">The name of the remote database</param>
-        </member>
-        <member name="M:Uhuru.Utilities.TunnelPackage.CopyAll(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">
-            <summary>
-            Copies all files and subfolders from one folder to another
-            </summary>
-            <param name="source">The source directory info</param>
-            <param name="target">The target directory info</param>
-        </member>
-        <member name="T:Uhuru.Utilities.RubyCompatibility">
-            <summary>
-            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
-            <summary>
-            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
-            </summary>
-            <param name="date">DateTime to be converted.</param>
-            <returns>An int containing the number of seconds.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
-            <summary>
-            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
-            </summary>
-            <param name="seconds">An int containing the number of seconds.</param>
-            <returns>A DateTime containing the converted value.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
-            <summary>
-            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
-            </summary>
-            <param name="date">The DateTime to be converted.</param>
-            <returns>A string with the formatted date and time.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
-            <summary>
-            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
-            </summary>
-            <param name="date">A string containing the formatted date and time.</param>
-            <returns>A DateTime containing the converted value.</returns>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelProtocolType">
-            <summary>
-            Defines possible protocol types to tunnel
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.Tcp">
-            <summary>
-            Tunnel a TCP port
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.UdpIncoming">
-            <summary>
-            Tunnel a UDP port (incoming data)
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.UdpOutgoing">
-            <summary>
-            Tunnel a UDP port (outgoing data)
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.ITunnel">
-            <summary>
-            This interface is the communication contract between the tunnel server and client.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.ReceiveData(System.Guid)">
-            <summary>
-            Gets data from the server.
-            </summary>
-            <param name="connectionId">The connection id for which to get data.</param>
-            <returns>A <see cref="T:Uhuru.Utilities.HttpTunnel.DataPackage"/> containing the available data (if any).</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.SendData(System.Guid,Uhuru.Utilities.HttpTunnel.DataPackage)">
-            <summary>
-            Sends data to a server, for a specific connection.
-            </summary>
-            <param name="connectionId">The connection id for which to send data.</param>
-            <param name="data">The data to be sent to the actual server.</param>
-            <returns>A DataPackage containing any data that was available on the server after the send was done.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.OpenConnection">
-            <summary>
-            Creates a TCP connection on the server.
-            </summary>
-            <returns>A GUID used to identify the connection for future send/receive or for close.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.CloseConnection(System.Guid)">
-            <summary>
-            Closes a TCP connection on the server.
-            </summary>
-            <param name="connectionId">The connection id to be closed.</param>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.DataPackage">
-            <summary>
-            This class contains data about data that needs to be transferred between the tunnel server and client. 
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.DataPackage.BufferSize">
-            <summary>
-            The buffer size to use for transferring data in the tunnel.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.HasData">
-            <summary>
-            Gets or sets a value indicating whether this package has data.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.Data">
-            <summary>
-            Gets or sets the data for this package.
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages">
+        <member name="T:Uhuru.Utilities.Strings">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
             </summary>
         </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.ResourceManager">
+        <member name="P:Uhuru.Utilities.Strings.ResourceManager">
             <summary>
               Returns the cached ResourceManager instance used by this class.
             </summary>
         </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.Culture">
+        <member name="P:Uhuru.Utilities.Strings.Culture">
             <summary>
               Overrides the current thread's CurrentUICulture property for all
               resource lookups using this strongly typed resource class.
             </summary>
         </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotCloseConnection">
-             <summary>
-               Looks up a localized string similar to Could not close connection on tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotOpenConnection">
-             <summary>
-               Looks up a localized string similar to Could not open connection on tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotReceiveData">
-             <summary>
-               Looks up a localized string similar to Could not receive data from tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.HttpTunnel.TunnelErrorMessages.CouldNotSendData">
-             <summary>
-               Looks up a localized string similar to Could not send data to tunnel server.
-            {0}.
-             </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
+        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught">
             <summary>
-            This is an attribute that is used to decorate fields/properties/enums with JSON names.
-            The JSON name will be used instead of the member's name when serializing.
-            This is used in conjunction <see cref="T:Uhuru.Utilities.Json.JsonConvertibleObject"/>.
+              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler: {0}.
             </summary>
         </member>
-        <member name="F:Uhuru.Utilities.Json.JsonNameAttribute.name">
+        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught2">
             <summary>
-            The JSON name of the member.
+              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler.
             </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonNameAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Uhuru.Utilities.Json.JsonNameAttribute"/> class.
-            </summary>
-            <param name="name">The JSON name of the member.</param>
-        </member>
-        <member name="P:Uhuru.Utilities.Json.JsonNameAttribute.Name">
-            <summary>
-            Gets the Name of the member.
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.Json.JsonConvertibleObject">
-            <summary>
-            This object is used for serialization/deserialization of objects into/from JSON.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJsonArray(System.String)">
-            <summary>
-            Deserializes a json string that is supposed to contain an array (i.e. [{"field1" : "value1"}, "value2", 0])
-            </summary>
-            <param name="json">The json string.</param>
-            <returns>An array of objects</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.DeserializeFromJson(System.String)">
-            <summary>
-            Deserializes json string that is supposed to contain an object (i.e. {"field1" : "value1"}).
-            </summary>
-            <param name="json">The json string.</param>
-            <returns>An object.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson(System.Object)">
-            <summary>
-            Serializes an intermediate object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) to a JSON string.
-            </summary>
-            <param name="intermediateValue">A Dictionary&lt;string, object&gt; or a newtonsoft JObject.</param>
-            <returns>The JSON string.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ObjectToValue``1(System.Object)">
-            <summary>
-            Converts an object into another type.
-            If the object is a JObject or JArray, this method uses their respective methods for conversion.
-            Otherwise, it uses Convert.ChangeType.
-            </summary>
-            <typeparam name="T">The type to convert to.</typeparam>
-            <param name="value">The object to convert.</param>
-            <returns>The converted object.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SerializeToJson">
-            <summary>
-            Serializes the instance to a JSON string.
-            </summary>
-            <returns>The JSON string.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ToJsonIntermediateObject">
-            <summary>
-            Converts this instance to a Dictionary&lt;string, object&gt; that is ready to be serialized to a Ruby-compatible JSON.
-            </summary>
-            <returns>A Dictionary&lt;string, object&gt;</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.FromJsonIntermediateObject(System.Object)">
-            <summary>
-            Goes through a deserialized JSON object (a Dictionary&lt;string, object&gt; or a newtonsoft JObject) and updates all field an properties of this instance.
-            </summary>
-            <param name="value">The value.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.ConvertMember(System.Object,System.Type)">
-            <summary>
-            Converts an individual member.
-            </summary>
-            <param name="memberValue">The member value.</param>
-            <param name="memberType">Type of the member.</param>
-            <returns>The converted memeber.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.GetEnumValueFromString(System.Type,System.String)">
-            <summary>
-            Gets an enum value from a string. The method first tries to match the string value to any defined JsonName attributes, then defaults to Enum.Parse.
-            </summary>
-            <param name="enumType">Type of the enum.</param>
-            <param name="enumValue">The enum value.</param>
-            <returns>The parsed enum value.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonConvertibleObject.SetMemberValue(System.Reflection.MemberInfo,System.Object)">
-            <summary>
-            Sets a member's value.
-            </summary>
-            <param name="member">The member (can be a field or a property).</param>
-            <param name="value">The value.</param>
         </member>
         <member name="T:Uhuru.Utilities.TimerCallback">
             <summary>
@@ -519,32 +545,6 @@
             <param name="delay">A double specifying the interval between each call of the callback method.</param>
             <param name="callback">A method that gets called when the timer ticks.</param>
             <returns>The timer that is created.</returns>
-        </member>
-        <member name="T:Uhuru.Utilities.Strings">
-            <summary>
-              A strongly-typed resource class, for looking up localized strings, etc.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.Strings.ResourceManager">
-            <summary>
-              Returns the cached ResourceManager instance used by this class.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.Strings.Culture">
-            <summary>
-              Overrides the current thread's CurrentUICulture property for all
-              resource lookups using this strongly typed resource class.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught">
-            <summary>
-              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler: {0}.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.Strings.UnhandledExceptionCaught2">
-            <summary>
-              Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler.
-            </summary>
         </member>
     </members>
 </doc>

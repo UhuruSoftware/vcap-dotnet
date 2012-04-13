@@ -3,9 +3,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uhuru.CloudFoundry.Cloud;
 using System.Configuration;
 using System.IO;
+using Uhuru.CloudFoundry.Adaptor;
+using Uhuru.CloudFoundry.Adaptor.Objects;
 
 namespace Uhuru.CloudFoundry.Test.System
 {
@@ -18,8 +19,8 @@ namespace Uhuru.CloudFoundry.Test.System
         static string mvc2TestAppDir;
         static string mvc3TestAppDir;
         static List<string> directoriesCreated;
+        static CloudConnection cloudConnection;
 
-        Client client;
         private readonly object lck = new object();
 
         [ClassInitialize]
@@ -32,59 +33,61 @@ namespace Uhuru.CloudFoundry.Test.System
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
 
-            Client client = new Client();
-            client.Target(target);
-            client.AddUser(username, password);
+            cloudConnection = TestUtil.CreateAndImplersonateUser(username, password);
+            //Client client = new Client();
+            //client.Target(target);
+            //client.AddUser(username, password);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Client client = new Client();
-            client.Target(target);
-            client.Login(username, password);
+            //Client client = new Client();
+            //client.Target(target);
+            //client.Login(username, password);
 
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
+            //foreach (App app in client.Apps())
+            //{
+            //    client.DeleteApp(app.Name);
+            //}
 
-            foreach (ProvisionedService service in client.ProvisionedServices())
-            {
-                client.DeleteService(service.Name);
-            }
+            //foreach (ProvisionedService service in client.ProvisionedServices())
+            //{
+            //    client.DeleteService(service.Name);
+            //}
 
-            client.Logout();
+            //client.Logout();
 
-            string adminUser = ConfigurationManager.AppSettings["adminUsername"];
-            string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
+            //string adminUser = ConfigurationManager.AppSettings["adminUsername"];
+            //string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
 
-            client.Login(adminUser, adminPassword);
-            client.DeleteUser(username);
-            client.Logout();
-            foreach (string str in directoriesCreated)
-            {
-                Directory.Delete(str, true);
-            }
+            //client.Login(adminUser, adminPassword);
+            //client.DeleteUser(username);
+            //client.Logout();
+            //foreach (string str in directoriesCreated)
+            //{
+            //    Directory.Delete(str, true);
+            //}
+            TestUtil.DeleteUser(username, directoriesCreated);
         }
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            client = new Client();
-            client.Target(target);
-            client.Login(username, password);
-        }
+        //[TestInitialize]
+        //public void TestInitialize()
+        //{
+        //    client = new Client();
+        //    client.Target(target);
+        //    client.Login(username, password);
+        //}
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
-            client.Logout();
-        }
+        //[TestCleanup]
+        //public void TestCleanup()
+        //{
+        //    foreach (App app in client.Apps())
+        //    {
+        //        client.DeleteApp(app.Name);
+        //    }
+        //    client.Logout();
+        //}
 
         [TestMethod, TestCategory("System")]
         public void TC001_Mvc2Create()
@@ -98,7 +101,16 @@ namespace Uhuru.CloudFoundry.Test.System
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(exists);
         }
 
         [TestMethod, TestCategory("System")]
@@ -109,12 +121,28 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
             PushApp(name, mvc2TestAppDir, url);
 
-            // Act
-            client.DeleteApp(name);
+            // Act            
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    app.Delete();
+                }
+            }
+           
 
             // Assert
             Assert.IsFalse(TestUtil.TestUrl(url));
-            Assert.IsFalse(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(exists);
         }
 
         [TestMethod, TestCategory("System")]
@@ -129,7 +157,16 @@ namespace Uhuru.CloudFoundry.Test.System
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(exists);
         }
 
         [TestMethod, TestCategory("System")]
@@ -141,20 +178,36 @@ namespace Uhuru.CloudFoundry.Test.System
             PushApp(name, mvc3TestAppDir, url);
 
             // Act
-            client.DeleteApp(name);
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    app.Delete();
+                }
+            }
 
             // Assert
+            bool exists = false;
             Assert.IsFalse(TestUtil.TestUrl(url));
-            Assert.IsFalse(client.AppExists(name));
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(exists);
         }
 
         private void PushApp(string appName, string sourceDir, string url)
         {
-            string path = TestUtil.CopyFolderToTemp(sourceDir);
-            directoriesCreated.Add(path);
+            //string path = TestUtil.CopyFolderToTemp(sourceDir);
+            //directoriesCreated.Add(path);
 
-            client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
-            client.StartApp(appName, true, false);
+            TestUtil.PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection, "iis");
+            //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
+            //client.StartApp(appName, true, false);
         }
     }
 }

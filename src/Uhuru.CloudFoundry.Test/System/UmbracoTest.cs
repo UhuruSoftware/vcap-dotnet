@@ -5,9 +5,11 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.IO;
-using Uhuru.CloudFoundry.Cloud;
 using System.Configuration;
 using System.Globalization;
+using Uhuru.CloudFoundry.Adaptor;
+using Uhuru.CloudFoundry.Adaptor.Objects;
+using Uhuru.CloudFoundry.Connection.JCO;
 
 namespace Uhuru.CloudFoundry.Test.System
 {
@@ -15,53 +17,56 @@ namespace Uhuru.CloudFoundry.Test.System
     public class UmbracoTest
     {
         string target;
-        string userName;
-        string password;
+        string userName = "dev@cloudfoundry.org";
+        string password = "password1234!";
         string umbracoRootDir;
         List<string> foldersCreated = new List<string>();
 
-        Client client;
+        static CloudConnection cloudConnection;
 
         [TestInitialize]
         public void TestFixtureSetUp()
         {
             target = ConfigurationManager.AppSettings["target"];
             umbracoRootDir = ConfigurationManager.AppSettings["umbracoRootDir"];
-            userName = "umbraco@uhurucloud.net";
-            password = "password1234!";
+            //userName = "umbraco@uhurucloud.net";
+            //password = "password1234!";
 
-            client = new Client();
-            client.Target(target);
-            client.AddUser(userName, password);
-            client.AddUser("dev@cloudfoundry.org", "password1234!");
-            client.Login(userName, password);
+            //client = new Client();
+            //client.Target(target);
+            //client.AddUser(userName, password);
+            //client.AddUser("dev@cloudfoundry.org", "password1234!");
+            //client.Login(userName, password);
+            TestUtil.CreateAndImplersonateUser(userName, password);
         }
 
         [TestCleanup]
         public void TestFixtureTearDown()
         {
-            foreach (App app in client.Apps())
-            {
-                if (!String.IsNullOrEmpty(app.Services))
-                {
-                    client.UnbindService(app.Name, app.Services);
-                }
-                client.DeleteApp(app.Name);
-            }
+            //foreach (App app in client.Apps())
+            //{
+            //    if (!String.IsNullOrEmpty(app.Services))
+            //    {
+            //        client.UnbindService(app.Name, app.Services);
+            //    }
+            //    client.DeleteApp(app.Name);
+            //}
 
-            foreach (ProvisionedService service in client.ProvisionedServices())
-            {
-                client.DeleteService(service.Name);
-            }
+            //foreach (ProvisionedService service in client.ProvisionedServices())
+            //{
+            //    client.DeleteService(service.Name);
+            //}
 
-            client.Logout();
-            client.Login("dev@cloudfoundry.org", "password1234!");
-            client.DeleteUser(userName);
+            //client.Logout();
+            //client.Login("dev@cloudfoundry.org", "password1234!");
+            //client.DeleteUser(userName);
 
-            foreach (string str in foldersCreated)
-            {
-                Directory.Delete(str, true);
-            }
+            //foreach (string str in foldersCreated)
+            //{
+            //    Directory.Delete(str, true);
+            //}
+
+            TestUtil.DeleteUser(userName, foldersCreated);
         }
 
         [TestMethod, Timeout(300000), TestCategory("System")]
@@ -98,7 +103,16 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 Assert.Fail(ex.ToString());
             }
-            Assert.IsFalse(client.AppExists(appName));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == appName)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(exists);
         }
 
         [TestMethod, Timeout(900000), TestCategory("System")]
@@ -129,49 +143,66 @@ namespace Uhuru.CloudFoundry.Test.System
 
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                Assert.IsFalse(client.AppExists(pair.Key));
-                Assert.IsFalse(client.ProvisionedServices().Any(service => service.Name == pair.Value));
+                bool exists = false;
+                foreach (App app in cloudConnection.Apps)
+                {
+                    if (app.Name == pair.Key)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                Assert.IsFalse(exists);
+                //Assert.IsFalse(client.AppExists(pair.Key));
+
+                Assert.IsFalse(cloudConnection.ProvisionedServices.Any(service => service.Name == pair.Value));
             }
         }
 
         private void PushUmbraco(string appName, string serviceName, string deploymentDir, string url)
         {
-            Client cl = new Client();
-            cl.Target(target);
-            cl.Login(userName, password);
+            //Client cl = new Client();
+            //cl.Target(target);
+            //cl.Login(userName, password);
 
-            if (cl.AppExists(appName))
-                cl.DeleteApp(appName);
-            if (cl.ProvisionedServices().Any(service => service.Name == serviceName))
-                cl.DeleteService(serviceName);
+            //if (cl.AppExists(appName))
+            //    cl.DeleteApp(appName);
+            //if (cl.ProvisionedServices().Any(service => service.Name == serviceName))
+            //    cl.DeleteService(serviceName);
 
             string targetDir = TestUtil.CopyFolderToTemp(deploymentDir);
             foldersCreated.Add(targetDir);
             TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
-            if (!cl.CreateService(serviceName, "mssql"))
-            {
-                throw new Exception("Unable to create service :(");
-            }
-            cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
-            cl.BindService(appName, serviceName);
-            cl.StartApp(appName, true, false);
+            RawSystemService systemService = cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql");
+            cloudConnection.CreateProvisionedService(systemService, serviceName);
+
+            //if (!cl.CreateService(serviceName, "mssql"))
+            //{
+            //    throw new Exception("Unable to create service :(");
+            //}
+            TestUtil.PushApp(appName, targetDir, url, foldersCreated, cloudConnection, "iis");
+            //cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
+            //cl.BindService(appName, serviceName);
+            //cl.StartApp(appName, true, false);
 
             Thread.Sleep(10000);
         }
 
         private void DeleteApp(string name, string service)
         {
-            Client cl = new Client();
-            cl.Target(target);
-            cl.Login(userName, password);
+            App currentApp = cloudConnection.Apps.FirstOrDefault(app => app.Name == name);
+            currentApp.Delete();
+            //Client cl = new Client();
+            //cl.Target(target);
+            //cl.Login(userName, password);
 
-            if (service != null)
-            {
-                cl.UnbindService(name, service);
-                cl.DeleteService(service);
-            }
-            cl.DeleteApp(name);
+            //if (service != null)
+            //{
+            //    cl.UnbindService(name, service);
+            //    cl.DeleteService(service);
+            //}
+            //cl.DeleteApp(name);
         }
     }
 

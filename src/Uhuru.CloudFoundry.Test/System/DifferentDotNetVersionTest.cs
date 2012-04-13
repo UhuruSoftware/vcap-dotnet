@@ -3,7 +3,8 @@ using System.Configuration;
 using System.IO;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uhuru.CloudFoundry.Cloud;
+using Uhuru.CloudFoundry.Adaptor;
+using Uhuru.CloudFoundry.Adaptor.Objects;
 
 namespace Uhuru.CloudFoundry.Test.System
 {
@@ -16,9 +17,10 @@ namespace Uhuru.CloudFoundry.Test.System
         static string cloudTestAppDir40 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\app";
         static string cloudTestAppDir35 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp35\app";
         static string cloudTestAppDir20 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp20\app";
+        static string curentFramework = "iis";
         static List<string> directoriesCreated;
-
-        Client client;
+        static CloudConnection cloudConnection;
+        
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
@@ -28,59 +30,38 @@ namespace Uhuru.CloudFoundry.Test.System
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
 
-            Client client = new Client();
-            client.Target(target);
-            client.AddUser(username, password);
+            cloudConnection = TestUtil.CreateAndImplersonateUser(username, password);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Client client = new Client();
-            client.Target(target);
-            client.Login(username, password);
+         
 
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
-
-            foreach (ProvisionedService service in client.ProvisionedServices())
-            {
-                client.DeleteService(service.Name);
-            }
-
-            client.Logout();
-
-            string adminUser = ConfigurationManager.AppSettings["adminUsername"];
-            string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
-
-            client.Login(adminUser, adminPassword);
-            client.DeleteUser(username);
-            client.Logout();
+            TestUtil.DeleteUser(username, directoriesCreated);
             foreach (string str in directoriesCreated)
             {
                 Directory.Delete(str, true);
             }
         }
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            client = new Client();
-            client.Target(target);
-            client.Login(username, password);
-        }
+        //[TestInitialize]
+        //public void TestInitialize()
+        //{
+        //    client = new Client();
+        //    client.Target(target);
+        //    client.Login(username, password);
+        //}
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            foreach (App app in client.Apps())
-            {
-                client.DeleteApp(app.Name);
-            }
-            client.Logout();
-        }
+        //[TestCleanup]
+        //public void TestCleanup()
+        //{
+        //    foreach (App app in client.Apps())
+        //    {
+        //        client.DeleteApp(app.Name);
+        //    }
+        //    client.Logout();
+        //}
 
         [TestMethod, TestCategory("System")]
         public void TC001_CloudTestApp20()
@@ -90,11 +71,22 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            PushApp(name, cloudTestAppDir20, url);
+            TestUtil.PushApp(name, cloudTestAppDir20, url, directoriesCreated, cloudConnection, curentFramework);
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            Assert.IsTrue(exists);
             WebClient webClient = new WebClient();
             string html = webClient.DownloadString(url);
             Assert.IsTrue(html.Contains("This is a .net 2.0 web application!"));
@@ -108,11 +100,22 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            PushApp(name, cloudTestAppDir35, url);
+            TestUtil.PushApp(name, cloudTestAppDir35, url, directoriesCreated, cloudConnection, curentFramework);
+           
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            Assert.IsTrue(exists);
             WebClient webClient = new WebClient();
             string html = webClient.DownloadString(url);
             Assert.IsTrue(html.Contains("This is a .net 3.5 web application!"));
@@ -126,21 +129,31 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            PushApp(name, cloudTestAppDir40, url);
+            TestUtil.PushApp(name, cloudTestAppDir40, url, directoriesCreated, cloudConnection, curentFramework);
+            
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(exists);
             WebClient webClient = new WebClient();
             string html = webClient.DownloadString(url);
             Assert.IsTrue(html.Contains("My ASP.NET Application"));
         }
 
-        private void PushApp(string appName, string sourceDir, string url)
-        {
-            string path = TestUtil.CopyFolderToTemp(sourceDir);
-            directoriesCreated.Add(path);
-            client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
-        }
+        //private void PushApp(string appName, string sourceDir, string url)
+        //{
+        //    string path = TestUtil.CopyFolderToTemp(sourceDir);
+        //    directoriesCreated.Add(path);
+        //    client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
+        //}
     }
 }

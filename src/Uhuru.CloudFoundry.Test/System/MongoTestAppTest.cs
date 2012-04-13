@@ -3,9 +3,13 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Uhuru.CloudFoundry.Cloud;
 using System.Configuration;
 using System.IO;
+using Uhuru.CloudFoundry.Adaptor;
+using System.Security;
+using System.Threading;
+using Uhuru.CloudFoundry.Adaptor.Objects;
+using Uhuru.CloudFoundry.Adaptor.Objects.Packaging;
 
 namespace Uhuru.CloudFoundry.Test.System
 {
@@ -17,8 +21,8 @@ namespace Uhuru.CloudFoundry.Test.System
         static string password;
         static string cloudTestAppDir;
         static List<string> directoriesCreated;
-
-        Client client;
+        static CloudConnection cloudConnection;
+       
         private readonly object lck = new object();
 
         [ClassInitialize]
@@ -29,59 +33,45 @@ namespace Uhuru.CloudFoundry.Test.System
             cloudTestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\MongoTestApp\app");
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
-
-            Client client = new Client();
-            client.Target(target);
-            client.AddUser(username, password);
+            TestUtil.CreateAndImplersonateUser(username, password);
+           
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Client client = new Client();
-            client.Target(target);
-            client.Login(username, password);
 
-            foreach (App app in client.Apps())
+            foreach (App app in cloudConnection.Apps)
             {
-                client.DeleteApp(app.Name);
+                app.Delete();
             }
 
-            foreach (ProvisionedService service in client.ProvisionedServices())
+            foreach (ProvisionedService service in cloudConnection.ProvisionedServices)
             {
-                client.DeleteService(service.Name);
+                service.Delete();
+                //client.DeleteService(service.Name);
             }
 
-            client.Logout();
+            TestUtil.DeleteUser(username, directoriesCreated);
 
-            string adminUser = ConfigurationManager.AppSettings["adminUsername"];
-            string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
-
-            client.Login(adminUser, adminPassword);
-            client.DeleteUser(username);
-            client.Logout();
-            foreach (string str in directoriesCreated)
-            {
-                Directory.Delete(str, true);
-            }
         }
 
         [TestInitialize]
         public void TestInitialize()
         {
-            client = new Client();
-            client.Target(target);
-            client.Login(username, password);
+            //client = new Client();
+            //client.Target(target);
+            //client.Login(username, password);
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            foreach (App app in client.Apps())
+            foreach (App app in cloudConnection.Apps)
             {
-                client.DeleteApp(app.Name);
+                app.Delete();
             }
-            client.Logout();
+            Thread.Sleep(3000);
         }
 
         [TestMethod, TestCategory("System")]
@@ -96,7 +86,17 @@ namespace Uhuru.CloudFoundry.Test.System
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
-            Assert.IsTrue(client.AppExists(name));
+            bool exists = false;
+                 
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(exists);
         }
 
         [TestMethod, TestCategory("System")]
@@ -108,25 +108,36 @@ namespace Uhuru.CloudFoundry.Test.System
             PushApp(name, cloudTestAppDir, url);
 
             // Act
-            client.DeleteApp(name);
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    app.Delete();
+                    Thread.Sleep(1000);
+                }
+            }
 
             // Assert
             Assert.IsFalse(TestUtil.TestUrl(url));
-            Assert.IsFalse(client.AppExists(name));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(exists);
         }
 
         private void PushApp(string appName, string sourceDir, string url)
         {
-            string path = TestUtil.CopyFolderToTemp(sourceDir);
-            directoriesCreated.Add(path);
-
             string serviceName = appName + "svc";
-            Assert.IsTrue(client.CreateService(serviceName, "mongodb"));
-
+            string path = TestUtil.CopyFolderToTemp(sourceDir);
             TestUtil.UpdateWebConfigKey(path + "\\Web.config", "mongoConnectionString", "mongodb://{" + serviceName + "#user}:{" + serviceName + "#password}@{" + serviceName + "#host}:{" + serviceName + "#port}/db");
-            client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
-            client.BindService(appName, serviceName);
-            client.StartApp(appName, true, false);
+            TestUtil.PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection, "mongodb", serviceName, path);
         }
+
     }
 }
