@@ -65,8 +65,13 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="id"> The id of the user. </param>
         /// <returns> The unique string.</returns>
-        private static string DecorateUser(string id)
+        public static string DecorateUser(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentException("id paramater cannot be null or empty", "id");
+            }
+
             return UserDecoration + id.Substring(0, Math.Min(10, id.Length));
         }
     }
