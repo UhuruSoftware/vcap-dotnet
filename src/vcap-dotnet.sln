@@ -39,6 +39,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities.v3_5", "Uhuru.Utilities.v3_5\Uhuru.Utilities.v3_5.csproj", "{16E13234-6A76-46EF-8B98-9BAC1842324A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.FileService", "Uhuru.CloudFoundry.FileService\Uhuru.CloudFoundry.FileService.csproj", "{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = vcap-dotnet3.vsmdi
@@ -104,6 +106,10 @@ Global
 		{16E13234-6A76-46EF-8B98-9BAC1842324A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16E13234-6A76-46EF-8B98-9BAC1842324A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16E13234-6A76-46EF-8B98-9BAC1842324A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,5 +123,6 @@ Global
 		{FC669600-C839-426A-B246-AC19D55F5C51} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{6CB91B83-9554-4E29-B0F0-E2CB6AD66A75} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
+		{91B87C08-1B0D-46A7-8818-D1D55AFB90FE} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 	EndGlobalSection
 EndGlobal
