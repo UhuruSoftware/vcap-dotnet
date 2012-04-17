@@ -21,7 +21,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             string name = Guid.NewGuid().ToString("N");
 
-            string testDir = Path.Combine((Path.GetTempPath(), name);
+            string testDir = Path.Combine(Path.GetTempPath(), name);
 
             Directory.CreateDirectory(testDir);
 
