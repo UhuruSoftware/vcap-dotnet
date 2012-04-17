@@ -163,7 +163,14 @@ namespace Uhuru.Utilities.HttpTunnel
             new ThreadStart(
                 delegate
                 {
-                    using (ChannelFactory<ITunnel> channelFactory = new ChannelFactory<ITunnel>(new BasicHttpBinding(), endpointAddress))
+                    BasicHttpBinding basicBinding = new BasicHttpBinding();
+                    basicBinding.ReaderQuotas.MaxArrayLength = 98304;
+                    basicBinding.ReaderQuotas.MaxBytesPerRead = 10240000;
+                    basicBinding.MaxReceivedMessageSize = 10240000;
+                    basicBinding.MaxBufferPoolSize = 10240000;
+                    basicBinding.MaxBufferSize = 10240000;
+
+                    using (ChannelFactory<ITunnel> channelFactory = new ChannelFactory<ITunnel>(basicBinding, endpointAddress))
                     {
                         ITunnel wcfTunnelChannel = channelFactory.CreateChannel(endpointAddress);
 
@@ -339,7 +346,14 @@ namespace Uhuru.Utilities.HttpTunnel
             new ThreadStart(
                 delegate
                 {
-                    using (ChannelFactory<ITunnel> channelFactory = new ChannelFactory<ITunnel>(new BasicHttpBinding(), endpointAddress))
+                    BasicHttpBinding basicBinding = new BasicHttpBinding();
+                    basicBinding.ReaderQuotas.MaxArrayLength = 98304;
+                    basicBinding.ReaderQuotas.MaxBytesPerRead = 10240000;
+                    basicBinding.MaxReceivedMessageSize = 10240000;
+                    basicBinding.MaxBufferPoolSize = 10240000;
+                    basicBinding.MaxBufferSize = 10240000;
+
+                    using (ChannelFactory<ITunnel> channelFactory = new ChannelFactory<ITunnel>(basicBinding, endpointAddress))
                     {
                         ITunnel wcfTunnelChannel = channelFactory.CreateChannel(endpointAddress);
 
