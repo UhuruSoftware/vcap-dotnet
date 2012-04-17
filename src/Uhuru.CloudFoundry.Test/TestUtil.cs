@@ -36,21 +36,30 @@ namespace Uhuru.CloudFoundry.Test
             }
         }
 
-        public static CloudConnection CreateAndImplersonateUser(string username,string password)
+        public static CloudConnection CreateAndImplersonateUser(string username, string password)
         {
             string target = ConfigurationManager.AppSettings["target"];
+            string adminUser = ConfigurationManager.AppSettings["adminUsername"].ToString();
+            string adminPassword = ConfigurationManager.AppSettings["adminPassword"].ToString();
+
             CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            ///SecureString ss = new SecureString();
-             //ConfigurationManager.AppSettings["adminPassword"].ToString()
-            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(ConfigurationManager.AppSettings["adminPassword"].ToString());
+            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(adminPassword);
+            Uhuru.CloudFoundry.Connection.CloudClient cloudClient = new Connection.CloudClient();
+            try
+            {
+                cloudClient.CreateUser(adminUser, adminPassword, target);
+            }
+            catch (Uhuru.CloudFoundry.Connection.CloudClientException)
+            {
+            }
             CloudManager cloudManager = CloudManager.Instance();
-            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(@"http://"+target));
+            CloudTarget cloudTarget = new CloudTarget(adminUser, encryptedPassword, new Uri(@"http://" + target));
             CloudConnection cloudConnection = cloudManager.GetConnection(cloudTarget);
 
             cloudConnection.CreateUser(username, password);
 
             SecureString newPassword = CloudCredentialsEncryption.GetSecureString(password);
-            cloudTarget = new CloudTarget(username, newPassword, new Uri(@"http://"+target));
+            cloudTarget = new CloudTarget(username, newPassword, new Uri(@"http://" + target));
 
             cloudConnection = cloudManager.GetConnection(cloudTarget);
 
