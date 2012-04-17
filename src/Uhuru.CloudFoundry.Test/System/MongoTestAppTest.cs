@@ -33,7 +33,7 @@ namespace Uhuru.CloudFoundry.Test.System
             cloudTestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\MongoTestApp\app");
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
-            TestUtil.CreateAndImplersonateUser(username, password);
+            cloudConnection = TestUtil.CreateAndImplersonateUser(username, password);
            
         }
 

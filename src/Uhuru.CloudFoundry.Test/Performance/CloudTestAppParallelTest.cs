@@ -369,7 +369,7 @@ namespace Uhuru.CloudFoundry.Test.Performance
             {
                 directoriesCreated.Add(path);
             }
-            TestUtil.PushApp(appName, url, path, directoriesCreated, cloudConnection, null);
+            TestUtil.PushApp(appName, url, path, directoriesCreated, cloudConnection);
             //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, true);
         }
     }

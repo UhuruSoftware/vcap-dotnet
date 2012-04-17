@@ -158,7 +158,7 @@ namespace Uhuru.CloudFoundry.Test.System
             TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisHost", "{" + serviceName + "#host}");
             TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisPort", "{" + serviceName + "#port}");
             TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisPassword", "{" + serviceName + "#password}");
-            TestUtil.PushApp(appName, path, url, directoriesCreated, cloudConnection, "iis");
+            TestUtil.PushApp(appName, path, url, directoriesCreated, cloudConnection);
             //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             //client.BindService(appName, serviceName);
             //client.StartApp(appName, true, false);

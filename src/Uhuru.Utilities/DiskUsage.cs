@@ -13,6 +13,7 @@ namespace Uhuru.Utilities
     using System.Linq;
     using System.Text;
     using System.Threading;
+   
     using System.Threading.Tasks;
 
     /// <summary>
@@ -129,7 +130,7 @@ namespace Uhuru.Utilities
                 try
                 {
                     string[] subdirEntries = Directory.GetDirectories(directory, "*");
-
+                    
                     Parallel.For<double>(
                         0,
                         subdirEntries.Length,

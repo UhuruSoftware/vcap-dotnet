@@ -17,7 +17,8 @@ namespace Uhuru.CloudFoundry.Test
 {
     class TestUtil
     {
-
+        static List<Guid> currentJobs = new List<Guid>();
+        static readonly object locker = new object();
         public static void DeleteUser(string username, List<string> directoriesCreated)
         {
             string target = ConfigurationManager.AppSettings["target"];
@@ -39,14 +40,17 @@ namespace Uhuru.CloudFoundry.Test
         {
             string target = ConfigurationManager.AppSettings["target"];
             CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            SecureString encryptedPassword = encryptor.Decrypt(ConfigurationManager.AppSettings["adminPassword"].ToString());
+            ///SecureString ss = new SecureString();
+             //ConfigurationManager.AppSettings["adminPassword"].ToString()
+            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(ConfigurationManager.AppSettings["adminPassword"].ToString());
             CloudManager cloudManager = CloudManager.Instance();
-            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(target));
+            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(@"http://"+target));
             CloudConnection cloudConnection = cloudManager.GetConnection(cloudTarget);
 
             cloudConnection.CreateUser(username, password);
 
-            cloudTarget = new CloudTarget(username, encryptor.Decrypt(password), new Uri(target));
+            SecureString newPassword = CloudCredentialsEncryption.GetSecureString(password);
+            cloudTarget = new CloudTarget(username, newPassword, new Uri(@"http://"+target));
 
             cloudConnection = cloudManager.GetConnection(cloudTarget);
 
@@ -54,12 +58,12 @@ namespace Uhuru.CloudFoundry.Test
         }
 
 
-        public static void PushApp(string appName, string sourceDir, string url, List<string> directoriesCreated, CloudConnection cloudConnection, string vendor)
+        public static void PushApp(string appName, string sourceDir, string url, List<string> directoriesCreated, CloudConnection cloudConnection)
         {
-            PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection, vendor, null, null);
+            PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection, null, null, null);
         }
 
-        public static void PushApp(string appName, string sourceDir, string url, List<string> directoriesCreated, CloudConnection cloudConnection, string vendor, string serviceName, string path)
+        public static void PushApp(string appName, string sourceDir, string url, List<string> directoriesCreated, CloudConnection cloudConnection, string vendor ,string serviceName, string path)
         {
             if (path == null)
                 path = TestUtil.CopyFolderToTemp(sourceDir);
@@ -80,11 +84,20 @@ namespace Uhuru.CloudFoundry.Test
                 Runtime = "iis",
             };
             PushTracker pushTracker = new PushTracker();
-            pushTracker.TrackId = Guid.NewGuid();
+            Guid tracker = Guid.NewGuid();
+            pushTracker.TrackId = tracker;
+            currentJobs.Add(tracker);
             cloudConnection.PushJob.Start(pushTracker, cloudApp);
             if (vendor != null)
             {
                 cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == vendor), serviceName, true);
+                Thread.Sleep(1000);
+            }
+
+            cloudConnection.PushJob.JobCompleted += new EventHandler<global::System.ComponentModel.AsyncCompletedEventArgs>(PushJob_JobCompleted);
+
+            while (currentJobs.Contains(tracker))
+            {
                 Thread.Sleep(1000);
             }
 
@@ -94,10 +107,20 @@ namespace Uhuru.CloudFoundry.Test
             if (vendor != null)
             {
                 currentApp.BindService(provisionedService);
+                Thread.Sleep(1000);
             }
             currentApp.Start();
 
 
+        }
+
+        static void PushJob_JobCompleted(object sender, global::System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            lock (locker)
+            {
+                currentJobs.Remove((Guid)((PushTracker)e.UserState).TrackId);
+            }
+            //throw new NotImplementedException();
         }
 
         public static string CopyFolderToTemp(string folder)
