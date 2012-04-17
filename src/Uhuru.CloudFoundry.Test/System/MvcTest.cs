@@ -205,7 +205,7 @@ namespace Uhuru.CloudFoundry.Test.System
             //string path = TestUtil.CopyFolderToTemp(sourceDir);
             //directoriesCreated.Add(path);
 
-            TestUtil.PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection, "iis");
+            TestUtil.PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection);
             //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             //client.StartApp(appName, true, false);
         }

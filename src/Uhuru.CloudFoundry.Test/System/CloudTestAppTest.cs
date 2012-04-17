@@ -81,7 +81,7 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection, currentTestFramework);
+            TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection);
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
@@ -104,7 +104,7 @@ namespace Uhuru.CloudFoundry.Test.System
             string name = TestUtil.GenerateAppName();
             string url = "http://" + target.Replace("api", name);
             
-            TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection, currentTestFramework);
+            TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection);
             Thread.Sleep(1000);
             // Act
             foreach (App app in cloudConnection.Apps)
@@ -145,7 +145,7 @@ namespace Uhuru.CloudFoundry.Test.System
             // Act
             foreach (KeyValuePair<string, string> pair in apps)
             {
-                TestUtil.PushApp(pair.Key, cloudTestAppDir, pair.Value, directoriesCreated, cloudConnection, currentTestFramework);
+                TestUtil.PushApp(pair.Key, cloudTestAppDir, pair.Value, directoriesCreated, cloudConnection);
                 Thread.Sleep(1000);
             }
 
@@ -177,7 +177,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 string name = TestUtil.GenerateAppName();
                 string url = "http://" + target.Replace("api", name);
                 apps.Add(name, url);
-                TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection, currentTestFramework);
+                TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection);
                 //PushApp(name, cloudTestAppDir, url);
             }
 
@@ -230,7 +230,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     try
                     {
-                        TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection, currentTestFramework);
+                        TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection);
                     }
                     catch (Exception ex)
                     {
@@ -291,7 +291,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 string name = TestUtil.GenerateAppName();
                 string url = "http://" + target.Replace("api", name);
                 apps.Add(name, url);
-                TestUtil.PushApp(name, cloudTestAppDir, url,directoriesCreated,cloudConnection,currentTestFramework);
+                TestUtil.PushApp(name, cloudTestAppDir, url,directoriesCreated,cloudConnection);
             }
             foreach (string str in apps.Keys)
             {

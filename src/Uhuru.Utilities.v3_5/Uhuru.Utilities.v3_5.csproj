@@ -49,14 +49,22 @@
     <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Uhuru.Utilities\Credentials.cs">
+      <Link>Credentials.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\DiskUsageEntry.cs">
+      <Link>DiskUsageEntry.cs</Link>
+    </Compile>
     <Compile Include="..\Uhuru.Utilities\HttpTunnel\ClientEnd.cs">
       <Link>HttpTunnel\ClientEnd.cs</Link>
     </Compile>
@@ -74,6 +82,9 @@
     </Compile>
     <Compile Include="..\Uhuru.Utilities\Logger.cs">
       <Link>Logger.cs</Link>
+    </Compile>
+    <Compile Include="..\Uhuru.Utilities\NetworkInterface.cs">
+      <Link>NetworkInterface.cs</Link>
     </Compile>
     <Compile Include="..\Uhuru.Utilities\RubyCompatibility.cs">
       <Link>RubyCompatibility.cs</Link>

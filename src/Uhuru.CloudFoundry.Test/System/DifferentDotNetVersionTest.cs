@@ -17,7 +17,7 @@ namespace Uhuru.CloudFoundry.Test.System
         static string cloudTestAppDir40 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp\app";
         static string cloudTestAppDir35 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp35\app";
         static string cloudTestAppDir20 = @"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\CloudTestApp20\app";
-        static string curentFramework = "iis";
+        //static string curentFramework = "iis";
         static List<string> directoriesCreated;
         static CloudConnection cloudConnection;
         
@@ -71,7 +71,7 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            TestUtil.PushApp(name, cloudTestAppDir20, url, directoriesCreated, cloudConnection, curentFramework);
+            TestUtil.PushApp(name, cloudTestAppDir20, url, directoriesCreated, cloudConnection);
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
@@ -100,7 +100,7 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            TestUtil.PushApp(name, cloudTestAppDir35, url, directoriesCreated, cloudConnection, curentFramework);
+            TestUtil.PushApp(name, cloudTestAppDir35, url, directoriesCreated, cloudConnection);
            
 
             // Assert
@@ -129,7 +129,7 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            TestUtil.PushApp(name, cloudTestAppDir40, url, directoriesCreated, cloudConnection, curentFramework);
+            TestUtil.PushApp(name, cloudTestAppDir40, url, directoriesCreated, cloudConnection);
             
 
             // Assert

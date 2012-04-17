@@ -181,7 +181,7 @@ namespace Uhuru.CloudFoundry.Test.System
             //{
             //    throw new Exception("Unable to create service :(");
             //}
-            TestUtil.PushApp(appName, targetDir, url, foldersCreated, cloudConnection, "iis");
+            TestUtil.PushApp(appName, targetDir, url, foldersCreated, cloudConnection);
             //cl.Push(appName, url, targetDir, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
             //cl.BindService(appName, serviceName);
             //cl.StartApp(appName, true, false);
