@@ -23,9 +23,10 @@ namespace Uhuru.CloudFoundry.Test
         {
             string target = ConfigurationManager.AppSettings["target"];
             CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            SecureString encryptedPassword = encryptor.Decrypt(ConfigurationManager.AppSettings["adminPassword"].ToString());
+            string adminPassword = ConfigurationManager.AppSettings["adminPassword"].ToString();
+            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(adminPassword);
             CloudManager cloudManager = CloudManager.Instance();
-            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(target));
+            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri("http://"+target));
             CloudConnection cloudConnection = cloudManager.GetConnection(cloudTarget);
 
             User tempUser = cloudConnection.Users.First(usr => usr.Email == username);
@@ -128,6 +129,10 @@ namespace Uhuru.CloudFoundry.Test
             lock (locker)
             {
                 currentJobs.Remove((Guid)((PushTracker)e.UserState).TrackId);
+                if (e.Error != null)
+                {
+                    throw e.Error;
+                }
             }
             //throw new NotImplementedException();
         }

@@ -28,7 +28,7 @@ namespace Uhuru.CloudFoundry.Test.System
         public static void ClassInitialize(TestContext context)
         {
             directoriesCreated = new List<string>();
-            //target = ConfigurationManager.AppSettings["target"];
+            target = ConfigurationManager.AppSettings["target"];
             cloudTestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\RedisTestApp\app");
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
