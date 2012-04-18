@@ -47,7 +47,7 @@ namespace Uhuru.CloudFoundry.Test
             Uhuru.CloudFoundry.Connection.CloudClient cloudClient = new Connection.CloudClient();
             try
             {
-                cloudClient.CreateUser(adminUser, adminPassword, target);
+                cloudClient.CreateUser(adminUser, adminPassword, @"http://"+ target);
             }
             catch (Uhuru.CloudFoundry.Connection.CloudClientException)
             {
