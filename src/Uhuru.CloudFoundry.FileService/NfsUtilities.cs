@@ -25,7 +25,7 @@ namespace Uhuru.CloudFoundry.FileService
             //FIXME: define user access
             try
             {
-                Process.Start("nfsshare", "-o anon=yes " + name + "=" + directory);
+                Process.Start("nfsshare", "-o root rw " + name + "=" + directory);
             }
             catch (Exception ex)
             {
