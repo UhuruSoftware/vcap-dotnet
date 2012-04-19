@@ -75,6 +75,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 PushUmbraco(appName, serviceName, umbracoRootDir, url);
                 Assert.IsTrue(TestUtil.TestUrl(url));
                 DeleteApp(appName, serviceName);
+                Thread.Sleep(10000);
             }
             catch (Exception ex)
             {

@@ -121,6 +121,18 @@ namespace Uhuru.CloudFoundry.Test
             }
             currentApp.Start();
 
+            int retryCount = 10;
+            while (true)
+            {
+                App pushedApp = cloudConnection.Apps.FirstOrDefault(app => app.Name == cloudApp.Name);
+                if (pushedApp.State == AppState.RUNNING)
+                    break;
+                Thread.Sleep(1000);
+                retryCount--;
+                if (retryCount == 0)
+                    break;
+            }
+
 
         }
 
