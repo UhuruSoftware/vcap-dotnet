@@ -105,14 +105,14 @@ namespace Uhuru.CloudFoundry.Test.System
             string url = "http://" + target.Replace("api", name);
             
             TestUtil.PushApp(name, cloudTestAppDir, url, directoriesCreated, cloudConnection);
-            Thread.Sleep(1000);
+            
             // Act
             foreach (App app in cloudConnection.Apps)
             {
                 if (app.Name == name)
                 {
                     app.Delete();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(10000);
                 }
             }
 

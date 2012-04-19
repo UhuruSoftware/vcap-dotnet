@@ -77,7 +77,7 @@ namespace Uhuru.CloudFoundry.Test.System
             try
             {
                 //cfClient.CreateService(serviceName, "mssql");
-                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.First(), "provisionedService", true);
+                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.First(), serviceName, true);
                 Thread.Sleep(10000);
                 ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
