@@ -68,6 +68,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
@@ -127,6 +128,8 @@
     <Compile Include="WindowsJobObjects\JobObject.cs" />
     <Compile Include="WindowsJobObjects\JobObjectHandle.cs" />
     <Compile Include="WindowsJobObjects\NativeMethods.cs" />
+    <Compile Include="WindowsShare.cs" />
+    <Compile Include="WindowsShareException.cs" />
     <Compile Include="WindowsVcapUsers.cs" />
   </ItemGroup>
   <ItemGroup>
