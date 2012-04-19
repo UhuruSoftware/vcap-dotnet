@@ -76,8 +76,8 @@ namespace Uhuru.CloudFoundry.Test.System
 
             try
             {
-                //cfClient.CreateService(serviceName, "mssql");
-                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.First(), serviceName, true);
+                RawSystemService systemService = cloudConnection.SystemServices.First(ss => ss.Vendor == "mssql");
+                cloudConnection.CreateProvisionedService(systemService, serviceName, true);
                 Thread.Sleep(10000);
                 ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
@@ -221,6 +221,7 @@ namespace Uhuru.CloudFoundry.Test.System
 
             Assert.AreEqual(0, exceptions.Count);
 
+            Thread.Sleep(20000);
             foreach (string service in services)
             {
                 Assert.IsTrue(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
@@ -262,7 +263,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
 
             Assert.AreEqual(0, exceptions.Count);
-
+            Thread.Sleep(20000);
             foreach (string service in services)
             {
                 Assert.IsFalse(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));

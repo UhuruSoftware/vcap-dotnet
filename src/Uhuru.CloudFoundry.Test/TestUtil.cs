@@ -82,6 +82,12 @@ namespace Uhuru.CloudFoundry.Test
             if (serviceName == null)
                 serviceName = appName + "svc";
 
+            if (vendor != null)
+            {
+                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == vendor), serviceName, true);
+                Thread.Sleep(10000);
+            }
+
             CloudApplication cloudApp = new CloudApplication()
             {
                 Name = appName,
@@ -98,11 +104,7 @@ namespace Uhuru.CloudFoundry.Test
             pushTracker.TrackId = tracker;
             currentJobs.Add(tracker);
             cloudConnection.PushJob.Start(pushTracker, cloudApp);
-            if (vendor != null)
-            {
-                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == vendor), serviceName, true);
-                Thread.Sleep(1000);
-            }
+           
 
             cloudConnection.PushJob.JobCompleted += new EventHandler<global::System.ComponentModel.AsyncCompletedEventArgs>(PushJob_JobCompleted);
 

@@ -341,7 +341,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 }
                 Assert.Fail("At least one exception has been  thrown:" + sb.ToString());
             }
-            Thread.Sleep(2000);
+            Thread.Sleep(20000);
             foreach (KeyValuePair<string, string> pair in apps)
             {
                 bool exists = false;
