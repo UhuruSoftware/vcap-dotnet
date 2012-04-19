@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="NfsUtilities.cs" />
     <Compile Include="FileServiceErrorException.cs" />
     <Compile Include="FileServiceOptions.cs" />
     <Compile Include="FtpUtilities.cs" />
@@ -107,6 +108,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="fileservice_linux.rb" />
     <None Include="key.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
