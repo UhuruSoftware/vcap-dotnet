@@ -156,13 +156,17 @@ namespace Uhuru.Configuration.Service
             }
         }
 
-        [ConfigurationProperty("logicalStorageUnits", IsRequired=false, DefaultValue="C")]
+        /// <summary>
+        /// Gets or sets the list of drives on which the database storage files will be distributed on
+        /// </summary>
+        [ConfigurationProperty("logicalStorageUnits", IsRequired = false, DefaultValue = "C")]
         public string LogicalStorageUnits
         {
             get
             {
                 return (string)base[propertyLogicalStorageUnits];
             }
+
             set
             {
                 base[propertyLogicalStorageUnits] = value;
