@@ -27,35 +27,15 @@ namespace Uhuru.CloudFoundry.Test.System
         {
 
 
-            TestUtil.CreateAndImplersonateUser(username, password);
+            cloudConnection = TestUtil.CreateAndImplersonateUser(username, password);
             
-            //cfClient = new Client();
-            //cfClient.Target(target);
-            //cfClient.AddUser(username, password);
-            //cfClient.AddUser("dev@cloudfoundry.org", "password1234!");
-            //cfClient.Login(username, password);
+            
         }
 
         [TestCleanup]
         public void TestFixtureTeardown()
         {
-
-            //foreach (App app in cloudConnection.Apps)
-            //{
-            //    foreach (ProvisionedService provisionedService in app.ProvisionedServices)
-            //        app.UnbindService(provisionedService);
-            //    app.Delete();
-            //}
-
-            //foreach (ProvisionedService service in cloudConnection.ProvisionedServices)
-            //{
-            //    service.Delete();
-            //}
-
             TestUtil.DeleteUser(username, new List<string>());
-            //cfClient.Logout();
-            //cfClient.Login("dev@cloudfoundry.org", "password1234!");
-            //cfClient.DeleteUser(username);
         }
 
         [TestMethod]
@@ -69,7 +49,7 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 RawSystemService systemService = cloudConnection.SystemServices.First(ss => ss.Vendor == "mssql");
                 cloudConnection.CreateProvisionedService(systemService, serviceName, true);
-                
+                Thread.Sleep(10000);
                 ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
@@ -96,9 +76,9 @@ namespace Uhuru.CloudFoundry.Test.System
 
             try
             {
-                //cfClient.CreateService(serviceName, "mssql");
-                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.First(), "provisionedService", true);
-                Thread.Sleep(1000);
+                RawSystemService systemService = cloudConnection.SystemServices.First(ss => ss.Vendor == "mssql");
+                cloudConnection.CreateProvisionedService(systemService, serviceName, true);
+                Thread.Sleep(10000);
                 ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
@@ -118,6 +98,7 @@ namespace Uhuru.CloudFoundry.Test.System
             {
                 ProvisionedService provisionedService = cloudConnection.ProvisionedServices.FirstOrDefault(ps => ps.Name == serviceName);
                 provisionedService.Delete();
+                Thread.Sleep(10000);
                 ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                 foreach (ProvisionedService svc in services)
                 {
@@ -148,7 +129,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 try
                 {
                     cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql"), serviceName, true);
-                    Thread.Sleep(1000);
+                    Thread.Sleep(10000);
                     ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                     foreach (ProvisionedService svc in services)
                     {
@@ -174,7 +155,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 {
                     ProvisionedService provService = cloudConnection.ProvisionedServices.FirstOrDefault(ps => ps.Name == serviceName);
                     provService.Delete();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(10000);
                     ICollection<ProvisionedService> services = cloudConnection.ProvisionedServices;
                     foreach (ProvisionedService svc in services)
                     {
@@ -209,7 +190,7 @@ namespace Uhuru.CloudFoundry.Test.System
                     try
                     {
                         cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql"), serviceName, true);
-                        Thread.Sleep(1000);
+                        Thread.Sleep(10000);
 
                     }
                     catch (Exception ex)
@@ -240,6 +221,7 @@ namespace Uhuru.CloudFoundry.Test.System
 
             Assert.AreEqual(0, exceptions.Count);
 
+            Thread.Sleep(20000);
             foreach (string service in services)
             {
                 Assert.IsTrue(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
@@ -281,7 +263,7 @@ namespace Uhuru.CloudFoundry.Test.System
             }
 
             Assert.AreEqual(0, exceptions.Count);
-
+            Thread.Sleep(20000);
             foreach (string service in services)
             {
                 Assert.IsFalse(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
@@ -349,6 +331,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 }
                 Assert.Inconclusive("At least one exception has been  thrown:" + sb.ToString());
             }
+            Thread.Sleep(10000);
             foreach (string service in services)
             {
                 if (!cloudConnection.ProvisionedServices.Any(ps => ps.Name == service))

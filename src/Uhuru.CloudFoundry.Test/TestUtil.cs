@@ -23,9 +23,10 @@ namespace Uhuru.CloudFoundry.Test
         {
             string target = ConfigurationManager.AppSettings["target"];
             CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            SecureString encryptedPassword = encryptor.Decrypt(ConfigurationManager.AppSettings["adminPassword"].ToString());
+            string adminPassword = ConfigurationManager.AppSettings["adminPassword"].ToString();
+            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(adminPassword);
             CloudManager cloudManager = CloudManager.Instance();
-            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(target));
+            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri("http://"+target));
             CloudConnection cloudConnection = cloudManager.GetConnection(cloudTarget);
 
             User tempUser = cloudConnection.Users.First(usr => usr.Email == username);
@@ -36,21 +37,30 @@ namespace Uhuru.CloudFoundry.Test
             }
         }
 
-        public static CloudConnection CreateAndImplersonateUser(string username,string password)
+        public static CloudConnection CreateAndImplersonateUser(string username, string password)
         {
             string target = ConfigurationManager.AppSettings["target"];
+            string adminUser = ConfigurationManager.AppSettings["adminUsername"].ToString();
+            string adminPassword = ConfigurationManager.AppSettings["adminPassword"].ToString();
+
             CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            ///SecureString ss = new SecureString();
-             //ConfigurationManager.AppSettings["adminPassword"].ToString()
-            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(ConfigurationManager.AppSettings["adminPassword"].ToString());
+            SecureString encryptedPassword = CloudCredentialsEncryption.GetSecureString(adminPassword);
+            Uhuru.CloudFoundry.Connection.CloudClient cloudClient = new Connection.CloudClient();
+            try
+            {
+                cloudClient.CreateUser(adminUser, adminPassword, @"http://"+ target);
+            }
+            catch (Uhuru.CloudFoundry.Connection.CloudClientException)
+            {
+            }
             CloudManager cloudManager = CloudManager.Instance();
-            CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(@"http://"+target));
+            CloudTarget cloudTarget = new CloudTarget(adminUser, encryptedPassword, new Uri(@"http://" + target));
             CloudConnection cloudConnection = cloudManager.GetConnection(cloudTarget);
 
             cloudConnection.CreateUser(username, password);
 
             SecureString newPassword = CloudCredentialsEncryption.GetSecureString(password);
-            cloudTarget = new CloudTarget(username, newPassword, new Uri(@"http://"+target));
+            cloudTarget = new CloudTarget(username, newPassword, new Uri(@"http://" + target));
 
             cloudConnection = cloudManager.GetConnection(cloudTarget);
 
@@ -72,6 +82,12 @@ namespace Uhuru.CloudFoundry.Test
             if (serviceName == null)
                 serviceName = appName + "svc";
 
+            if (vendor != null)
+            {
+                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == vendor), serviceName, true);
+                Thread.Sleep(10000);
+            }
+
             CloudApplication cloudApp = new CloudApplication()
             {
                 Name = appName,
@@ -88,11 +104,7 @@ namespace Uhuru.CloudFoundry.Test
             pushTracker.TrackId = tracker;
             currentJobs.Add(tracker);
             cloudConnection.PushJob.Start(pushTracker, cloudApp);
-            if (vendor != null)
-            {
-                cloudConnection.CreateProvisionedService(cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == vendor), serviceName, true);
-                Thread.Sleep(1000);
-            }
+           
 
             cloudConnection.PushJob.JobCompleted += new EventHandler<global::System.ComponentModel.AsyncCompletedEventArgs>(PushJob_JobCompleted);
 
@@ -111,6 +123,18 @@ namespace Uhuru.CloudFoundry.Test
             }
             currentApp.Start();
 
+            int retryCount = 10;
+            while (true)
+            {
+                App pushedApp = cloudConnection.Apps.FirstOrDefault(app => app.Name == cloudApp.Name);
+                if (pushedApp.State == AppState.RUNNING)
+                    break;
+                Thread.Sleep(1000);
+                retryCount--;
+                if (retryCount == 0)
+                    break;
+            }
+
 
         }
 
@@ -119,6 +143,10 @@ namespace Uhuru.CloudFoundry.Test
             lock (locker)
             {
                 currentJobs.Remove((Guid)((PushTracker)e.UserState).TrackId);
+                if (e.Error != null)
+                {
+                    throw e.Error;
+                }
             }
             //throw new NotImplementedException();
         }

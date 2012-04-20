@@ -17,8 +17,8 @@ namespace Uhuru.CloudFoundry.Test.System
     public class UmbracoTest
     {
         string target;
-        string userName = "dev@cloudfoundry.org";
-        string password = "password1234!";
+        string userName; //= "dev@cloudfoundry.org";
+        string password;//= "password1234!";
         string umbracoRootDir;
         List<string> foldersCreated = new List<string>();
 
@@ -29,43 +29,20 @@ namespace Uhuru.CloudFoundry.Test.System
         {
             target = ConfigurationManager.AppSettings["target"];
             umbracoRootDir = ConfigurationManager.AppSettings["umbracoRootDir"];
-            //userName = "umbraco@uhurucloud.net";
-            //password = "password1234!";
+            userName = "umbraco@uhurucloud.net";
+            password = "password1234!";
 
             //client = new Client();
             //client.Target(target);
             //client.AddUser(userName, password);
             //client.AddUser("dev@cloudfoundry.org", "password1234!");
             //client.Login(userName, password);
-            TestUtil.CreateAndImplersonateUser(userName, password);
+            cloudConnection = TestUtil.CreateAndImplersonateUser(userName, password);
         }
 
         [TestCleanup]
         public void TestFixtureTearDown()
         {
-            //foreach (App app in client.Apps())
-            //{
-            //    if (!String.IsNullOrEmpty(app.Services))
-            //    {
-            //        client.UnbindService(app.Name, app.Services);
-            //    }
-            //    client.DeleteApp(app.Name);
-            //}
-
-            //foreach (ProvisionedService service in client.ProvisionedServices())
-            //{
-            //    client.DeleteService(service.Name);
-            //}
-
-            //client.Logout();
-            //client.Login("dev@cloudfoundry.org", "password1234!");
-            //client.DeleteUser(userName);
-
-            //foreach (string str in foldersCreated)
-            //{
-            //    Directory.Delete(str, true);
-            //}
-
             TestUtil.DeleteUser(userName, foldersCreated);
         }
 
@@ -98,6 +75,7 @@ namespace Uhuru.CloudFoundry.Test.System
                 PushUmbraco(appName, serviceName, umbracoRootDir, url);
                 Assert.IsTrue(TestUtil.TestUrl(url));
                 DeleteApp(appName, serviceName);
+                Thread.Sleep(10000);
             }
             catch (Exception ex)
             {
