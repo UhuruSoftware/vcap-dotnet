@@ -84,7 +84,12 @@ namespace Uhuru.Configuration.Service
         /// Available storage configuration property.
         /// </summary>
         private static ConfigurationProperty propertyAvailableStorage;
-       
+
+        /// <summary>
+        /// Available capacity configuration property.
+        /// </summary>
+        private static ConfigurationProperty propertyCapacity;
+
         /// <summary>
         /// MS SQL Service configuration property.
         /// </summary>
@@ -187,6 +192,12 @@ namespace Uhuru.Configuration.Service
                 1024L,
                 ConfigurationPropertyOptions.IsRequired);
 
+            propertyCapacity = new ConfigurationProperty(
+                "capacity",
+                typeof(int),
+                200,
+                ConfigurationPropertyOptions.IsRequired);
+
             propertyMsSql = new ConfigurationProperty(
               "mssql",
               typeof(MSSqlElement),
@@ -209,6 +220,7 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyBaseDir);
             properties.Add(propertyLocalRoute);
             properties.Add(propertyAvailableStorage);
+            properties.Add(propertyCapacity);
             properties.Add(propertyMsSql);
         }
 
@@ -417,6 +429,23 @@ namespace Uhuru.Configuration.Service
             set
             {
                 base[propertyAvailableStorage] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the amount of available capacity for this service.
+        /// </summary>
+        [ConfigurationProperty("capacity", IsRequired = true, DefaultValue = 200)]
+        public int Capacity
+        {
+            get
+            {
+                return (int)base[propertyCapacity];
+            }
+
+            set
+            {
+                base[propertyCapacity] = value;
             }
         }
 

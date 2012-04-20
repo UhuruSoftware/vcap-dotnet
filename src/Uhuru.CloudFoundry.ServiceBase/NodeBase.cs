@@ -104,6 +104,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
+        /// Capacity unit.
+        /// </summary>
+        /// <returns>Capacity unit.</returns>
+        protected virtual int CapacityUnit()
+        {
+            return 1;
+        }
+
+        /// <summary>
         /// Subclass must overwrite this method to enable check orphan instance feature.
         /// Otherwise it will not check orphan instance
         /// </summary>

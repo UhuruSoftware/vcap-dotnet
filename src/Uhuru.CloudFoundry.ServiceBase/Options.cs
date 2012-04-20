@@ -137,6 +137,15 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
+        /// Gets or sets the maximum capacity for the service.
+        /// </summary>
+        public int Capacity
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the local db in which to save the provisioned services.
         /// </summary>
         public string LocalDB 

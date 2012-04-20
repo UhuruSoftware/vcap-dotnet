@@ -44,6 +44,11 @@ namespace Uhuru.CloudFoundry.FileService
         private long availableStorageBytes;
 
         /// <summary>
+        /// Current available storage on the node.
+        /// </summary>
+        private int availableCapacity;
+
+        /// <summary>
         /// Number of directory provision requests served by the node.
         /// </summary>
         private int provisionServed;
@@ -67,6 +72,9 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 Announcement a = new Announcement();
                 a.AvailableStorageBytes = this.availableStorageBytes;
+                a.AvailableCapacity = this.availableCapacity;
+                a.CapacityUnit = this.CapacityUnit();
+
                 return a;
             }
         }
@@ -113,6 +121,7 @@ namespace Uhuru.CloudFoundry.FileService
             this.CheckDBConsistency();
 
             this.availableStorageBytes = options.AvailableStorage * 1024 * 1024;
+            this.availableCapacity = options.Capacity;
 
             foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
             {
