@@ -104,7 +104,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// Capacity unit.
+        /// Get capacity unit.
         /// </summary>
         /// <returns>Capacity unit.</returns>
         protected virtual int CapacityUnit()
