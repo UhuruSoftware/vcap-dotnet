@@ -106,6 +106,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CreateServiceDatabaseTemplate.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\StyleCop.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

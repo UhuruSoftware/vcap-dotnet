@@ -19,6 +19,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
     
     /// <summary>
     /// This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.
@@ -757,21 +759,37 @@ namespace Uhuru.CloudFoundry.MSSqlService
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void CreateDatabase(ProvisionedService provisionedService)
         {
-            string name = provisionedService.Name;
-            string password = provisionedService.Password;
-            string user = provisionedService.User;
+            string databaseName = provisionedService.Name;
+            string databasePassword = provisionedService.Password;
+            string databaseUser = provisionedService.User;
 
             try
             {
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                using (SqlCommand createDBCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateDatabaseSQL, name), this.connection))
+                string createDbScript = extractSqlScriptFromTemplate(databaseName);
+                
+                // split script on GO command
+                IEnumerable<string> commandStrings = Regex.Split(createDbScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
+
+                using (TransactionScope ts = new TransactionScope())
                 {
-                    createDBCommand.ExecuteNonQuery();
+                    foreach (string commandString in commandStrings)
+                    {
+                        if (commandString.Trim() != "" && !commandString.Contains("[master]"))
+                        {
+                            using (SqlCommand cmd = new SqlCommand(commandString, this.connection))
+                            {
+                                if (commandString.Contains("CREATE DATABASE"))
+                                    cmd.CommandTimeout = 60;
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
                 }
 
-                this.CreateDatabaseUser(name, user, password);
+                this.CreateDatabaseUser(databaseName, databaseUser, databasePassword);
                 long storage = this.StorageForService(provisionedService);
                 if (this.availableStorageBytes < storage)
                 {
@@ -785,6 +803,43 @@ namespace Uhuru.CloudFoundry.MSSqlService
             {
                 Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.ToString());
             }
+        }
+
+        private string extractSqlScriptFromTemplate(string databaseName)
+        {
+            Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.CreateServiceDatabaseTemplate.sql");
+
+            if (templateStream == null)
+                throw new Exception("Resource error: Cannot find DB creation sql script template 'CreateServiceDatabaseTemplate.sql'");
+
+            StreamReader sr = new StreamReader(templateStream);
+
+            string dbCreateCommandString = sr.ReadToEnd(); dbCreateCommandString = null;
+            string[] storageUnits = null;
+
+            if (!string.IsNullOrEmpty(this.mssqlConfig.LogicalStorageUnits))
+                storageUnits = this.mssqlConfig.LogicalStorageUnits.Split(new char[] { ',' }).ToArray();
+            else
+                storageUnits = new string[] { "C" };
+
+            Regex regex = new Regex(@"\<DatabaseName\>");
+            dbCreateCommandString = regex.Replace(dbCreateCommandString, databaseName);
+
+            string driveMatch = @"\<.*NbrFileDrive\>";
+
+            regex = new Regex(driveMatch);
+            int distinctCount = 0;
+
+            dbCreateCommandString = regex.Replace(dbCreateCommandString, new MatchEvaluator(
+                (Match m) =>
+                {
+                    int idx = (distinctCount++) % storageUnits.Length;
+                    Regex r = new Regex(driveMatch);
+
+                    return r.Replace(m.Value, storageUnits[idx] + Path.VolumeSeparatorChar);
+                }));
+
+            return dbCreateCommandString;
         }
 
         /// <summary>

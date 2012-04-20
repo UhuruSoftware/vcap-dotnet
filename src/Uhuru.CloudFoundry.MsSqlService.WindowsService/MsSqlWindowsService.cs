@@ -57,6 +57,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             sqlServerOptions.User = serviceConfig.MSSql.User;
             sqlServerOptions.Port = serviceConfig.MSSql.Port;
             sqlServerOptions.Password = serviceConfig.MSSql.Password;
+            sqlServerOptions.LogicalStorageUnits = serviceConfig.MSSql.LogicalStorageUnits;
 
             this.node = new Node();
             this.node.Start(options, sqlServerOptions);
