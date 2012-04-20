@@ -34,6 +34,11 @@ namespace Uhuru.Configuration.Service
         private static ConfigurationProperty propertyPort;
 
         /// <summary>
+        /// List of drives on which the sql storage files will be distributed (eg: C,D,E,F)
+        /// </summary>
+        private static ConfigurationProperty propertyLogicalStorageUnits;
+
+        /// <summary>
         /// Configuration properties collection.
         /// </summary>
         private static ConfigurationPropertyCollection properties;
@@ -67,6 +72,12 @@ namespace Uhuru.Configuration.Service
                 typeof(int),
                 1433,
                 ConfigurationPropertyOptions.IsRequired);
+
+            propertyLogicalStorageUnits = new ConfigurationProperty(
+                "logicalStorageUnits",
+                typeof(string),
+                "C",
+                ConfigurationPropertyOptions.None);
             
             properties = new ConfigurationPropertyCollection();
 
@@ -74,6 +85,7 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyUser);
             properties.Add(propertyPassword);
             properties.Add(propertyPort);
+            properties.Add(propertyLogicalStorageUnits);
         }
 
         /// <summary>
@@ -141,6 +153,23 @@ namespace Uhuru.Configuration.Service
             set
             {
                 base[propertyPort] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the list of drives on which the database storage files will be distributed on
+        /// </summary>
+        [ConfigurationProperty("logicalStorageUnits", IsRequired = false, DefaultValue = "C")]
+        public string LogicalStorageUnits
+        {
+            get
+            {
+                return (string)base[propertyLogicalStorageUnits];
+            }
+
+            set
+            {
+                base[propertyLogicalStorageUnits] = value;
             }
         }
 

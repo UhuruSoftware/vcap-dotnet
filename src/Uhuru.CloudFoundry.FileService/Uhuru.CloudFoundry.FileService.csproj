@@ -72,7 +72,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
-    <Compile Include="NfsUtilities.cs" />
     <Compile Include="FileServiceErrorException.cs" />
     <Compile Include="FileServiceOptions.cs" />
     <Compile Include="FtpUtilities.cs" />

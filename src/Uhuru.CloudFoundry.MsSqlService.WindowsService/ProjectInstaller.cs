@@ -58,6 +58,12 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             UhuruSection section = (UhuruSection)config.GetSection("uhuru");
 
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogicalStorageUnits]))
+            {
+                string lsu = Context.Parameters[Argument.LogicalStorageUnits];
+                section.Service.MSSql.LogicalStorageUnits = lsu;
+            }
+
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.AvailableStorage]))
             {
                 section.Service.AvailableStorage = long.Parse(Context.Parameters[Argument.AvailableStorage], CultureInfo.InvariantCulture);
@@ -250,6 +256,11 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             /// Parameter name for availableStorage
             /// </summary>
             public const string AvailableStorage = "availableStorage";
+
+            /// <summary>
+            /// Parameter name for logical storage units
+            /// </summary>
+            public const string LogicalStorageUnits = "logicalStorageUnits";
 
             /// <summary>
             /// Parameter name for host

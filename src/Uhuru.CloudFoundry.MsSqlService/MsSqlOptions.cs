@@ -46,5 +46,14 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the list of drives for sql file storage
+        /// </summary>
+        public string LogicalStorageUnits
+        {
+            get;
+            set;
+        }
     }
 }
