@@ -73,6 +73,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
         private long availableStorageBytes;
 
         /// <summary>
+        /// Current available storage on the node.
+        /// </summary>
+        private int availableCapacity;
+
+        /// <summary>
         /// Maximum storage on the node.
         /// </summary>
         private long nodeCapacityBytes;
@@ -121,6 +126,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
             {
                 Announcement a = new Announcement();
                 a.AvailableStorageBytes = this.availableStorageBytes;
+                a.AvailableCapacity = this.availableCapacity;
+                a.CapacityUnit = this.CapacityUnit();
                 return a;
             }
         }
