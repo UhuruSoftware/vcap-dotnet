@@ -6,22 +6,21 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Configuration;
 using System.IO;
 using Uhuru.CloudFoundry.Adaptor;
-using System.Security;
 using Uhuru.CloudFoundry.Adaptor.Objects;
-using Uhuru.CloudFoundry.Connection.JCO;
 
-namespace Uhuru.CloudFoundry.Test.System
+namespace Uhuru.CloudFoundry.Test.SystemTests
 {
     [TestClass]
-    public class RedisTestAppTest
+    public class MvcTest
     {
         static string target;
         static string username;
         static string password;
-        static string cloudTestAppDir;
+        static string mvc2TestAppDir;
+        static string mvc3TestAppDir;
         static List<string> directoriesCreated;
-
         static CloudConnection cloudConnection;
+
         private readonly object lck = new object();
 
         [ClassInitialize]
@@ -29,12 +28,15 @@ namespace Uhuru.CloudFoundry.Test.System
         {
             directoriesCreated = new List<string>();
             target = ConfigurationManager.AppSettings["target"];
-            cloudTestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\RedisTestApp\app");
+            mvc2TestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\Mvc2Application\app");
+            mvc3TestAppDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\Mvc3Application\app");
             username = TestUtil.GenerateAppName() + "@uhurucloud.net";
             password = TestUtil.GenerateAppName();
 
-
             cloudConnection = TestUtil.CreateAndImplersonateUser(username, password);
+            //Client client = new Client();
+            //client.Target(target);
+            //client.AddUser(username, password);
         }
 
         [ClassCleanup]
@@ -54,15 +56,14 @@ namespace Uhuru.CloudFoundry.Test.System
             //    client.DeleteService(service.Name);
             //}
 
-            //target = ConfigurationManager.AppSettings["target"];
-            //CloudCredentialsEncryption encryptor = new CloudCredentialsEncryption();
-            //SecureString encryptedPassword = encryptor.Decrypt(ConfigurationManager.AppSettings["adminPassword"].ToString());
-            //CloudManager cloudManager = CloudManager.Instance();
-            //CloudTarget cloudTarget = new CloudTarget(ConfigurationManager.AppSettings["adminUsername"].ToString(), encryptedPassword, new Uri(target));
-            //cloudConnection = cloudManager.GetConnection(cloudTarget);
+            //client.Logout();
 
-            //User tempUser = cloudConnection.Users.First(usr => usr.Email == username);
-            //tempUser.Delete();
+            //string adminUser = ConfigurationManager.AppSettings["adminUsername"];
+            //string adminPassword = ConfigurationManager.AppSettings["adminPassword"];
+
+            //client.Login(adminUser, adminPassword);
+            //client.DeleteUser(username);
+            //client.Logout();
             //foreach (string str in directoriesCreated)
             //{
             //    Directory.Delete(str, true);
@@ -89,14 +90,14 @@ namespace Uhuru.CloudFoundry.Test.System
         //}
 
         [TestMethod, TestCategory("System")]
-        public void TC001_RedisTestAppCreate()
+        public void TC001_Mvc2Create()
         {
             // Arrange
             string name = TestUtil.GenerateAppName();
             string url = "http://" + target.Replace("api", name);
 
             // Act
-            PushApp(name, cloudTestAppDir, url);
+            PushApp(name, mvc2TestAppDir, url);
 
             // Assert
             Assert.IsTrue(TestUtil.TestUrl(url));
@@ -113,23 +114,22 @@ namespace Uhuru.CloudFoundry.Test.System
         }
 
         [TestMethod, TestCategory("System")]
-        public void TC002_RedisTestAppDelete()
+        public void TC002_Mvc2TestAppDelete()
         {
             // Arrange
             string name = TestUtil.GenerateAppName();
             string url = "http://" + target.Replace("api", name);
-            PushApp(name, cloudTestAppDir, url);
+            PushApp(name, mvc2TestAppDir, url);
 
-            // Act
+            // Act            
             foreach (App app in cloudConnection.Apps)
             {
                 if (app.Name == name)
                 {
                     app.Delete();
-                    break;
                 }
             }
-            //client.DeleteApp(name);
+           
 
             // Assert
             Assert.IsFalse(TestUtil.TestUrl(url));
@@ -145,22 +145,68 @@ namespace Uhuru.CloudFoundry.Test.System
             Assert.IsFalse(exists);
         }
 
+        [TestMethod, TestCategory("System")]
+        public void TC003_Mvc3Create()
+        {
+            // Arrange
+            string name = TestUtil.GenerateAppName();
+            string url = "http://" + target.Replace("api", name);
+
+            // Act
+            PushApp(name, mvc3TestAppDir, url);
+
+            // Assert
+            Assert.IsTrue(TestUtil.TestUrl(url));
+            bool exists = false;
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(exists);
+        }
+
+        [TestMethod, TestCategory("System")]
+        public void TC004_Mvc3TestAppDelete()
+        {
+            // Arrange
+            string name = TestUtil.GenerateAppName();
+            string url = "http://" + target.Replace("api", name);
+            PushApp(name, mvc3TestAppDir, url);
+
+            // Act
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    app.Delete();
+                }
+            }
+
+            // Assert
+            bool exists = false;
+            Assert.IsFalse(TestUtil.TestUrl(url));
+            foreach (App app in cloudConnection.Apps)
+            {
+                if (app.Name == name)
+                {
+                    exists = true;
+                    break;
+                }
+            }
+            Assert.IsFalse(exists);
+        }
+
         private void PushApp(string appName, string sourceDir, string url)
         {
-            string path = TestUtil.CopyFolderToTemp(sourceDir);
-            directoriesCreated.Add(path);
+            //string path = TestUtil.CopyFolderToTemp(sourceDir);
+            //directoriesCreated.Add(path);
 
-            string serviceName = appName + "svc";
-            RawSystemService systemService = cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "redis");
-            cloudConnection.CreateProvisionedService(systemService, serviceName);
-            //Assert.IsTrue(client.CreateService(serviceName, "redis"));
-
-            TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisHost", "{" + serviceName + "#host}");
-            TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisPort", "{" + serviceName + "#port}");
-            TestUtil.UpdateWebConfigKey(path + "\\Web.config", "redisPassword", "{" + serviceName + "#password}");
-            TestUtil.PushApp(appName, path, url, directoriesCreated, cloudConnection, "redis", serviceName, path);
+            TestUtil.PushApp(appName, sourceDir, url, directoriesCreated, cloudConnection);
             //client.Push(appName, url, path, 1, "dotNet", "iis", 128, new List<string>(), false, false, false);
-            //client.BindService(appName, serviceName);
             //client.StartApp(appName, true, false);
         }
     }
