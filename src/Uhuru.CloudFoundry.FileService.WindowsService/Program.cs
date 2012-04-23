@@ -30,13 +30,13 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 System.ServiceProcess.ServiceBase[] servicesToRun;
                 servicesToRun = new System.ServiceProcess.ServiceBase[] 
                 {
-                    new MSSqlWindowsService() 
+                    new FileServiceWindowsService() 
                 };
                 System.ServiceProcess.ServiceBase.Run(servicesToRun);
             }
             else
             {
-                using (MSSqlWindowsService sqlService = new MSSqlWindowsService())
+                using (FileServiceWindowsService sqlService = new FileServiceWindowsService())
                 {
                     sqlService.Start();
                     Console.WriteLine(Strings.PressEnterToStopConsoleMessage);

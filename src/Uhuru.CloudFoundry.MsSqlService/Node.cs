@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MSSqlService
+namespace Uhuru.CloudFoundry.FileService
 {
     using System;
     using System.Collections.Generic;

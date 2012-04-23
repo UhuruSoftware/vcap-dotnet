@@ -9,6 +9,7 @@ namespace Uhuru.Utilities
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using System.Management;
     using System.Text;
@@ -56,7 +57,7 @@ namespace Uhuru.Utilities
 
                 inParams = shareClass.GetMethodParameters("Create");
                 inParams["Name"] = shareName;
-                inParams["Path"] = folderPath;
+                inParams["Path"] = new DirectoryInfo(folderPath).FullName;
                 //// inParams["Description"] = description;
                 inParams["Type"] = 0x0;  // Type of Disk Drive
                 inParams["Access"] = sd;

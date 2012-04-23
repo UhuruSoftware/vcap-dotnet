@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MsSqlWindowsService.cs" company="Uhuru Software, Inc.">
+// <copyright file="FileServiceWindowsService.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -14,17 +14,17 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
     /// <summary>
     /// This is the Windows Service class that hosts an MS SQL Node.
     /// </summary>
-    internal partial class MSSqlWindowsService : System.ServiceProcess.ServiceBase
+    internal partial class FileServiceWindowsService : System.ServiceProcess.ServiceBase
     {
         /// <summary>
-        /// The MS Sql Server Node.
+        /// The Uhurufs Service Node.
         /// </summary>
         private Node node;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MSSqlWindowsService"/> class.
+        /// Initializes a new instance of the <see cref="FileServiceWindowsService"/> class.
         /// </summary>
-        public MSSqlWindowsService()
+        public FileServiceWindowsService()
         {
             this.InitializeComponent();
         }
@@ -53,15 +53,11 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             options.LocalRoute = serviceConfig.LocalRoute;
             options.StatusPort = serviceConfig.StatusPort;
 
-            MSSqlOptions sqlServerOptions = new MSSqlOptions();
-            sqlServerOptions.Host = serviceConfig.MSSql.Host;
-            sqlServerOptions.User = serviceConfig.MSSql.User;
-            sqlServerOptions.Port = serviceConfig.MSSql.Port;
-            sqlServerOptions.Password = serviceConfig.MSSql.Password;
-            sqlServerOptions.LogicalStorageUnits = serviceConfig.MSSql.LogicalStorageUnits;
+            FileServiceOptions fileServiceOptions = new FileServiceOptions();
+            fileServiceOptions.SharedDrive = options.BaseDir = serviceConfig.BaseDir;
 
             this.node = new Node();
-            this.node.Start(options, sqlServerOptions);
+            this.node.Start(options, fileServiceOptions);
         }
 
         /// <summary>

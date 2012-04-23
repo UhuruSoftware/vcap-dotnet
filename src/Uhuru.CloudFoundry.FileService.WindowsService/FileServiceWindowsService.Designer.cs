@@ -9,7 +9,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
     /// <summary>
     /// This is the Windows Service class that hosts an MS SQL Node.
     /// </summary>
-    internal partial class MSSqlWindowsService
+    internal partial class FileServiceWindowsService
     {
         /// <summary> 
         /// Required designer variable.
@@ -42,7 +42,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             // 
             // ServiceMsSql
             // 
-            this.ServiceName = "Uhuru SQL Server Cloud Foundry Service";
+            this.ServiceName = "Uhuru File Cloud Foundry Service";
 
         }
 
