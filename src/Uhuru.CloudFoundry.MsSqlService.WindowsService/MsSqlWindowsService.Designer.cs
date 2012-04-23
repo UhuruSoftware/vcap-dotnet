@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
+namespace Uhuru.CloudFoundry.FileService.WindowsService
 {
     /// <summary>
     /// This is the Windows Service class that hosts an MS SQL Node.

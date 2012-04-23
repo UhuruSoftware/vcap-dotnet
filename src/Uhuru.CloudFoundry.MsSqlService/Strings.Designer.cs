@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MSSqlService {
+namespace Uhuru.CloudFoundry.FileService {
     using System;
     
     

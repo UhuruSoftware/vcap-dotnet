@@ -4,9 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
+namespace Uhuru.CloudFoundry.FileService.WindowsService
 {
-    using Uhuru.CloudFoundry.MSSqlService;
+    using Uhuru.CloudFoundry.FileService;
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Configuration;
     using Uhuru.Configuration.Service;

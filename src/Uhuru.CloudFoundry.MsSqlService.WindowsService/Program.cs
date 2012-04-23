@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
+namespace Uhuru.CloudFoundry.FileService.WindowsService
 {
     using System;
     using System.Diagnostics;
