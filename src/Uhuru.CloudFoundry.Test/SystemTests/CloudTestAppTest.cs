@@ -10,7 +10,7 @@ using System.Security;
 using Uhuru.CloudFoundry.Adaptor.Objects;
 using Uhuru.CloudFoundry.Objects.Packaging;
 
-namespace Uhuru.CloudFoundry.Test.System
+namespace Uhuru.CloudFoundry.Test.SystemTests
 {
     [TestClass]
     public class CloudTestAppTest

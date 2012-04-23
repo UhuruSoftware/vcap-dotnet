@@ -12,7 +12,7 @@ using Uhuru.CloudFoundry.Adaptor.Objects;
 using Uhuru.CloudFoundry.Connection.JCO;
 using Uhuru.CloudFoundry.Connection;
 
-namespace Uhuru.CloudFoundry.Test.System
+namespace Uhuru.CloudFoundry.Test.SystemTests
 {
     [TestClass]
     public class MsSqlServicesTest

@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.CloudFoundry.Adaptor;
 using Uhuru.CloudFoundry.Adaptor.Objects;
 
-namespace Uhuru.CloudFoundry.Test.System
+namespace Uhuru.CloudFoundry.Test.SystemTests
 {
     [TestClass]
     public class DifferentDotNetVersionTest

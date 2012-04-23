@@ -5,13 +5,13 @@ GO
 CREATE DATABASE [<DatabaseName>] ON  PRIMARY 
 ( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = 102400KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
  FILEGROUP [DATA]  DEFAULT 
-( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB )
+( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB )
  LOG ON 
-( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' , SIZE = 512000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB ),
-( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = 512000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB )
+( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' , SIZE = 12000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB ),
+( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = 12000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB )
 GO
 
 ALTER DATABASE [<DatabaseName>] SET RECOVERY SIMPLE WITH NO_WAIT
