@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.FileService
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Security.AccessControl;
     using System.Threading;
     using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
@@ -286,7 +287,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>The service name for the MS SQL Node is 'MssqlaaS'</returns>
         protected override string ServiceName()
         {
-            return "FSaaS";
+            return "UhurufsaaS";
         }
 
         /// <summary>
@@ -329,6 +330,14 @@ namespace Uhuru.CloudFoundry.FileService
                 provisioned_service.Plan = planRequest;
 
                 this.CreateDirectory(provisioned_service);
+
+                // add directory permissions
+                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                AddDirectoryPermissions(directory, user);
+
+                // add permissions to windows share
+                Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
+                ws.AddSharePermissions(user);
 
                 if (!ProvisionedService.Save())
                 {
@@ -425,7 +434,8 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A new set of credentials used for binding.
         /// </returns>
-        protected override ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions)
+        protected override ServiceCredentials 
+            Bind(string name, Dictionary<string, object> bindOptions)
         {
             return Bind(name, bindOptions, null);
         }
@@ -468,6 +478,15 @@ namespace Uhuru.CloudFoundry.FileService
                 binding["bind_opts"] = bindOptions;
 
                 CreateUser(name, binding["user"] as string, binding["password"] as string);
+
+                // add directory permissions
+                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                AddDirectoryPermissions(directory, binding["user"] as string);
+
+                // add permissions to windows share
+                Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
+                ws.AddSharePermissions(binding["user"] as string);
+
                 ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string);
 
                 Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
@@ -504,6 +523,9 @@ namespace Uhuru.CloudFoundry.FileService
 
             string user = credentials.User;
 
+            WindowsShare ws = new WindowsShare(credentials.Name);
+            ws.DeleteSharePermission(user);
+
             DeleteUser(user);
             return true;
         }
@@ -520,6 +542,26 @@ namespace Uhuru.CloudFoundry.FileService
             Logger.Info(Strings.SqlNodeCreatingCredentialsInfoMessage, user, password, name);
 
             Uhuru.Utilities.WindowsVCAPUsers.CreateUser(user, password);
+        }
+
+        /// <summary>
+        /// Adds the directory permissions.
+        /// </summary>
+        /// <param name="directoryPath">The directory path.</param>
+        /// <param name="usename">The usename.</param>
+        private static void AddDirectoryPermissions(string directoryPath, string usename)
+        {
+            DirectoryInfo dir = Directory.CreateDirectory(directoryPath);
+
+            DirectorySecurity deploymentDirSecurity = dir.GetAccessControl();
+            deploymentDirSecurity.SetAccessRule(
+                new FileSystemAccessRule(
+                    usename,
+                    FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
+                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                    PropagationFlags.None,
+                    AccessControlType.Allow));
+            dir.SetAccessControl(deploymentDirSecurity);
         }
 
         /// <summary>
@@ -583,11 +625,14 @@ namespace Uhuru.CloudFoundry.FileService
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
                 string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
-
                 Directory.CreateDirectory(directory);
-                FtpUtilities.CreateFtpSite(name, directory, user);
 
                 CreateUser(name, user, password);
+
+                FtpUtilities.CreateFtpSite(name, directory, user);
+
+                WindowsShare.CreateShare(name, directory);
+
                 long storage = this.StorageForService(provisionedService);
 
                 if (this.availableStorageBytes < storage)
@@ -622,9 +667,12 @@ namespace Uhuru.CloudFoundry.FileService
 
                 string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
 
-                Directory.Delete(directory, true);
-
                 FtpUtilities.DeleteFtpSite(name);
+
+                WindowsShare ws = new WindowsShare(name);
+                ws.DeleteShare();
+
+                Directory.Delete(directory, true);
             }
             catch (Exception ex)
             {

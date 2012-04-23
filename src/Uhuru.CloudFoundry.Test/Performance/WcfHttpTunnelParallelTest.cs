@@ -31,13 +31,13 @@ namespace Uhuru.CloudFoundry.Test.Performance
         public static void ClassInitialize(TestContext context)
         {
             password = "!@#33Pass";
-            user = Utilities.WindowsVCAPUsers.CreateUser("WcfHttpTunnel", password);
+            user = Utilities.WindowsVCAPUsers.CreateDecoratedUser("WcfHttpTunnel", password);
         }
 
         [ClassCleanup]
         public static void ClassCleanup()
         {
-            Utilities.WindowsVCAPUsers.DeleteUser("WcfHttpTunnel");
+            Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser("WcfHttpTunnel");
         }
 
         [TestInitialize]

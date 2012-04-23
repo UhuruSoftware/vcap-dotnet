@@ -25,7 +25,7 @@ namespace Uhuru.Utilities
         /// <param name="id">An id for the username.</param>
         /// <param name="password">A password for the user. Make sure it's strong.</param>
         /// <returns>The final username of the newly created Windows User.</returns>
-        public static string CreateUser(string id, string password)
+        public static string CreateDecoratedUser(string id, string password)
         {
             if (password == null)
             {
@@ -46,12 +46,50 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Creates a user based on an id. The created user has a prefix added to it.
+        /// </summary>
+        /// <param name="userName">The username.</param>
+        /// <param name="password">A password for the user. Make sure it's strong.</param>
+        public static void CreateUser(string userName, string password)
+        {
+            if (password == null)
+            {
+                password = Utilities.Credentials.GenerateCredential();
+            }
+
+            string decoratedUsername = userName;
+            using (DirectoryEntry directoryEntry = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
+            {
+                DirectoryEntries entries = directoryEntry.Children;
+                DirectoryEntry user = entries.Add(decoratedUsername, "User");
+                user.Properties["FullName"].Add("Uhuru Vcap Instance " + userName + " user");
+                user.Invoke("SetPassword", password);
+                user.CommitChanges();
+            }
+        }
+
+        /// <summary>
         /// Deletes a windows user based on an Id.
         /// </summary>
         /// <param name="id">The id that was used to create the user.</param>
-        public static void DeleteUser(string id)
+        public static void DeleteDecoratedBasedUser(string id)
         {
             string decoratedUsername = DecorateUser(id);
+            using (DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
+            {
+                DirectoryEntries users = localDirectory.Children;
+                DirectoryEntry user = users.Find(decoratedUsername);
+                users.Remove(user);
+            }
+        }
+
+        /// <summary>
+        /// Deletes a windows user based on an Id.
+        /// </summary>
+        /// <param name="userName">The username.</param>
+        public static void DeleteUser(string userName)
+        {
+            string decoratedUsername = userName;
             using (DirectoryEntry localDirectory = new DirectoryEntry("WinNT://" + Environment.MachineName.ToString()))
             {
                 DirectoryEntries users = localDirectory.Children;

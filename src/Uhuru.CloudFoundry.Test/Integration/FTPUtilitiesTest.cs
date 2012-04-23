@@ -28,13 +28,13 @@ namespace Uhuru.CloudFoundry.Test.Integration
             string username = Uhuru.Utilities.Credentials.GenerateCredential();
             string password = "password1234!";
 
-            string decoratedUsername = Uhuru.Utilities.WindowsVCAPUsers.CreateUser(username, password);
+            string decoratedUsername = Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(username, password);
 
             FtpUtilities.CreateFtpSite(name, testDir, decoratedUsername);
 
             FtpUtilities.DeleteFtpSite(name);
 
-            Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(username);
+            Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username);
         }
     }
 }
