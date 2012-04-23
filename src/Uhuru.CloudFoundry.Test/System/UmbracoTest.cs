@@ -119,6 +119,8 @@ namespace Uhuru.CloudFoundry.Test.System
                 DeleteApp(pair.Key, pair.Value);
             }
 
+
+            Thread.Sleep(20000);
             foreach (KeyValuePair<string, string> pair in apps)
             {
                 bool exists = false;
