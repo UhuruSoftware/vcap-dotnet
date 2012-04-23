@@ -24,7 +24,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Assert.AreEqual("3.5;4.0", UhuruSection.GetSection().DEA.Runtimes["iis"].Environment["supportedFrameworks"].Value);
             Assert.AreEqual("true", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["useCredentials"].Value);
             Assert.AreEqual("60000", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["connectionTimeout"].Value);
-
         }
 
         [TestMethod]
