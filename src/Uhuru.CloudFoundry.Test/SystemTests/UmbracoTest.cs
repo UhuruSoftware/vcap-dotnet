@@ -135,7 +135,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
                 Assert.IsFalse(exists);
                 //Assert.IsFalse(client.AppExists(pair.Key));
 
-                Assert.IsFalse(cloudConnection.ProvisionedServices.Any(service => service.Name == pair.Value));
+                //Assert.IsFalse(cloudConnection.ProvisionedServices.Any(service => service.Name == pair.Value));
             }
         }
 
