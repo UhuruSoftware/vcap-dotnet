@@ -111,6 +111,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Local machine IP used by the service.
         /// </summary>
         private string localIp;
+
+        /// <summary>
+        /// The SQL script that creates the service database
+        /// </summary>
+        private string createDBScript;
         
         /// <summary>
         /// Gets any service-specific announcement details.
@@ -772,10 +777,10 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                string createDbScript = this.ExtractSqlScriptFromTemplate(databaseName);
+                this.createDBScript = this.ExtractSqlScriptFromTemplate(databaseName);
                 
                 // split script on GO command
-                IEnumerable<string> commandStrings = Regex.Split(createDbScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
+                IEnumerable<string> commandStrings = Regex.Split(this.createDBScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
 
                 using (TransactionScope ts = new TransactionScope())
                 {
@@ -809,6 +814,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             catch (Exception ex)
             {
                 Logger.Warning(Strings.SqlNodeCouldNotCreateDBWarningMessage, ex.ToString());
+                throw;
             }
         }
 
