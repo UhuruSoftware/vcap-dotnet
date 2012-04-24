@@ -30,7 +30,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             username = Uhuru.Utilities.Credentials.GenerateCredential();
             password = "ca$hc0w";
 
-            decoratedUsername = Uhuru.Utilities.WindowsVCAPUsers.CreateUser(username, password);
+            decoratedUsername = Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(username, password);
         }
 
         [TestCleanup]
@@ -43,7 +43,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
             if (username != null)
             {
-                Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(username);
+                Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username);
             }
         }
 

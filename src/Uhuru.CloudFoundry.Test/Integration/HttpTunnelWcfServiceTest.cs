@@ -32,12 +32,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Utilities.WindowsVCAPUsers.DeleteUser("WcfTest");
+                Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser("WcfTest");
             }
             catch { }
 
             password = "!@#33Pass";
-            user = Utilities.WindowsVCAPUsers.CreateUser("WcfTest", password);
+            user = Utilities.WindowsVCAPUsers.CreateDecoratedUser("WcfTest", password);
         }
 
         [ClassCleanup]
@@ -45,7 +45,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Utilities.WindowsVCAPUsers.DeleteUser("WcfTest");
+                Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser("WcfTest");
             }
             catch { }
         }

@@ -1158,7 +1158,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.EnterWriteLock();
 
                     instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
-                    instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
+                    instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -1738,7 +1738,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 {
                                     this.monitoring.RemoveInstanceResources(instance);
                                     instance.Plugin.CleanupApplication(instance.Properties.Directory);
-                                    WindowsVCAPUsers.DeleteUser(instance.Properties.InstanceId);
+                                    WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
                                     PluginHost.RemoveInstance(instance.Plugin);
                                 }
                                 catch (Exception ex)
