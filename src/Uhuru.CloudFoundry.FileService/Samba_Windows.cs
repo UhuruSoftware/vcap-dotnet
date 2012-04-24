@@ -93,7 +93,7 @@ namespace Uhuru.CloudFoundry.FileService
                         throw ex;
                     }
                 };
-            if (item == string.Empty) { throw new ArgumentException("The resource couldnt be persisted. No such file or directory.")};
+            if (item == string.Empty) { throw new ArgumentException("The resource couldnt be persisted. No such file or directory."); };
         }
     }
 }
