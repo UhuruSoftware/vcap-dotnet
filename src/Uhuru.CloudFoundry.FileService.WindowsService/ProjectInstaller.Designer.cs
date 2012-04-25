@@ -57,9 +57,9 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "Uhuru Services for Microsoft SQL Server";
-            this.serviceInstaller1.DisplayName = "Uhuru Services for Microsoft SQL Server";
-            this.serviceInstaller1.ServiceName = "MSSqlNode";
+            this.serviceInstaller1.Description = "Uhuru FileService";
+            this.serviceInstaller1.DisplayName = "Uhuru FileService";
+            this.serviceInstaller1.ServiceName = "UhuruFS";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
