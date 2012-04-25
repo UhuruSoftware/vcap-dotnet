@@ -1,17 +1,29 @@
 USE [master]
 GO
 
-/****** Object:  Database [<DatabaseName>]    Script Date: 04/12/2012 06:57:57 ******/
+----------------------------------------------------------------
+-- Create the storage folders. 
+-- This extended stored procedure does not fail if the path allready exists; instead it does nothing 
+----------------------------------------------------------------
+
+EXEC sys.xp_create_subdir '<OddNbrFileDrive>\mssql\data\'
+EXEC sys.xp_create_subdir '<OddNbrFileDrive>\mssql\log\'
+
+EXEC sys.xp_create_subdir '<EvenNbrFileDrive>\mssql\data\'
+EXEC sys.xp_create_subdir '<EvenNbrFileDrive>\mssql\log\'
+
+----------------------------------------------------------------
+
 CREATE DATABASE [<DatabaseName>] ON  PRIMARY 
 ( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = 102400KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
  FILEGROUP [DATA]  DEFAULT 
-( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
-( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' , SIZE = 12000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB )
+( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' , SIZE = 512000KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB )
  LOG ON 
-( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' , SIZE = 12000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB ),
-( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = 12000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB )
+( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' , SIZE = 512000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB ),
+( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = 512000KB , MAXSIZE = 2048GB , FILEGROWTH = 102400KB )
 GO
 
 ALTER DATABASE [<DatabaseName>] SET RECOVERY SIMPLE WITH NO_WAIT
@@ -110,12 +122,12 @@ GO
 ALTER DATABASE [<DatabaseName>] SET DB_CHAINING OFF 
 GO
 
-EXEC sp_dboption UhurucloudAccounting, 'cursor close on commit', 'TRUE'
-EXEC sp_dboption UhurucloudAccounting, 'trunc. log on chkpt.', 'TRUE'
-EXEC sp_dboption UhurucloudAccounting, 'auto create statistics', 'TRUE'
-EXEC sp_dboption UhurucloudAccounting, 'auto update statistics', 'TRUE'
-EXEC sp_dboption UhurucloudAccounting, 'torn page detection', 'TRUE'
-EXEC sp_dboption UhurucloudAccounting, 'autoshrink', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'cursor close on commit', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'trunc. log on chkpt.', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'auto create statistics', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'auto update statistics', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'torn page detection', 'TRUE'
+EXEC sp_dboption [<DatabaseName>], 'autoshrink', 'TRUE'
 
 GO
 sp_configure 'show advanced options', 1

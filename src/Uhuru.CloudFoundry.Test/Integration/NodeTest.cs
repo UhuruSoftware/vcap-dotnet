@@ -39,6 +39,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 target.mssqlConfig.User = config.Service.MSSql.User;
                 target.mssqlConfig.Password = config.Service.MSSql.Password;
                 target.mssqlConfig.Port = config.Service.MSSql.Port;
+                target.mssqlConfig.LogicalStorageUnits = config.Service.MSSql.LogicalStorageUnits;
 
                 target.connection = target.ConnectMSSql();
 

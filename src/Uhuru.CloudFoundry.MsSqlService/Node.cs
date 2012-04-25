@@ -792,7 +792,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                             {
                                 if (commandString.Contains("CREATE DATABASE"))
                                 {
-                                    cmd.CommandTimeout = 60;
+                                    cmd.CommandTimeout = 0;
                                 }
 
                                 cmd.ExecuteNonQuery();
