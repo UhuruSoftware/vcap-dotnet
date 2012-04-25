@@ -58,15 +58,9 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
 
             UhuruSection section = (UhuruSection)config.GetSection("uhuru");
 
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogicalStorageUnits]))
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Capacity]))
             {
-                string lsu = Context.Parameters[Argument.LogicalStorageUnits];
-                section.Service.MSSql.LogicalStorageUnits = lsu;
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.AvailableStorage]))
-            {
-                section.Service.AvailableStorage = long.Parse(Context.Parameters[Argument.AvailableStorage], CultureInfo.InvariantCulture);
+                section.Service.Capacity = int.Parse(Context.Parameters[Argument.Capacity], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.BaseDir]))
@@ -83,7 +77,10 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             {
                 int port = Convert.ToInt32(Context.Parameters[Argument.StatusPort], CultureInfo.InvariantCulture);
                 section.Service.StatusPort = port;
-                FirewallTools.OpenPort(port, "MsSqlNode Status");
+                if (port != 0)
+                {
+                    FirewallTools.OpenPort(port, "FileService Status");
+                }
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.LocalDb]))
@@ -145,24 +142,9 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 section.Service.ZInterval = int.Parse(Context.Parameters[Argument.ZInterval], CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Host]))
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Plan]))
             {
-                section.Service.MSSql.Host = Context.Parameters[Argument.Host];
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Password]))
-            {
-                section.Service.MSSql.Password = Context.Parameters[Argument.Password];
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Port]))
-            {
-                section.Service.MSSql.Port = int.Parse(Context.Parameters[Argument.Port], CultureInfo.InvariantCulture);
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.User]))
-            {
-                section.Service.MSSql.User = Context.Parameters[Argument.User];
+                section.Service.Plan = Context.Parameters[Argument.Plan];
             }
 
             section.DEA = null;
@@ -253,34 +235,14 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             public const string LocalRoute = "localRoute";
 
             /// <summary>
-            /// Parameter name for availableStorage
+            /// Parameter name for capacity
             /// </summary>
-            public const string AvailableStorage = "availableStorage";
+            public const string Capacity = "capacity";
 
             /// <summary>
-            /// Parameter name for logical storage units
+            /// Parameter name for plan
             /// </summary>
-            public const string LogicalStorageUnits = "logicalStorageUnits";
-
-            /// <summary>
-            /// Parameter name for host
-            /// </summary>
-            public const string Host = "host";
-
-            /// <summary>
-            /// Parameter name for user
-            /// </summary>
-            public const string User = "user";
-
-            /// <summary>
-            /// Parameter name for password
-            /// </summary>
-            public const string Password = "password";
-
-            /// <summary>
-            /// Parameter name for port
-            /// </summary>
-            public const string Port = "port";
+            public const string Plan = "plan";
 
             /// <summary>
             /// Parameter name for StatusPort
