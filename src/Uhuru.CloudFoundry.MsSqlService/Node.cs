@@ -743,8 +743,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Kills long queries.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:LiteralsShouldBeSpelledCorrectly", Justification = "It's a damn file name")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:ReviewSqlQueriesForSecurityVulnerabilities", Justification = "Not user input")]
         private void KillLongQueries()
         {
@@ -759,7 +757,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 if (templateStream == null)
                 {
-                    throw new FileNotFoundException("Resource error: Cannot find sql script template 'GetLongRunningQueries.sql'");
+                    throw new FileNotFoundException(Strings.SqlNodeGetLongRunningQueriesScriptNotFound);
                 }
 
                 StreamReader sr = new StreamReader(templateStream);
