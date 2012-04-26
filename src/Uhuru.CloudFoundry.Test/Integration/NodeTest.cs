@@ -63,10 +63,8 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 //////////////////////////////////////////////////////////////////////////
                 // create the provisioned service db and user
                 //////////////////////////////////////////////////////////////////////////
-
-                target.CreateDatabase(provisionedService);
-
                 
+                target.CreateDatabase(provisionedService);
 
                 Thread.Sleep(500);
 

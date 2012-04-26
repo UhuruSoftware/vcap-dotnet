@@ -744,6 +744,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Kills long queries.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:LiteralsShouldBeSpelledCorrectly", Justification = "It's a damn file name")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:ReviewSqlQueriesForSecurityVulnerabilities", Justification = "Not user input")]
         private void KillLongQueries()
         {
             if (this.connection.State != ConnectionState.Open)
@@ -753,9 +755,18 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             try
             {
-                string results = string.Empty;
+                Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.GetLongRunningQueries.sql");
 
-                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeGetRunningQueries, this.maxLongQuery), this.connection))
+                if (templateStream == null)
+                {
+                    throw new FileNotFoundException("Resource error: Cannot find sql script template 'GetLongRunningQueries.sql'");
+                }
+
+                StreamReader sr = new StreamReader(templateStream);
+
+                string selectLongRunningQueriesCmd = sr.ReadToEnd();
+
+                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, selectLongRunningQueriesCmd, this.maxLongQuery), this.connection))
                 {
                     SqlDataReader longQueries = cmd.ExecuteReader(CommandBehavior.SingleResult);
 
@@ -779,10 +790,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (SqlException sex)
             {
-                Logger.Warning(string.Format("SqlNode --> Kill long queries: {1}", sex.Message));
+                Logger.Warning(sex.Message);
             }
             catch (Exception)
             {
+                throw;
             }
         }
 
