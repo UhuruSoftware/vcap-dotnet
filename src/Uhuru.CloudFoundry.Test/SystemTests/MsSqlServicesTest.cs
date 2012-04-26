@@ -272,6 +272,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
 
         [TestMethod]
         [TestCategory("System")]
+        [Ignore()]
         public void TC005_7Parallel()
         {
             foreach (ProvisionedService srv in cloudConnection.ProvisionedServices)
