@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="Integration\HttpTunnelWcfServiceTest.cs" />
+    <Compile Include="Integration\SambaWindowsClientTest.cs" />
     <Compile Include="Integration\WindowsShareTest.cs" />
     <Compile Include="Integration\NodeTest.cs" />
     <Compile Include="Performance\CloudTestAppParallelTest.cs" />
