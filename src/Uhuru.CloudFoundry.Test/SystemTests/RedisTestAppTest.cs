@@ -148,7 +148,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
         private void PushApp(string appName, string sourceDir, string url)
         {
             string path = TestUtil.CopyFolderToTemp(sourceDir);
-            directoriesCreated.Add(path);
+            //directoriesCreated.Add(path);
 
             string serviceName = appName + "svc";
             RawSystemService systemService = cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "redis");
