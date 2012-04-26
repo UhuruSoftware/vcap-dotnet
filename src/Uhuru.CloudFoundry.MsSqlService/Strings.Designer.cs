@@ -115,6 +115,15 @@ namespace Uhuru.CloudFoundry.MSSqlService {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ALTER DATABASE {0} SET ONLINE WITH ROLLBACK IMMEDIATE.
+        /// </summary>
+        internal static string SqlNodeBringDBOnlineSQL {
+            get {
+                return ResourceManager.GetString("SqlNodeBringDBOnlineSQL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Calculate queries per seconds..
         /// </summary>
         internal static string SqlNodeCalculatingQPSDebugMessage {

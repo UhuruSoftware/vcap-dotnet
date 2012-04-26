@@ -135,6 +135,9 @@
   <data name="SqlNodeBindServiceDebugMessage" xml:space="preserve">
     <value>Bind service for db:{0}, bind_opts = {1}</value>
   </data>
+  <data name="SqlNodeBringDBOnlineSQL" xml:space="preserve">
+    <value>ALTER DATABASE {0} SET ONLINE WITH ROLLBACK IMMEDIATE</value>
+  </data>
   <data name="SqlNodeCalculatingQPSDebugMessage" xml:space="preserve">
     <value>Calculate queries per seconds.</value>
   </data>
