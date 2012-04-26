@@ -109,6 +109,9 @@
   <ItemGroup>
     <EmbeddedResource Include="CreateServiceDatabaseTemplate.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GetLongRunningQueries.sql" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\StyleCop.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

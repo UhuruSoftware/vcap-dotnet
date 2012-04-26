@@ -743,11 +743,57 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Kills long queries.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:ReviewSqlQueriesForSecurityVulnerabilities", Justification = "Not user input")]
         private void KillLongQueries()
         {
-            // present in both mysql and postgresql
-            // todo: vladi: implement this
+            if (this.connection.State != ConnectionState.Open)
+            {
+                this.connection = this.ConnectMSSql();
+            }
+
+            try
+            {
+                Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.GetLongRunningQueries.sql");
+
+                if (templateStream == null)
+                {
+                    throw new FileNotFoundException(Strings.SqlNodeGetLongRunningQueriesScriptNotFound);
+                }
+
+                StreamReader sr = new StreamReader(templateStream);
+
+                string selectLongRunningQueriesCmd = sr.ReadToEnd();
+
+                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, selectLongRunningQueriesCmd, this.maxLongQuery), this.connection))
+                {
+                    SqlDataReader longQueries = cmd.ExecuteReader(CommandBehavior.SingleResult);
+
+                    while (longQueries.Read())
+                    {
+                        using (SqlCommand killCmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, longQueries["session_id"]), this.connection))
+                        {
+                            try
+                            {
+                                this.longQueriesKilled += killCmd.ExecuteNonQuery();
+                            }
+                            catch (SqlException)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+                    longQueries.Close();
+                }
+            }
+            catch (SqlException sex)
+            {
+                Logger.Warning(sex.Message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -931,6 +977,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     using (SqlCommand takeOfflineCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeTakeDBOfflineSQL, name), this.connection))
                     {
                         takeOfflineCommand.ExecuteNonQuery();
+                    }
+
+                    using (SqlCommand bringOnlineCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeBringDBOnlineSQL, name), this.connection))
+                    {
+                        bringOnlineCommand.ExecuteNonQuery();
                     }
 
                     using (SqlCommand dropDatabaseCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropDatabaseSQL, name), this.connection))

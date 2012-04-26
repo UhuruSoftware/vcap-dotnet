@@ -135,6 +135,9 @@
   <data name="SqlNodeBindServiceDebugMessage" xml:space="preserve">
     <value>Bind service for db:{0}, bind_opts = {1}</value>
   </data>
+  <data name="SqlNodeBringDBOnlineSQL" xml:space="preserve">
+    <value>ALTER DATABASE {0} SET ONLINE WITH ROLLBACK IMMEDIATE</value>
+  </data>
   <data name="SqlNodeCalculatingQPSDebugMessage" xml:space="preserve">
     <value>Calculate queries per seconds.</value>
   </data>
@@ -200,6 +203,9 @@
   </data>
   <data name="SqlNodeGenerateVarzErrorMessage" xml:space="preserve">
     <value>Error during generate varz: {0}</value>
+  </data>
+  <data name="SqlNodeGetLongRunningQueriesScriptNotFound" xml:space="preserve">
+    <value>Resource error: Cannot find sql script template 'GetLongRunningQueries.sql'</value>
   </data>
   <data name="SqlNodeGetUserSessionsSQL" xml:space="preserve">
     <value>SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = '{0}'</value>
