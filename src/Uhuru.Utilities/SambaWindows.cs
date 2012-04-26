@@ -88,16 +88,17 @@ namespace Uhuru.Utilities
             }
 
             string mountItem = Path.Combine(mountPath, persistentItem);
+            string instanceItem = Path.Combine(instancePath, persistentItem);
 
             string item = string.Empty;
-            if (Directory.Exists(mountPath + "\\" + persistentItem))
+            if (Directory.Exists(mountItem))
             {
-                Directory.CreateDirectory(instancePath + "\\" + persistentItem);
-                CopyFolderRecursively(instancePath + "\\" + persistentItem, mountPath + "\\" + persistentItem);
-                Directory.Delete(instancePath + "\\" + persistentItem);
+                Directory.CreateDirectory(instanceItem);
+                CopyFolderRecursively(instanceItem, mountItem);
+                Directory.Delete(instanceItem);
                 try
                 {
-                    Process.Start("mklink /d " + instancePath + "\\" + persistentItem + " " + mountPath + "\\" + persistentItem);
+                    Process.Start("mklink /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
@@ -105,17 +106,17 @@ namespace Uhuru.Utilities
                 }
             }
 
-            if (File.Exists(mountPath + "\\" + persistentItem))
+            if (File.Exists(mountItem))
             {
                 string[] dirs = persistentItem.Split('\\');
                 string dirname = dirs[dirs.Length - 1];
 
                 Directory.CreateDirectory(instancePath + "\\" + dirname);
-                File.Copy(instancePath + "\\" + persistentItem, mountPath + "\\" + persistentItem);
-                File.Delete(instancePath + "\\" + persistentItem);
+                File.Copy(instanceItem, mountItem);
+                File.Delete(instanceItem);
                 try
                 {
-                    Process.Start("mklink /d " + instancePath + "\\" + persistentItem + " " + mountPath + "\\" + persistentItem);
+                    Process.Start("mklink /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
