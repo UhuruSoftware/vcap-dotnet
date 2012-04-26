@@ -87,6 +87,8 @@ namespace Uhuru.Utilities
                 throw new ArgumentNullException("instancePath");
             }
 
+            string mountItem = Path.Combine(mountPath, persistentItem);
+
             string item = string.Empty;
             if (Directory.Exists(mountPath + "\\" + persistentItem))
             {
