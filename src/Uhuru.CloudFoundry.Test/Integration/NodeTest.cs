@@ -65,7 +65,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 target.CreateDatabase(provisionedService);
 
-                target.connection.Close();
+                
 
                 Thread.Sleep(500);
 
@@ -164,14 +164,28 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 {
                 }
 
-                sqlTest.Close();
+               
 
                 //////////////////////////////////////////////////////////////////////////
+                //Remove database
+                //////////////////////////////////////////////////////////////////////////
+                ServiceCredentials sc = new ServiceCredentials();
+                sc.UserName = provisionedService.User;
+                sc.Password = provisionedService.Password;
+                sc.Name = provisionedService.Name;
+                sc.User = provisionedService.User;
+                target.DeleteDatabase(provisionedService);
+                //target.Unprovision(provisionedService.Name, new ServiceCredentials[] { sc });
+                
+                sqlTest.Close();
+                target.connection.Close();
             }
             catch (System.Exception ex)
             {
                 Assert.Fail(ex.Message);
             }
         }
+
+      
     }
 }

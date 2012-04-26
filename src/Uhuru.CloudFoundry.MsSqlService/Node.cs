@@ -933,6 +933,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         takeOfflineCommand.ExecuteNonQuery();
                     }
 
+                    using (SqlCommand bringOnlineCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeBringDBOnlineSQL, name), this.connection))
+                    {
+                        bringOnlineCommand.ExecuteNonQuery();
+                    }
+
                     using (SqlCommand dropDatabaseCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropDatabaseSQL, name), this.connection))
                     {
                         dropDatabaseCommand.ExecuteNonQuery();
