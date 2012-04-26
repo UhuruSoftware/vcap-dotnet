@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="SambaWindows.cs" company="Uhuru Software, Inc.">
+// <copyright file="SambaWindowsClient.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2011 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace Uhuru.Utilities
     /// <summary>
     /// This class contains helper functions for mounting a share as a local directory.
     /// </summary>
-    public static class SambaWindows
+    public static class SambaWindowsClient
     {
         /// <summary>
         /// Mounts a remote share as a local directory.
@@ -36,8 +36,8 @@ namespace Uhuru.Utilities
             {
                 using (new UserImpersonator(localUser, ".", localPassword))
                 {
-                    Process.Start(string.Format(CultureInfo.InvariantCulture, @"net use ""\\{0}\{1} {2}"" /USER:{3}", targetMachine, remoteDirectory, remotePassword, remoteUser));
-                    Process.Start(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""\\{1}\{2}""", localPath, targetMachine, remoteDirectory));
+                    ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""\\{0}\{1} {2}"" /USER:{3}", targetMachine, remoteDirectory, remotePassword, remoteUser));
+                    ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""\\{1}\{2}""", localPath, targetMachine, remoteDirectory));
                 }
             }
             catch
@@ -55,7 +55,7 @@ namespace Uhuru.Utilities
         {
             try
             {
-                Process.Start("rmdir /q " + localPath);
+                ExecuteCommand("rmdir /q " + localPath);
             }
             catch
             {
@@ -88,16 +88,17 @@ namespace Uhuru.Utilities
             }
 
             string mountItem = Path.Combine(mountPath, persistentItem);
+            string instanceItem = Path.Combine(instancePath, persistentItem);
 
             string item = string.Empty;
-            if (Directory.Exists(mountPath + "\\" + persistentItem))
+            if (Directory.Exists(mountItem))
             {
-                Directory.CreateDirectory(instancePath + "\\" + persistentItem);
-                CopyFolderRecursively(instancePath + "\\" + persistentItem, mountPath + "\\" + persistentItem);
-                Directory.Delete(instancePath + "\\" + persistentItem);
+                Directory.CreateDirectory(instanceItem);
+                CopyFolderRecursively(instanceItem, mountItem);
+                Directory.Delete(instanceItem);
                 try
                 {
-                    Process.Start("mklink /d " + instancePath + "\\" + persistentItem + " " + mountPath + "\\" + persistentItem);
+                    ExecuteCommand("mklink /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
@@ -105,17 +106,17 @@ namespace Uhuru.Utilities
                 }
             }
 
-            if (File.Exists(mountPath + "\\" + persistentItem))
+            if (File.Exists(mountItem))
             {
                 string[] dirs = persistentItem.Split('\\');
                 string dirname = dirs[dirs.Length - 1];
 
                 Directory.CreateDirectory(instancePath + "\\" + dirname);
-                File.Copy(instancePath + "\\" + persistentItem, mountPath + "\\" + persistentItem);
-                File.Delete(instancePath + "\\" + persistentItem);
+                File.Copy(instanceItem, mountItem);
+                File.Delete(instanceItem);
                 try
                 {
-                    Process.Start("mklink /d " + instancePath + "\\" + persistentItem + " " + mountPath + "\\" + persistentItem);
+                    Process.Start("mklink /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
@@ -127,6 +128,22 @@ namespace Uhuru.Utilities
             {
                 throw new ArgumentException("The resource couldn't be persisted. No such file or directory.");
             }
+        }
+
+        /// <summary>
+        /// Starts up a cmd shell and executes a command.
+        /// </summary>
+        /// <param name="command">The command to be executed.</param>
+        /// <returns>The process' exit code.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
+        public static int ExecuteCommand(string command)
+        {
+            ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + command);
+            pi.CreateNoWindow = true;
+            pi.UseShellExecute = false;
+            Process p = Process.Start(pi);
+            p.WaitForExit();
+            return p.ExitCode;
         }
 
         /// <summary>

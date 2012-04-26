@@ -746,8 +746,44 @@ namespace Uhuru.CloudFoundry.MSSqlService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
         private void KillLongQueries()
         {
-            // present in both mysql and postgresql
-            // todo: vladi: implement this
+            if (this.connection.State != ConnectionState.Open)
+            {
+                this.connection = this.ConnectMSSql();
+            }
+
+            try
+            {
+                string results = string.Empty;
+
+                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeGetRunningQueries, this.maxLongQuery), this.connection))
+                {
+                    SqlDataReader longQueries = cmd.ExecuteReader(CommandBehavior.SingleResult);
+
+                    while (longQueries.Read())
+                    {
+                        using (SqlCommand killCmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, longQueries["session_id"]), this.connection))
+                        {
+                            try
+                            {
+                                this.longQueriesKilled += killCmd.ExecuteNonQuery();
+                            }
+                            catch (SqlException)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+
+                    longQueries.Close();
+                }
+            }
+            catch (SqlException sex)
+            {
+                Logger.Warning(string.Format("SqlNode --> Kill long queries: {1}", sex.Message));
+            }
+            catch (Exception)
+            {
+            }
         }
 
         /// <summary>
