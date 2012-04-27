@@ -324,16 +324,21 @@ namespace Uhuru.CloudFoundry.FileService
                 string name = credentials.Name;
                 string user = credentials.User;
                 string password = credentials.Password;
+                int port = credentials.Port;
                 provisioned_service.Name = name;
                 provisioned_service.User = user;
                 provisioned_service.Password = password;
                 provisioned_service.Plan = planRequest;
+                provisioned_service.Port = port;
 
                 this.CreateDirectory(provisioned_service);
 
                 // add directory permissions
                 string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
                 AddDirectoryPermissions(directory, user);
+
+                // add permissions to ftp share
+                FtpUtilities.AddUserAccess(name, user);
 
                 // add permissions to windows share
                 Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
@@ -345,7 +350,7 @@ namespace Uhuru.CloudFoundry.FileService
                     throw new FileServiceErrorException(FileServiceErrorException.MSSqlLocalDBError);
                 }
 
-                ServiceCredentials response = this.GenerateCredential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password);
+                ServiceCredentials response = this.GenerateCredential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password, provisioned_service.Port.Value);
                 this.provisionServed += 1;
                 return response;
             }
@@ -367,7 +372,8 @@ namespace Uhuru.CloudFoundry.FileService
             return this.GenerateCredential(
                 "D4Ta" + Guid.NewGuid().ToString("N"),
                 "US3r" + Credentials.GenerateCredential(),
-                "P4Ss" + Credentials.GenerateCredential());
+                "P4Ss" + Credentials.GenerateCredential(),
+                Uhuru.Utilities.NetworkInterface.GrabEphemeralPort());
         }
 
         /// <summary>
@@ -483,11 +489,14 @@ namespace Uhuru.CloudFoundry.FileService
                 string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
                 AddDirectoryPermissions(directory, binding["user"] as string);
 
+                // add permissions to ftp site
+                FtpUtilities.AddUserAccess(name, binding["user"] as string);
+
                 // add permissions to windows share
                 Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
                 ws.AddSharePermissions(binding["user"] as string);
 
-                ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string);
+                ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string, service.Port.Value);
 
                 Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
                 this.bindingServed += 1;
@@ -522,6 +531,8 @@ namespace Uhuru.CloudFoundry.FileService
             Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.SerializeToJson());
 
             string user = credentials.User;
+
+            FtpUtilities.DeleteUserAccess(credentials.Name, user);
 
             WindowsShare ws = new WindowsShare(credentials.Name);
             ws.DeleteSharePermission(user);
@@ -618,6 +629,7 @@ namespace Uhuru.CloudFoundry.FileService
             string name = provisionedService.Name;
             string password = provisionedService.Password;
             string user = provisionedService.User;
+            int port = provisionedService.Port.Value;
 
             try
             {
@@ -629,7 +641,7 @@ namespace Uhuru.CloudFoundry.FileService
 
                 CreateUser(name, user, password);
 
-                FtpUtilities.CreateFtpSite(name, directory, user);
+                FtpUtilities.CreateFtpSite(name, directory, port);
 
                 WindowsShare.CreateShare(name, directory);
 
@@ -729,14 +741,17 @@ namespace Uhuru.CloudFoundry.FileService
         /// <param name="name">The name of the directory.</param>
         /// <param name="user">The user.</param>
         /// <param name="password">The password.</param>
-        /// <returns>A ServiceCredentials object.</returns>
-        private ServiceCredentials GenerateCredential(string name, string user, string password)
+        /// <param name="port">The port.</param>
+        /// <returns>
+        /// A ServiceCredentials object.
+        /// </returns>
+        private ServiceCredentials GenerateCredential(string name, string user, string password, int port)
         {
             ServiceCredentials response = new ServiceCredentials();
 
             response.Name = name;
             response.HostName = this.localIp;
-            response.Port = 21;
+            response.Port = port;
             response.User = user;
             response.UserName = user;
             response.Password = password;
