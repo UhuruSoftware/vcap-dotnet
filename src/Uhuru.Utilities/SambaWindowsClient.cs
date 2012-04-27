@@ -111,7 +111,7 @@ namespace Uhuru.Utilities
                 string[] dirs = persistentItem.Split('\\');
                 string dirname = dirs[dirs.Length - 1];
 
-                Directory.CreateDirectory(instancePath + "\\" + dirname);
+                Directory.CreateDirectory(System.IO.Path.Combine(instancePath, dirname));
                 File.Copy(instanceItem, mountItem);
                 File.Delete(instanceItem);
                 try
