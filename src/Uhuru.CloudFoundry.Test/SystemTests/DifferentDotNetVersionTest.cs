@@ -39,10 +39,10 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
          
 
             TestUtil.DeleteUser(username, directoriesCreated);
-            foreach (string str in directoriesCreated)
-            {
-                Directory.Delete(str, true);
-            }
+            //foreach (string str in directoriesCreated)
+            //{
+            //    Directory.Delete(str, true);
+            //}
         }
 
         //[TestInitialize]
