@@ -47,6 +47,10 @@ namespace Uhuru.CloudFoundry.FileService
 
                 ConfigurationElement securityElement = ftpServerElement.GetChildElement("security");
 
+                ConfigurationElement sslElement = securityElement.GetChildElement("ssl");
+                sslElement["controlChannelPolicy"] = "SslAllow";
+                sslElement["dataChannelPolicy"] = "SslAllow";
+                
                 ConfigurationElement authenticationElement = securityElement.GetChildElement("authentication");
 
                 ConfigurationElement basicAuthenticationElement = authenticationElement.GetChildElement("basicAuthentication");
