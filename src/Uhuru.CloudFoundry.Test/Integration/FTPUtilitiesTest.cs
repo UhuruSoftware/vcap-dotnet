@@ -25,16 +25,23 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             Directory.CreateDirectory(testDir);
 
-            string username = Uhuru.Utilities.Credentials.GenerateCredential();
+            string username = Uhuru.Utilities.Credentials.GenerateCredential(5);
             string password = "password1234!";
 
             string decoratedUsername = Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(username, password);
+            string decoratedUsername2 = Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(username + "2", password);
 
-            FtpUtilities.CreateFtpSite(name, testDir, decoratedUsername);
+            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
+
+            FtpUtilities.CreateFtpSite(name, testDir, port);
+
+            FtpUtilities.AddUserAccess(name, decoratedUsername);
+            FtpUtilities.DeleteUserAccess(name, decoratedUsername);
 
             FtpUtilities.DeleteFtpSite(name);
 
             Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username);
+            Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username + "2");
         }
     }
 }

@@ -395,6 +395,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod()]
         [TestCategory("Integration")]
         [Timeout(100000)]
+        [Ignore]
         public void TC005_UDPTunnelSimpleSend()
         {
             // Arrange
@@ -469,6 +470,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod()]
         [TestCategory("Integration")]
         [Timeout(100000)]
+        [Ignore]
         public void TC006_UDPTunnelSimpleReceive()
         {
             // Arrange

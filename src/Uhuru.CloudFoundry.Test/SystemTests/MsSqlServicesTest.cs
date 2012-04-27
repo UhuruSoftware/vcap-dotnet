@@ -272,7 +272,8 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
 
         [TestMethod]
         [TestCategory("System")]
-        public void TC005_16Parallel()
+        [Ignore()]
+        public void TC005_7Parallel()
         {
             foreach (ProvisionedService srv in cloudConnection.ProvisionedServices)
             {
@@ -285,7 +286,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
             List<Exception> exceptions = new List<Exception>();
             object lck = new object();
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 7; i++)
             {
                 string serviceName = Guid.NewGuid().ToString();
                 ThreadStart s = delegate
@@ -342,7 +343,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
 
             threads = new List<Thread>();
 
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 7; i++)
             {
                 string serviceName = services[i];
                 ThreadStart s = delegate

@@ -592,6 +592,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         [TestMethod()]
         [TestCategory("Unit")]
         [Timeout(10000)]
+        [Ignore]
         public void TestUDPTunnelSimpleSend()
         {
             // This test makes sure that this scenario works (for UDP):
@@ -650,6 +651,7 @@ namespace Uhuru.CloudFoundry.Test.Unit
         [TestMethod()]
         [TestCategory("Unit")]
         [Timeout(10000)]
+        [Ignore]
         public void TestUDPTunnelSimpleReceive()
         {
             // This test makes sure that this scenario works (for UDP):

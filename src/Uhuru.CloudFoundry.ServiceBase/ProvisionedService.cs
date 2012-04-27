@@ -61,7 +61,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// Password for the service user.
         /// </summary>
         private string password;
-        
+
+        /// <summary>
+        /// Port for the service.
+        /// </summary>
+        private int? port;
+
         /// <summary>
         /// Billing plan for the service.
         /// </summary>
@@ -137,6 +142,23 @@ namespace Uhuru.CloudFoundry.ServiceBase
             set
             {
                 this.password = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the port for the provisioned service.
+        /// </summary>
+        [JsonName("port")]
+        public int? Port
+        {
+            get
+            {
+                return this.port;
+            }
+
+            set
+            {
+                this.port = value;
             }
         }
 

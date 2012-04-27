@@ -51,6 +51,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2665C1B037E4439EA165C63B753012DA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2DB4F8DBABF9FB58972DF148EAB6A9A9"
         "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
@@ -65,6 +71,12 @@
         {
         "MsmKey" = "8:_32820ADC617A475F187E113C5FD80A5D"
         "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_32820ADC617A475F187E113C5FD80A5D"
+        "OwnerKey" = "8:_2665C1B037E4439EA165C63B753012DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -113,6 +125,12 @@
         {
         "MsmKey" = "8:_6CCCC19B5A613503537D0F09F60A243B"
         "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6CCCC19B5A613503537D0F09F60A243B"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -185,6 +203,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_2665C1B037E4439EA165C63B753012DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -421,6 +445,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.Utilities, Version=0.9.0.0, Culture=neutral, PublicKeyToken=14594b8a48a91b15, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_0E1019C79BAD5D8AEF40A9C2A101BEF9"
+                    {
+                    "Name" = "8:Uhuru.Utilities.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.Utilities.dll"
             "TargetName" = "8:"
@@ -478,6 +507,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging, Version=0.9.0.0, Culture=neutral, PublicKeyToken=27f9c2d85571a642, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_32820ADC617A475F187E113C5FD80A5D"
+                    {
+                    "Name" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.dll"
             "TargetName" = "8:"
@@ -637,6 +671,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.Configuration, Version=0.9.0.0, Culture=neutral, PublicKeyToken=5a3403938664750e, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_7C9DB3C249D8C3DD65828A6706747383"
+                    {
+                    "Name" = "8:Uhuru.Configuration.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.Configuration.dll"
             "TargetName" = "8:"
@@ -663,6 +702,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.NatsClient, Version=0.9.0.0, Culture=neutral, PublicKeyToken=a66a33d7a72b2d95, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_7E1070283EC024E72988FAAFFABE4FD9"
+                    {
+                    "Name" = "8:Uhuru.NatsClient.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.NatsClient.dll"
             "TargetName" = "8:"
@@ -689,6 +733,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.DEA, Version=0.9.0.0, Culture=neutral, PublicKeyToken=585062330108031d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_883BE877FCD800D0A98734B1C30FB868"
+                    {
+                    "Name" = "8:Uhuru.CloudFoundry.DEA.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.DEA.dll"
             "TargetName" = "8:"
@@ -735,6 +784,11 @@
             "AssemblyAsmDisplayName" = "8:Uhuru.CloudFoundry.DEA.PluginBase, Version=0.9.0.0, Culture=neutral, PublicKeyToken=796eafddae9ffe4d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_F042773CB40E2972EEBD740B9EAC9741"
+                    {
+                    "Name" = "8:Uhuru.CloudFoundry.DEA.PluginBase.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Uhuru.CloudFoundry.DEA.PluginBase.dll"
             "TargetName" = "8:"
@@ -783,6 +837,17 @@
                 {
                 }
             }
+            "{C7E34266-2C30-44B9-A9A3-4E394ABD6E18}:_D81A563F00814667AD3E263DB8B77A1B"
+            {
+            "Name" = "8:#1927"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:GAC"
+                "Folders"
+                {
+                }
+            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_FA3D44B040594B4BAF0013F5842DC008"
             {
             "Name" = "8:#1916"
@@ -811,7 +876,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Uhuru .NET Droplet Execution Agent"
         "ProductCode" = "8:{47E933EF-EED9-4A8A-ABDF-CE673C1180B3}"
-        "PackageCode" = "8:{676443C8-C09C-41E4-812B-9A1A3E878566}"
+        "PackageCode" = "8:{5E68ED59-33B9-4C31-911A-2623C2C6E6AA}"
         "UpgradeCode" = "8:{DFA37B02-D244-4B65-AF96-B3926D995F3C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1400,6 +1465,34 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{A6512F25-2159-4812-89E7-838C375F983F}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_2665C1B037E4439EA165C63B753012DA"
+            {
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.DEA.Plugins.IIS\\obj\\Debug\\Uhuru.CloudFoundry.DEA.Plugins.IIS.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D81A563F00814667AD3E263DB8B77A1B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

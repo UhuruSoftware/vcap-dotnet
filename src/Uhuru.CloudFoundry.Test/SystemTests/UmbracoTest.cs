@@ -151,7 +151,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
             //    cl.DeleteService(serviceName);
 
             string targetDir = TestUtil.CopyFolderToTemp(deploymentDir);
-            foldersCreated.Add(targetDir);
+            //foldersCreated.Add(targetDir);
             TestUtil.UpdateWebConfigKey(targetDir + "\\Web.config", "umbracoDbDSN", "{mssql-2008#" + serviceName + "}");
 
             RawSystemService systemService = cloudConnection.SystemServices.FirstOrDefault(ss => ss.Vendor == "mssql");

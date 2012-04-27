@@ -36,8 +36,8 @@ namespace Uhuru.Utilities
             {
                 using (new UserImpersonator(localUser, ".", localPassword))
                 {
-                    ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""\\{0}\{1} {2}"" /USER:{3}", targetMachine, remoteDirectory, remotePassword, remoteUser));
-                    ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""\\{1}\{2}""", localPath, targetMachine, remoteDirectory));
+                    ExecuteProcess(string.Format(CultureInfo.InvariantCulture, @"net use ""\\{0}\{1} {2}"" /USER:{3}", targetMachine, remoteDirectory, remotePassword, remoteUser));
+                    ExecuteProcess(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""\\{1}\{2}""", localPath, targetMachine, remoteDirectory));
                 }
             }
             catch
@@ -55,7 +55,7 @@ namespace Uhuru.Utilities
         {
             try
             {
-                ExecuteCommand("rmdir /q " + localPath);
+                ExecuteProcess("rmdir /q " + localPath);
             }
             catch
             {
@@ -98,7 +98,7 @@ namespace Uhuru.Utilities
                 Directory.Delete(instanceItem);
                 try
                 {
-                    ExecuteCommand("mklink /d " + instanceItem + " " + mountItem);
+                    ExecuteProcess("mklink /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
@@ -111,7 +111,11 @@ namespace Uhuru.Utilities
                 string[] dirs = persistentItem.Split('\\');
                 string dirname = dirs[dirs.Length - 1];
 
-                Directory.CreateDirectory(instancePath + "\\" + dirname);
+                if (!Directory.Exists(System.IO.Path.Combine(instancePath, dirname))) 
+                { 
+                    Directory.CreateDirectory(System.IO.Path.Combine(instancePath, dirname));
+                }
+
                 File.Copy(instanceItem, mountItem);
                 File.Delete(instanceItem);
                 try
@@ -131,17 +135,19 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
-        /// Starts up a cmd shell and executes a command.
+        /// Executes a program.
         /// </summary>
         /// <param name="command">The command to be executed.</param>
-        /// <returns>The process' exit code.</returns>
+        /// <returns>
+        /// The process' exit code.
+        /// </returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
-        public static int ExecuteCommand(string command)
+        public static int ExecuteProcess(string command)
         {
-            ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + command);
-            pi.CreateNoWindow = true;
-            pi.UseShellExecute = false;
-            Process p = Process.Start(pi);
+            // ProcessStartInfo pi = new ProcessStartInfo(command);
+            // pi.CreateNoWindow = true;
+            // pi.UseShellExecute = false;
+            Process p = Process.Start(command);
             p.WaitForExit();
             return p.ExitCode;
         }
