@@ -58,11 +58,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             UhuruSection section = (UhuruSection)config.GetSection("uhuru");
 
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogicalStorageUnits]))
-            {
-                string lsu = Context.Parameters[Argument.LogicalStorageUnits];
-                section.Service.MSSql.LogicalStorageUnits = lsu;
-            }
+            this.SetMsSqlStorageOptions(section);
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.AvailableStorage]))
             {
@@ -188,6 +184,48 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
         }
 
         /// <summary>
+        /// Set the Ms SQL database storage options
+        /// </summary>
+        /// <param name="section"> The Uhuru configuration section</param>
+        private void SetMsSqlStorageOptions(UhuruSection section)
+        {
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogicalStorageUnits]))
+            {
+                section.Service.MSSql.LogicalStorageUnits = Context.Parameters[Argument.LogicalStorageUnits];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.InitialDataSize]))
+            {
+                section.Service.MSSql.InitialDataSize = Context.Parameters[Argument.InitialDataSize];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.InitialLogSize]))
+            {
+                section.Service.MSSql.InitialLogSize = Context.Parameters[Argument.InitialLogSize];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDataSize]))
+            {
+                section.Service.MSSql.MaxDataSize = Context.Parameters[Argument.MaxDataSize];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLogSize]))
+            {
+                section.Service.MSSql.MaxLogSize = Context.Parameters[Argument.MaxLogSize];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.DataFileGrowth]))
+            {
+                section.Service.MSSql.DataFileGrowth = Context.Parameters[Argument.DataFileGrowth];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogFileGrowth]))
+            {
+                section.Service.MSSql.LogFileGrowth = Context.Parameters[Argument.LogFileGrowth];
+            }
+        }
+
+        /// <summary>
         /// Class defining all argument names
         /// </summary>
         private class Argument
@@ -261,6 +299,36 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             /// Parameter name for logical storage units
             /// </summary>
             public const string LogicalStorageUnits = "logicalStorageUnits";
+
+            /// <summary>
+            /// Parameter name for the initial sql data file size
+            /// </summary>
+            public const string InitialDataSize = "initialDataSize";
+
+            /// <summary>
+            /// Parameter name for the initial sql log file size
+            /// </summary>
+            public const string InitialLogSize = "initialLogSize";
+
+            /// <summary>
+            /// Parameter name for the maximum sql data file size
+            /// </summary>
+            public const string MaxDataSize = "maxDataSize";
+
+            /// <summary>
+            /// Parameter name for the maximum sql log file size
+            /// </summary>
+            public const string MaxLogSize = "maxLogSize";
+
+            /// <summary>
+            /// Parameter name for the data file growth
+            /// </summary>
+            public const string DataFileGrowth = "dataFileGrowth";
+
+            /// <summary>
+            /// Parameter name for the log file growth
+            /// </summary>
+            public const string LogFileGrowth = "logFileGrowth";
 
             /// <summary>
             /// Parameter name for host
