@@ -912,6 +912,24 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         return r.Replace(m.Value, storageUnits[idx] + Path.VolumeSeparatorChar);
                     }));
 
+            regex = new Regex(@"<InitialDataSize>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.InitialDataSize);
+
+            regex = new Regex(@"<InitialLogSize>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.InitialLogSize);
+
+            regex = new Regex(@"<MaxDataSize>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.MaxDataSize);
+
+            regex = new Regex(@"<MaxLogSize>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.MaxLogSize);
+
+            regex = new Regex(@"<DataFileGrowth>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.DataFileGrowth);
+
+            regex = new Regex(@"<LogFileGrowth>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.LogFileGrowth);
+            
             return createDBSqlScript;
         }
 

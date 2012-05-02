@@ -55,5 +55,59 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the initial size of the secondary data file(s)
+        /// </summary>
+        public string InitialDataSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the initial size of the log file(s)
+        /// </summary>
+        public string InitialLogSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the data file(s)
+        /// </summary>
+        public string MaxDataSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the log file(s)
+        /// </summary>
+        public string MaxLogSize
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the size by which the data files are set to auto grow
+        /// </summary>
+        public string DataFileGrowth
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the size by which the log files are set to auto grow
+        /// </summary>
+        public string LogFileGrowth
+        {
+            get;
+            set;
+        }
     }
 }

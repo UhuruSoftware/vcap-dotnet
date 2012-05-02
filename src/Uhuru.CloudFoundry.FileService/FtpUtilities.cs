@@ -7,6 +7,7 @@
 namespace Uhuru.CloudFoundry.FileService
 {
     using System.Globalization;
+    using System.IO;
     using System.Linq;
     using Microsoft.Web.Administration;
 
@@ -18,14 +19,11 @@ namespace Uhuru.CloudFoundry.FileService
         /// <summary>
         /// Creates an ftp virtual directory on the "fileService" ftp site.
         /// </summary>
-        /// <param name="name">The name of the new ftp site.</param>
+        /// <param name="siteName">The name of the new ftp site.</param>
         /// <param name="directory">The target physical path of the virtual directory.</param>
-        /// <param name="user">The Windows user that will have access to the virtual directory.</param>
-        /// <returns>The port used for the new site.</returns>
-        public static int CreateFtpSite(string name, string directory, string user)
+        /// <param name="port">The port.</param>
+        public static void CreateFtpSite(string siteName, string directory, int port)
         {
-            int port = Uhuru.Utilities.NetworkInterface.GrabEphemeralPort();
-
             using (ServerManager serverManager = new ServerManager())
             {
                 Configuration config = serverManager.GetApplicationHostConfiguration();
@@ -35,7 +33,7 @@ namespace Uhuru.CloudFoundry.FileService
                 ConfigurationElementCollection sitesCollection = sitesSection.GetCollection();
 
                 ConfigurationElement siteElement = sitesCollection.CreateElement("site");
-                siteElement["name"] = name;
+                siteElement["name"] = siteName;
                 siteElement["id"] = port;
 
                 ConfigurationElementCollection bindingsCollection = siteElement.GetCollection("bindings");
@@ -49,6 +47,10 @@ namespace Uhuru.CloudFoundry.FileService
 
                 ConfigurationElement securityElement = ftpServerElement.GetChildElement("security");
 
+                ConfigurationElement sslElement = securityElement.GetChildElement("ssl");
+                sslElement["controlChannelPolicy"] = "SslAllow";
+                sslElement["dataChannelPolicy"] = "SslAllow";
+                
                 ConfigurationElement authenticationElement = securityElement.GetChildElement("authentication");
 
                 ConfigurationElement basicAuthenticationElement = authenticationElement.GetChildElement("basicAuthentication");
@@ -63,25 +65,15 @@ namespace Uhuru.CloudFoundry.FileService
 
                 ConfigurationElement virtualDirectoryElement = applicationCollection.CreateElement("virtualDirectory");
                 virtualDirectoryElement["path"] = @"/";
-                virtualDirectoryElement["physicalPath"] = directory;
+                virtualDirectoryElement["physicalPath"] = new DirectoryInfo(directory).FullName;
                 applicationCollection.Add(virtualDirectoryElement);
                 siteCollection.Add(applicationElement);
                 sitesCollection.Add(siteElement);
-
-                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", name).GetCollection();
-                ConfigurationElement newAuthorization = authorization.CreateElement("add");
-                newAuthorization["accessType"] = "Allow";
-                newAuthorization["users"] = user;
-                newAuthorization["permissions"] = "Read, Write";
-
-                authorization.Add(newAuthorization);
                 
                 serverManager.CommitChanges();
             }
 
-            Uhuru.Utilities.FirewallTools.OpenPort(port, string.Format(CultureInfo.InvariantCulture, "FTP_{0}", name));
-
-            return port;
+            Uhuru.Utilities.FirewallTools.OpenPort(port, string.Format(CultureInfo.InvariantCulture, "FTP_{0}", siteName));
         }
 
         /// <summary>
@@ -123,6 +115,50 @@ namespace Uhuru.CloudFoundry.FileService
                         }
                     }
                 }
+
+                serverManager.CommitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Adds the user access.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="user">The user.</param>
+        public static void AddUserAccess(string siteName, string user)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+                ConfigurationElement newAuthorization = authorization.CreateElement("add");
+                newAuthorization["accessType"] = "Allow";
+                newAuthorization["users"] = user;
+                newAuthorization["permissions"] = "Read, Write";
+
+                authorization.Add(newAuthorization);
+
+                serverManager.CommitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the user access.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="user">The user.</param>
+        public static void DeleteUserAccess(string siteName, string user)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+
+                ConfigurationElement userAccess = authorization.Where(a => (string)a["users"] == user).FirstOrDefault();
+
+                authorization.Remove(userAccess);
 
                 serverManager.CommitChanges();
             }

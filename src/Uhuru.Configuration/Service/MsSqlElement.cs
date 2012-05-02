@@ -39,6 +39,36 @@ namespace Uhuru.Configuration.Service
         private static ConfigurationProperty propertyLogicalStorageUnits;
 
         /// <summary>
+        /// Initial size of the secondary data file(s)
+        /// </summary>
+        private static ConfigurationProperty propertyInitialDataSize;
+
+        /// <summary>
+        /// Initial size of the log file(s)
+        /// </summary>
+        private static ConfigurationProperty propertyInitialLogSize;
+
+        /// <summary>
+        /// Maximum size of the data file(s)
+        /// </summary>
+        private static ConfigurationProperty propertyMaxDataSize;
+        
+        /// <summary>
+        /// Maximum size of the log file(s)
+        /// </summary>
+        private static ConfigurationProperty propertyMaxLogSize;
+
+        /// <summary>
+        /// Size by which the data files are set to auto grow
+        /// </summary>
+        private static ConfigurationProperty propertyDataFileGrowth;
+
+        /// <summary>
+        /// Size by which the log files are set to auto grow
+        /// </summary>
+        private static ConfigurationProperty propertyLogFileGrowth;
+
+        /// <summary>
         /// Configuration properties collection.
         /// </summary>
         private static ConfigurationPropertyCollection properties;
@@ -78,6 +108,42 @@ namespace Uhuru.Configuration.Service
                 typeof(string),
                 "C",
                 ConfigurationPropertyOptions.None);
+
+            propertyInitialDataSize = new ConfigurationProperty(
+                "initialDataSize",
+                typeof(string),
+                "100MB",
+                ConfigurationPropertyOptions.None);
+
+            propertyInitialLogSize = new ConfigurationProperty(
+                "initialLogSize",
+                typeof(string),
+                "50MB",
+                ConfigurationPropertyOptions.None);
+
+            propertyMaxDataSize = new ConfigurationProperty(
+                "maxDataSize",
+                typeof(string),
+                "1GB",
+                ConfigurationPropertyOptions.None);
+
+            propertyMaxLogSize = new ConfigurationProperty(
+                "maxLogSize",
+                typeof(string),
+                "250MB",
+                ConfigurationPropertyOptions.None);
+
+            propertyDataFileGrowth = new ConfigurationProperty(
+                "dataFileGrowth",
+                typeof(string),
+                "100MB",
+                ConfigurationPropertyOptions.None);
+
+            propertyLogFileGrowth = new ConfigurationProperty(
+                "logFileGrowth",
+                typeof(string),
+                "25MB",
+                ConfigurationPropertyOptions.None);
             
             properties = new ConfigurationPropertyCollection();
 
@@ -86,6 +152,15 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyPassword);
             properties.Add(propertyPort);
             properties.Add(propertyLogicalStorageUnits);
+
+            properties.Add(propertyInitialDataSize);
+            properties.Add(propertyInitialLogSize);
+
+            properties.Add(propertyMaxDataSize);
+            properties.Add(propertyMaxLogSize);
+
+            properties.Add(propertyDataFileGrowth);
+            properties.Add(propertyLogFileGrowth);
         }
 
         /// <summary>
@@ -171,6 +246,108 @@ namespace Uhuru.Configuration.Service
             {
                 base[propertyLogicalStorageUnits] = value;
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the initial size of the secondary data file(s)
+        /// </summary>
+        [ConfigurationProperty("initialDataSize", IsRequired = false, DefaultValue = "100MB")]
+        public string InitialDataSize
+        {
+            get
+            {
+                return (string)base[propertyInitialDataSize];
+            }
+
+            set 
+			{ 
+				base[propertyInitialDataSize] = value; 
+			}
+        }
+
+        /// <summary>
+        /// Gets or sets the initial size of the log file(s)
+        /// </summary>
+        [ConfigurationProperty("initialLogSize", IsRequired = false, DefaultValue = "50MB")]
+        public string InitialLogSize
+        {
+            get
+            {
+                return (string)base[propertyInitialLogSize];
+            }
+
+            set 
+			{ 
+				base[propertyInitialLogSize] = value; 
+			}
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the data file(s)
+        /// </summary>
+        [ConfigurationProperty("maxDataSize", IsRequired = false, DefaultValue = "1GB")]
+        public string MaxDataSize
+        {
+            get
+            {
+                return (string)base[propertyMaxDataSize];
+            }
+
+            set 
+			{ 
+				base[propertyMaxDataSize] = value; 
+			}
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the log file(s)
+        /// </summary>
+        [ConfigurationProperty("maxLogSize", IsRequired = false, DefaultValue = "1GB")]
+        public string MaxLogSize
+        {
+            get
+            {
+                return (string)base[propertyMaxLogSize];
+            }
+
+            set 
+			{ 
+				base[propertyMaxLogSize] = value; 
+			}
+        }
+
+        /// <summary>
+        /// Gets or sets the size by which the data files are set to auto grow
+        /// </summary>
+        [ConfigurationProperty("dataFileGrowth", IsRequired = false, DefaultValue = "100MB")]
+        public string DataFileGrowth
+        {
+            get
+            {
+                return (string)base[propertyDataFileGrowth];
+            }
+
+            set 
+			{ 
+				base[propertyDataFileGrowth] = value; 
+			}
+        }
+
+        /// <summary>
+        /// Gets or sets the size by which the log files are set to auto grow
+        /// </summary>
+        [ConfigurationProperty("logFileGrowth", IsRequired = false, DefaultValue = "25MB")]
+        public string LogFileGrowth
+        {
+            get
+            {
+                return (string)base[propertyLogFileGrowth];
+            }
+
+            set 
+			{ 
+				base[propertyLogFileGrowth] = value; 
+			}
         }
 
         /// <summary>

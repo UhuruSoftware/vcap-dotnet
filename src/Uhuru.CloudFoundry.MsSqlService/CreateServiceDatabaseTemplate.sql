@@ -3,7 +3,7 @@ GO
 
 ----------------------------------------------------------------
 -- Create the storage folders. 
--- This extended stored procedure does not fail if the path already exists; instead it does nothing 
+-- This extended stored procedure does not fail if the path allready exists; instead it does nothing 
 ----------------------------------------------------------------
 
 EXEC sys.xp_create_subdir '<OddNbrFileDrive>\mssql\data\'
@@ -12,18 +12,18 @@ EXEC sys.xp_create_subdir '<OddNbrFileDrive>\mssql\log\'
 EXEC sys.xp_create_subdir '<EvenNbrFileDrive>\mssql\data\'
 EXEC sys.xp_create_subdir '<EvenNbrFileDrive>\mssql\log\'
 
-----------------------------------------------------------------
+GO
 
 CREATE DATABASE [<DatabaseName>] ON  PRIMARY 
-( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = 4096KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB ), 
+( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = 102400KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
  FILEGROUP [DATA]  DEFAULT 
-( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' , SIZE = 1024KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB ), 
-( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' , SIZE = 1024KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB ), 
-( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' , SIZE = 1024KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB ), 
-( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' , SIZE = 1024KB , MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB )
+( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
+( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' ,  SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ),
+( NAME = N'<DatabaseName>Data03', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ),
+( NAME = N'<DatabaseName>Data04', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf' ,  SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> )
  LOG ON 
-( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' , SIZE = 1024KB , MAXSIZE = 100MB , FILEGROWTH = 1024KB ),
-( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = 1024KB , MAXSIZE = 100MB , FILEGROWTH = 1024KB )
+( NAME = N'<DatabaseName>LogData01', FILENAME = N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf' ,  SIZE = <InitialLogSize> ,  MAXSIZE = <MaxLogSize>,  FILEGROWTH = <LogFileGrowth> ),
+( NAME = N'<DatabaseName>LogData02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf' , SIZE = <InitialLogSize> ,  MAXSIZE = <MaxLogSize>,  FILEGROWTH = <LogFileGrowth> )
 GO
 
 ALTER DATABASE [<DatabaseName>] SET RECOVERY SIMPLE WITH NO_WAIT

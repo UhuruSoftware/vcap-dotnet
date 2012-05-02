@@ -60,6 +60,15 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             sqlServerOptions.Password = serviceConfig.MSSql.Password;
             sqlServerOptions.LogicalStorageUnits = serviceConfig.MSSql.LogicalStorageUnits;
 
+            sqlServerOptions.InitialDataSize = serviceConfig.MSSql.InitialDataSize;
+            sqlServerOptions.InitialLogSize = serviceConfig.MSSql.InitialLogSize;
+
+            sqlServerOptions.MaxDataSize = serviceConfig.MSSql.MaxDataSize;
+            sqlServerOptions.MaxLogSize = serviceConfig.MSSql.MaxLogSize;
+
+            sqlServerOptions.DataFileGrowth = serviceConfig.MSSql.DataFileGrowth;
+            sqlServerOptions.LogFileGrowth = serviceConfig.MSSql.LogFileGrowth;
+
             this.node = new Node();
             this.node.Start(options, sqlServerOptions);
         }
