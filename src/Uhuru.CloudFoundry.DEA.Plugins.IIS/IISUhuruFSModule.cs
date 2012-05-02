@@ -33,11 +33,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Used for logging.")]
         public void Init(System.Web.HttpApplication context)
         {
-            if (context == null)
-            {
-                return;
-            }
-
             string appApth = System.Web.Hosting.HostingEnvironment.MapPath("~");
             string logFile = Path.Combine(appApth, @"..\logs\startup.log");
 
@@ -82,7 +77,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Enough for this purpose")]
         private static void NetUse(string remoteShare, string remoteUser, string remotePassword)
         {
-            int retCode = ExecuteCommand("net", string.Format(CultureInfo.InvariantCulture, @"use ""{0}"" ""{1}"" /USER:""{2}""", remoteShare, remotePassword, remoteUser));
+            int retCode = ExecuteProcess("net", string.Format(CultureInfo.InvariantCulture, @"use ""{0}"" ""{1}"" /USER:""{2}""", remoteShare, remotePassword, remoteUser));
             if (retCode != 0)
             {
                 throw new Exception("Net command exit code is different from 0");
@@ -97,12 +92,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
         /// <returns>
         /// Process return code
         /// </returns>
-        private static int ExecuteCommand(string processFile, string processArguments)
+        private static int ExecuteProcess(string processFile, string processArguments)
         {
             ProcessStartInfo pi = new ProcessStartInfo(processFile, processArguments);
             pi.CreateNoWindow = true;
             pi.UseShellExecute = false;
             pi.LoadUserProfile = false;
+            pi.WorkingDirectory = "\\";
 
             using (Process process = Process.Start(pi))
             {

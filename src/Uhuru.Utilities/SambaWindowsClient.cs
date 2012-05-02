@@ -22,23 +22,20 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Mounts a remote share as a local directory.
         /// </summary>
-        /// <param name="remoteDirectory">The remote share path.</param>
-        /// <param name="targetMachine">The address of the machine.</param>
+        /// <param name="remotePath">The remote path.</param>
         /// <param name="remoteUser">A username used for authentication to the share.</param>
         /// <param name="remotePassword">A password used for authentication to the share.</param>
-        /// <param name="localUser">The local user that needs to have access to the share.</param>
-        /// <param name="localPassword">The local user's password.</param>
         /// <param name="localPath">The local path that will be the mount point.</param>
-        public static void Mount(string remoteDirectory, string targetMachine, string remoteUser, string remotePassword, string localUser, string localPassword, string localPath)
+        public static void MountAndLink(string remotePath, string remoteUser, string remotePassword, string localPath)
         {
             // mklink creates the directory if not exist
             try
             {
-                using (new UserImpersonator(localUser, ".", localPassword))
-                {
-                    ExecuteProcess(string.Format(CultureInfo.InvariantCulture, @"net use ""\\{0}\{1} {2}"" /USER:{3}", targetMachine, remoteDirectory, remotePassword, remoteUser));
-                    ExecuteProcess(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""\\{1}\{2}""", localPath, targetMachine, remoteDirectory));
-                }
+                //// using (new UserImpersonator(localUser, ".", localPassword))
+                //// {
+                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
+                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath));
+                //// }
             }
             catch
             {
@@ -49,13 +46,14 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Un-mounts a local path.
         /// </summary>
-        /// <param name="localPath">The path to un-mount.</param>
+        /// <param name="remotePath">The remote path.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unmount", Justification = "Word is added to dictionary, but the warning is still shown.")]
-        public static void Unmount(string localPath)
+        public static void Unmount(string remotePath)
         {
             try
             {
-                ExecuteProcess("rmdir /q " + localPath);
+                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" /delete", remotePath));
+                //// ExecuteProcess("rmdir", string.Format(CultureInfo.InvariantCulture, @"/q ""{0}""", localPath));
             }
             catch
             {
@@ -90,15 +88,17 @@ namespace Uhuru.Utilities
             string mountItem = Path.Combine(mountPath, persistentItem);
             string instanceItem = Path.Combine(instancePath, persistentItem);
 
-            string item = string.Empty;
-            if (Directory.Exists(mountItem))
+            if (Directory.Exists(mountItem) || Directory.Exists(instanceItem))
             {
+                Directory.CreateDirectory(mountItem);
                 Directory.CreateDirectory(instanceItem);
+
                 CopyFolderRecursively(instanceItem, mountItem);
-                Directory.Delete(instanceItem);
+                Directory.Delete(instanceItem, true);
+
                 try
                 {
-                    ExecuteProcess("mklink /d " + instanceItem + " " + mountItem);
+                    ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
@@ -106,50 +106,51 @@ namespace Uhuru.Utilities
                 }
             }
 
-            if (File.Exists(mountItem))
+            if (File.Exists(mountItem) || File.Exists(instanceItem))
             {
-                string[] dirs = persistentItem.Split('\\');
-                string dirname = dirs[dirs.Length - 1];
+                Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
 
-                if (!Directory.Exists(System.IO.Path.Combine(instancePath, dirname))) 
-                { 
-                    Directory.CreateDirectory(System.IO.Path.Combine(instancePath, dirname));
+                try
+                {
+                    File.Copy(instanceItem, mountItem);
+                }
+                catch (IOException)
+                {
                 }
 
-                File.Copy(instanceItem, mountItem);
                 File.Delete(instanceItem);
+
                 try
                 {
-                    Process.Start("mklink /d " + instanceItem + " " + mountItem);
+                    ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
                 }
                 catch
                 {
                     throw;
                 }
-            }
-
-            if (string.IsNullOrEmpty(item))
-            {
-                throw new ArgumentException("The resource couldn't be persisted. No such file or directory.");
             }
         }
 
         /// <summary>
-        /// Executes a program.
+        /// Runs a process and waits for it to return.
         /// </summary>
-        /// <param name="command">The command to be executed.</param>
+        /// <param name="command">The command.</param>
         /// <returns>
-        /// The process' exit code.
+        /// Process return code
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
-        public static int ExecuteProcess(string command)
+        private static int ExecuteCommand(string command)
         {
-            // ProcessStartInfo pi = new ProcessStartInfo(command);
-            // pi.CreateNoWindow = true;
-            // pi.UseShellExecute = false;
-            Process p = Process.Start(command);
-            p.WaitForExit();
-            return p.ExitCode;
+            ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + command);
+            pi.CreateNoWindow = true;
+            pi.UseShellExecute = false;
+            pi.LoadUserProfile = false;
+            pi.WorkingDirectory = "\\";
+
+            using (Process process = Process.Start(pi))
+            {
+                process.WaitForExit();
+                return process.ExitCode;
+            }
         }
 
         /// <summary>
@@ -163,14 +164,21 @@ namespace Uhuru.Utilities
             {
                 Directory.CreateDirectory(destination);
             }
-            
+
             string[] files = Directory.GetFiles(source);
 
             foreach (string file in files)
             {
                 string name = Path.GetFileName(file);
                 string dest = Path.Combine(destination, name);
-                File.Copy(file, dest, false);
+
+                try
+                {
+                    File.Copy(file, dest, false);
+                }
+                catch (IOException)
+                {
+                }
             }
 
             string[] folders = Directory.GetDirectories(source);
