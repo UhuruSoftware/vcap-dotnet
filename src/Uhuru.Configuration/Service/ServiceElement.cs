@@ -385,7 +385,7 @@ namespace Uhuru.Configuration.Service
         /// Gets or sets the maximum duration for a query in seconds.
         /// </summary>
         [ConfigurationProperty("maxLongTx", IsRequired = true, DefaultValue = 30)]
-        public int MaxLengthyTX
+        public int MaxLengthTX
         {
             get
             {

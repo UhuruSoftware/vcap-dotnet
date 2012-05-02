@@ -195,6 +195,81 @@ namespace Uhuru.CloudFoundry.Test.Integration
             }
         }
 
-      
+        [TestMethod()]
+        [TestCategory("Integration")]
+        [DeploymentItem("Uhuru.CloudFoundry.MSSqlService.dll")]
+        [DeploymentItem("log4net.config")]
+        [DeploymentItem("Uhuru.CloudFoundry.Test\\lib\\TestDLLToLoad.dll")]
+        public void KillLongTransactionsTest()
+        {
+            Node_Accessor target = new Node_Accessor();
+            target.mssqlConfig = new MSSqlOptions();
+            UhuruSection config = UhuruSection.GetSection();
+
+            target.mssqlConfig.Host = config.Service.MSSql.Host;
+            target.mssqlConfig.User = config.Service.MSSql.User;
+            target.mssqlConfig.Password = config.Service.MSSql.Password;
+            target.mssqlConfig.Port = config.Service.MSSql.Port;
+            target.maxLongTx = config.Service.MaxLengthTX;
+
+            target.ConnectMSSql();
+
+            int queryTime = target.maxLongTx + 5;
+
+            string longQuery = string.Format(@"  DECLARE @startTime datetime2(0) = GETDATE();  WHILE (GETDATE() < DATEADD(SECOND, {0}, @startTime))  BEGIN      WAITFOR DELAY '00:00:02';  END",
+                                                queryTime);
+
+            DateTime dueQueryCompletion = DateTime.Now.AddSeconds(queryTime);
+
+            int INDEX_COMPLETED = 0;
+            int INDEX_KILLED = 1;
+
+            WaitHandle[] events = new WaitHandle[]
+            {
+                new ManualResetEvent(false),
+                new ManualResetEvent(false)
+            };
+
+            ThreadPool.QueueUserWorkItem(new WaitCallback(
+                (object o) =>
+                {
+                    SqlConnection testConnection = new SqlConnection(target.ConnectionString);
+                    testConnection.Open();
+
+                    SqlCommand sqlLongQuery = new SqlCommand(longQuery, testConnection);
+                    try
+                    {
+                        sqlLongQuery.ExecuteNonQuery();
+                        (events[INDEX_COMPLETED] as ManualResetEvent).Set();
+                    }
+                    catch (SqlException)
+                    {
+                        (events[INDEX_KILLED] as ManualResetEvent).Set();
+                    }
+                }
+                ));
+
+            Thread t = new Thread(new ThreadStart(
+                () =>
+                {
+                    while (DateTime.Now.CompareTo(dueQueryCompletion) <= 0)
+                    {
+                        target.KillLongTransactions();
+                        Thread.Sleep(100);
+                    }
+                }
+                ));
+
+            t.Start();
+
+            int index = ManualResetEvent.WaitAny(events);
+
+            if (index == 0)
+            {
+                Assert.Fail("Long query completed without being killed");
+            }
+
+            t.Abort();
+        }
     }
 }
