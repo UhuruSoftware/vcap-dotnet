@@ -746,35 +746,35 @@ namespace Uhuru.CloudFoundry.MSSqlService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:ReviewSqlQueriesForSecurityVulnerabilities", Justification = "Not user input")]
         private void KillLongTransactions()
         {
-            if (this.connection.State != ConnectionState.Open)
-            {
-                this.connection = this.ConnectMSSql();
-            }
-
             try
             {
-                Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.GetLongRunningQueries.sql");
+                if (this.connection.State != ConnectionState.Open)
+                {
+                    this.connection = this.ConnectMSSql();
+                }
 
-                if (templateStream == null)
+                Stream resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.LongRunningTransactions.sql");
+
+                if (resourceStream == null)
                 {
                     throw new FileNotFoundException(Strings.SqlNodeGetLongRunningQueriesScriptNotFound);
                 }
 
-                StreamReader sr = new StreamReader(templateStream);
+                StreamReader sr = new StreamReader(resourceStream);
 
-                string selectLongRunningQueriesCmd = sr.ReadToEnd();
+                string sqlLongRunningTransactions = sr.ReadToEnd();
 
-                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, selectLongRunningQueriesCmd, this.maxLongQuery), this.connection))
+                using (SqlCommand cmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, sqlLongRunningTransactions, this.maxLongTx), this.connection))
                 {
-                    SqlDataReader longQueries = cmd.ExecuteReader(CommandBehavior.SingleResult);
+                    SqlDataReader longTransactions = cmd.ExecuteReader(CommandBehavior.SingleResult);
 
-                    while (longQueries.Read())
+                    while (longTransactions.Read())
                     {
-                        using (SqlCommand killCmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, longQueries["session_id"]), this.connection))
+                        using (SqlCommand killCmd = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeKillSessionSQL, longTransactions["session_id"]), this.connection))
                         {
                             try
                             {
-                                this.longQueriesKilled += killCmd.ExecuteNonQuery();
+                                this.longTxKilled += killCmd.ExecuteNonQuery();
                             }
                             catch (SqlException)
                             {
@@ -783,7 +783,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         }
                     }
 
-                    longQueries.Close();
+                    longTransactions.Close();
                 }
             }
             catch (SqlException sex)
