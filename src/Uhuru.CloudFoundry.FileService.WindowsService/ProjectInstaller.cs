@@ -151,13 +151,16 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             section.DEA = null;
             config.Save();
 
+            int lowPort = 5000;
+            int highPort = 6000;
+
             using (ServerManager serverManager = new ServerManager())
             {
                 Microsoft.Web.Administration.Configuration iisConfig = serverManager.GetApplicationHostConfiguration();
 
                 Microsoft.Web.Administration.ConfigurationSection firewallSupportSection = iisConfig.GetSection("system.ftpServer/firewallSupport");
-                firewallSupportSection["lowDataChannelPort"] = 5000;
-                firewallSupportSection["highDataChannelPort"] = 6000;
+                firewallSupportSection["lowDataChannelPort"] = lowPort;
+                firewallSupportSection["highDataChannelPort"] = highPort;
 
                 Microsoft.Web.Administration.ConfigurationSection sitesSection = iisConfig.GetSection("system.applicationHost/sites");
                 Microsoft.Web.Administration.ConfigurationElement siteDefaultsElement = sitesSection.GetChildElement("siteDefaults");
@@ -166,7 +169,9 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 firewallSupportElement["externalIp4Address"] = @"0.0.0.0";
 
                 serverManager.CommitChanges(); 
-            } 
+            }
+
+            FirewallTools.OpenPortRange(lowPort, highPort, "UhuruFS Ports");
         }
 
         /// <summary>
