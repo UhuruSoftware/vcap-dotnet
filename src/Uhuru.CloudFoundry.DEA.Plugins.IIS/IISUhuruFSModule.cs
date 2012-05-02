@@ -39,7 +39,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
             }
 
             string appApth = System.Web.Hosting.HostingEnvironment.MapPath("~");
-            string logFile = Path.Combine(appApth, @"..\logs\auto_wiring.log");
+            string logFile = Path.Combine(appApth, @"..\logs\startup.log");
 
             string path = Path.Combine(appApth, @"..\uhurufs.tsv");
             if (File.Exists(path))
@@ -57,7 +57,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
                     string remoteUser = parts[1];
                     string remotePassword = parts[2];
 
-                    File.AppendAllText(logFile, string.Format(CultureInfo.InvariantCulture, "Executing 'net use' for \"{0}\" with username \"{1}\"... ", remoteShare, remoteUser));
+                    File.AppendAllText(logFile, string.Format(CultureInfo.InvariantCulture, "Connecting to \"{0}\" with username \"{1}\"... ", remoteShare, remoteUser));
                     try
                     {
                         NetUse(remoteShare, remoteUser, remotePassword);
@@ -85,7 +85,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
             int retCode = ExecuteCommand("net", string.Format(CultureInfo.InvariantCulture, @"use ""{0}"" ""{1}"" /USER:""{2}""", remoteShare, remotePassword, remoteUser));
             if (retCode != 0)
             {
-                throw new Exception("Net command exited with code different from 0");
+                throw new Exception("Net command exit code is different from 0");
             }
         }
 
