@@ -71,12 +71,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging\Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging.csproj">
-      <Project>{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F}</Project>
-      <Name>Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
