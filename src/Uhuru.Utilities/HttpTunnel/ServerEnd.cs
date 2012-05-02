@@ -8,17 +8,32 @@ namespace Uhuru.Utilities.HttpTunnel
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.ServiceModel;
+    using System.ServiceModel.Web;
+    using System.Text;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// This class implements the server part of an HTTP tunnel.
     /// It is used in conjunction with a WCF service.
     /// </summary>
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class ServerEnd : ITunnel, IDisposable
     {
+        /// <summary>
+        /// Regex matching a server reply to a passv command.
+        /// </summary>
+        private const string PassvReplyRegex = @"227.*\(\d*,\d*,\d*,\d*,\d*,\d*\)";
+
+        /// <summary>
+        /// Regex matching the IP and port parts of a server reply to a passv command.
+        /// </summary>
+        private const string PassvReplyIPAndPortRegex = @"\(\d*,\d*,\d*,\d*,\d*,\d*\)";
+
         /// <summary>
         /// The host used to connect to the actual server.
         /// </summary>
@@ -40,9 +55,14 @@ namespace Uhuru.Utilities.HttpTunnel
         private UdpClient udpClient;
 
         /// <summary>
-        /// Specifies the type of tunnel (TCP or UDP).
+        /// Specifies the type of tunnel (TCP or UDP or FTP).
         /// </summary>
         private TunnelProtocolType protocol;
+
+        /// <summary>
+        /// List of ports opened by the server to facilitate file transfers.
+        /// </summary>
+        private List<int> ftpPassivePorts;
 
         /// <summary>
         /// Initializes the server end of the tunnel with connection information.
@@ -59,6 +79,13 @@ namespace Uhuru.Utilities.HttpTunnel
 
             switch (protocol)
             {
+                case TunnelProtocolType.Ftp:
+                    {
+                        this.ftpPassivePorts = new List<int>();
+                        this.clients = new Dictionary<Guid, TcpClient>();
+                    }
+
+                    break;
                 case TunnelProtocolType.Tcp:
                     {
                         this.clients = new Dictionary<Guid, TcpClient>();
@@ -86,18 +113,60 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <summary>
         /// Creates a TCP connection on the server.
         /// </summary>
+        /// <param name="remotePort">Port to connect to on the real server. Only used for FTP connections.</param>
         /// <returns>
         /// A GUID used to identify the connection for future send/receive or for close.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Client is added to collection that is properly disposed.")]
-        public Guid OpenConnection()
+        public Guid OpenConnection(int remotePort)
         {
             if (this.protocol == TunnelProtocolType.Tcp)
             {
-                TcpClient client = new TcpClient(this.host, this.port);
-                Guid connectionId = Guid.NewGuid();
-                this.clients.Add(connectionId, client);
-                return connectionId;
+                TcpClient client = null;
+                try
+                {
+                    client = new TcpClient(this.host, this.port);
+                    Guid connectionId = Guid.NewGuid();
+                    this.clients.Add(connectionId, client);
+                    return connectionId;
+                }
+                catch
+                {
+                    if (client != null)
+                    {
+                        client.Close();
+                    }
+
+                    throw;
+                }
+            }
+            else if (this.protocol == TunnelProtocolType.Ftp)
+            {
+                if (remotePort != 0)
+                {
+                    if (!this.ftpPassivePorts.Contains(remotePort))
+                    {
+                        throw new WebFaultException<string>("Specified port is invalid.", HttpStatusCode.Forbidden);
+                    }
+                }
+
+                TcpClient client = null;
+
+                try
+                {
+                    client = new TcpClient(this.host, remotePort == 0 ? this.port : remotePort);
+                    Guid connectionId = Guid.NewGuid();
+                    this.clients.Add(connectionId, client);
+                    return connectionId;
+                }
+                catch
+                {
+                    if (client != null)
+                    {
+                        client.Close();
+                    }
+
+                    throw;
+                }
             }
             else
             {
@@ -130,7 +199,7 @@ namespace Uhuru.Utilities.HttpTunnel
         /// </returns>
         public DataPackage ReceiveData(Guid connectionId)
         {
-            if (this.protocol == TunnelProtocolType.Tcp)
+            if (this.protocol == TunnelProtocolType.Tcp || this.protocol == TunnelProtocolType.Ftp)
             {
                 if (!this.clients.ContainsKey(connectionId))
                 {
@@ -143,15 +212,101 @@ namespace Uhuru.Utilities.HttpTunnel
                 TcpClient client = this.clients[connectionId];
                 NetworkStream stream = client.GetStream();
 
-                if (stream.DataAvailable)
+                if (stream.DataAvailable || (this.protocol == TunnelProtocolType.Ftp && (this.port != ((IPEndPoint)client.Client.RemoteEndPoint).Port)))
                 {
                     byte[] data = new byte[DataPackage.BufferSize];
-                    int readCount = stream.Read(data, 0, data.Length);
+                    int readCount = 0;
+
+                    try
+                    {   
+                        stream.ReadTimeout = 2000;
+                        readCount = stream.Read(data, 0, data.Length);
+                    }
+                    catch (IOException ex)
+                    {
+                        SocketException socketException = ex.InnerException as SocketException;
+
+                        // the 10060 error means timeout - we have no data right now
+                        if (socketException != null && socketException.ErrorCode == 10060)
+                        {
+                            DataPackage closedData = new DataPackage();
+                            closedData.HasData = false;
+                            closedData.Data = new byte[0];
+                            return closedData;
+                        }
+
+                        // the 10054 means connection reset by peer
+                        if (socketException != null && socketException.ErrorCode == 10054)
+                        {
+                            client.Close();
+                            this.clients.Remove(connectionId);
+
+                            DataPackage closedData = new DataPackage();
+                            closedData.HasData = false;
+                            closedData.Data = new byte[0];
+                            closedData.IsClosed = true;
+                            return closedData;
+                        }
+
+                        throw;
+                    }
+
+                    if (readCount == 0)
+                    {
+                        client.Close();
+                        this.clients.Remove(connectionId);
+
+                        DataPackage closedData = new DataPackage();
+                        closedData.HasData = false;
+                        closedData.Data = new byte[0];
+                        closedData.IsClosed = true;
+                        return closedData;
+                    }
+
                     byte[] returnData = new byte[readCount];
                     Array.Copy(data, returnData, readCount);
 
                     DataPackage returnDataInfo = new DataPackage();
                     returnDataInfo.HasData = true;
+
+                    if (this.protocol == TunnelProtocolType.Ftp && this.port == ((IPEndPoint)client.Client.RemoteEndPoint).Port)
+                    {
+                        string stringData = ASCIIEncoding.ASCII.GetString(returnData);
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(stringData);
+
+                        if (Regex.IsMatch(stringData, PassvReplyRegex))
+                        {
+                            string passvReply = Regex.Match(stringData, PassvReplyRegex).Value;
+                            string ipAndPort = Regex.Match(passvReply, PassvReplyIPAndPortRegex).Value;
+                            ipAndPort = ipAndPort.Substring(1, ipAndPort.Length - 2);
+
+                            string[] parts = ipAndPort.Split(',');
+
+                            byte port1 = byte.Parse(parts[4], CultureInfo.InvariantCulture);
+                            byte port2 = byte.Parse(parts[5], CultureInfo.InvariantCulture);
+
+                            this.ftpPassivePorts.Add((port1 * 256) + port2);
+
+                            string tunnelPassvReply = string.Format(CultureInfo.InvariantCulture, "(127,0,0,1,{0},{1})", port1, port2);
+                            passvReply = Regex.Replace(passvReply, PassvReplyIPAndPortRegex, tunnelPassvReply);
+                            stringData = Regex.Replace(stringData, PassvReplyRegex, passvReply);
+                            returnData = ASCIIEncoding.ASCII.GetBytes(stringData);
+
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write(stringData);
+                        }
+                    }
+
+                    if (this.protocol == TunnelProtocolType.Ftp && this.port != ((IPEndPoint)client.Client.RemoteEndPoint).Port)
+                    {
+                        string stringData = ASCIIEncoding.ASCII.GetString(returnData);
+
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.Write(stringData);
+                    }
+
                     returnDataInfo.Data = returnData;
 
                     return returnDataInfo;
@@ -195,17 +350,18 @@ namespace Uhuru.Utilities.HttpTunnel
         /// </summary>
         /// <param name="connectionId">The connection id for which to send data.</param>
         /// <param name="data">The data to be sent to the actual server.</param>
+        /// <param name="alsoRead">True if data should be read from the server after writing (may improve performance in some cases).</param>
         /// <returns>
         /// A DataPackage containing any data that was available on the server after the send was done.
         /// </returns>
-        public DataPackage SendData(Guid connectionId, DataPackage data)
+        public DataPackage SendData(Guid connectionId, DataPackage data, bool alsoRead)
         {
             if (data == null)
             {
                 throw new ArgumentNullException("data");
             }
 
-            if (this.protocol == TunnelProtocolType.Tcp)
+            if (this.protocol == TunnelProtocolType.Tcp || this.protocol == TunnelProtocolType.Ftp)
             {
                 if (!this.clients.ContainsKey(connectionId))
                 {
@@ -218,10 +374,46 @@ namespace Uhuru.Utilities.HttpTunnel
                 if (data.HasData)
                 {
                     NetworkStream stream = this.clients[connectionId].GetStream();
-                    stream.Write(data.Data, 0, data.Data.Length);
+                    try
+                    {
+                        stream.Write(data.Data, 0, data.Data.Length);
+                    }
+                    catch (SocketException)
+                    {
+                        TcpClient client = null;
+
+                        try
+                        {
+                            client = new TcpClient(this.host, ((IPEndPoint)this.clients[connectionId].Client.RemoteEndPoint).Port);
+                            this.clients.Remove(connectionId);
+                            this.clients.Add(connectionId, client);
+                        }
+                        catch
+                        {
+                            if (client != null)
+                            {
+                                client.Close();
+                            }
+
+                            throw;
+                        }
+
+                        stream = this.clients[connectionId].GetStream();
+                        stream.Write(data.Data, 0, data.Data.Length);
+                    }
                 }
 
-                return this.ReceiveData(connectionId);
+                if (alsoRead)
+                {
+                    return this.ReceiveData(connectionId);
+                }
+                else
+                {
+                    DataPackage dataInfo = new DataPackage();
+                    dataInfo.Data = new byte[0];
+                    dataInfo.HasData = false;
+                    return dataInfo;
+                }
             }
             else
             {

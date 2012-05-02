@@ -706,5 +706,32 @@ namespace Uhuru.CloudFoundry.Test.Unit
                 }
             }
         }
+
+        [TestMethod()]
+        [TestCategory("Unit")]
+        //[Timeout(10000)]
+        [Ignore]
+        public void TestFTPTunnelSimpleSend()
+        {
+            // This test makes sure that this scenario works:
+            // actualFTPClient -> clientEnd (tunnel start) -> serverEnd (tunnel end) -> actualFTPServer
+            //                 -> passive dataConnection                             ->
+            //                 -> passive dataConnection                             ->
+
+
+            TunnelWCFServerTcp wcfServer = new TunnelWCFServerTcp();
+            ClientEnd clientEnd = null;
+
+            // Arrange
+            int wcfServerPort = NetworkInterface.GrabEphemeralPort();
+            int actualServerPort = 21;
+            int clientEndPort = 10021;
+            clientEnd = new ClientEnd();
+           
+            wcfServer.StartServer(wcfServerPort, actualServerPort);
+            clientEnd.Start(new Uri("http://127.0.0.1:" + wcfServerPort.ToString()), clientEndPort, "127.0.0.1", TunnelProtocolType.Tcp);
+
+            Thread.Sleep(Timeout.Infinite);
+        }
     }
 }

@@ -8,10 +8,13 @@ namespace Uhuru.Utilities.HttpTunnel
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.ServiceModel;
+    using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading;
 
     /// <summary>
@@ -46,6 +49,21 @@ namespace Uhuru.Utilities.HttpTunnel
     public class ClientEnd
     {
         /// <summary>
+        /// Regex matching a server reply to a passv command.
+        /// </summary>
+        private const string PassvReplyRegex = @"227.*\(\d*,\d*,\d*,\d*,\d*,\d*\)";
+
+        /// <summary>
+        /// Regex matching the IP and port parts of a server reply to a passv command.
+        /// </summary>
+        private const string PassvReplyIPAndPortRegex = @"\(\d*,\d*,\d*,\d*,\d*,\d*\)";
+
+        /// <summary>
+        /// An object used for locking when closing connections.
+        /// </summary>
+        private readonly object closeLock = new object();
+
+        /// <summary>
         /// Indicates whether the client is supposed to be closing.
         /// </summary>
         private volatile bool closing = false;
@@ -63,7 +81,12 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <summary>
         /// This is the thread that runs the tunnel listener.
         /// </summary>
-        private Thread tunnelRunner = null;
+        private List<Thread> tunnelRunners = new List<Thread>();
+
+        /// <summary>
+        /// The protocol of this tunnel.
+        /// </summary>
+        private TunnelProtocolType protocol;
 
         /// <summary>
         /// Gets the state of the client.
@@ -82,14 +105,17 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <param name="remoteHttpUrl">The remote HTTP URL of the WCF service hosting the server end of the tunnel.</param>
         /// <param name="localPort">The local port to open.</param>
         /// <param name="localIP">The local IP on which to listen for connections (if it's a TCP tunnel).</param>
-        /// <param name="protocol">The protocol to use (TCP or UDP).</param>
-        public void Start(Uri remoteHttpUrl, int localPort, string localIP, TunnelProtocolType protocol)
+        /// <param name="tunnelProtocol">The protocol to use (TCP or UDP).</param>
+        public void Start(Uri remoteHttpUrl, int localPort, string localIP, TunnelProtocolType tunnelProtocol)
         {
-            switch (protocol)
+            this.protocol = tunnelProtocol;
+
+            switch (tunnelProtocol)
             {
+                case TunnelProtocolType.Ftp:
                 case TunnelProtocolType.Tcp:
                     {
-                        this.StartTCPTunnel(remoteHttpUrl, localPort, localIP);
+                        this.StartTCPTunnel(remoteHttpUrl, localPort, localIP, 0);
                     }
 
                     break;
@@ -116,16 +142,19 @@ namespace Uhuru.Utilities.HttpTunnel
         public void Stop()
         {
             this.closing = true;
-            if (this.tunnelRunner != null)
+            if (this.tunnelRunners != null)
             {
-                if ((this.tunnelRunner.ThreadState & ThreadState.Unstarted) == 0)
+                foreach (Thread tunnelRunner in this.tunnelRunners)
                 {
-                    this.tunnelRunner.Join(5000);
-                }
+                    if ((tunnelRunner.ThreadState & ThreadState.Unstarted) == 0)
+                    {
+                        tunnelRunner.Join(5000);
+                    }
 
-                if ((this.tunnelRunner.ThreadState & ThreadState.Stopped) == 0)
-                {
-                    this.tunnelRunner.Abort();
+                    if ((tunnelRunner.ThreadState & ThreadState.Stopped) == 0)
+                    {
+                        tunnelRunner.Abort();
+                    }
                 }
             }
 
@@ -151,7 +180,8 @@ namespace Uhuru.Utilities.HttpTunnel
         /// <param name="remoteHttpUrl">The remote HTTP URL.</param>
         /// <param name="localPort">The local port.</param>
         /// <param name="localIp">The local IP.</param>
-        private void StartTCPTunnel(Uri remoteHttpUrl, int localPort, string localIp)
+        /// <param name="remotePort">The remote port that the tunnel is intended for. Only used for FTP protocol.</param>
+        private void StartTCPTunnel(Uri remoteHttpUrl, int localPort, string localIp, int remotePort)
         {
             TcpListener listener;
             EndpointAddress endpointAddress = new EndpointAddress(remoteHttpUrl);
@@ -159,16 +189,16 @@ namespace Uhuru.Utilities.HttpTunnel
 
             listener = new TcpListener(IPAddress.Parse(localIp), localPort);
             listener.Start();
-            this.tunnelRunner = new Thread(
+            Thread newThread = new Thread(
             new ThreadStart(
                 delegate
                 {
                     BasicHttpBinding basicBinding = new BasicHttpBinding();
-                    basicBinding.ReaderQuotas.MaxArrayLength = 98304;
-                    basicBinding.ReaderQuotas.MaxBytesPerRead = 10240000;
-                    basicBinding.MaxReceivedMessageSize = 10240000;
-                    basicBinding.MaxBufferPoolSize = 10240000;
-                    basicBinding.MaxBufferSize = 10240000;
+                    basicBinding.ReaderQuotas.MaxArrayLength = DataPackage.BufferSize;
+                    basicBinding.ReaderQuotas.MaxBytesPerRead = DataPackage.BufferSize * 16;
+                    basicBinding.MaxReceivedMessageSize = DataPackage.BufferSize * 16;
+                    basicBinding.MaxBufferPoolSize = DataPackage.BufferSize * 16;
+                    basicBinding.MaxBufferSize = DataPackage.BufferSize * 16;
 
                     using (ChannelFactory<ITunnel> channelFactory = new ChannelFactory<ITunnel>(basicBinding, endpointAddress))
                     {
@@ -181,7 +211,7 @@ namespace Uhuru.Utilities.HttpTunnel
 
                             try
                             {
-                                serverConnectionId = wcfTunnelChannel.OpenConnection();
+                                serverConnectionId = wcfTunnelChannel.OpenConnection(remotePort);
                             }
                             catch (CommunicationException ex)
                             {
@@ -197,7 +227,7 @@ namespace Uhuru.Utilities.HttpTunnel
                                 {
                                     Guid connectionId = (Guid)objConnectionId;
                                     TcpClient client = clients[connectionId];
-                                    while (!this.closing)
+                                    while (!this.closing && client != null && client.Connected)
                                     {
                                         byte[] buffer = new byte[DataPackage.BufferSize];
                                         int readCount = 0;
@@ -206,14 +236,33 @@ namespace Uhuru.Utilities.HttpTunnel
                                         {
                                             readCount = client.GetStream().Read(buffer, 0, buffer.Length);
                                         }
+                                        catch (SocketException socketException)
+                                        {
+                                            // we have closed the connection
+                                            if (socketException.ErrorCode == 10004)
+                                            {
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                throw;
+                                            }
+                                        }
                                         catch (IOException ex)
                                         {
                                             SocketException socketException = ex.InnerException as SocketException;
 
-                                            // the 10054 means connection reset by peer
-                                            if (socketException != null && socketException.ErrorCode == 10054)
+                                            // the 10054 means connection reset by peer; 10004 was closed by us
+                                            if (socketException != null && (socketException.ErrorCode == 10054 || socketException.ErrorCode == 10004))
                                             {
-                                                client.Close();
+                                                lock (this.closeLock)
+                                                {
+                                                    if (client != null)
+                                                    {
+                                                        client.Close();
+                                                        client = null;
+                                                    }
+                                                }
 
                                                 try
                                                 {
@@ -236,7 +285,14 @@ namespace Uhuru.Utilities.HttpTunnel
 
                                         if (readCount == 0)
                                         {
-                                            client.Close();
+                                            lock (this.closeLock)
+                                            {
+                                                if (client != null)
+                                                {
+                                                    client.Close();
+                                                    client = null;
+                                                }
+                                            }
 
                                             try
                                             {
@@ -262,7 +318,9 @@ namespace Uhuru.Utilities.HttpTunnel
                                         DataPackage receiveData = null;
                                         try
                                         {
-                                            receiveData = wcfTunnelChannel.SendData(connectionId, sendDataPackage);
+                                            // this improves performance on ftp uploads
+                                            bool alsoRead = !(this.protocol == TunnelProtocolType.Ftp && remotePort != 0);
+                                            receiveData = wcfTunnelChannel.SendData(connectionId, sendDataPackage, alsoRead);
                                         }
                                         catch (CommunicationException comEx)
                                         {
@@ -286,7 +344,7 @@ namespace Uhuru.Utilities.HttpTunnel
                             {
                                 Guid connectionId = (Guid)objConnectionId;
                                 TcpClient client = clients[connectionId];
-                                while (!this.closing && client.Connected)
+                                while (!this.closing && client != null && client.Connected)
                                 {
                                     DataPackage data = null;
                                     try
@@ -300,8 +358,69 @@ namespace Uhuru.Utilities.HttpTunnel
                                         return;
                                     }
 
+                                    if (data.IsClosed)
+                                    {
+                                        lock (this.closeLock)
+                                        {
+                                            if (client != null)
+                                            {
+                                                client.Close();
+                                                client = null;
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                     if (data.HasData)
                                     {
+                                        // We are taking things into our own hands for the control FTP connection.
+                                        if (this.protocol == TunnelProtocolType.Ftp && remotePort == 0)
+                                        {
+                                            string stringData = ASCIIEncoding.ASCII.GetString(data.Data);
+
+                                            Console.ForegroundColor = ConsoleColor.Red;
+                                            Console.Write(stringData);
+
+                                            if (Regex.IsMatch(stringData, PassvReplyRegex))
+                                            {
+                                                string passvReply = Regex.Match(stringData, PassvReplyRegex).Value;
+                                                string ipAndPort = Regex.Match(passvReply, PassvReplyIPAndPortRegex).Value;
+                                                ipAndPort = ipAndPort.Substring(1, ipAndPort.Length - 2);
+
+                                                string[] parts = ipAndPort.Split(',');
+
+                                                byte ip1 = byte.Parse(parts[0], CultureInfo.InvariantCulture);
+                                                byte ip2 = byte.Parse(parts[1], CultureInfo.InvariantCulture);
+                                                byte ip3 = byte.Parse(parts[2], CultureInfo.InvariantCulture);
+                                                byte ip4 = byte.Parse(parts[3], CultureInfo.InvariantCulture);
+                                                byte port1 = byte.Parse(parts[4], CultureInfo.InvariantCulture);
+                                                byte port2 = byte.Parse(parts[5], CultureInfo.InvariantCulture);
+
+                                                int ephemeralPort = NetworkInterface.GrabEphemeralPort();
+
+                                                this.StartTCPTunnel(remoteHttpUrl, ephemeralPort, "127.0.0.1", (port1 * 256) + port2);
+
+                                                port1 = (byte)(ephemeralPort / 256);
+                                                port2 = (byte)(ephemeralPort % 256);
+
+                                                string tunnelPassvReply = string.Format("(127,0,0,1,{0},{1})", port1, port2);
+                                                passvReply = Regex.Replace(passvReply, PassvReplyIPAndPortRegex, tunnelPassvReply);
+                                                stringData = Regex.Replace(stringData, PassvReplyRegex, passvReply);
+                                                data.Data = ASCIIEncoding.ASCII.GetBytes(stringData);
+
+                                                Console.ForegroundColor = ConsoleColor.Blue;
+                                                Console.Write(stringData);
+                                            }
+                                        }
+
+                                        if (this.protocol == TunnelProtocolType.Ftp && remotePort != 0)
+                                        {
+                                            string stringData = ASCIIEncoding.ASCII.GetString(data.Data);
+
+                                            Console.ForegroundColor = ConsoleColor.Cyan;
+                                            Console.Write(stringData);
+                                        }
+
                                         if (client != null)
                                         {
                                             client.GetStream().Write(data.Data, 0, data.Data.Length);
@@ -316,8 +435,9 @@ namespace Uhuru.Utilities.HttpTunnel
                     }
                 }));
 
-            this.tunnelRunner.IsBackground = true;
-            this.tunnelRunner.Start();
+            newThread.IsBackground = true;
+            newThread.Start();
+            this.tunnelRunners.Add(newThread);
         }
 
         /// <summary>
@@ -342,7 +462,7 @@ namespace Uhuru.Utilities.HttpTunnel
                 listener.Connect(new IPEndPoint(IPAddress.Parse(localIp), localPort));
             }
 
-            this.tunnelRunner = new Thread(
+            Thread newThread = new Thread(
             new ThreadStart(
                 delegate
                 {
@@ -360,7 +480,7 @@ namespace Uhuru.Utilities.HttpTunnel
                         Guid serverConnectionId = Guid.Empty;
                         try
                         {
-                            serverConnectionId = wcfTunnelChannel.OpenConnection();
+                            serverConnectionId = wcfTunnelChannel.OpenConnection(0);
                         }
                         catch (CommunicationException comEx)
                         {
@@ -386,7 +506,7 @@ namespace Uhuru.Utilities.HttpTunnel
 
                                     try
                                     {
-                                        wcfTunnelChannel.SendData(connectionId, sendDataPackage);
+                                        wcfTunnelChannel.SendData(connectionId, sendDataPackage, true);
                                     }
                                     catch (CommunicationException comEx)
                                     {
@@ -446,8 +566,9 @@ namespace Uhuru.Utilities.HttpTunnel
                     }
                 }));
 
-            this.tunnelRunner.IsBackground = true;
-            this.tunnelRunner.Start();
+            newThread.IsBackground = true;
+            newThread.Start();
+            this.tunnelRunners.Add(newThread);
         }
     }
 }

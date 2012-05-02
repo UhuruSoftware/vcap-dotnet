@@ -32,7 +32,13 @@ namespace Uhuru.Utilities.HttpTunnel
         /// Tunnel a UDP port (outgoing data)
         /// </summary>
         [EnumMember]
-        UdpOutgoing
+        UdpOutgoing,
+
+        /// <summary>
+        /// Tunnel FTP traffic (only passive mode)
+        /// </summary>
+        [EnumMember]
+        Ftp
     }
 
     /// <summary>
@@ -54,16 +60,18 @@ namespace Uhuru.Utilities.HttpTunnel
         /// </summary>
         /// <param name="connectionId">The connection id for which to send data.</param>
         /// <param name="data">The data to be sent to the actual server.</param>
+        /// <param name="alsoRead">True if data should be read from the server after writing (may improve performance in some cases).</param>
         /// <returns>A DataPackage containing any data that was available on the server after the send was done.</returns>
         [OperationContract]
-        DataPackage SendData(Guid connectionId, DataPackage data);
+        DataPackage SendData(Guid connectionId, DataPackage data, bool alsoRead);
 
         /// <summary>
         /// Creates a TCP connection on the server.
         /// </summary>
+        /// <param name="remotePort">Remote port used for data transfer. FTP protocol only.</param>
         /// <returns>A GUID used to identify the connection for future send/receive or for close.</returns>
         [OperationContract]
-        Guid OpenConnection();
+        Guid OpenConnection(int remotePort);
 
         /// <summary>
         /// Closes a TCP connection on the server.
@@ -81,8 +89,17 @@ namespace Uhuru.Utilities.HttpTunnel
     {
         /// <summary>
         /// The buffer size to use for transferring data in the tunnel.
+        /// If you change this value, make sure to also change server-side quotas as well.
         /// </summary>
-        public const int BufferSize = 1024 * 16 * 6;
+        public const int BufferSize = 1024 * 1024;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataPackage"/> class.
+        /// </summary>
+        public DataPackage()
+        {
+            this.IsClosed = false;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether this package has data.
@@ -100,6 +117,16 @@ namespace Uhuru.Utilities.HttpTunnel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "This is a chunk of data"), 
         DataMember]
         public byte[] Data
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the connection is open. Only used for FTP data connections.
+        /// </summary>
+        [DataMember]
+        public bool IsClosed
         {
             get;
             set;
