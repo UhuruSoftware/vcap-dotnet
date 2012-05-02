@@ -141,7 +141,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
                 Microsoft.Web.Administration.ConfigurationElementCollection modulesCollection = modulesSection.GetCollection();
                 Microsoft.Web.Administration.ConfigurationElement addElement = modulesCollection.CreateElement("add");
                 addElement["name"] = @"IISUhuruFSModule";
-                addElement["type"] = @"Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule";
+                addElement["type"] = @"Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule, " + Assembly.GetAssembly(typeof(Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule)).FullName;
                 modulesCollection.Add(addElement);
 
                 serverManager.CommitChanges();

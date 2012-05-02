@@ -7,6 +7,7 @@
 namespace Uhuru.Utilities
 {
     using System;
+    using System.Globalization;
     using NetFwTypeLib;
 
     /// <summary>
@@ -45,6 +46,27 @@ namespace Uhuru.Utilities
             INetFwMgr mgr = (INetFwMgr)Activator.CreateInstance(netFwMgrType);
             INetFwOpenPorts openPorts = (INetFwOpenPorts)mgr.LocalPolicy.CurrentProfile.GloballyOpenPorts;
             openPorts.Remove(port, NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP);
+        }
+
+        /// <summary>
+        /// opens a range of firewall ports
+        /// </summary>
+        /// <param name="lowPort">the start port to open</param>
+        /// <param name="highPort">the end port to open</param>
+        /// <param name="ruleName">Firewall rule name</param>
+        public static void OpenPortRange(int lowPort, int highPort, string ruleName)
+        {
+            Type netFwOpenPortType = Type.GetTypeFromProgID("HNetCfg.FwRule");
+            INetFwRule rule = (INetFwRule)Activator.CreateInstance(netFwOpenPortType);
+            rule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
+            rule.Protocol = (int)NET_FW_IP_PROTOCOL_.NET_FW_IP_PROTOCOL_TCP;
+            rule.Profiles = (int)NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_ALL;
+            rule.LocalPorts = lowPort.ToString(CultureInfo.InvariantCulture) + "-" + highPort.ToString(CultureInfo.InvariantCulture);
+            rule.Name = ruleName;
+            rule.Enabled = true;
+
+            INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+            firewallPolicy.Rules.Add(rule);
         }
     }
 }
