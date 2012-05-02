@@ -15,6 +15,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
     using System.IO;
     using System.Net;
     using System.Reflection;
+    using Microsoft.Web.Administration;
     using Uhuru.Configuration;
     using Uhuru.Utilities;
 
@@ -149,6 +150,23 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
 
             section.DEA = null;
             config.Save();
+
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Microsoft.Web.Administration.Configuration iisConfig = serverManager.GetApplicationHostConfiguration();
+
+                Microsoft.Web.Administration.ConfigurationSection firewallSupportSection = iisConfig.GetSection("system.ftpServer/firewallSupport");
+                firewallSupportSection["lowDataChannelPort"] = 5000;
+                firewallSupportSection["highDataChannelPort"] = 6000;
+
+                Microsoft.Web.Administration.ConfigurationSection sitesSection = iisConfig.GetSection("system.applicationHost/sites");
+                Microsoft.Web.Administration.ConfigurationElement siteDefaultsElement = sitesSection.GetChildElement("siteDefaults");
+                Microsoft.Web.Administration.ConfigurationElement ftpServerElement = siteDefaultsElement.GetChildElement("ftpServer");
+                Microsoft.Web.Administration.ConfigurationElement firewallSupportElement = ftpServerElement.GetChildElement("firewallSupport");
+                firewallSupportElement["externalIp4Address"] = @"0.0.0.0";
+
+                serverManager.CommitChanges(); 
+            } 
         }
 
         /// <summary>

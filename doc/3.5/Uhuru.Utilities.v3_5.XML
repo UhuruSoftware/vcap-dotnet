@@ -34,6 +34,21 @@
             This class can connect to a remote HTTP Tunnel endpoint and facilitate TCP/IP communication between a client.
             </summary>
         </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.PassvReplyRegex">
+            <summary>
+            Regex matching a server reply to a passv command.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.PassvReplyIPAndPortRegex">
+            <summary>
+            Regex matching the IP and port parts of a server reply to a passv command.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.closeLock">
+            <summary>
+            An object used for locking when closing connections.
+            </summary>
+        </member>
         <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.closing">
             <summary>
             Indicates whether the client is supposed to be closing.
@@ -49,9 +64,14 @@
             This list contains all the threads that are used to read/write to the actual client.
             </summary>
         </member>
-        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.tunnelRunner">
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.tunnelRunners">
             <summary>
             This is the thread that runs the tunnel listener.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.ClientEnd.protocol">
+            <summary>
+            The protocol of this tunnel.
             </summary>
         </member>
         <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Start(System.Uri,System.Int32,System.String,Uhuru.Utilities.HttpTunnel.TunnelProtocolType)">
@@ -61,20 +81,21 @@
             <param name="remoteHttpUrl">The remote HTTP URL of the WCF service hosting the server end of the tunnel.</param>
             <param name="localPort">The local port to open.</param>
             <param name="localIP">The local IP on which to listen for connections (if it's a TCP tunnel).</param>
-            <param name="protocol">The protocol to use (TCP or UDP).</param>
+            <param name="tunnelProtocol">The protocol to use (TCP or UDP).</param>
         </member>
         <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.Stop">
             <summary>
             Stops the client end of the tunnel.
             </summary>
         </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartTCPTunnel(System.Uri,System.Int32,System.String)">
+        <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartTCPTunnel(System.Uri,System.Int32,System.String,System.Int32)">
             <summary>
             Starts a TCP tunnel.
             </summary>
             <param name="remoteHttpUrl">The remote HTTP URL.</param>
             <param name="localPort">The local port.</param>
             <param name="localIp">The local IP.</param>
+            <param name="remotePort">The remote port that the tunnel is intended for. Only used for FTP protocol.</param>
         </member>
         <member name="M:Uhuru.Utilities.HttpTunnel.ClientEnd.StartUDPTunnel(System.Uri,System.Int32,System.String,System.Boolean)">
             <summary>
@@ -404,6 +425,11 @@
             Tunnel a UDP port (outgoing data)
             </summary>
         </member>
+        <member name="F:Uhuru.Utilities.HttpTunnel.TunnelProtocolType.Ftp">
+            <summary>
+            Tunnel FTP traffic (only passive mode)
+            </summary>
+        </member>
         <member name="T:Uhuru.Utilities.HttpTunnel.ITunnel">
             <summary>
             This interface is the communication contract between the tunnel server and client.
@@ -416,18 +442,20 @@
             <param name="connectionId">The connection id for which to get data.</param>
             <returns>A <see cref="T:Uhuru.Utilities.HttpTunnel.DataPackage"/> containing the available data (if any).</returns>
         </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.SendData(System.Guid,Uhuru.Utilities.HttpTunnel.DataPackage)">
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.SendData(System.Guid,Uhuru.Utilities.HttpTunnel.DataPackage,System.Boolean)">
             <summary>
             Sends data to a server, for a specific connection.
             </summary>
             <param name="connectionId">The connection id for which to send data.</param>
             <param name="data">The data to be sent to the actual server.</param>
+            <param name="alsoRead">True if data should be read from the server after writing (may improve performance in some cases).</param>
             <returns>A DataPackage containing any data that was available on the server after the send was done.</returns>
         </member>
-        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.OpenConnection">
+        <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.OpenConnection(System.Int32)">
             <summary>
             Creates a TCP connection on the server.
             </summary>
+            <param name="remotePort">Remote port used for data transfer. FTP protocol only.</param>
             <returns>A GUID used to identify the connection for future send/receive or for close.</returns>
         </member>
         <member name="M:Uhuru.Utilities.HttpTunnel.ITunnel.CloseConnection(System.Guid)">
@@ -444,6 +472,12 @@
         <member name="F:Uhuru.Utilities.HttpTunnel.DataPackage.BufferSize">
             <summary>
             The buffer size to use for transferring data in the tunnel.
+            If you change this value, make sure to also change server-side quotas as well.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.HttpTunnel.DataPackage.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.HttpTunnel.DataPackage"/> class.
             </summary>
         </member>
         <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.HasData">
@@ -454,6 +488,11 @@
         <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.Data">
             <summary>
             Gets or sets the data for this package.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.HttpTunnel.DataPackage.IsClosed">
+            <summary>
+            Gets or sets a value indicating whether the connection is open. Only used for FTP data connections.
             </summary>
         </member>
         <member name="T:Uhuru.Utilities.Credentials">
