@@ -17,6 +17,7 @@
       <word>Renice</word>
       <word>Ulimit</word>
       <word>Unmount</word>
+      <word>ip</word>
     </Recognized>
   </Words>
   <Acronyms>
@@ -30,6 +31,8 @@
       <Acronym>IIS</Acronym>
       <Acronym>SHA</Acronym>
       <Acronym>FDS</Acronym>
+      <Acronym>ip</Acronym>
+      <Acronym>IP</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>
