@@ -196,7 +196,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     this.maxLongQuery / 2,
                     delegate
                     {
-                        this.KillLongQueries();
+                        this.KillLongTransactions();
                     });
             }
 
@@ -206,7 +206,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     this.maxLongTx / 2,
                     delegate
                     {
-                        this.KillLongTransactions();
+                        this.KillLongQueries();
                     });
             }
             else
@@ -741,10 +741,10 @@ namespace Uhuru.CloudFoundry.MSSqlService
         }
 
         /// <summary>
-        /// Kills long queries.
+        /// Kills long transactions.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:ReviewSqlQueriesForSecurityVulnerabilities", Justification = "Not user input")]
-        private void KillLongQueries()
+        private void KillLongTransactions()
         {
             if (this.connection.State != ConnectionState.Open)
             {
@@ -797,10 +797,10 @@ namespace Uhuru.CloudFoundry.MSSqlService
         }
 
         /// <summary>
-        /// Kills long transactions.
+        /// Kills long queries.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
-        private void KillLongTransactions()
+        private void KillLongQueries()
         {
             // present in both mysql and postgresql
             // todo: vladi: implement this
