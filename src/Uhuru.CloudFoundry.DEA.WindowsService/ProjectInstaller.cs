@@ -15,7 +15,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.IO;
     using System.Net;
     using System.Reflection;
-    using Microsoft.Web.Administration;
     using Uhuru.Configuration;
     using Uhuru.Utilities;
 
@@ -132,20 +131,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             section.Service = null;
             config.Save();
-
-            using (ServerManager serverManager = new ServerManager())
-            {
-                Microsoft.Web.Administration.Configuration iisConfig = serverManager.GetApplicationHostConfiguration();
-                Microsoft.Web.Administration.ConfigurationSection modulesSection = iisConfig.GetSection("system.webServer/modules");
-
-                Microsoft.Web.Administration.ConfigurationElementCollection modulesCollection = modulesSection.GetCollection();
-                Microsoft.Web.Administration.ConfigurationElement addElement = modulesCollection.CreateElement("add");
-                addElement["name"] = @"IISUhuruFSModule";
-                addElement["type"] = @"Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule, " + Assembly.GetAssembly(typeof(Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule)).FullName;
-                modulesCollection.Add(addElement);
-
-                serverManager.CommitChanges();
-            }
         }
 
         /// <summary>
