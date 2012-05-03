@@ -130,8 +130,11 @@ namespace Uhuru.Utilities
                     Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
                     Environment.FailFast(Strings.UnhandledExceptionCaught2 + "\r\n" + ex.ToString());
                 }
-
-                newTimer.Enabled = true;
+                
+                if (newTimer != null)
+                {
+                    newTimer.Enabled = true;
+                }
             });
             newTimer.Enabled = true;
             return newTimer;
