@@ -50,6 +50,11 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         private string startupLogFilePath;
 
         /// <summary>
+        /// Mount path for Uhuru file service auto wiring
+        /// </summary>
+        private string homeAppPath;
+
+        /// <summary>
         /// A list of connection string templates for services
         /// </summary>
         private Dictionary<string, string> autoWireTemplates;
@@ -71,6 +76,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
         /// <param name="errorLogFilePath">The error log file path.</param>
         /// <param name="startupLogFilePath">The startup log file path.</param>
         /// <param name="autoWireTemplates">A list of connection string templates for services.</param>
+        /// <param name="homeAppPath">The home application path.</param>
         public ApplicationParsedData(
             ApplicationInfo appInfo, 
             string runtime, 
@@ -80,7 +86,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             string logFilePath, 
             string errorLogFilePath, 
             string startupLogFilePath, 
-            Dictionary<string, string> autoWireTemplates)
+            Dictionary<string, string> autoWireTemplates,
+            string homeAppPath)
         {
             this.appInfo = appInfo;
             this.runtime = runtime;
@@ -91,6 +98,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             this.startupLogFilePath = startupLogFilePath;
             this.autoWireTemplates = autoWireTemplates;
             this.appUrls = urls;
+            this.homeAppPath = homeAppPath;
         }
 
         /// <summary>
@@ -146,6 +154,17 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             get
             {
                 return this.startupLogFilePath;
+            }
+        }
+
+        /// <summary>
+        /// Gets the home application path.
+        /// </summary>
+        public string HomeAppPath
+        {
+            get
+            {
+                return this.homeAppPath;
             }
         }
 

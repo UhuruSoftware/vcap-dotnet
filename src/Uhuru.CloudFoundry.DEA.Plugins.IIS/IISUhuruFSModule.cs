@@ -30,14 +30,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
         /// Method called when the IIS app initializes.
         /// </summary>
         /// <param name="context">The http context of the application.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Used for logging.")]
         public void Init(System.Web.HttpApplication context)
         {
-            if (context == null)
-            {
-                return;
-            }
+            string appApth = System.Web.Hosting.HostingEnvironment.MapPath("~");
+            string logFile = Path.Combine(appApth, @"..\logs\startup.log");
 
-            string path = Path.Combine(context.Server.MapPath("~"), @"..\uhurufs.tsv");
+            string path = Path.Combine(appApth, @"..\uhurufs.tsv");
             if (File.Exists(path))
             {
                 string[] lines = File.ReadAllLines(path);
@@ -53,7 +52,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
                     string remoteUser = parts[1];
                     string remotePassword = parts[2];
 
-                    NetUse(remoteShare, remoteUser, remotePassword);
+                    File.AppendAllText(logFile, string.Format(CultureInfo.InvariantCulture, "Connecting to \"{0}\" with username \"{1}\"... ", remoteShare, remoteUser));
+                    try
+                    {
+                        NetUse(remoteShare, remoteUser, remotePassword);
+                    }
+                    catch (Exception e)
+                    {
+                        File.AppendAllText(logFile, string.Format(CultureInfo.InvariantCulture, "Error: \"{0}\".\n", e.Message));
+                        throw;
+                    }
+
+                    File.AppendAllText(logFile, string.Format(CultureInfo.InvariantCulture, "Done.\n"));
                 }
             }
         }
@@ -64,27 +74,36 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.IIS
         /// <param name="remoteShare">The UNC path to the share.</param>
         /// <param name="remoteUser">Username used for authentication.</param>
         /// <param name="remotePassword">Password used for authentication.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Enough for this purpose")]
         private static void NetUse(string remoteShare, string remoteUser, string remotePassword)
         {
-            try
+            int retCode = ExecuteProcess("net", string.Format(CultureInfo.InvariantCulture, @"use ""{0}"" ""{1}"" /USER:""{2}""", remoteShare, remotePassword, remoteUser));
+            if (retCode != 0)
             {
-                ExecuteProcess(string.Format(CultureInfo.InvariantCulture, @"net use ""{0} {1}"" /USER:{2}", remoteShare, remotePassword, remoteUser));
-            }
-            catch
-            {
-                throw;
+                throw new Exception("Net command exit code is different from 0");
             }
         }
 
         /// <summary>
         /// Runs a process and waits for it to return.
         /// </summary>
-        /// <param name="command">The command to execute.</param>
-        private static void ExecuteProcess(string command)
+        /// <param name="processFile">The command to execute.</param>
+        /// <param name="processArguments">The arguments.</param>
+        /// <returns>
+        /// Process return code
+        /// </returns>
+        private static int ExecuteProcess(string processFile, string processArguments)
         {
-            using (Process process = Process.Start(command))
+            ProcessStartInfo pi = new ProcessStartInfo(processFile, processArguments);
+            pi.CreateNoWindow = true;
+            pi.UseShellExecute = false;
+            pi.LoadUserProfile = false;
+            pi.WorkingDirectory = "\\";
+
+            using (Process process = Process.Start(pi))
             {
                 process.WaitForExit();
+                return process.ExitCode;
             }
         }
     }

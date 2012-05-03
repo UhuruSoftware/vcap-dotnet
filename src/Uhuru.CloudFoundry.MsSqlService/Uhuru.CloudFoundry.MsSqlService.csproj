@@ -110,7 +110,7 @@
     <EmbeddedResource Include="CreateServiceDatabaseTemplate.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GetLongRunningQueries.sql" />
+    <EmbeddedResource Include="LongRunningTransactions.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\StyleCop.targets" />

@@ -44,7 +44,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             options.LocalDB = serviceConfig.LocalDB;
             options.MaxDBSize = serviceConfig.MaxDBSize;
             options.MaxLengthyQuery = serviceConfig.MaxLengthyQuery;
-            options.MaxLengthyTX = serviceConfig.MaxLengthyTX;
+            options.MaxLengthTX = serviceConfig.MaxLengthTX;
             options.MigrationNFS = serviceConfig.MigrationNFS;
             options.NodeId = serviceConfig.NodeId;
             options.Plan = serviceConfig.Plan;

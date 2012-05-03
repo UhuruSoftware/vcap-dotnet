@@ -91,6 +91,7 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
             string logFilePath = Path.Combine(variablesHash[PluginBaseRes.HomeVariable], vcapPluginStagingInfo.Logs.AppLog);
             string errorLogFilePath = Path.Combine(variablesHash[PluginBaseRes.HomeVariable], vcapPluginStagingInfo.Logs.AppErrorLog);
             string startupLogFilePath = Path.Combine(variablesHash[PluginBaseRes.HomeVariable], vcapPluginStagingInfo.Logs.StartupLog);
+            string homeAppPath = variablesHash[PluginBaseRes.HomeVariable];
 
             return new ApplicationParsedData(
                 appInfo, 
@@ -101,7 +102,8 @@ namespace Uhuru.CloudFoundry.DEA.PluginBase
                 logFilePath, 
                 errorLogFilePath, 
                 startupLogFilePath, 
-                vcapPluginStagingInfo.AutoWireTemplates);
+                vcapPluginStagingInfo.AutoWireTemplates,
+                homeAppPath);
         }
 
         /// <summary>

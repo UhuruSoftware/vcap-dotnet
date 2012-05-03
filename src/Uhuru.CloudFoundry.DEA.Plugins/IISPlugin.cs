@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Security.AccessControl;
     using System.Text;
@@ -91,6 +92,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
+                this.AutowireUhurufs(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.HomeAppPath);
 
                 this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
             }
@@ -725,7 +727,67 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 logDir.SetAccessControl(logDirSecurity);
             }
         }
-        
+
+        /// <summary>
+        /// Autowires the service connections and ASP.NET health monitoring in the application's web.config
+        /// </summary>
+        /// <param name="appInfo">The application info structure.</param>
+        /// <param name="variables">All application variables.</param>
+        /// <param name="services">The services.</param>
+        /// <param name="homeAppPath">The home application path.</param>
+        private void AutowireUhurufs(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string homeAppPath)
+        {
+            this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
+
+            Dictionary<string, HashSet<string>> persistentFiles = new Dictionary<string, HashSet<string>>();
+
+            foreach (ApplicationVariable var in variables)
+            {
+                if (var.Name.StartsWith("uhurufs_", StringComparison.Ordinal))
+                {
+                    string serviceName = var.Name.Split(new string[] { "uhurufs_" }, 2, StringSplitOptions.RemoveEmptyEntries)[0];
+                    if (!persistentFiles.ContainsKey(serviceName))
+                    {
+                        persistentFiles[serviceName] = new HashSet<string>();
+                    }
+
+                    string[] persistedItems = var.Value.Trim(new char[] { '"' }).Split(new char[] { ';', ',', ':' });
+
+                    foreach (string item in persistedItems)
+                    {
+                        persistentFiles[serviceName].Add(item);
+                    }
+                }
+            }
+
+            foreach (ApplicationService serv in services)
+            {
+                if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
+                {
+                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
+                    string mountPath = Path.Combine(homeAppPath, "uhurufs", appInfo.Name);
+                    Directory.CreateDirectory(Path.Combine(mountPath, @".."));
+
+                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+
+                    // Save the mounts to be used by the Uhurufs IIS Module
+                    File.AppendAllText(
+                        Path.Combine(appInfo.Path, @"..\uhurufs.tsv"),
+                        string.Format(CultureInfo.InvariantCulture, "{0}\t{1}\t{2}", remotePath, serv.User, serv.Password));
+
+                    if (persistentFiles.ContainsKey(serv.Name))
+                    {
+                        foreach (string fileSystemItem in persistentFiles[serv.Name])
+                        {
+                            SambaWindowsClient.Link(appInfo.Path, fileSystemItem, mountPath);
+                        }
+                    }
+
+                    // SambaWindowsClient.Unmount(remotePath);
+                }
+            }
+        }
+
         /// <summary>
         /// Auto-wires the application variables and the log file path in the web.config file.
         /// </summary>
