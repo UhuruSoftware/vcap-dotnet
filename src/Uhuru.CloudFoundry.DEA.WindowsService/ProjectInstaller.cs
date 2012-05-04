@@ -131,6 +131,19 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             section.Service = null;
             config.Save();
+
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Microsoft.Web.Administration.Configuration authenticationConfig = serverManager.GetApplicationHostConfiguration();
+
+                Microsoft.Web.Administration.ConfigurationSection anonymousAuthenticationSection = authenticationConfig.GetSection("system.webServer/security/authentication/anonymousAuthentication");
+                anonymousAuthenticationSection["enabled"] = true;
+                anonymousAuthenticationSection["userName"] = string.Empty;
+                anonymousAuthenticationSection["password"] = string.Empty;
+                anonymousAuthenticationSection["logonMethod"] = @"ClearText";
+
+                serverManager.CommitChanges();
+            }
         }
 
         /// <summary>

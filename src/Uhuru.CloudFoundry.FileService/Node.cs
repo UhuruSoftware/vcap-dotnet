@@ -704,7 +704,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             try
             {
-                using (new UserImpersonator(instance.User, ".", instance.Password))
+                using (new UserImpersonator(instance.User, ".", instance.Password, false))
                 {
                     string instancePath = Path.Combine(this.fileServiceConfig.SharedDrive, instance.Name);
 
