@@ -99,6 +99,7 @@ namespace Uhuru.Utilities
 
             if (File.Exists(mountItem) || File.Exists(instanceItem))
             {
+                Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
                 Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
 
                 try
@@ -117,14 +118,7 @@ namespace Uhuru.Utilities
                 {
                 }
 
-                try
-                {
-                    ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
-                }
-                catch
-                {
-                    throw;
-                }
+                ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
             }
         }
 
