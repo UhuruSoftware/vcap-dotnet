@@ -117,8 +117,21 @@ namespace Uhuru.Utilities
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "To fail fast on every exception.")]
         public static Timer RecurringLongCall(double delay, TimerCallback callback)
         {
+            object disposedLock = new object();
+            bool isDisposed = false;
             Timer newTimer = new Timer(delay);
+
+            newTimer.Disposed += new EventHandler(
+                (e, args) =>
+                {
+                    lock (disposedLock)
+                    {
+                        isDisposed = true;
+                    }
+                });
+
             newTimer.AutoReset = false;
+
             newTimer.Elapsed += new ElapsedEventHandler(delegate(object sender, ElapsedEventArgs args)
             {
                 try
@@ -130,10 +143,13 @@ namespace Uhuru.Utilities
                     Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
                     Environment.FailFast(Strings.UnhandledExceptionCaught2 + "\r\n" + ex.ToString());
                 }
-                
-                if (newTimer != null)
+
+                lock (disposedLock)
                 {
-                    newTimer.Enabled = true;
+                    if (newTimer != null && !isDisposed)
+                    {
+                        newTimer.Enabled = true;
+                    }
                 }
             });
             newTimer.Enabled = true;
