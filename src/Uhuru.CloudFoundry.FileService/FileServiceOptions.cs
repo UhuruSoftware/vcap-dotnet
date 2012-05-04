@@ -19,15 +19,5 @@ namespace Uhuru.CloudFoundry.FileService
             get;
             set;
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [use provision credentials for binding].
-        /// This is useful when the DEA cannot connect to two different shared with different credentials on the same host
-        /// </summary>
-        public bool UseProvisionCredentialsForBinding
-        {
-            get;
-            set;
-        }
     }
 }

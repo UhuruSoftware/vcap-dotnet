@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.FileService
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
-
+    
     /// <summary>
     /// This class is the File Service Node that brings persistent file storage to Cloud Foundry.
     /// </summary>
@@ -33,12 +33,12 @@ namespace Uhuru.CloudFoundry.FileService
         /// COnfiguration options for the File Service.
         /// </summary>
         private FileServiceOptions fileServiceConfig;
-
+        
         /// <summary>
         /// The maximum file size, in bytes.
         /// </summary>
         private long maxFileSizeBytes;
-
+        
         /// <summary>
         /// Current available storage on the node.
         /// </summary>
@@ -63,7 +63,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Local machine IP used by the service.
         /// </summary>
         private string localIp;
-
+        
         /// <summary>
         /// Gets any service-specific announcement details.
         /// </summary>
@@ -224,10 +224,10 @@ namespace Uhuru.CloudFoundry.FileService
                 // disk usage per instance
                 object[] status = this.GetInstanceStatus();
                 varz["service_status"] = status;
-
+                
                 // how many provision/binding operations since startup.
                 varz["provision_served"] = this.provisionServed;
-
+                
                 varz["binding_served"] = this.bindingServed;
                 return varz;
             }
@@ -440,7 +440,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A new set of credentials used for binding.
         /// </returns>
-        protected override ServiceCredentials
+        protected override ServiceCredentials 
             Bind(string name, Dictionary<string, object> bindOptions)
         {
             return Bind(name, bindOptions, null);
@@ -477,16 +477,8 @@ namespace Uhuru.CloudFoundry.FileService
                 }
                 else
                 {
-                    if (this.fileServiceConfig.UseProvisionCredentialsForBinding)
-                    {
-                        binding["user"] = service.User;
-                        binding["password"] = service.Password;
-                    }
-                    else
-                    {
-                        binding["user"] = "US3R" + Credentials.GenerateCredential();
-                        binding["password"] = "P4SS" + Credentials.GenerateCredential();
-                    }
+                    binding["user"] = "US3R" + Credentials.GenerateCredential();
+                    binding["password"] = "P4SS" + Credentials.GenerateCredential();
                 }
 
                 binding["bind_opts"] = bindOptions;
@@ -538,15 +530,14 @@ namespace Uhuru.CloudFoundry.FileService
 
             Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.SerializeToJson());
 
-            if (!this.fileServiceConfig.UseProvisionCredentialsForBinding)
-            {
-                string user = credentials.User;
-                FtpUtilities.DeleteUserAccess(credentials.Name, user);
-                WindowsShare ws = new WindowsShare(credentials.Name);
-                ws.DeleteSharePermission(user);
-                DeleteUser(user);
-            }
+            string user = credentials.User;
 
+            FtpUtilities.DeleteUserAccess(credentials.Name, user);
+
+            WindowsShare ws = new WindowsShare(credentials.Name);
+            ws.DeleteSharePermission(user);
+
+            DeleteUser(user);
             return true;
         }
 
@@ -631,7 +622,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Creates the database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which a directory has to be created.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void CreateDirectory(ProvisionedService provisionedService)
         {
@@ -674,7 +665,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Deletes a database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which the directory needs to be deleted.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void DeleteDirectory(ProvisionedService provisionedService)
         {
