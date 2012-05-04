@@ -765,11 +765,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    // string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
+                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
                     string mountPath = Path.Combine(homeAppPath, "uhurufs", appInfo.Name);
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
-                    // SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+
                     using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
                     {
                         SaveCredentials.AddDomainUserCredential(serv.Host, serv.User, serv.Password);
@@ -782,6 +783,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             SambaWindowsClient.Link(appInfo.Path, fileSystemItem, mountPath);
                         }
                     }
+
+                    SambaWindowsClient.Unmount(remotePath);
                 }
             }
         }

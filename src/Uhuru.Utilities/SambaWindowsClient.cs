@@ -31,16 +31,14 @@ namespace Uhuru.Utilities
             // mklink creates the directory if not exist
             try
             {
-                //// using (new UserImpersonator(localUser, ".", localPassword))
-                //// {
-                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
-                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath));
-                //// }
+                Directory.Delete(localPath, true);
             }
-            catch
+            catch (DirectoryNotFoundException)
             {
-                throw;
             }
+
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath));
         }
 
         /// <summary>
@@ -50,15 +48,8 @@ namespace Uhuru.Utilities
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unmount", Justification = "Word is added to dictionary, but the warning is still shown.")]
         public static void Unmount(string remotePath)
         {
-            try
-            {
-                ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" /delete", remotePath));
-                //// ExecuteProcess("rmdir", string.Format(CultureInfo.InvariantCulture, @"/q ""{0}""", localPath));
-            }
-            catch
-            {
-                throw;
-            }
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" /delete", remotePath));
+            //// ExecuteProcess("rmdir", string.Format(CultureInfo.InvariantCulture, @"/q ""{0}""", localPath));
         }
 
         /// <summary>
@@ -94,16 +85,16 @@ namespace Uhuru.Utilities
                 Directory.CreateDirectory(instanceItem);
 
                 CopyFolderRecursively(instanceItem, mountItem);
-                Directory.Delete(instanceItem, true);
 
                 try
                 {
-                    ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
+                    Directory.Delete(instanceItem, true);
                 }
-                catch
+                catch (DirectoryNotFoundException)
                 {
-                    throw;
                 }
+
+                ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
             }
 
             if (File.Exists(mountItem) || File.Exists(instanceItem))
@@ -118,11 +109,17 @@ namespace Uhuru.Utilities
                 {
                 }
 
-                File.Delete(instanceItem);
+                try
+                {
+                    File.Delete(instanceItem);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                }
 
                 try
                 {
-                    ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
+                    ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
                 }
                 catch
                 {

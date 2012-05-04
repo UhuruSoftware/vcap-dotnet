@@ -628,6 +628,10 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
                 }
+                catch (IOException e)
+                {
+                    Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
+                }
             }
         }
 
