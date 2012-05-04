@@ -135,14 +135,13 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             using (ServerManager serverManager = new ServerManager())
             {
-                Microsoft.Web.Administration.Configuration iisConfig = serverManager.GetApplicationHostConfiguration();
-                Microsoft.Web.Administration.ConfigurationSection modulesSection = iisConfig.GetSection("system.webServer/modules");
+                Microsoft.Web.Administration.Configuration authenticationConfig = serverManager.GetApplicationHostConfiguration();
 
-                Microsoft.Web.Administration.ConfigurationElementCollection modulesCollection = modulesSection.GetCollection();
-                Microsoft.Web.Administration.ConfigurationElement addElement = modulesCollection.CreateElement("add");
-                addElement["name"] = @"IISUhuruFSModule";
-                addElement["type"] = @"Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule, " + Assembly.GetAssembly(typeof(Uhuru.CloudFoundry.DEA.Plugins.IIS.IISUhuruFSModule)).FullName;
-                modulesCollection.Add(addElement);
+                Microsoft.Web.Administration.ConfigurationSection anonymousAuthenticationSection = authenticationConfig.GetSection("system.webServer/security/authentication/anonymousAuthentication");
+                anonymousAuthenticationSection["enabled"] = true;
+                anonymousAuthenticationSection["userName"] = string.Empty;
+                anonymousAuthenticationSection["password"] = string.Empty;
+                anonymousAuthenticationSection["logonMethod"] = @"ClearText";
 
                 serverManager.CommitChanges();
             }
