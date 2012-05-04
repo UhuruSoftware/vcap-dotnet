@@ -132,7 +132,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
             section.Service = null;
             config.Save();
 
-            using (ServerManager serverManager = new ServerManager())
+            using (Microsoft.Web.Administration.ServerManager serverManager = new Microsoft.Web.Administration.ServerManager())
             {
                 Microsoft.Web.Administration.Configuration authenticationConfig = serverManager.GetApplicationHostConfiguration();
 
