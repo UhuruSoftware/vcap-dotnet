@@ -55,6 +55,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
 
             FileServiceOptions fileServiceOptions = new FileServiceOptions();
             fileServiceOptions.SharedDrive = options.BaseDir = serviceConfig.BaseDir;
+            fileServiceOptions.UseProvisionCredentialsForBinding = true;
 
             this.node = new Node();
             this.node.Start(options, fileServiceOptions);
