@@ -49,9 +49,10 @@ namespace Uhuru.Utilities
         /// <param name="userName">The name of the user to act as.</param>
         /// <param name="domainName">The domain name of the user to act as.</param>
         /// <param name="password">The password of the user to act as.</param>
-        public UserImpersonator(string userName, string domainName, string password)
+        /// <param name="loadUserProfile">if set to <c>true</c> [load user profile].</param>
+        public UserImpersonator(string userName, string domainName, string password, bool loadUserProfile)
         {
-            this.ImpersonateValidUser(userName, domainName, password);
+            this.ImpersonateValidUser(userName, domainName, password, loadUserProfile);
         }
 
         /// <summary>
@@ -62,23 +63,28 @@ namespace Uhuru.Utilities
             this.UndoImpersonation();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity."), 
-        DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern int LogonUser(string userName, string domain, string password, int logonType, int logonProvider, ref IntPtr token);
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity."), 
-        DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int DuplicateToken(IntPtr token, int impersonationLevel, ref IntPtr newToken);
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity."), 
-        DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("advapi32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool RevertToSelf();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity."), 
-        DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool CloseHandle(IntPtr handle);
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [System.Runtime.InteropServices.DllImportAttribute("userenv.dll", EntryPoint = "LoadUserProfile", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool LoadUserProfile([System.Runtime.InteropServices.InAttribute()] System.IntPtr token, ref ProfileInfo profileInfo);
 
         /// <summary>
         /// Does the actual impersonation.
@@ -86,11 +92,22 @@ namespace Uhuru.Utilities
         /// <param name="userName">The name of the user to act as.</param>
         /// <param name="domain">The domain name of the user to act as.</param>
         /// <param name="password">The password of the user to act as.</param>
-        private void ImpersonateValidUser(string userName, string domain, string password)
+        /// <param name="loadUserProfile">if set to <c>true</c> [load user profile].</param>
+        private void ImpersonateValidUser(string userName, string domain, string password, bool loadUserProfile)
         {
             WindowsIdentity tempWindowsIdentity = null;
             IntPtr token = IntPtr.Zero;
             IntPtr tokenDuplicate = IntPtr.Zero;
+
+            ProfileInfo profileInfo = new ProfileInfo();
+
+            profileInfo.Size = Marshal.SizeOf(profileInfo.GetType());
+            profileInfo.Flags = 0x1;
+            profileInfo.UserName = userName;
+            profileInfo.DefaultPath = null;
+            profileInfo.PolicyPath = null;
+            profileInfo.ProfilePath = null;
+            profileInfo.ServerName = domain;
 
             try
             {
@@ -98,26 +115,25 @@ namespace Uhuru.Utilities
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
-                else
+
+                if (LogonUser(userName, domain, password, Logon32LogonInteractive, Logon32ProviderDefault, ref token) == 0)
                 {
-                    if (LogonUser(userName, domain, password, Logon32LogonInteractive, Logon32ProviderDefault, ref token) == 0)
-                    {
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
-                    }
-                    else
-                    {
-                        if (DuplicateToken(token, 2, ref tokenDuplicate) == 0)
-                        {
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                        }
-                        else
-                        {
-                            using (tempWindowsIdentity = new WindowsIdentity(tokenDuplicate))
-                            {
-                                this.impersonationContext = tempWindowsIdentity.Impersonate();
-                            }
-                        }
-                    }
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                if (DuplicateToken(token, 2, ref tokenDuplicate) == 0)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                if (loadUserProfile && !LoadUserProfile(tokenDuplicate, ref profileInfo))
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                using (tempWindowsIdentity = new WindowsIdentity(tokenDuplicate))
+                {
+                    this.impersonationContext = tempWindowsIdentity.Impersonate();
                 }
             }
             finally
@@ -143,6 +159,58 @@ namespace Uhuru.Utilities
             {
                 this.impersonationContext.Undo();
             }
+        }
+
+        /// <summary>
+        /// Profile Info structure.
+        /// </summary>
+        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct ProfileInfo
+        {
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            public int Size;
+
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            public int Flags;
+
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+            public string UserName;
+
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+            public string ProfilePath;
+
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+            public string DefaultPath;
+
+            /// <summary>
+            /// Structure filed.
+            /// </summary>
+            [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+            public string ServerName;
+
+            /// <summary>
+            /// Policy path filed.
+            /// </summary>
+            [System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.LPTStr)]
+            public string PolicyPath;
+
+            /// <summary>
+            /// Profile field.
+            /// </summary>
+            public System.IntPtr Profile;
         }
     }
 }
