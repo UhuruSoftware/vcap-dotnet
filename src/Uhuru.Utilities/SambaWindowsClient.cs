@@ -53,6 +53,15 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Un-mounts a local path.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unmount", Justification = "Word is added to dictionary, but the warning is still shown.")]
+        public static void UnmountAll()
+        {
+            ExecuteCommand(@"net use  * /delete /yes");
+        }
+
+        /// <summary>
         /// Persists a resource on a mounted share, and then links it.
         /// This method will make sure the folder and file structure remains the same on the local file system, while also persisting data on a share.
         /// </summary>
