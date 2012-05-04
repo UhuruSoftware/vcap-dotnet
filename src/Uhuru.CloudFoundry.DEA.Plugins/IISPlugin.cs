@@ -570,7 +570,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
                     mySite.ServerAutoStart = false;
-                    
+
                     ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
                     if (applicationPool == null)
                     {
@@ -580,6 +580,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                         applicationPool.ProcessModel.IdentityType = ProcessModelIdentityType.SpecificUser;
                         applicationPool.ProcessModel.UserName = userName;
                         applicationPool.ProcessModel.Password = password;
+                        applicationPool.ProcessModel.LoadUserProfile = true;
                         if (this.cpuTarget == CpuTarget.X86)
                         {
                             applicationPool.Enable32BitAppOnWin64 = true;
@@ -764,16 +765,15 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
+                    // string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
                     string mountPath = Path.Combine(homeAppPath, "uhurufs", appInfo.Name);
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
-                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
-
-                    // Save the mounts to be used by the Uhurufs IIS Module
-                    File.AppendAllText(
-                        Path.Combine(appInfo.Path, @"..\uhurufs.tsv"),
-                        string.Format(CultureInfo.InvariantCulture, "{0}\t{1}\t{2}", remotePath, serv.User, serv.Password));
+                    // SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+                    using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
+                    {
+                        SaveCredentials.AddDomainUserCredential(serv.Host, serv.User, serv.Password);
+                    }
 
                     if (persistentFiles.ContainsKey(serv.Name))
                     {
@@ -782,8 +782,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                             SambaWindowsClient.Link(appInfo.Path, fileSystemItem, mountPath);
                         }
                     }
-
-                    // SambaWindowsClient.Unmount(remotePath);
                 }
             }
         }
