@@ -178,7 +178,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             this.mssqlConfig = sqlOptions;
             this.maxDbSize = options.MaxDBSize * 1024 * 1024;
             this.maxLongQuery = options.MaxLengthyQuery;
-            this.maxLongTx = options.MaxLengthyTX;
+            this.maxLongTx = options.MaxLengthTX;
             this.localIp = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
             this.connection = this.ConnectMSSql();
@@ -774,7 +774,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
                         {
                             try
                             {
-                                this.longTxKilled += killCmd.ExecuteNonQuery();
+                                killCmd.ExecuteNonQuery();
+                                this.longTxKilled++;
                             }
                             catch (SqlException)
                             {

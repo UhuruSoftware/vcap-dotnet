@@ -112,7 +112,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Gets or sets the maximum length for a running transaction.
         /// </summary>
-        public int MaxLengthyTX
+        public int MaxLengthTX
         {
             get;
             set;

@@ -120,7 +120,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongTx]))
             {
-                section.Service.MaxLengthyTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
+                section.Service.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Mbus]))

@@ -15,7 +15,6 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.IO;
     using System.Net;
     using System.Reflection;
-    using Microsoft.Web.Administration;
     using Uhuru.Configuration;
     using Uhuru.Utilities;
 
