@@ -26,7 +26,8 @@ namespace Uhuru.Utilities
         /// <param name="remoteUser">A username used for authentication to the share.</param>
         /// <param name="remotePassword">A password used for authentication to the share.</param>
         /// <param name="localPath">The local path that will be the mount point.</param>
-        public static void MountAndLink(string remotePath, string remoteUser, string remotePassword, string localPath)
+        /// <param name="appName">Name of the app.</param>
+        public static void MountAndLink(string remotePath, string remoteUser, string remotePassword, string localPath, string appName)
         {
             // mklink creates the directory if not exist
             try
@@ -38,7 +39,7 @@ namespace Uhuru.Utilities
             }
 
             ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
-            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath));
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, Path.Combine(remotePath, appName)));
         }
 
         /// <summary>

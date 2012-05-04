@@ -769,7 +769,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     string mountPath = Path.Combine(homeAppPath, "uhurufs", appInfo.Name);
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
-                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath, appInfo.Name);
 
                     using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
                     {
