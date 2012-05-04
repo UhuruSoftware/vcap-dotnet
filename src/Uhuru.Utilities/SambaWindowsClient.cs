@@ -39,6 +39,8 @@ namespace Uhuru.Utilities
             }
 
             ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
+
+            Directory.CreateDirectory(Path.Combine(remotePath, appName));
             ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, Path.Combine(remotePath, appName)));
         }
 
