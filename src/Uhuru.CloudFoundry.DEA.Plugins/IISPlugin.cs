@@ -769,25 +769,22 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     string mountPath = Path.Combine(homeAppPath, "uhurufs");
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
-                    // #TODO: lock this autowiring to prevent unmounting when files are copied at the same time/ or impersonate the mount
-                    SambaWindowsClient.Unmount(remotePath);
-                    SambaWindowsClient.UnmountAll();
-                    SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
-
                     using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
                     {
                         SaveCredentials.AddDomainUserCredential(serv.Host, serv.User, serv.Password);
-                    }
 
-                    if (persistentFiles.ContainsKey(serv.Name))
-                    {
-                        foreach (string fileSystemItem in persistentFiles[serv.Name])
+                        SambaWindowsClient.UnmountAll();
+                        SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+
+                        if (persistentFiles.ContainsKey(serv.Name))
                         {
-                            SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                            foreach (string fileSystemItem in persistentFiles[serv.Name])
+                            {
+                                SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                            }
                         }
+                        //// SambaWindowsClient.Unmount(remotePath);
                     }
-
-                    SambaWindowsClient.Unmount(remotePath);
                 }
             }
         }
