@@ -91,10 +91,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
+                this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
+
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
                 this.AutowireUhurufs(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.HomeAppPath);
-
-                this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
             }
             catch (Exception ex)
             {
