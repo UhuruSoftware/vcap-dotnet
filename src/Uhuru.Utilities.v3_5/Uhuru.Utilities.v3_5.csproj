@@ -49,7 +49,7 @@
     <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
@@ -64,15 +64,6 @@
     </Compile>
     <Compile Include="..\Uhuru.Utilities\DiskUsageEntry.cs">
       <Link>DiskUsageEntry.cs</Link>
-    </Compile>
-    <Compile Include="..\Uhuru.Utilities\HttpTunnel\ClientEnd.cs">
-      <Link>HttpTunnel\ClientEnd.cs</Link>
-    </Compile>
-    <Compile Include="..\Uhuru.Utilities\HttpTunnel\ITunnel.cs">
-      <Link>HttpTunnel\ITunnel.cs</Link>
-    </Compile>
-    <Compile Include="..\Uhuru.Utilities\HttpTunnel\TunnelErrorMessages.Designer.cs">
-      <Link>HttpTunnel\TunnelErrorMessages.Designer.cs</Link>
     </Compile>
     <Compile Include="..\Uhuru.Utilities\Json\JsonConvertibleObject.cs">
       <Link>Json\JsonConvertibleObject.cs</Link>
@@ -95,8 +86,8 @@
     <Compile Include="..\Uhuru.Utilities\TimerHelper.cs">
       <Link>TimerHelper.cs</Link>
     </Compile>
-    <Compile Include="..\Uhuru.Utilities\TunnelPackage.cs">
-      <Link>TunnelPackage.cs</Link>
+    <Compile Include="..\Uhuru.Utilities\WindowsVcapUsers.cs">
+      <Link>WindowsVcapUsers.cs</Link>
     </Compile>
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -114,9 +105,6 @@
     <Content Include="lib\Newtonsoft.Json.dll" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\Uhuru.Utilities\HttpTunnel\TunnelErrorMessages.resx">
-      <Link>HttpTunnel\TunnelErrorMessages.resx</Link>
-    </EmbeddedResource>
     <EmbeddedResource Include="..\Uhuru.Utilities\Strings.resx">
       <Link>Strings.resx</Link>
     </EmbeddedResource>

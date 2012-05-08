@@ -2,16 +2,16 @@
 <publishData>
   <publishProfile publishUrl="C:\TunnelService" deleteExistingFiles="True" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="Tunnel Profile" publishMethod="FileSystem" replaceMatchingFiles="False" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
     <file relUrl="HttpTunnel.svc" publishTime="01/12/2012 09:24:38" />
-    <file relUrl="bin/Uhuru.Utilities.pdb" publishTime="05/03/2012 16:07:47" />
+    <file relUrl="bin/Uhuru.Utilities.pdb" publishTime="05/07/2012 22:11:58" />
     <file relUrl="bin/log4net.dll" publishTime="12/19/2011 11:50:23" />
-    <file relUrl="Web.config" publishTime="05/04/2012 11:17:58" />
+    <file relUrl="Web.config" publishTime="05/07/2012 22:01:40" />
     <file relUrl="bin/log4net.xml" publishTime="12/19/2011 11:50:23" />
-    <file relUrl="bin/Uhuru.Utilities.dll" publishTime="05/03/2012 16:07:47" />
+    <file relUrl="bin/Uhuru.Utilities.dll" publishTime="05/07/2012 22:11:58" />
     <file relUrl="log4net.config" publishTime="01/12/2012 09:24:38" />
-    <file relUrl="bin/Uhuru.Utilities.TunnelService.pdb" publishTime="05/03/2012 16:08:11" />
+    <file relUrl="bin/Uhuru.Utilities.TunnelService.pdb" publishTime="05/07/2012 22:12:09" />
     <file relUrl="bin/Newtonsoft.Json.dll" publishTime="12/19/2011 11:50:23" />
-    <file relUrl="bin/Uhuru.Utilities.TunnelService.dll" publishTime="05/03/2012 16:08:11" />
+    <file relUrl="bin/Uhuru.Utilities.TunnelService.dll" publishTime="05/07/2012 22:12:09" />
     <file relUrl="bin/log4net.config" publishTime="01/12/2012 09:24:38" />
-    <file relUrl="bin/Uhuru.Utilities.xml" publishTime="05/03/2012 16:07:47" />
+    <file relUrl="bin/Uhuru.Utilities.xml" publishTime="05/07/2012 22:11:58" />
   </publishProfile>
 </publishData>

@@ -82,6 +82,11 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Debug(string message)
         {
+            if (message != null && message.Contains("connection 0"))
+            {
+                return;
+            }
+
             SetEventLogSource();
             log.Debug(message);
         }

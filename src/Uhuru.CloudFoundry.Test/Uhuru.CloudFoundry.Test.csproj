@@ -95,13 +95,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
-    <Compile Include="Integration\HttpTunnelWcfServiceTest.cs" />
     <Compile Include="Integration\SambaWindowsClientTest.cs" />
     <Compile Include="Integration\WindowsShareTest.cs" />
     <Compile Include="Integration\NodeTest.cs" />
     <Compile Include="Performance\CloudTestAppParallelTest.cs" />
     <Compile Include="Performance\UmbracoParallelTest.cs" />
-    <Compile Include="Performance\WcfHttpTunnelParallelTest.cs" />
     <Compile Include="Integration\FTPUtilitiesTest.cs" />
     <Compile Include="Unit\PluginHostTest.cs" />
     <Compile Include="SystemTests\CloudTestAppTest.cs" />
@@ -110,7 +108,6 @@
     <Compile Include="SystemTests\MvcTest.cs" />
     <Compile Include="SystemTests\RedisTestAppTest.cs" />
     <Compile Include="SystemTests\Tests.cs" />
-    <Compile Include="Unit\HttpTunnelTest.cs" />
     <Compile Include="Unit\DiskUsageTest.cs" />
     <Compile Include="Integration\ConfigurationTest.cs" />
     <Compile Include="Integration\FileServerTest.cs" />
