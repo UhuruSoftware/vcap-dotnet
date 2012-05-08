@@ -13,6 +13,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Security.AccessControl;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
@@ -628,6 +629,10 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
                 }
+                catch (IOException e)
+                {
+                    Logger.Warning(Strings.CloudNotRemoveInstance, dir, e.ToString());
+                }
             }
         }
 
@@ -1159,6 +1164,17 @@ namespace Uhuru.CloudFoundry.DEA
 
                     instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
                     instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
+
+                    DirectoryInfo deploymentDir = new DirectoryInfo(instance.Properties.Directory);
+                    DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
+                    deploymentDirSecurity.SetAccessRule(
+                        new FileSystemAccessRule(
+                            instance.Properties.WindowsUserName,
+                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.FullControl,
+                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                            PropagationFlags.None | PropagationFlags.InheritOnly,
+                            AccessControlType.Allow));
+                    deploymentDir.SetAccessControl(deploymentDirSecurity);
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);

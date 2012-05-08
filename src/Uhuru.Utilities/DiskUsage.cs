@@ -109,7 +109,20 @@ namespace Uhuru.Utilities
         private static long GetDirectorySize(string directory, bool recurse, Dictionary<string, long> objects, object objectsLock)
         {
             long size = 0;
-            string[] fileEntries = Directory.GetFiles(directory, "*");
+            string[] fileEntries;
+
+            try
+            {
+                fileEntries = Directory.GetFiles(directory, "*");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return 0;
+            }
+            catch (IOException)
+            {
+                return 0;
+            }
 
             foreach (string fileName in fileEntries)
             {

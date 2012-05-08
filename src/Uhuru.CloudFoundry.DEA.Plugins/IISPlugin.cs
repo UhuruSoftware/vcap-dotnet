@@ -91,10 +91,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
+                this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
+
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
                 this.AutowireUhurufs(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.HomeAppPath);
-
-                this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
             }
             catch (Exception ex)
             {
@@ -765,22 +765,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    // string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
-                    string mountPath = Path.Combine(homeAppPath, "uhurufs", appInfo.Name);
+                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", serv.Host, serv.InstanceName);
+                    string mountPath = Path.Combine(homeAppPath, "uhurufs");
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
-                    // SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
                     using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
                     {
                         SaveCredentials.AddDomainUserCredential(serv.Host, serv.User, serv.Password);
-                    }
 
-                    if (persistentFiles.ContainsKey(serv.Name))
-                    {
-                        foreach (string fileSystemItem in persistentFiles[serv.Name])
+                        SambaWindowsClient.UnmountAll();
+                        SambaWindowsClient.MountAndLink(remotePath, serv.User, serv.Password, mountPath);
+
+                        if (persistentFiles.ContainsKey(serv.Name))
                         {
-                            SambaWindowsClient.Link(appInfo.Path, fileSystemItem, mountPath);
+                            foreach (string fileSystemItem in persistentFiles[serv.Name])
+                            {
+                                SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                            }
                         }
+                        //// SambaWindowsClient.Unmount(remotePath);
                     }
                 }
             }
