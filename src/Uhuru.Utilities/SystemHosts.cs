@@ -55,13 +55,12 @@ namespace Uhuru.Utilities
                 throw new ArgumentException("Invalid IP address format", "ipAddress");
             }
 
-            List<string> hosts = File.ReadAllLines(HostsFilePath).ToList();
-            int hostNameIndex = hosts.FindIndex(s => s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ElementAtOrDefault(1) == hostName);
-            if (hostNameIndex != -1)
-            {
-                throw new ArgumentException("Hostname already exists", "hostName");
-            }
-
+            //// List<string> hosts = File.ReadAllLines(HostsFilePath).ToList();
+            //// int hostNameIndex = hosts.FindIndex(s => s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ElementAtOrDefault(1) == hostName);
+            //// if (hostNameIndex != -1)
+            //// {
+            ////   throw new ArgumentException("Hostname already exists", "hostName");
+            //// }
             File.AppendAllText(HostsFilePath, "\n" + ipAddress + " " + hostName + " # timestamp: " + DateTime.Now.ToString(CultureInfo.InvariantCulture));
         }
 
@@ -92,8 +91,10 @@ namespace Uhuru.Utilities
                         hosts.RemoveAt(i);
                         hostRemoved = true;
                         i--;
-                        break;
                     }
+                }
+                catch (IndexOutOfRangeException)
+                {
                 }
                 catch (ArgumentException)
                 {
