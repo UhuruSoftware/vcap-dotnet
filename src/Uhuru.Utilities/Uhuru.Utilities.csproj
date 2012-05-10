@@ -92,14 +92,6 @@
     <Compile Include="DiskUsageEntry.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HealthzRequestEventArgs.cs" />
-    <Compile Include="HttpTunnel\ClientEnd.cs" />
-    <Compile Include="HttpTunnel\ITunnel.cs" />
-    <Compile Include="HttpTunnel\ServerEnd.cs" />
-    <Compile Include="HttpTunnel\TunnelErrorMessages.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>TunnelErrorMessages.resx</DependentUpon>
-    </Compile>
     <Compile Include="LoadAssemblyHelper.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="NetFrameworkVersion.cs" />
@@ -124,7 +116,6 @@
     </Compile>
     <Compile Include="SystemHosts.cs" />
     <Compile Include="TimerHelper.cs" />
-    <Compile Include="TunnelPackage.cs" />
     <Compile Include="UserCustomAuthentication.cs" />
     <Compile Include="UserImpersonator.cs" />
     <Compile Include="VarzRequestEventArgs.cs" />
@@ -162,10 +153,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HttpTunnel\TunnelErrorMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TunnelErrorMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>

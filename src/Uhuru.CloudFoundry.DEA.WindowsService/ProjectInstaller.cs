@@ -15,6 +15,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
     using System.IO;
     using System.Net;
     using System.Reflection;
+    using Microsoft.Win32;
     using Uhuru.Configuration;
     using Uhuru.Utilities;
 
@@ -144,6 +145,8 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
                 serverManager.CommitChanges();
             }
+
+            Registry.LocalMachine.CreateSubKey(@"System\CurrentControlSet\Services\Inetinfo\Parameters").SetValue(string.Empty, 1);
         }
 
         /// <summary>
