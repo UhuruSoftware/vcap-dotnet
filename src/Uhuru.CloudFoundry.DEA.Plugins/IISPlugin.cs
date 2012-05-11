@@ -765,47 +765,58 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    string shareHost = serv.InstanceName;
                     try
                     {
-                        SystemHosts.TryRemove(shareHost);
-                        SystemHosts.Add(shareHost, serv.Host);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // If the service host cannot be added to hosts connect
-                        shareHost = serv.Host;
-                    }
+                        mut.WaitOne();
 
-                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
-                    string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
-                    Directory.CreateDirectory(Path.Combine(mountPath, @".."));
-
-                    using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
-                    {
-                        SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
-                    }
-
-                    try
-                    {
-                        // The impersonated user cannot create links 
-                        // Watch out for concurrency issues
-                        SambaWindowsClient.Unmount(remotePath);
-
-                        SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
-                        SambaWindowsClient.LinkDirectory(remotePath, mountPath);
-
-                        if (persistentFiles.ContainsKey(serv.Name))
+                        string shareHost = serv.InstanceName;
+                        try
                         {
-                            foreach (string fileSystemItem in persistentFiles[serv.Name])
+                            if (!SystemHosts.Exists(shareHost))
                             {
-                                SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                                SystemHosts.Add(shareHost, serv.Host);
                             }
+                        }
+                        catch (ArgumentException)
+                        {
+                            // If the service host cannot be added to hosts connect
+                            shareHost = serv.Host;
+                        }
+
+                        string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
+                        string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
+                        Directory.CreateDirectory(Path.Combine(mountPath, @".."));
+
+                        using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
+                        {
+                            SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
+                        }
+
+                        try
+                        {
+                            // The impersonated user cannot create links 
+                            // Watch out for concurrency issues
+                            SambaWindowsClient.Unmount(remotePath);
+
+                            SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
+                            SambaWindowsClient.LinkDirectory(remotePath, mountPath);
+
+                            if (persistentFiles.ContainsKey(serv.Name))
+                            {
+                                foreach (string fileSystemItem in persistentFiles[serv.Name])
+                                {
+                                    SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                                }
+                            }
+                        }
+                        finally
+                        {
+                            SambaWindowsClient.Unmount(remotePath);
                         }
                     }
                     finally
                     {
-                        SambaWindowsClient.Unmount(remotePath);
+                        mut.ReleaseMutex();
                     }
                 }
             }

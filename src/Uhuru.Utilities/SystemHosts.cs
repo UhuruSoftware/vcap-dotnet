@@ -69,7 +69,7 @@ namespace Uhuru.Utilities
         /// </summary>
         /// <param name="hostName">The hostname.</param>
         /// <returns>True if removal was successful.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It will be used.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No reason to propagate the exception."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It will be used.")]
         public static bool TryRemove(string hostName)
         {
             if (hostName == null)
@@ -93,17 +93,54 @@ namespace Uhuru.Utilities
                         i--;
                     }
                 }
-                catch (IndexOutOfRangeException)
-                {
-                }
-                catch (ArgumentException)
+                catch
                 {
                 }
             }
 
-            File.WriteAllLines(HostsFilePath, hosts);
+            if (hostRemoved)
+            {
+                File.WriteAllLines(HostsFilePath, hosts);
+            }
 
             return hostRemoved;
+        }
+
+        /// <summary>
+        /// Check is the host is present in etc\hosts.
+        /// </summary>
+        /// <param name="hostName">The hostname.</param>
+        /// <returns>
+        /// True if the host is present.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No reason to propagate the exception."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "It will be used.")]
+        public static bool Exists(string hostName)
+        {
+            if (hostName == null)
+            {
+                throw new ArgumentNullException("hostName");
+            }
+
+            List<string> hosts = File.ReadAllLines(HostsFilePath).ToList();
+
+            bool exists = false;
+
+            for (int i = 0; i < hosts.Count; i++)
+            {
+                try
+                {
+                    string[] hostLine = hosts[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (hostLine[1] == hostName)
+                    {
+                        exists = true;
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return exists;
         }
     }
 }
