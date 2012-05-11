@@ -1754,6 +1754,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 {
                                     this.monitoring.RemoveInstanceResources(instance);
                                     instance.Plugin.CleanupApplication(instance.Properties.Directory);
+                                    UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, instance.Properties.WindowsPassword);
                                     WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
                                     PluginHost.RemoveInstance(instance.Plugin);
                                 }

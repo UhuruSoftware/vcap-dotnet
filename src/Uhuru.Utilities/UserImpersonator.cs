@@ -9,6 +9,7 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.ComponentModel;
+    using System.IO;
     using System.Runtime.InteropServices;
     using System.Security.Principal;
 
@@ -53,6 +54,31 @@ namespace Uhuru.Utilities
         public UserImpersonator(string userName, string domainName, string password, bool loadUserProfile)
         {
             this.ImpersonateValidUser(userName, domainName, password, loadUserProfile);
+        }
+
+        /// <summary>
+        /// Deletes the user profile.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="password">The password.</param>
+        public static void DeleteUserProfile(string userName, string password)
+        {
+            string profilePath = null;
+            using (new UserImpersonator(userName, ".", password, false))
+            {
+                profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            }
+
+            try
+            {
+                Directory.Delete(profilePath, true);
+            }
+            catch (IOException)
+            {
+            }
+            catch (ArgumentNullException)
+            {
+            }
         }
 
         /// <summary>
