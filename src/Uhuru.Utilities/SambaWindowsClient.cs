@@ -8,10 +8,12 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>
@@ -20,15 +22,50 @@ namespace Uhuru.Utilities
     public static class SambaWindowsClient
     {
         /// <summary>
+        /// Creates the file symbolic link.
+        /// </summary>
+        /// <param name="sourceFileName">Name of the source file.</param>
+        /// <param name="targetFileName">Name of the target file.</param>
+        public static void CreateFileSymbolicLink(string sourceFileName, string targetFileName)
+        {
+            if (CreateSymbolicLink(sourceFileName, targetFileName, 0) == 0)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
+
+        /// <summary>
+        /// Creates the directory symbolic link.
+        /// </summary>
+        /// <param name="sourceDirectoryName">Name of the source directory.</param>
+        /// <param name="targetDirectoryName">Name of the target directory.</param>
+        public static void CreateDirectorySymbolicLink(string sourceDirectoryName, string targetDirectoryName)
+        {
+            if (CreateSymbolicLink(sourceDirectoryName, targetDirectoryName, 1) == 0)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
+
+        /// <summary>
         /// Mounts a remote share as a local directory.
         /// </summary>
         /// <param name="remotePath">The remote path.</param>
         /// <param name="remoteUser">A username used for authentication to the share.</param>
         /// <param name="remotePassword">A password used for authentication to the share.</param>
-        /// <param name="localPath">The local path that will be the mount point.</param>
-        public static void MountAndLink(string remotePath, string remoteUser, string remotePassword, string localPath)
+        public static void Mount(string remotePath, string remoteUser, string remotePassword)
         {
-            // mklink creates the directory if not exist
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
+        }
+
+        /// <summary>
+        /// Make a link.
+        /// </summary>
+        /// <param name="remotePath">The remote path.</param>
+        /// <param name="localPath">The local path that will be the mount point.</param>
+        public static void LinkDirectory(string remotePath, string localPath)
+        {
+            // mklink creates the directory if doesn't exist
             try
             {
                 Directory.Delete(localPath, true);
@@ -37,8 +74,8 @@ namespace Uhuru.Utilities
             {
             }
 
-            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
-            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath));
+            // ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"mklink /d ""{0}"" ""{1}""", localPath, remotePath)) == 0;
+            CreateDirectorySymbolicLink(localPath, remotePath);
         }
 
         /// <summary>
@@ -103,7 +140,8 @@ namespace Uhuru.Utilities
                 {
                 }
 
-                ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
+                // ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
+                CreateDirectorySymbolicLink(instanceItem, mountItem);
             }
 
             if (File.Exists(mountItem) || File.Exists(instanceItem))
@@ -127,9 +165,23 @@ namespace Uhuru.Utilities
                 {
                 }
 
-                ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
+                // ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
+                CreateFileSymbolicLink(instanceItem, mountItem);
             }
         }
+
+        /// <summary>
+        /// Creates the symbolic link.
+        /// </summary>
+        /// <param name="symlinkFileName">Name of the symlink file.</param>
+        /// <param name="targetFileName">Name of the target file.</param>
+        /// <param name="flags">The flags. 0 for files and 1 for directories.</param>
+        /// <returns>
+        /// Returns 1 if successful.
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Improves clarity."),
+        DllImport("kernel32.dll", EntryPoint = "CreateSymbolicLinkW", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int CreateSymbolicLink(string symlinkFileName, string targetFileName, int flags);
 
         /// <summary>
         /// Runs a process and waits for it to return.

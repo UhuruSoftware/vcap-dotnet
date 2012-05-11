@@ -146,7 +146,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
                 serverManager.CommitChanges();
             }
 
-            Registry.LocalMachine.CreateSubKey(@"System\CurrentControlSet\Services\Inetinfo\Parameters").SetValue(string.Empty, 1);
+            Registry.LocalMachine.CreateSubKey(@"System\CurrentControlSet\Services\Inetinfo\Parameters").SetValue("DoDirMonitoringForUNC", 1, RegistryValueKind.DWord);
         }
 
         /// <summary>

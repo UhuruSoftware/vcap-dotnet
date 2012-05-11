@@ -114,6 +114,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="SystemHosts.cs" />
     <Compile Include="TimerHelper.cs" />
     <Compile Include="UserCustomAuthentication.cs" />
     <Compile Include="UserImpersonator.cs" />
