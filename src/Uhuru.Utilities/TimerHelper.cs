@@ -138,6 +138,14 @@ namespace Uhuru.Utilities
                 {
                     callback();
                 }
+                catch (System.Threading.ThreadAbortException tex)
+                {
+                    // since this error does not necessarily mean something is wrong we log it just in case but we unleash no hell
+                    if (tex.ExceptionState != null)
+                    {
+                        Logger.Error((string)tex.ExceptionState);
+                    }
+                }
                 catch (Exception ex)
                 {
                     Logger.Fatal(Strings.UnhandledExceptionCaught, ex.ToString());
