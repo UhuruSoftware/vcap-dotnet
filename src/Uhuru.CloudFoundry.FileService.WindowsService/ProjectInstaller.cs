@@ -67,6 +67,10 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.BaseDir]))
             {
                 section.Service.BaseDir = Context.Parameters[Argument.BaseDir];
+                if (!Directory.Exists(section.Service.BaseDir))
+                {
+                    Directory.CreateDirectory(section.Service.BaseDir);
+                }
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Index]))
