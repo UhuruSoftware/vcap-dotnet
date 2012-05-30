@@ -10,6 +10,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using System.IO;
+    using System.Linq;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
@@ -224,6 +226,35 @@ namespace Uhuru.CloudFoundry.ServiceBase
             // ramCounter = new PerformanceCounter("Memory", "Available MBytes");
             // ramCounter.NextValue();
             this.Varz["system_mem"] = null;
+            this.Varz["system_mem_total"] = null;
+
+            DriveInfo[] drives = DriveInfo.GetDrives();
+
+            this.Varz["system_disk"] = drives.Sum(delegate(DriveInfo d)
+            {
+                try
+                {
+                    return d.TotalFreeSpace / 1024;
+                }
+                catch (IOException)
+                {
+                }
+
+                return 0;
+            });
+
+            this.Varz["system_disk_total"] = drives.Sum(delegate(DriveInfo d)
+            {
+                try
+                {
+                    return d.TotalSize / 1024;
+                }
+                catch (IOException)
+                {
+                }
+
+                return 0;
+            });
         }
 
         /// <summary>

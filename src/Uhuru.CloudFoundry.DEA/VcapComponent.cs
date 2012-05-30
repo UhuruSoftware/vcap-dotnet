@@ -308,7 +308,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     try
                     {
-                        return d.TotalFreeSpace;
+                        return d.TotalFreeSpace / 1024;
                     }
                     catch (IOException)
                     {
@@ -321,7 +321,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     try
                     {
-                        return d.TotalSize;
+                        return d.TotalSize / 1024;
                     }
                     catch (IOException)
                     {
