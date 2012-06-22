@@ -13,3 +13,4 @@ StyleCop.Cache
 *.trx
 doc/*.xml
 doc/*.XML
+!src/Uhuru.CloudFoundry.Test/TestApps/Umbraco/app/bin

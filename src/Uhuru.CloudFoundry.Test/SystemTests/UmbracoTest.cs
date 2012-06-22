@@ -28,7 +28,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
         public void TestFixtureSetUp()
         {
             target = ConfigurationManager.AppSettings["target"];
-            umbracoRootDir = ConfigurationManager.AppSettings["umbracoRootDir"];
+            umbracoRootDir = Path.GetFullPath(@"..\..\..\..\src\Uhuru.CloudFoundry.Test\TestApps\Umbraco\app");
             userName = "umbraco@uhurucloud.net";
             password = "password1234!";
 

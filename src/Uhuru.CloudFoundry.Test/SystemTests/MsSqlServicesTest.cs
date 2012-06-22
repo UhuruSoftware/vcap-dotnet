@@ -263,7 +263,7 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
             }
 
             Assert.AreEqual(0, exceptions.Count);
-            Thread.Sleep(20000);
+            Thread.Sleep(60000);
             foreach (string service in services)
             {
                 Assert.IsFalse(cloudConnection.ProvisionedServices.Any(ps => ps.Name == service));
