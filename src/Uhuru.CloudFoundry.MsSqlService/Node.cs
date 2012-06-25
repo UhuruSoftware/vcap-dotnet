@@ -70,11 +70,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Current available storage on the node.
         /// </summary>
-        private long availableStorageBytes;
-
-        /// <summary>
-        /// Current available storage on the node.
-        /// </summary>
         private int availableCapacity;
         
         /// <summary>
@@ -125,7 +120,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableStorageBytes = this.availableStorageBytes;
                 a.AvailableCapacity = this.availableCapacity;
                 a.CapacityUnit = this.CapacityUnit();
                 return a;
@@ -231,14 +225,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.CheckDBConsistency();
 
-            this.availableStorageBytes = options.AvailableStorage * 1024 * 1024;
             this.availableCapacity = options.Capacity;
 
-            foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
-            {
-                this.availableStorageBytes -= this.StorageForService(provisioned_service);
-                this.availableCapacity -= this.CapacityUnit();
-            }
+            this.availableCapacity -= this.CapacityUnit() * ProvisionedService.GetInstances().Count();
 
             this.queriesServed = 0;
             this.qpsLastUpdated = DateTime.Now;
@@ -542,8 +531,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
 
             this.DeleteDatabase(provisioned_service);
-            long storage = this.StorageForService(provisioned_service);
-            this.availableStorageBytes += storage;
+
             this.availableCapacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
@@ -671,20 +659,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         {
             // method present in mysql and postgresql
             // todo: vladi: this should be replaced with ms sql server code
-        }
-
-        /// <summary>
-        /// Returns storage capacity based on billing plan.
-        /// </summary>
-        /// <param name="provisionedService">The provisioned service.</param>
-        /// <returns>The storage quota in bytes.</returns>
-        private long StorageForService(ProvisionedService provisionedService)
-        {
-            switch (provisionedService.Plan)
-            {
-                case ProvisionedServicePlanType.Free: return this.maxDbSize;
-                default: throw new MSSqlErrorException(MSSqlErrorException.MSSqlInvalidPlan, provisionedService.Plan.ToString());
-            }
         }
 
         /// <summary>
@@ -849,13 +823,13 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 }
 
                 this.CreateDatabaseUser(databaseName, databaseUser, databasePassword);
-                long storage = this.StorageForService(provisionedService);
-                if (this.availableStorageBytes < storage)
+
+                if (this.availableCapacity < this.CapacityUnit())
                 {
                     throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
                 }
 
-                this.availableStorageBytes -= storage;
+                this.availableCapacity -= this.CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
