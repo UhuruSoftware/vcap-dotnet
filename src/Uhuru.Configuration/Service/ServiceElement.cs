@@ -79,11 +79,6 @@ namespace Uhuru.Configuration.Service
         /// Local route configuration property.
         /// </summary>
         private static ConfigurationProperty propertyLocalRoute;
-      
-        /// <summary>
-        /// Available storage configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyAvailableStorage;
 
         /// <summary>
         /// Available capacity configuration property.
@@ -186,12 +181,6 @@ namespace Uhuru.Configuration.Service
                 "198.41.0.4",
                 ConfigurationPropertyOptions.IsRequired);
 
-            propertyAvailableStorage = new ConfigurationProperty(
-                "availableStorage",
-                typeof(long),
-                1024L,
-                ConfigurationPropertyOptions.IsRequired);
-
             propertyCapacity = new ConfigurationProperty(
                 "capacity",
                 typeof(int),
@@ -219,7 +208,6 @@ namespace Uhuru.Configuration.Service
             properties.Add(propertyLocalDb);
             properties.Add(propertyBaseDir);
             properties.Add(propertyLocalRoute);
-            properties.Add(propertyAvailableStorage);
             properties.Add(propertyCapacity);
             properties.Add(propertyMsSql);
         }
