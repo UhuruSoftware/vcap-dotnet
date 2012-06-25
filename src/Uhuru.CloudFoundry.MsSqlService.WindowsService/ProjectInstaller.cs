@@ -60,11 +60,6 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             this.SetMsSqlStorageOptions(section);
 
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.AvailableStorage]))
-            {
-                section.Service.AvailableStorage = long.Parse(Context.Parameters[Argument.AvailableStorage], CultureInfo.InvariantCulture);
-            }
-
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.BaseDir]))
             {
                 section.Service.BaseDir = Context.Parameters[Argument.BaseDir];
@@ -289,11 +284,6 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             /// Parameter name for localRoute
             /// </summary>
             public const string LocalRoute = "localRoute";
-
-            /// <summary>
-            /// Parameter name for availableStorage
-            /// </summary>
-            public const string AvailableStorage = "availableStorage";
 
             /// <summary>
             /// Parameter name for logical storage units

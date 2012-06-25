@@ -35,6 +35,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 target.mssqlConfig = new MSSqlOptions();
                 UhuruSection config = UhuruSection.GetSection();
 
+                target.availableCapacity = config.Service.Capacity;
                 target.mssqlConfig.Host = config.Service.MSSql.Host;
                 target.mssqlConfig.User = config.Service.MSSql.User;
                 target.mssqlConfig.Password = config.Service.MSSql.Password;

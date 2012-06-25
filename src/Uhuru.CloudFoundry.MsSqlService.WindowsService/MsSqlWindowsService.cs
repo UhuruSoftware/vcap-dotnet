@@ -37,7 +37,7 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
             Options options = new Options();
-            options.AvailableStorage = serviceConfig.AvailableStorage;
+
             options.Capacity = serviceConfig.Capacity;
             options.BaseDir = serviceConfig.BaseDir;
             options.Index = serviceConfig.Index;
