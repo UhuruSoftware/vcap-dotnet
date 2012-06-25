@@ -416,23 +416,6 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
-        /// Gets or sets the amount of available storage for this service, in megabytes.
-        /// </summary>
-        [ConfigurationProperty("availableStorage", IsRequired = true, DefaultValue = 1024L)]
-        public long AvailableStorage
-        {
-            get
-            {
-                return (long)base[propertyAvailableStorage];
-            }
-
-            set
-            {
-                base[propertyAvailableStorage] = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the amount of available capacity for this service.
         /// </summary>
         [ConfigurationProperty("capacity", IsRequired = true, DefaultValue = 200)]

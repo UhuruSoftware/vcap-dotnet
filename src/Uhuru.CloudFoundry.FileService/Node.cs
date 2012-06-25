@@ -72,7 +72,6 @@ namespace Uhuru.CloudFoundry.FileService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableStorageBytes = this.availableStorageBytes;
                 a.AvailableCapacity = this.availableCapacity;
                 a.CapacityUnit = this.CapacityUnit();
 

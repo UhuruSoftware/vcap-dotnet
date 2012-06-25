@@ -21,7 +21,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
-    
+
     /// <summary>
     /// This class is the MS SQL Server Node that brings this RDBMS as a service to Cloud Foundry.
     /// </summary>
@@ -41,10 +41,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// COnfiguration options for the SQL Server.
         /// </summary>
         private MSSqlOptions mssqlConfig;
-        
+
         /// <summary>
         /// The maximum database size, in bytes.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "It will be used.")]
         private long maxDbSize;
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// The maximum duration for a transaction.
         /// </summary>
         private int maxLongTx;
-        
+
         /// <summary>
         /// This is the SQL server connection used to do things on the server.
         /// </summary>
@@ -70,13 +71,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Current available storage on the node.
         /// </summary>
-        private long availableStorageBytes;
-
-        /// <summary>
-        /// Current available storage on the node.
-        /// </summary>
         private int availableCapacity;
-        
+
         /// <summary>
         /// Number of queries served by the node.
         /// </summary>
@@ -116,7 +112,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// The SQL script that creates the service database
         /// </summary>
         private string createDBScript;
-        
+
         /// <summary>
         /// Gets any service-specific announcement details.
         /// </summary>
@@ -125,7 +121,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableStorageBytes = this.availableStorageBytes;
                 a.AvailableCapacity = this.availableCapacity;
                 a.CapacityUnit = this.CapacityUnit();
                 return a;
@@ -231,14 +226,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.CheckDBConsistency();
 
-            this.availableStorageBytes = options.AvailableStorage * 1024 * 1024;
             this.availableCapacity = options.Capacity;
 
-            foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
-            {
-                this.availableStorageBytes -= this.StorageForService(provisioned_service);
-                this.availableCapacity -= this.CapacityUnit();
-            }
+            this.availableCapacity -= this.CapacityUnit() * ProvisionedService.GetInstances().Count();
 
             this.queriesServed = 0;
             this.qpsLastUpdated = DateTime.Now;
@@ -343,24 +333,24 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 // queries per second
                 varz["queries_per_second"] = this.GetQPS();
-                
+
                 // disk usage per instance
                 object[] status = this.GetInstanceStatus();
                 varz["database_status"] = status;
-                
+
                 // node capacity
                 // varz["node_storage_capacity"] = this.nodeCapacityBytes;
-                
+
                 // varz["node_storage_used"] = this.nodeCapacityBytes - this.availableStorageBytes;
-                
+
                 // how many long queries and long txs are killed.
                 varz["long_queries_killed"] = this.longQueriesKilled;
-                
+
                 varz["long_transactions_killed"] = this.longTxKilled;
-                
+
                 // how many provision/binding operations since startup.
                 varz["provision_served"] = this.provisionServed;
-                
+
                 varz["binding_served"] = this.bindingServed;
                 return varz;
             }
@@ -542,8 +532,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
 
             this.DeleteDatabase(provisioned_service);
-            long storage = this.StorageForService(provisioned_service);
-            this.availableStorageBytes += storage;
+
             this.availableCapacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
@@ -674,20 +663,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         }
 
         /// <summary>
-        /// Returns storage capacity based on billing plan.
-        /// </summary>
-        /// <param name="provisionedService">The provisioned service.</param>
-        /// <returns>The storage quota in bytes.</returns>
-        private long StorageForService(ProvisionedService provisionedService)
-        {
-            switch (provisionedService.Plan)
-            {
-                case ProvisionedServicePlanType.Free: return this.maxDbSize;
-                default: throw new MSSqlErrorException(MSSqlErrorException.MSSqlInvalidPlan, provisionedService.Plan.ToString());
-            }
-        }
-
-        /// <summary>
         /// Connects to the MS SQL database.
         /// </summary>
         /// <returns>An open sql connection.</returns>
@@ -721,7 +696,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// Keep connection alive, and check db liveliness
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void KeepAliveMSSql()
         {
@@ -811,7 +786,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Creates the database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which a database has to be created.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void CreateDatabase(ProvisionedService provisionedService)
         {
@@ -825,7 +800,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
                 this.createDBScript = this.ExtractSqlScriptFromTemplate(databaseName);
-                
+
                 // split script on GO command
                 IEnumerable<string> commandStrings = Regex.Split(this.createDBScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
 
@@ -849,13 +824,13 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 }
 
                 this.CreateDatabaseUser(databaseName, databaseUser, databasePassword);
-                long storage = this.StorageForService(provisionedService);
-                if (this.availableStorageBytes < storage)
+
+                if (this.availableCapacity < this.CapacityUnit())
                 {
                     throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
                 }
 
-                this.availableStorageBytes -= storage;
+                this.availableCapacity -= this.CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
@@ -903,7 +878,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             int distinctCount = 0;
 
             createDBSqlScript = regex.Replace(
-                createDBSqlScript, 
+                createDBSqlScript,
                 new MatchEvaluator(
                     (Match m) =>
                     {
@@ -930,7 +905,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             regex = new Regex(@"<LogFileGrowth>");
             createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.LogFileGrowth);
-            
+
             return createDBSqlScript;
         }
 
@@ -944,7 +919,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         private void CreateDatabaseUser(string name, string user, string password)
         {
             Logger.Info(Strings.SqlNodeCreatingCredentialsInfoMessage, user, password, name);
-            
+
             using (TransactionScope ts = new TransactionScope())
             {
                 using (SqlCommand cmdCreateLogin = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeCreateLoginSQL, user, password), this.connection))
@@ -979,7 +954,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Deletes a database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which the database needs to be deleted.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void DeleteDatabase(ProvisionedService provisionedService)
         {
@@ -1021,7 +996,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Deletes a database user.
         /// </summary>
         /// <param name="user">The user that has to be deleted.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void DeleteDatabaseUser(string user)
         {
