@@ -128,15 +128,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         }
 
         /// <summary>
-        /// Gets or sets the maximum available storage for the service.
-        /// </summary>
-        public long AvailableStorage
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the maximum capacity for the service.
         /// </summary>
         public int Capacity

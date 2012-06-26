@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.FileService
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
-    
+
     /// <summary>
     /// This class is the File Service Node that brings persistent file storage to Cloud Foundry.
     /// </summary>
@@ -33,16 +33,12 @@ namespace Uhuru.CloudFoundry.FileService
         /// COnfiguration options for the File Service.
         /// </summary>
         private FileServiceOptions fileServiceConfig;
-        
+
         /// <summary>
         /// The maximum file size, in bytes.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used for quata enforcement.")]
         private long maxFileSizeBytes;
-        
-        /// <summary>
-        /// Current available storage on the node.
-        /// </summary>
-        private long availableStorageBytes;
 
         /// <summary>
         /// Current available storage on the node.
@@ -63,7 +59,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Local machine IP used by the service.
         /// </summary>
         private string localIp;
-        
+
         /// <summary>
         /// Gets any service-specific announcement details.
         /// </summary>
@@ -120,13 +116,8 @@ namespace Uhuru.CloudFoundry.FileService
 
             this.CheckDBConsistency();
 
-            this.availableStorageBytes = options.AvailableStorage * 1024 * 1024;
             this.availableCapacity = options.Capacity;
-
-            foreach (ProvisionedService provisioned_service in ProvisionedService.GetInstances())
-            {
-                this.availableStorageBytes -= this.StorageForService(provisioned_service);
-            }
+            this.availableCapacity -= ProvisionedService.GetInstances().Count();
 
             // initialize qps counter
             this.provisionServed = 0;
@@ -223,10 +214,10 @@ namespace Uhuru.CloudFoundry.FileService
                 // disk usage per instance
                 object[] status = this.GetInstanceStatus();
                 varz["service_status"] = status;
-                
+
                 // how many provision/binding operations since startup.
                 varz["provision_served"] = this.provisionServed;
-                
+
                 varz["binding_served"] = this.bindingServed;
                 return varz;
             }
@@ -418,8 +409,7 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             this.DeleteDirectory(provisioned_service);
-            long storage = this.StorageForService(provisioned_service);
-            this.availableStorageBytes += storage;
+            this.availableCapacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
             {
@@ -439,7 +429,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A new set of credentials used for binding.
         /// </returns>
-        protected override ServiceCredentials 
+        protected override ServiceCredentials
             Bind(string name, Dictionary<string, object> bindOptions)
         {
             return Bind(name, bindOptions, null);
@@ -604,24 +594,10 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
-        /// Returns storage capacity based on billing plan.
-        /// </summary>
-        /// <param name="provisionedService">The provisioned service.</param>
-        /// <returns>The storage quota in bytes.</returns>
-        private long StorageForService(ProvisionedService provisionedService)
-        {
-            switch (provisionedService.Plan)
-            {
-                case ProvisionedServicePlanType.Free: return this.maxFileSizeBytes;
-                default: throw new FileServiceErrorException(FileServiceErrorException.MSSqlInvalidPlan, provisionedService.Plan.ToString());
-            }
-        }
-
-        /// <summary>
         /// Creates the database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which a directory has to be created.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void CreateDirectory(ProvisionedService provisionedService)
         {
@@ -644,14 +620,12 @@ namespace Uhuru.CloudFoundry.FileService
 
                 WindowsShare.CreateShare(name, directory);
 
-                long storage = this.StorageForService(provisionedService);
-
-                if (this.availableStorageBytes < storage)
+                if (this.availableCapacity < this.CapacityUnit())
                 {
                     throw new FileServiceErrorException(FileServiceErrorException.MSSqlDiskFull);
                 }
 
-                this.availableStorageBytes -= storage;
+                this.availableCapacity -= CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
@@ -664,7 +638,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Deletes a database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which the directory needs to be deleted.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void DeleteDirectory(ProvisionedService provisionedService)
         {
