@@ -7,227 +7,145 @@
 namespace Uhuru.Configuration.Service
 {
     using System.Configuration;
-    
+
     /// <summary>
     /// This configuration class defines settings for the MS Sql Server Node component.
     /// </summary>
     public class MSSqlElement : ConfigurationElement
     {
         /// <summary>
-        /// Host configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyHost;
-
-        /// <summary>
-        /// User configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyUser;
-
-        /// <summary>
-        /// Password configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyPassword;
-
-        /// <summary>
-        /// Port configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyPort;
-
-        /// <summary>
-        /// List of drives on which the sql storage files will be distributed (eg: C,D,E,F)
-        /// </summary>
-        private static ConfigurationProperty propertyLogicalStorageUnits;
-
-        /// <summary>
-        /// Initial size of the secondary data file(s)
-        /// </summary>
-        private static ConfigurationProperty propertyInitialDataSize;
-
-        /// <summary>
-        /// Initial size of the log file(s)
-        /// </summary>
-        private static ConfigurationProperty propertyInitialLogSize;
-
-        /// <summary>
-        /// Maximum size of the data file(s)
-        /// </summary>
-        private static ConfigurationProperty propertyMaxDataSize;
-        
-        /// <summary>
-        /// Maximum size of the log file(s)
-        /// </summary>
-        private static ConfigurationProperty propertyMaxLogSize;
-
-        /// <summary>
-        /// Size by which the data files are set to auto grow
-        /// </summary>
-        private static ConfigurationProperty propertyDataFileGrowth;
-
-        /// <summary>
-        /// Size by which the log files are set to auto grow
-        /// </summary>
-        private static ConfigurationProperty propertyLogFileGrowth;
-
-        /// <summary>
-        /// Configuration properties collection.
-        /// </summary>
-        private static ConfigurationPropertyCollection properties;
-
-        /// <summary>
-        /// Initializes static members of the <see cref="MSSqlElement"/> class.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
-        static MSSqlElement()
-        {
-            propertyHost = new ConfigurationProperty(
-                "host",
-                typeof(string),
-                "(local)",
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyUser = new ConfigurationProperty(
-                "user",
-                typeof(string),
-                "sa",
-              ConfigurationPropertyOptions.IsRequired);
-
-            propertyPassword = new ConfigurationProperty(
-                "password",
-                typeof(string),
-                "sa",
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyPort = new ConfigurationProperty(
-                "port",
-                typeof(int),
-                1433,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyLogicalStorageUnits = new ConfigurationProperty(
-                "logicalStorageUnits",
-                typeof(string),
-                "C",
-                ConfigurationPropertyOptions.None);
-
-            propertyInitialDataSize = new ConfigurationProperty(
-                "initialDataSize",
-                typeof(string),
-                "100MB",
-                ConfigurationPropertyOptions.None);
-
-            propertyInitialLogSize = new ConfigurationProperty(
-                "initialLogSize",
-                typeof(string),
-                "50MB",
-                ConfigurationPropertyOptions.None);
-
-            propertyMaxDataSize = new ConfigurationProperty(
-                "maxDataSize",
-                typeof(string),
-                "1GB",
-                ConfigurationPropertyOptions.None);
-
-            propertyMaxLogSize = new ConfigurationProperty(
-                "maxLogSize",
-                typeof(string),
-                "250MB",
-                ConfigurationPropertyOptions.None);
-
-            propertyDataFileGrowth = new ConfigurationProperty(
-                "dataFileGrowth",
-                typeof(string),
-                "100MB",
-                ConfigurationPropertyOptions.None);
-
-            propertyLogFileGrowth = new ConfigurationProperty(
-                "logFileGrowth",
-                typeof(string),
-                "25MB",
-                ConfigurationPropertyOptions.None);
-            
-            properties = new ConfigurationPropertyCollection();
-
-            properties.Add(propertyHost);
-            properties.Add(propertyUser);
-            properties.Add(propertyPassword);
-            properties.Add(propertyPort);
-            properties.Add(propertyLogicalStorageUnits);
-
-            properties.Add(propertyInitialDataSize);
-            properties.Add(propertyInitialLogSize);
-
-            properties.Add(propertyMaxDataSize);
-            properties.Add(propertyMaxLogSize);
-
-            properties.Add(propertyDataFileGrowth);
-            properties.Add(propertyLogFileGrowth);
-        }
-
-        /// <summary>
         /// Gets or sets the host of the target SQL Server.
         /// </summary>
-        [ConfigurationProperty("host", IsRequired = true, DefaultValue = "(local)")]
+        [ConfigurationProperty("host", IsRequired = false, DefaultValue = "(local)")]
         public string Host
         {
             get
             {
-                return (string)base[propertyHost];
+                return (string)base["host"];
             }
 
             set
             {
-                base[propertyHost] = value;
+                base["host"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the user for connecting to the target SQL Server.
         /// </summary>
-        [ConfigurationProperty("user", IsRequired = true, DefaultValue = "sa")]
+        [ConfigurationProperty("user", IsRequired = true)]
         public string User
         {
             get
             {
-                return (string)base[propertyUser];
+                return (string)base["user"];
             }
 
             set
             {
-                base[propertyUser] = value;
+                base["user"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the password for connecting to the target SQL Server.
         /// </summary>
-        [ConfigurationProperty("password", IsRequired = true, DefaultValue = "sa")]
+        [ConfigurationProperty("password", IsRequired = true)]
         public string Password
         {
             get
             {
-                return (string)base[propertyPassword];
+                return (string)base["password"];
             }
 
             set
             {
-                base[propertyPassword] = value;
+                base["password"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the port for connecting to the target SQL Server.
         /// </summary>
-        [ConfigurationProperty("port", IsRequired = true, DefaultValue = 1433)]
+        [ConfigurationProperty("port", IsRequired = false, DefaultValue = 1433)]
         public int Port
         {
             get
             {
-                return (int)base[propertyPort];
+                return (int)base["port"];
             }
 
             set
             {
-                base[propertyPort] = value;
+                base["port"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum database size. Size in MB.
+        /// </summary>
+        [ConfigurationProperty("maxDbSize", IsRequired = false, DefaultValue = 20L)]
+        public long MaxDBSize
+        {
+            get
+            {
+                return (long)base["maxDbSize"];
+            }
+
+            set
+            {
+                base["maxDbSize"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum duration for a query in seconds.
+        /// </summary>
+        [ConfigurationProperty("maxLongQuery", IsRequired = false, DefaultValue = 3)]
+        public int MaxLengthyQuery
+        {
+            get
+            {
+                return (int)base["maxLongQuery"];
+            }
+
+            set
+            {
+                base["maxLongQuery"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum duration for a transaction in seconds.
+        /// </summary>
+        [ConfigurationProperty("maxLongTx", IsRequired = false, DefaultValue = 30)]
+        public int MaxLengthTX
+        {
+            get
+            {
+                return (int)base["maxLongTx"];
+            }
+
+            set
+            {
+                base["maxLongTx"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum duration for a query in seconds.
+        /// </summary>
+        [ConfigurationProperty("maxUserConns", IsRequired = false, DefaultValue = 20)]
+        public int MaxUserConnections
+        {
+            get
+            {
+                return (int)base["maxUserConns"];
+            }
+
+            set
+            {
+                base["maxUserConns"] = value;
             }
         }
 
@@ -239,12 +157,12 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyLogicalStorageUnits];
+                return (string)base["logicalStorageUnits"];
             }
 
             set
             {
-                base[propertyLogicalStorageUnits] = value;
+                base["logicalStorageUnits"] = value;
             }
         }
 
@@ -256,13 +174,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyInitialDataSize];
+                return (string)base["initialDataSize"];
             }
 
-            set 
-			{ 
-				base[propertyInitialDataSize] = value; 
-			}
+            set
+            {
+                base["initialDataSize"] = value;
+            }
         }
 
         /// <summary>
@@ -273,13 +191,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyInitialLogSize];
+                return (string)base["initialLogSize"];
             }
 
-            set 
-			{ 
-				base[propertyInitialLogSize] = value; 
-			}
+            set
+            {
+                base["initialLogSize"] = value;
+            }
         }
 
         /// <summary>
@@ -290,13 +208,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyMaxDataSize];
+                return (string)base["maxDataSize"];
             }
 
-            set 
-			{ 
-				base[propertyMaxDataSize] = value; 
-			}
+            set
+            {
+                base["maxDataSize"] = value;
+            }
         }
 
         /// <summary>
@@ -307,13 +225,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyMaxLogSize];
+                return (string)base["maxLogSize"];
             }
 
-            set 
-			{ 
-				base[propertyMaxLogSize] = value; 
-			}
+            set
+            {
+                base["maxLogSize"] = value;
+            }
         }
 
         /// <summary>
@@ -324,13 +242,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyDataFileGrowth];
+                return (string)base["dataFileGrowth"];
             }
 
-            set 
-			{ 
-				base[propertyDataFileGrowth] = value; 
-			}
+            set
+            {
+                base["dataFileGrowth"] = value;
+            }
         }
 
         /// <summary>
@@ -341,21 +259,13 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyLogFileGrowth];
+                return (string)base["logFileGrowth"];
             }
 
-            set 
-			{ 
-				base[propertyLogFileGrowth] = value; 
-			}
-        }
-
-        /// <summary>
-        /// Override the Properties collection and return our custom one.
-        /// </summary>
-        protected override ConfigurationPropertyCollection Properties
-        {
-            get { return properties; }
+            set
+            {
+                base["logFileGrowth"] = value;
+            }
         }
 
         /// <summary>

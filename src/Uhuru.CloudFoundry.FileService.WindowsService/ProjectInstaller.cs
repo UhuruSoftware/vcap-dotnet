@@ -112,21 +112,6 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 section.Service.LocalRoute = ip;
             }
 
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDbSize]))
-            {
-                section.Service.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongQuery]))
-            {
-                section.Service.MaxLengthyQuery = int.Parse(Context.Parameters[Argument.MaxLongQuery], CultureInfo.InvariantCulture);
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongTx]))
-            {
-                section.Service.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
-            }
-
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Mbus]))
             {
                 section.Service.MBus = Context.Parameters[Argument.Mbus];
@@ -230,21 +215,6 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             /// Parameter name for zInterval
             /// </summary>
             public const string ZInterval = "zInterval";
-
-            /// <summary>
-            /// Parameter name for maxDbSize
-            /// </summary>
-            public const string MaxDbSize = "maxDbSize";
-
-            /// <summary>
-            /// Parameter name for maxLongQuery
-            /// </summary>
-            public const string MaxLongQuery = "maxLongQuery";
-
-            /// <summary>
-            /// Parameter name for maxLongTx
-            /// </summary>
-            public const string MaxLongTx = "maxLongTx";
 
             /// <summary>
             /// Parameter name for localDb
