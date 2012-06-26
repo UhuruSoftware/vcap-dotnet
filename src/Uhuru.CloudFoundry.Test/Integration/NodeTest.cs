@@ -31,16 +31,21 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             try
             {
-                Node_Accessor target = new Node_Accessor();
+                Node node = new Node();
+
+                Node_Accessor target = new Node_Accessor(new PrivateObject(node));
                 target.mssqlConfig = new MSSqlOptions();
                 UhuruSection config = UhuruSection.GetSection();
 
-                target.availableCapacity = config.Service.Capacity;
+                var po = new PrivateObject(node, new PrivateType(typeof(NodeBase)));
+                NodeBase_Accessor nodebase = new NodeBase_Accessor(po);
+
+                nodebase.capacity = config.Service.Capacity;
                 target.mssqlConfig.Host = config.Service.MSSql.Host;
                 target.mssqlConfig.User = config.Service.MSSql.User;
                 target.mssqlConfig.Password = config.Service.MSSql.Password;
                 target.mssqlConfig.Port = config.Service.MSSql.Port;
-                target.maxLongQuery = config.Service.MaxLengthyQuery;
+                target.maxLongQuery = config.Service.MSSql.MaxLengthyQuery;
 
                 target.mssqlConfig.LogicalStorageUnits = config.Service.MSSql.LogicalStorageUnits;
 
@@ -211,7 +216,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             target.mssqlConfig.User = config.Service.MSSql.User;
             target.mssqlConfig.Password = config.Service.MSSql.Password;
             target.mssqlConfig.Port = config.Service.MSSql.Port;
-            target.maxLongTx = config.Service.MaxLengthTX;
+            target.maxLongTx = config.Service.MSSql.MaxLengthTX;
 
             target.ConnectMSSql();
 

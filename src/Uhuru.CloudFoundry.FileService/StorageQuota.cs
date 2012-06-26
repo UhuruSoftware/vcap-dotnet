@@ -12,7 +12,7 @@ namespace Uhuru.CloudFoundry.FileService
     /// <summary>
     /// This class contains the implementation for a MS Sql Server Cloud Foundry system service node.
     /// </summary>
-    public partial class Node
+    public partial class FileServiceNode
     {
         /// <summary>
         /// Gets the size of a DB.
@@ -84,38 +84,12 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
-        /// Formats a DB listing.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <param name="db">The database.</param>
-        /// <param name="size">The size.</param>
-        /// <returns>A line of text containing database information.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented"),
-        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Method is not yet implemented")]
-        private string FormatDBListing(string user, string db, int size)
-        {
-            return string.Format(CultureInfo.InvariantCulture, Strings.StorageQuotaDbListingFormatString, user, db, size);
-        }
-
-        /// <summary>
         /// Enforces storage quota for databases.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
         private void EnforceStorageQuota()
         {
             // todo: vladi: implement this.
-        }
-
-        /// <summary>
-        /// Kills all database sessions.
-        /// </summary>
-        /// <param name="database">The database whose sessions to kill.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "database", Justification = "Method is not yet implemented"),
-        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented"),
-        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "Method is not yet implemented")]
-        private void KillDatabaseSession(string database)
-        {
-            // todo: vladi: implement this
         }
     }
 }

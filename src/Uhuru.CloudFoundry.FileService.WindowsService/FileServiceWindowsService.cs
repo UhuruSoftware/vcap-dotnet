@@ -19,7 +19,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
         /// <summary>
         /// The Uhurufs Service Node.
         /// </summary>
-        private Node node;
+        private FileService.FileServiceNode node;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileServiceWindowsService"/> class.
@@ -36,28 +36,8 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
         {
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
-            Options options = new Options();
-
-            options.Capacity = serviceConfig.Capacity;
-            options.BaseDir = serviceConfig.BaseDir;
-            options.Index = serviceConfig.Index;
-            options.LocalDB = serviceConfig.LocalDB;
-            options.MaxDBSize = serviceConfig.MaxDBSize;
-            options.MaxLengthyQuery = serviceConfig.MaxLengthyQuery;
-            options.MaxLengthTX = serviceConfig.MaxLengthTX;
-            options.MigrationNFS = serviceConfig.MigrationNFS;
-            options.NodeId = serviceConfig.NodeId;
-            options.Plan = serviceConfig.Plan;
-            options.Uri = new System.Uri(serviceConfig.MBus);
-            options.ZInterval = serviceConfig.ZInterval;
-            options.LocalRoute = serviceConfig.LocalRoute;
-            options.StatusPort = serviceConfig.StatusPort;
-
-            FileServiceOptions fileServiceOptions = new FileServiceOptions();
-            fileServiceOptions.SharedDrive = options.BaseDir = serviceConfig.BaseDir;
-
-            this.node = new Node();
-            this.node.Start(options, fileServiceOptions);
+            this.node = new FileServiceNode();
+            this.node.Start(serviceConfig);
         }
 
         /// <summary>

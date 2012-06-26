@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using Uhuru.Configuration.Service;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
@@ -19,22 +20,44 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This is the base class for all Cloud Foundry system services nodes.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Code more readable and easier to maintain.")]
     public abstract class NodeBase : SystemServiceBase
     {
         /// <summary>
         /// The node ID.
         /// </summary>
-        private string nodeId;
+        protected string nodeId;
 
         /// <summary>
         /// The service plan.
         /// </summary>
-        private string plan;
+        protected string plan;
 
         /// <summary>
-        /// Migration Network File System.
+        /// Migration folder path.
         /// </summary>
-        private string migrationNfs;
+        protected string migrationNfs;
+
+        /// <summary>
+        /// The available capapcity of the node.
+        /// </summary>
+        protected int capacity;
+
+        /// <summary>
+        /// The maximum capacity of the node.
+        /// </summary>
+        protected int maxCapacity;
+
+        /// <summary>
+        /// Use fully qualified domaing when sending the host name.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "fqdn", Justification = "Spelled correctly.")]
+        protected bool fqdnHosts;
+
+        /// <summary>
+        /// Service management opertion time limit in seconds.
+        /// </summary>
+        protected int operationTimeLimit;
 
         /// <summary>
         /// Gets any service-specific announcement details.
@@ -48,7 +71,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
-        public override void Start(Options options)
+        public override void Start(ServiceElement options)
         {
             if (options == null)
             {
@@ -58,6 +81,11 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.nodeId = options.NodeId;
             this.plan = options.Plan;
             this.migrationNfs = options.MigrationNFS;
+            this.capacity = options.Capacity;
+            this.maxCapacity = this.capacity;
+            this.fqdnHosts = options.FqdnHosts;
+            this.operationTimeLimit = options.OperationTimeLimit;
+
             base.Start(options);
         }
 
@@ -77,21 +105,22 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Logger.Debug(Strings.ConnectedLogMessage, ServiceDescription());
 
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectProvision, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnProvision));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectUnprovision, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnUnprovision));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectBind, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnBind));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectUnbind, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnUnbind));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectRestore, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnRestore));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectProvision, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnProvision));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectUnprovision, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnUnprovision));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectBind, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnBind));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectUnbind, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnUnbind));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectRestore, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnRestore));
 
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectDiscover, this.ServiceName()), new SubscribeCallback(this.OnDiscover));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectDiscover, this.ServiceName()), new SubscribeCallback(this.OnDiscover));
 
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectDisableInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnDisableInstance));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectEnableInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnEnableInstance));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectImportInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnImportInstance));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectCleanupNfs, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnCleanupNfs));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectDisableInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnDisableInstance));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectEnableInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnEnableInstance));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectImportInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnImportInstance));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectUpdateInstance, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnUpdateInstance));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectCleanupNfs, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnCleanupNfs));
 
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectCheckOrphan, this.ServiceName()), new SubscribeCallback(this.OnCheckOrphan));
-            NodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectPurgeOrphan, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnPurgeOrphan));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectCheckOrphan, this.ServiceName()), new SubscribeCallback(this.OnCheckOrphan));
+            nodeNats.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectPurgeOrphan, this.ServiceName(), this.nodeId), new SubscribeCallback(this.OnPurgeOrphan));
 
             SendNodeAnnouncement();
 
@@ -153,19 +182,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         protected override Dictionary<string, object> VarzDetails()
         {
             return this.AnnouncementDetails.ToJsonIntermediateObject();
-        }
-
-        /// <summary>
-        /// Service Node subclasses may want to override this method to
-        /// provide service specific data
-        /// </summary>
-        /// <returns>A dictionary containing healthz details.</returns>
-        protected override Dictionary<string, string> HealthzDetails()
-        {
-            return new Dictionary<string, string>() 
-            {
-                { "self", "ok" }
-            };
         }
 
         /// <summary>
@@ -329,12 +345,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
                             msg,
                             response.SerializeToJson());
 
-                        NodeNats.Publish(reply, null, EncodeSuccess(response));
+                        nodeNats.Publish(reply, null, EncodeSuccess(response));
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
-                        NodeNats.Publish(reply, null, EncodeFailure(response));
+                        nodeNats.Publish(reply, null, EncodeFailure(response));
                     }
                 });
         }
@@ -371,17 +387,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                         if (result)
                         {
-                            this.NodeNats.Publish(reply, null, EncodeSuccess(response));
+                            this.nodeNats.Publish(reply, null, EncodeSuccess(response));
                         }
                         else
                         {
-                            this.NodeNats.Publish(reply, null, EncodeFailure(response));
+                            this.nodeNats.Publish(reply, null, EncodeFailure(response));
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
-                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                        nodeNats.Publish(reply, null, EncodeFailure(response, ex));
                     }
                 });
         }
@@ -413,12 +429,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         Dictionary<string, object> bind_opts = bind_message.BindOptions;
                         ServiceCredentials credentials = bind_message.Credentials;
                         response.Credentials = this.Bind(name, bind_opts, credentials);
-                        NodeNats.Publish(reply, null, EncodeSuccess(response));
+                        nodeNats.Publish(reply, null, EncodeSuccess(response));
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
-                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                        nodeNats.Publish(reply, null, EncodeFailure(response, ex));
                     }
                 });
         }
@@ -446,17 +462,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                         if (result)
                         {
-                            this.NodeNats.Publish(reply, null, EncodeSuccess(response));
+                            this.nodeNats.Publish(reply, null, EncodeSuccess(response));
                         }
                         else
                         {
-                            this.NodeNats.Publish(reply, null, EncodeFailure(response));
+                            this.nodeNats.Publish(reply, null, EncodeFailure(response));
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
-                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                        nodeNats.Publish(reply, null, EncodeFailure(response, ex));
                     }
                 });
         }
@@ -483,17 +499,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 bool result = this.Restore(instance_id, backup_path);
                 if (result)
                 {
-                    NodeNats.Publish(reply, null, EncodeSuccess(response));
+                    nodeNats.Publish(reply, null, EncodeSuccess(response));
                 }
                 else
                 {
-                    NodeNats.Publish(reply, null, EncodeFailure(response));
+                    nodeNats.Publish(reply, null, EncodeFailure(response));
                 }
             }
             catch (Exception ex)
             {
                 Logger.Warning(ex.ToString());
-                NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                nodeNats.Publish(reply, null, EncodeFailure(response, ex));
             }
         }
 
@@ -533,7 +549,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                             result = this.DumpInstance(prov_cred, binding_creds, file_path);
                         }
 
-                        NodeNats.Publish(reply, null, result.ToString());
+                        nodeNats.Publish(reply, null, result.ToString());
                     }
                     catch (Exception ex)
                     {
@@ -573,7 +589,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         prov_cred.NodeId = this.nodeId;
                         credentials[0] = prov_cred;
                         credentials[1] = binding_creds_hash;
-                        NodeNats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(credentials));
+                        nodeNats.Publish(reply, null, JsonConvertibleObject.SerializeToJson(credentials));
                     }
                     catch (Exception ex)
                     {
@@ -608,7 +624,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         string instance = prov_cred.Name;
                         Directory.Delete(this.GetMigrationFolder(instance), true);
 
-                        NodeNats.Publish(reply, null, "true");
+                        nodeNats.Publish(reply, null, "true");
                     }
                     catch (Exception ex)
                     {
@@ -637,8 +653,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 // TODO: vladi: investigate further if this needs to be parallelized; seems that this would take a very short time, and it's not tied to a specific instance, so it could run on a new thread
                 this.CheckOrphan(request.Handles);
 
-                response.OrphanInstances = OrphanInstancesHash;
-                response.OrphanBindings = OrphanBindingHash;
+                response.OrphanInstances = orphanInstancesHash;
+                response.OrphanBindings = orphanBindingHash;
                 response.Success = true;
             }
             catch (Exception ex)
@@ -653,7 +669,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             }
             finally
             {
-                NodeNats.Publish(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectOrphanResult, ServiceName()), null, response.SerializeToJson());
+                nodeNats.Publish(string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectOrphanResult, ServiceName()), null, response.SerializeToJson());
             }
         }
 
@@ -698,8 +714,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             Logger.Debug(Strings.CheckOrphanDebugLogMessage, orphanInstancesList.Count, orphanBindingsList.Count);
             orphanInstancesHash[this.nodeId.ToString()] = orphanInstancesList;
             orphanBindingHash[this.nodeId.ToString()] = orphanBindingsList;
-            this.OrphanInstancesHash = orphanInstancesHash;
-            this.OrphanBindingHash = orphanBindingHash;
+            this.orphanInstancesHash = orphanInstancesHash;
+            this.orphanBindingHash = orphanBindingHash;
         }
 
         /// <summary>
@@ -725,17 +741,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         bool result = this.PurgeOrphan(request.OrphanInsList, request.OrphanBindingList);
                         if (result)
                         {
-                            NodeNats.Publish(reply, null, EncodeSuccess(response));
+                            nodeNats.Publish(reply, null, EncodeSuccess(response));
                         }
                         else
                         {
-                            NodeNats.Publish(reply, null, EncodeFailure(response));
+                            nodeNats.Publish(reply, null, EncodeFailure(response));
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
-                        NodeNats.Publish(reply, null, EncodeFailure(response, ex));
+                        nodeNats.Publish(reply, null, EncodeFailure(response, ex));
                     }
                 });
         }
@@ -834,13 +850,25 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         string file_path = this.GetMigrationFolder(instance);
 
                         bool result = this.ImportInstance(prov_cred, binding_creds, file_path, plan);
-                        NodeNats.Publish(reply, null, result.ToString());
+                        nodeNats.Publish(reply, null, result.ToString());
                     }
                     catch (Exception ex)
                     {
                         Logger.Warning(ex.ToString());
                     }
                 });
+        }
+
+        /// <summary>
+        /// Called when an update instance request is received.
+        /// </summary>
+        /// <param name="msg">The message payload.</param>
+        /// <param name="reply">The reply to setting.</param>
+        /// <param name="subject">The subject of the message.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "The exception is logged; errors in this request must not bubble up.")]
+        private void OnUpdateInstance(string msg, string reply, string subject)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -883,7 +911,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                     Announcement a = this.AnnouncementDetails;
                     a.Id = this.nodeId;
                     a.Plan = this.plan;
-                    NodeNats.Publish(reply != null ? reply : string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.SerializeToJson());
+                    nodeNats.Publish(reply != null ? reply : string.Format(CultureInfo.InvariantCulture, Strings.NatsSubjectAnnounce, ServiceName()), null, a.SerializeToJson());
                 }
             }
             catch (Exception ex)

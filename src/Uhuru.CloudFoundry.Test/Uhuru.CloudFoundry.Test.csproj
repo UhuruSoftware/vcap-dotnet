@@ -176,6 +176,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <Shadow Include="Test References\Uhuru.CloudFoundry.ServiceBase.accessor" />
     <Shadow Include="Test References\Uhuru.CloudFoundry.MSSqlService.accessor" />
   </ItemGroup>
   <ItemGroup>

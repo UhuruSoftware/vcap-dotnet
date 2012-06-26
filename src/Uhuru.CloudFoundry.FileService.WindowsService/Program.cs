@@ -36,12 +36,12 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             }
             else
             {
-                using (FileServiceWindowsService sqlService = new FileServiceWindowsService())
+                using (FileServiceWindowsService service = new FileServiceWindowsService())
                 {
-                    sqlService.Start();
+                    service.Start();
                     Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
                     Console.ReadLine();
-                    sqlService.Stop();
+                    service.Stop();
                 }
             }
         }

@@ -19,6 +19,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
     using System.Threading;
     using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
+    using Uhuru.Configuration.Service;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
 
@@ -40,7 +41,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <summary>
         /// COnfiguration options for the SQL Server.
         /// </summary>
-        private MSSqlOptions mssqlConfig;
+        private MSSqlOptions mssqlConfig = new MSSqlOptions();
 
         /// <summary>
         /// The maximum database size, in bytes.
@@ -59,6 +60,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
         private int maxLongTx;
 
         /// <summary>
+        /// The maximum connections per user.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "It will be used.")]
+        private int maxUserConnections;
+
+        /// <summary>
         /// This is the SQL server connection used to do things on the server.
         /// </summary>
         private SqlConnection connection;
@@ -67,11 +74,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// The base directory for this service.
         /// </summary>
         private string baseDir;
-
-        /// <summary>
-        /// Current available storage on the node.
-        /// </summary>
-        private int availableCapacity;
 
         /// <summary>
         /// Number of queries served by the node.
@@ -104,11 +106,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
         private int bindingServed;
 
         /// <summary>
-        /// Local machine IP used by the service.
-        /// </summary>
-        private string localIp;
-
-        /// <summary>
         /// The SQL script that creates the service database
         /// </summary>
         private string createDBScript;
@@ -121,7 +118,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableCapacity = this.availableCapacity;
+                a.AvailableCapacity = this.capacity;
                 a.CapacityUnit = this.CapacityUnit();
                 return a;
             }
@@ -148,33 +145,32 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
-        public override void Start(Options options)
-        {
-            base.Start(options);
-        }
-
-        /// <summary>
-        /// Starts the node.
-        /// </summary>
-        /// <param name="options">The configuration options for the node.</param>
-        /// <param name="sqlOptions">The MS SQL Server options.</param>
-        public void Start(Options options, MSSqlOptions sqlOptions)
+        public override void Start(ServiceElement options)
         {
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
 
-            if (sqlOptions == null)
-            {
-                throw new ArgumentNullException("sqlOptions");
-            }
+            this.mssqlConfig.Host = options.MSSql.Host;
+            this.mssqlConfig.User = options.MSSql.User;
+            this.mssqlConfig.Port = options.MSSql.Port;
+            this.mssqlConfig.Password = options.MSSql.Password;
+            this.mssqlConfig.LogicalStorageUnits = options.MSSql.LogicalStorageUnits;
 
-            this.mssqlConfig = sqlOptions;
-            this.maxDbSize = options.MaxDBSize * 1024 * 1024;
-            this.maxLongQuery = options.MaxLengthyQuery;
-            this.maxLongTx = options.MaxLengthTX;
-            this.localIp = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
+            this.mssqlConfig.InitialDataSize = options.MSSql.InitialDataSize;
+            this.mssqlConfig.InitialLogSize = options.MSSql.InitialLogSize;
+
+            this.mssqlConfig.MaxDataSize = options.MSSql.MaxDataSize;
+            this.mssqlConfig.MaxLogSize = options.MSSql.MaxLogSize;
+
+            this.mssqlConfig.DataFileGrowth = options.MSSql.DataFileGrowth;
+            this.mssqlConfig.LogFileGrowth = options.MSSql.LogFileGrowth;
+
+            this.maxDbSize = options.MSSql.MaxDBSize * 1024 * 1024;
+            this.maxLongQuery = options.MSSql.MaxLengthyQuery;
+            this.maxLongTx = options.MSSql.MaxLengthTX;
+            this.maxUserConnections = options.MSSql.MaxUserConnections;
 
             this.connection = this.ConnectMSSql();
 
@@ -226,9 +222,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.CheckDBConsistency();
 
-            this.availableCapacity = options.Capacity;
-
-            this.availableCapacity -= this.CapacityUnit() * ProvisionedService.GetInstances().Count();
+            this.capacity -= this.CapacityUnit() * ProvisionedService.GetInstances().Count();
 
             this.queriesServed = 0;
             this.qpsLastUpdated = DateTime.Now;
@@ -239,7 +233,8 @@ namespace Uhuru.CloudFoundry.MSSqlService
             this.longTxKilled = 0;
             this.provisionServed = 0;
             this.bindingServed = 0;
-            this.Start(options);
+
+            base.Start(options);
         }
 
         /// <summary>
@@ -368,8 +363,9 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// A dictionary containing healthz details.
         /// </returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        protected override Dictionary<string, string> HealthzDetails()
+        protected Dictionary<string, string> HealthzDetails()
         {
+            // TODO: stefi: put this into varz
             Dictionary<string, string> healthz = new Dictionary<string, string>()
             {
                 { "self", "ok" }
@@ -533,7 +529,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.DeleteDatabase(provisioned_service);
 
-            this.availableCapacity += this.CapacityUnit();
+            this.capacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
             {
@@ -825,12 +821,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 this.CreateDatabaseUser(databaseName, databaseUser, databasePassword);
 
-                if (this.availableCapacity < this.CapacityUnit())
+                if (this.capacity < this.CapacityUnit())
                 {
                     throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
                 }
 
-                this.availableCapacity -= this.CapacityUnit();
+                this.capacity -= this.CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
@@ -1153,7 +1149,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             ServiceCredentials response = new ServiceCredentials();
 
             response.Name = name;
-            response.HostName = this.localIp;
+            response.HostName = this.localIP;
             response.Port = this.mssqlConfig.Port;
             response.User = user;
             response.UserName = user;

@@ -103,17 +103,17 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDbSize]))
             {
-                section.Service.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
+                section.Service.MSSql.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongQuery]))
             {
-                section.Service.MaxLengthyQuery = int.Parse(Context.Parameters[Argument.MaxLongQuery], CultureInfo.InvariantCulture);
+                section.Service.MSSql.MaxLengthyQuery = int.Parse(Context.Parameters[Argument.MaxLongQuery], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongTx]))
             {
-                section.Service.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
+                section.Service.MSSql.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Mbus]))

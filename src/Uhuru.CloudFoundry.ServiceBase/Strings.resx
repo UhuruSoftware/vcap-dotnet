@@ -186,6 +186,9 @@
   <data name="NatsSubjectUnprovision" xml:space="preserve">
     <value>{0}.unprovision.{1}</value>
   </data>
+  <data name="NatsSubjectUpdateInstance" xml:space="preserve">
+    <value>{0}.update_instance.{1}</value>
+  </data>
   <data name="OnDisableInstanceDebugLogMessage" xml:space="preserve">
     <value>{0}: Disable instance {1} request from {2}</value>
   </data>

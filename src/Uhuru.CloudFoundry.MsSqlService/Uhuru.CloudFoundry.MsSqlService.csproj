@@ -59,6 +59,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -88,6 +89,10 @@
     <ProjectReference Include="..\Uhuru.CloudFoundry.ServiceBase\Uhuru.CloudFoundry.ServiceBase.csproj">
       <Project>{FC669600-C839-426A-B246-AC19D55F5C51}</Project>
       <Name>Uhuru.CloudFoundry.ServiceBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.Configuration\Uhuru.Configuration.csproj">
+      <Project>{D4EEC05E-E353-499F-ADA8-BB4C5782EA85}</Project>
+      <Name>Uhuru.Configuration</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>

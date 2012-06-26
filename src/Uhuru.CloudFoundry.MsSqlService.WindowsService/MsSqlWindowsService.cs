@@ -36,41 +36,8 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
         {
             ServiceElement serviceConfig = UhuruSection.GetSection().Service;
 
-            Options options = new Options();
-
-            options.Capacity = serviceConfig.Capacity;
-            options.BaseDir = serviceConfig.BaseDir;
-            options.Index = serviceConfig.Index;
-            options.LocalDB = serviceConfig.LocalDB;
-            options.MaxDBSize = serviceConfig.MaxDBSize;
-            options.MaxLengthyQuery = serviceConfig.MaxLengthyQuery;
-            options.MaxLengthTX = serviceConfig.MaxLengthTX;
-            options.MigrationNFS = serviceConfig.MigrationNFS;
-            options.NodeId = serviceConfig.NodeId;
-            options.Plan = serviceConfig.Plan;
-            options.Uri = new System.Uri(serviceConfig.MBus);
-            options.ZInterval = serviceConfig.ZInterval;
-            options.LocalRoute = serviceConfig.LocalRoute;
-            options.StatusPort = serviceConfig.StatusPort;
-
-            MSSqlOptions sqlServerOptions = new MSSqlOptions();
-            sqlServerOptions.Host = serviceConfig.MSSql.Host;
-            sqlServerOptions.User = serviceConfig.MSSql.User;
-            sqlServerOptions.Port = serviceConfig.MSSql.Port;
-            sqlServerOptions.Password = serviceConfig.MSSql.Password;
-            sqlServerOptions.LogicalStorageUnits = serviceConfig.MSSql.LogicalStorageUnits;
-
-            sqlServerOptions.InitialDataSize = serviceConfig.MSSql.InitialDataSize;
-            sqlServerOptions.InitialLogSize = serviceConfig.MSSql.InitialLogSize;
-
-            sqlServerOptions.MaxDataSize = serviceConfig.MSSql.MaxDataSize;
-            sqlServerOptions.MaxLogSize = serviceConfig.MSSql.MaxLogSize;
-
-            sqlServerOptions.DataFileGrowth = serviceConfig.MSSql.DataFileGrowth;
-            sqlServerOptions.LogFileGrowth = serviceConfig.MSSql.LogFileGrowth;
-
             this.node = new Node();
-            this.node.Start(options, sqlServerOptions);
+            this.node.Start(serviceConfig);
         }
 
         /// <summary>

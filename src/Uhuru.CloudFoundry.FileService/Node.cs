@@ -16,13 +16,14 @@ namespace Uhuru.CloudFoundry.FileService
     using System.Threading;
     using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
+    using Uhuru.Configuration.Service;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This class is the File Service Node that brings persistent file storage to Cloud Foundry.
     /// </summary>
-    public partial class Node : NodeBase
+    public partial class FileServiceNode : NodeBase
     {
         /// <summary>
         /// Interval at which to verify storage quotas.
@@ -30,20 +31,15 @@ namespace Uhuru.CloudFoundry.FileService
         private const int StorageQuotaInterval = 1000;
 
         /// <summary>
-        /// COnfiguration options for the File Service.
+        /// Directory where the data is stored.
         /// </summary>
-        private FileServiceOptions fileServiceConfig;
+        private string baseDir;
 
         /// <summary>
-        /// The maximum file size, in bytes.
+        /// Maximum storage size. Value in MB.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Used for quata enforcement.")]
-        private long maxFileSizeBytes;
-
-        /// <summary>
-        /// Current available storage on the node.
-        /// </summary>
-        private int availableCapacity;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
+        private long maxStorageSizeMB;
 
         /// <summary>
         /// Number of directory provision requests served by the node.
@@ -56,11 +52,6 @@ namespace Uhuru.CloudFoundry.FileService
         private int bindingServed;
 
         /// <summary>
-        /// Local machine IP used by the service.
-        /// </summary>
-        private string localIp;
-
-        /// <summary>
         /// Gets any service-specific announcement details.
         /// </summary>
         protected override Announcement AnnouncementDetails
@@ -68,7 +59,7 @@ namespace Uhuru.CloudFoundry.FileService
             get
             {
                 Announcement a = new Announcement();
-                a.AvailableCapacity = this.availableCapacity;
+                a.AvailableCapacity = this.capacity;
                 a.CapacityUnit = this.CapacityUnit();
 
                 return a;
@@ -79,31 +70,15 @@ namespace Uhuru.CloudFoundry.FileService
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
-        public override void Start(Options options)
-        {
-            base.Start(options);
-        }
-
-        /// <summary>
-        /// Starts the node.
-        /// </summary>
-        /// <param name="options">The configuration options for the node.</param>
-        /// <param name="fileServiceOptions">The file service options.</param>
-        public void Start(Options options, FileServiceOptions fileServiceOptions)
+        public override void Start(ServiceElement options)
         {
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
 
-            if (fileServiceOptions == null)
-            {
-                throw new ArgumentNullException("fileServiceOptions");
-            }
-
-            this.fileServiceConfig = fileServiceOptions;
-            this.maxFileSizeBytes = options.MaxDBSize * 1024 * 1024;
-            this.localIp = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
+            this.baseDir = options.BaseDir;
+            this.maxStorageSizeMB = options.Uhurufs.MaxStorageSize;
 
             TimerHelper.RecurringCall(
                 StorageQuotaInterval,
@@ -116,13 +91,12 @@ namespace Uhuru.CloudFoundry.FileService
 
             this.CheckDBConsistency();
 
-            this.availableCapacity = options.Capacity;
-            this.availableCapacity -= ProvisionedService.GetInstances().Count();
+            this.capacity -= ProvisionedService.GetInstances().Count();
 
             // initialize qps counter
             this.provisionServed = 0;
             this.bindingServed = 0;
-            this.Start(options);
+            base.Start(options);
         }
 
         /// <summary>
@@ -235,8 +209,9 @@ namespace Uhuru.CloudFoundry.FileService
         /// A dictionary containing healthz details.
         /// </returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        protected override Dictionary<string, string> HealthzDetails()
+        protected Dictionary<string, string> HealthzDetails()
         {
+            // TODO: stefi: put this into varz
             Dictionary<string, string> healthz = new Dictionary<string, string>()
             {
                 { "self", "ok" }
@@ -244,7 +219,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             try
             {
-                string testFile = Path.Combine(this.fileServiceConfig.SharedDrive, Guid.NewGuid().ToString("N"));
+                string testFile = Path.Combine(this.baseDir, Guid.NewGuid().ToString("N"));
                 File.WriteAllText(testFile, "test");
                 File.Delete(testFile);
             }
@@ -324,7 +299,7 @@ namespace Uhuru.CloudFoundry.FileService
                 this.CreateDirectory(provisioned_service);
 
                 // add directory permissions
-                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                string directory = Path.Combine(this.baseDir, name);
                 AddDirectoryPermissions(directory, user);
 
                 // add permissions to ftp share
@@ -409,7 +384,7 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             this.DeleteDirectory(provisioned_service);
-            this.availableCapacity += this.CapacityUnit();
+            this.capacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
             {
@@ -475,7 +450,7 @@ namespace Uhuru.CloudFoundry.FileService
                 CreateUser(name, binding["user"] as string, binding["password"] as string);
 
                 // add directory permissions
-                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                string directory = Path.Combine(this.baseDir, name);
                 AddDirectoryPermissions(directory, binding["user"] as string);
 
                 // add permissions to ftp site
@@ -611,7 +586,7 @@ namespace Uhuru.CloudFoundry.FileService
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                string directory = Path.Combine(this.baseDir, name);
                 Directory.CreateDirectory(directory);
 
                 CreateUser(name, user, password);
@@ -620,12 +595,12 @@ namespace Uhuru.CloudFoundry.FileService
 
                 WindowsShare.CreateShare(name, directory);
 
-                if (this.availableCapacity < this.CapacityUnit())
+                if (this.capacity < this.CapacityUnit())
                 {
                     throw new FileServiceErrorException(FileServiceErrorException.MSSqlDiskFull);
                 }
 
-                this.availableCapacity -= CapacityUnit();
+                this.capacity -= CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
@@ -650,7 +625,7 @@ namespace Uhuru.CloudFoundry.FileService
                 DeleteUser(user);
                 Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
-                string directory = Path.Combine(this.fileServiceConfig.SharedDrive, name);
+                string directory = Path.Combine(this.baseDir, name);
 
                 FtpUtilities.DeleteFtpSite(name);
 
@@ -673,13 +648,14 @@ namespace Uhuru.CloudFoundry.FileService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private string GetInstanceHealthz(ProvisionedService instance)
         {
+            // TODO: migrate this into varz: ship service per-instance healthz data over varz: https://github.com/cloudfoundry/vcap-services/commit/8b12af491edfea58953cd07e1c80954a9006b22d
             string res = "ok";
 
             try
             {
                 using (new UserImpersonator(instance.User, ".", instance.Password, false))
                 {
-                    string instancePath = Path.Combine(this.fileServiceConfig.SharedDrive, instance.Name);
+                    string instancePath = Path.Combine(this.baseDir, instance.Name);
 
                     string testFile = Path.Combine(instancePath, Guid.NewGuid().ToString("N"));
 
@@ -723,7 +699,7 @@ namespace Uhuru.CloudFoundry.FileService
             ServiceCredentials response = new ServiceCredentials();
 
             response.Name = name;
-            response.HostName = this.localIp;
+            response.HostName = this.localIP;
             response.Port = port;
             response.User = user;
             response.UserName = user;

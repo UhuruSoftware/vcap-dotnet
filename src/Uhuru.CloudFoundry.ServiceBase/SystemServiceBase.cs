@@ -9,6 +9,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using Uhuru.Configuration.Service;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
@@ -16,106 +17,61 @@ namespace Uhuru.CloudFoundry.ServiceBase
     /// <summary>
     /// This is the service base for all Cloud Foundry system services.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "Code more readable and easier to maintain.")]
     public abstract class SystemServiceBase : IDisposable
     {
         /// <summary>
         /// This is the NATS client used for communication with the rest of CLoud Foundry.
         /// </summary>
-        private IReactor nodeNats;
+        protected IReactor nodeNats;
 
         /// <summary>
         /// The local IP that we use to publish stuff.
         /// </summary>
-        private string localIP;
+        protected string localIP;
 
         /// <summary>
         /// A dictionary containing orphaned services.
         /// </summary>
-        private Dictionary<string, object> orphanInstancesHash;
+        protected Dictionary<string, object> orphanInstancesHash = new Dictionary<string, object>();
 
         /// <summary>
         /// A dictionary containing service bindings that are orphaned.
         /// </summary>
-        private Dictionary<string, object> orphanBindingHash;
+        protected Dictionary<string, object> orphanBindingHash = new Dictionary<string, object>();
 
         /// <summary>
         /// The VCAP component that we use to register ourselves to the Cloud Controller
         /// </summary>
-        private VCAPComponent vcapComponent;
-
-        /// <summary>
-        /// Gets the nats reactor used for communicating with the cloud controller.
-        /// </summary>
-        public IReactor NodeNats
-        {
-            get
-            {
-                return this.nodeNats;
-            }
-        }
-        
-        /// <summary>
-        /// Gets or sets the orphan instances hash.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "This is needed for JSON (de)serialization")]
-        protected Dictionary<string, object> OrphanInstancesHash
-        {
-            get
-            {
-                return this.orphanInstancesHash;
-            }
-
-            set
-            {
-                this.orphanInstancesHash = value;
-            }
-        }
-        
-        /// <summary>
-        /// Gets or sets the orphan binding hash.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "This is needed for JSON (de)serialization")]
-        protected Dictionary<string, object> OrphanBindingHash
-        {
-            get
-            {
-                return this.orphanBindingHash;
-            }
-
-            set
-            {
-                this.orphanBindingHash = value;
-            }
-        }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "vcap", Justification = "Spelling is correct.")]
+        protected VCAPComponent vcapComponent;
 
         /// <summary>
         /// Starts the service using the specified options.
         /// </summary>
         /// <param name="options">The configuration options.</param>
-        public virtual void Start(Options options)
+        public virtual void Start(ServiceElement options)
         {
             if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
 
-            this.localIP = NetworkInterface.GetLocalIPAddress();
-            Logger.Info(Strings.InitializingLogMessage, this.ServiceDescription());
-            this.OrphanInstancesHash = new Dictionary<string, object>();
-            this.OrphanBindingHash = new Dictionary<string, object>();
+            this.localIP = NetworkInterface.GetLocalIPAddress(options.LocalRoute);
 
+            Logger.Info(Strings.InitializingLogMessage, this.ServiceDescription());
             this.nodeNats = ReactorFactory.GetReactor(typeof(Reactor));
             this.nodeNats.OnError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
-            this.NodeNats.Start(options.Uri);
+            this.nodeNats.Start(new Uri(options.MBus));
 
             this.OnConnectNode();
 
             this.vcapComponent = new VCAPComponent();
-
+            
             this.vcapComponent.Register(
                 new Dictionary<string, object>
                 {
-                    { "nats", this.NodeNats },
+                    { "nats", this.nodeNats },
                     { "type", this.ServiceDescription() },
                     { "host", this.localIP },
                     { "index", options.Index },
@@ -124,17 +80,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
                 });
 
             int zInterval = options.ZInterval;
-
-            // give service a chance to wake up
-            TimerHelper.DelayedCall(
-                5000, 
-                delegate
-                {
-                    this.UpdateVarz();
-                });
-
             TimerHelper.RecurringCall(
-                zInterval, 
+                zInterval,
                 delegate
                 {
                     this.UpdateVarz();
@@ -142,17 +89,10 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             // give service a chance to wake up
             TimerHelper.DelayedCall(
-                5000, 
+                5 * 1000, 
                 delegate
                 {
-                    this.UpdateHealthz();
-                });
-
-            TimerHelper.RecurringCall(
-                zInterval, 
-                delegate
-                {
-                    this.UpdateHealthz();
+                    this.UpdateVarz();
                 });
         }
 
@@ -180,9 +120,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
         public void Shutdown()
         {
             Logger.Info(Strings.ShuttingDownLogMessage, this.ServiceDescription());
-            if (this.NodeNats != null)
+            if (this.nodeNats != null)
             {
-                this.NodeNats.Close();
+                this.nodeNats.Close();
             }
         }
 
@@ -194,9 +134,17 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             if (disposing)
             {
-                this.nodeNats.Close();
-                this.nodeNats.Dispose();
-                this.vcapComponent.Dispose();
+                if (this.nodeNats != null)
+                {
+                    this.nodeNats.Dispose();
+                    this.nodeNats = null;
+                }
+
+                if (this.vcapComponent != null)
+                {
+                    this.vcapComponent.Dispose();
+                    this.vcapComponent = null;
+                }
             }
         }
                 
@@ -224,12 +172,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
         protected abstract Dictionary<string, object> VarzDetails();
         
         /// <summary>
-        /// Gets the healthz details for this service.
-        /// </summary>
-        /// <returns>A dictionary containing healthz details.</returns>
-        protected abstract Dictionary<string, string> HealthzDetails();
-        
-        /// <summary>
         /// Gets the service name.
         /// </summary>
         /// <returns>A tring containing the service name.</returns>
@@ -242,21 +184,13 @@ namespace Uhuru.CloudFoundry.ServiceBase
         {
             Dictionary<string, object> details = this.VarzDetails();
 
-            details["orphan_instances"] = this.OrphanInstancesHash;
-            details["orphan_bindings"] = this.OrphanBindingHash;
+            details["orphan_instances"] = this.orphanInstancesHash;
+            details["orphan_bindings"] = this.orphanBindingHash;
             
             foreach (string key in details.Keys)
             {
                 this.vcapComponent.Varz[key] = details[key];
             }
-        }
-
-        /// <summary>
-        /// Updates the healthz message.
-        /// </summary>
-        private void UpdateHealthz()
-        {
-            this.vcapComponent.Healthz = JsonConvertibleObject.SerializeToJson(this.HealthzDetails());
         }
 
         /// <summary>
