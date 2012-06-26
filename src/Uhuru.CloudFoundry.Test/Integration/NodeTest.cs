@@ -40,7 +40,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
                 target.mssqlConfig.User = config.Service.MSSql.User;
                 target.mssqlConfig.Password = config.Service.MSSql.Password;
                 target.mssqlConfig.Port = config.Service.MSSql.Port;
-                target.maxLongQuery = config.Service.MaxLengthyQuery;
+                target.maxLongQuery = config.Service.MSSql.MaxLengthyQuery;
 
                 target.mssqlConfig.LogicalStorageUnits = config.Service.MSSql.LogicalStorageUnits;
 
@@ -211,7 +211,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             target.mssqlConfig.User = config.Service.MSSql.User;
             target.mssqlConfig.Password = config.Service.MSSql.Password;
             target.mssqlConfig.Port = config.Service.MSSql.Port;
-            target.maxLongTx = config.Service.MaxLengthTX;
+            target.maxLongTx = config.Service.MSSql.MaxLengthTX;
 
             target.ConnectMSSql();
 

@@ -7,215 +7,12 @@
 namespace Uhuru.Configuration.Service
 {
     using System.Configuration;
-    
+
     /// <summary>
     /// This configuration class contains settings for a service component.
     /// </summary>
     public class ServiceElement : ConfigurationElement
     {
-        #region Static Fields
-
-        /// <summary>
-        /// Node ID configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyNodeId;
-
-        /// <summary>
-        /// Node service plan.
-        /// </summary>
-        private static ConfigurationProperty propertyPlan;
-
-        /// <summary>
-        /// Migration NFS configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMigrationNfs;
-       
-        /// <summary>
-        /// Message bus configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMBus;
-       
-        /// <summary>
-        /// Index configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyIndex;
-
-        /// <summary>
-        /// Status port configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyStatusPort;
-
-        /// <summary>
-        /// Z-Interval configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyZInterval;
-       
-        /// <summary>
-        /// Maximum DB size configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMaxDbSize;
-       
-        /// <summary>
-        /// Maximum long query configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMaxLongQuery;
-        
-        /// <summary>
-        /// Maximum long transaction configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMaxLongTx;
-        
-        /// <summary>
-        /// Local database configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyLocalDb;
-        
-        /// <summary>
-        /// Base directory configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyBaseDir;
-       
-        /// <summary>
-        /// Local route configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyLocalRoute;
-
-        /// <summary>
-        /// Available capacity configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyCapacity;
-
-        /// <summary>
-        /// MS SQL Service configuration property.
-        /// </summary>
-        private static ConfigurationProperty propertyMsSql;
-       
-        /// <summary>
-        /// Configuration properties collection.
-        /// </summary>
-        private static ConfigurationPropertyCollection properties;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Initializes static members of the ServiceElement class. 
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
-        static ServiceElement()
-        {
-            propertyNodeId = new ConfigurationProperty(
-                "nodeId",
-                typeof(string),
-                null,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyPlan = new ConfigurationProperty(
-                "plan",
-                typeof(string),
-                "free");
-
-            propertyMigrationNfs = new ConfigurationProperty(
-                "migrationNfs",
-                typeof(string),
-                null,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyMBus = new ConfigurationProperty(
-                "mbus",
-                typeof(string),
-                null,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyIndex = new ConfigurationProperty(
-                "index",
-                typeof(int),
-                0,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyStatusPort = new ConfigurationProperty(
-                "statusPort",
-                typeof(int),
-                0);
-
-            propertyZInterval = new ConfigurationProperty(
-                "zInterval",
-                typeof(int),
-                30000,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyMaxDbSize = new ConfigurationProperty(
-                "maxDbSize",
-                typeof(long),
-                20L,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyMaxLongQuery = new ConfigurationProperty(
-                "maxLongQuery",
-                typeof(int),
-                3,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyMaxLongTx = new ConfigurationProperty(
-                "maxLongTx",
-                typeof(int),
-                30,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyLocalDb = new ConfigurationProperty(
-                "localDb",
-                typeof(string),
-                "localServiceDb.xml",
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyBaseDir = new ConfigurationProperty(
-                "baseDir",
-                typeof(string),
-                ".\\",
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyLocalRoute = new ConfigurationProperty(
-                "localRoute",
-                typeof(string),
-                "198.41.0.4",
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyCapacity = new ConfigurationProperty(
-                "capacity",
-                typeof(int),
-                200,
-                ConfigurationPropertyOptions.IsRequired);
-
-            propertyMsSql = new ConfigurationProperty(
-              "mssql",
-              typeof(MSSqlElement),
-              null,
-              ConfigurationPropertyOptions.None);
-
-            properties = new ConfigurationPropertyCollection();
-
-            properties.Add(propertyNodeId);
-            properties.Add(propertyPlan);
-            properties.Add(propertyMigrationNfs);
-            properties.Add(propertyMBus);
-            properties.Add(propertyIndex);
-            properties.Add(propertyStatusPort);
-            properties.Add(propertyZInterval);
-            properties.Add(propertyMaxDbSize);
-            properties.Add(propertyMaxLongQuery);
-            properties.Add(propertyMaxLongTx);
-            properties.Add(propertyLocalDb);
-            properties.Add(propertyBaseDir);
-            properties.Add(propertyLocalRoute);
-            properties.Add(propertyCapacity);
-            properties.Add(propertyMsSql);
-        }
-
-        #endregion
-
-        #region Properties
-
         /// <summary>
         /// Gets or sets the node id for the service.
         /// </summary>
@@ -224,46 +21,46 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyNodeId];
+                return (string)base["nodeId"];
             }
 
             set
             {
-                base[propertyNodeId] = value;
+                base["nodeId"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the plan for the service.
         /// </summary>
-        [ConfigurationProperty("plan", IsRequired = false)]
+        [ConfigurationProperty("plan", IsRequired = false, DefaultValue = "free")]
         public string Plan
         {
             get
             {
-                return (string)base[propertyPlan];
+                return (string)base["plan"];
             }
 
             set
             {
-                base[propertyPlan] = value;
+                base["plan"] = value;
             }
         }
 
         /// <summary>
-        /// Gets or sets the network file system used for migration.
+        /// Gets or sets the path used for migration.
         /// </summary>
-        [ConfigurationProperty("migrationNfs", IsRequired = true, DefaultValue = null)]
+        [ConfigurationProperty("migrationNfs", IsRequired = false, DefaultValue = "")]
         public string MigrationNFS
         {
             get
             {
-                return (string)base[propertyMigrationNfs];
+                return (string)base["migrationNfs"];
             }
 
             set
             {
-                base[propertyMigrationNfs] = value;
+                base["migrationNfs"] = value;
             }
         }
 
@@ -275,12 +72,12 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (string)base[propertyMBus];
+                return (string)base["mbus"];
             }
 
             set
             {
-                base[propertyMBus] = value;
+                base["mbus"] = value;
             }
         }
 
@@ -292,12 +89,12 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (int)base[propertyIndex];
+                return (int)base["index"];
             }
 
             set
             {
-                base[propertyIndex] = value;
+                base["index"] = value;
             }
         }
 
@@ -309,131 +106,80 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (int)base[propertyStatusPort];
+                return (int)base["statusPort"];
             }
 
             set
             {
-                base[propertyStatusPort] = value;
+                base["statusPort"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the interval at which to update the Healthz and Varz
         /// </summary>
-        [ConfigurationProperty("zInterval", IsRequired = true, DefaultValue = 30000)]
+        [ConfigurationProperty("zInterval", IsRequired = false, DefaultValue = 30000)]
         public int ZInterval
         {
             get
             {
-                return (int)base[propertyZInterval];
+                return (int)base["zInterval"];
             }
 
             set
             {
-                base[propertyZInterval] = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum database size.
-        /// </summary>
-        [ConfigurationProperty("maxDbSize", IsRequired = true, DefaultValue = 20L)]
-        public long MaxDBSize
-        {
-            get
-            {
-                return (long)base[propertyMaxDbSize];
-            }
-
-            set
-            {
-                base[propertyMaxDbSize] = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum duration for a query in seconds.
-        /// </summary>
-        [ConfigurationProperty("maxLongQuery", IsRequired = true, DefaultValue = 3)]
-        public int MaxLengthyQuery
-        {
-            get
-            {
-                return (int)base[propertyMaxLongQuery];
-            }
-
-            set
-            {
-                base[propertyMaxLongQuery] = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the maximum duration for a query in seconds.
-        /// </summary>
-        [ConfigurationProperty("maxLongTx", IsRequired = true, DefaultValue = 30)]
-        public int MaxLengthTX
-        {
-            get
-            {
-                return (int)base[propertyMaxLongTx];
-            }
-
-            set
-            {
-                base[propertyMaxLongTx] = value;
+                base["zInterval"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the base directory for the service.
         /// </summary>
-        [ConfigurationProperty("baseDir", IsRequired = true, DefaultValue = ".\\")]
+        [ConfigurationProperty("baseDir", IsRequired = false, DefaultValue = ".\\")]
         public string BaseDir
         {
             get
             {
-                return (string)base[propertyBaseDir];
+                return (string)base["baseDir"];
             }
 
             set
             {
-                base[propertyBaseDir] = value;
+                base["baseDir"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the amount of available capacity for this service.
         /// </summary>
-        [ConfigurationProperty("capacity", IsRequired = true, DefaultValue = 200)]
+        [ConfigurationProperty("capacity", IsRequired = false, DefaultValue = 200)]
         public int Capacity
         {
             get
             {
-                return (int)base[propertyCapacity];
+                return (int)base["capacity"];
             }
 
             set
             {
-                base[propertyCapacity] = value;
+                base["capacity"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the local database file in which to save the list of provisioned services.
         /// </summary>
-        [ConfigurationProperty("localDb", IsRequired = true, DefaultValue = "localServiceDb.xml")]
+        [ConfigurationProperty("localDb", IsRequired = false, DefaultValue = "localServiceDb.xml")]
         public string LocalDB
         {
             get
             {
-                return (string)base[propertyLocalDb];
+                return (string)base["localDb"];
             }
 
             set
             {
-                base[propertyLocalDb] = value;
+                base["localDb"] = value;
             }
         }
 
@@ -443,17 +189,17 @@ namespace Uhuru.Configuration.Service
         /// and IP addresses assigned to them) of the host running the DEA. Default
         /// value of null, should work in most cases.
         /// </summary>
-        [ConfigurationProperty("localRoute", IsRequired = true, DefaultValue = "198.41.0.4")]
+        [ConfigurationProperty("localRoute", IsRequired = false, DefaultValue = "198.41.0.4")]
         public string LocalRoute
         {
             get
             {
-                return (string)base[propertyLocalRoute];
+                return (string)base["localRoute"];
             }
 
             set
             {
-                base[propertyLocalRoute] = value;
+                base["localRoute"] = value;
             }
         }
 
@@ -465,24 +211,32 @@ namespace Uhuru.Configuration.Service
         {
             get
             {
-                return (MSSqlElement)base[propertyMsSql];
+                return (MSSqlElement)base["mssql"];
             }
 
             set
             {
-                base[propertyMsSql] = value;
+                base["mssql"] = value;
             }
         }
 
         /// <summary>
-        /// Override the Properties collection and return our custom one.
+        /// Gets or sets the configuration settings for an Uhurufs system service.
         /// </summary>
-        protected override ConfigurationPropertyCollection Properties
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Uhurufs", Justification = "No hungarian notation"),
+        ConfigurationProperty("uhurufs", IsRequired = false, DefaultValue = null)]
+        public UhurufsElement Uhurufs
         {
-            get { return properties; }
-        }
+            get
+            {
+                return (UhurufsElement)base["uhurufs"];
+            }
 
-        #endregion
+            set
+            {
+                base["uhurufs"] = value;
+            }
+        }
 
         #region Overrides
 

@@ -36,6 +36,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Assert.AreEqual("(local)", UhuruSection.GetSection().Service.MSSql.Host);
             Assert.AreEqual("sa", UhuruSection.GetSection().Service.MSSql.User);
             Assert.AreEqual(1433, UhuruSection.GetSection().Service.MSSql.Port);
+            Assert.AreEqual(200, UhuruSection.GetSection().Service.Uhurufs.MaxStorageSize);
         }
     }
 }
