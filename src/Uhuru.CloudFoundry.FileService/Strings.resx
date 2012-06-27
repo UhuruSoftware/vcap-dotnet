@@ -126,6 +126,21 @@
   <data name="ErrorGettingInstanceListErrorMessage" xml:space="preserve">
     <value>Error get instance list: {0}</value>
   </data>
+  <data name="FileServiceErrorMessageConfigurationNotFound" xml:space="preserve">
+    <value>Configuration {0} not found.</value>
+  </data>
+  <data name="FileServiceErrorMessageCredentialNotFound" xml:space="preserve">
+    <value>Credential {0} not found.</value>
+  </data>
+  <data name="FileServiceErrorMessageDiskFull" xml:space="preserve">
+    <value>Node disk is full.</value>
+  </data>
+  <data name="FileServiceErrorMessageInvalidPlan" xml:space="preserve">
+    <value>Invalid plan {0}.</value>
+  </data>
+  <data name="FileServiceErrorMessageLocalDBError" xml:space="preserve">
+    <value>Node local db error.</value>
+  </data>
   <data name="LongTXKillerDisabledInfoMessage" xml:space="preserve">
     <value>Long transaction killer is disabled.</value>
   </data>
@@ -221,21 +236,6 @@
   </data>
   <data name="SqlNodeUnprovisionSuccessDebugMessage" xml:space="preserve">
     <value>Successfully fulfilled unprovision request: {0}</value>
-  </data>
-  <data name="SqlServerErrorMessageConfigurationNotFound" xml:space="preserve">
-    <value>MsSql configuration {0} not found.</value>
-  </data>
-  <data name="SqlServerErrorMessageCredentialNotFound" xml:space="preserve">
-    <value>MsSql credential {0} not found.</value>
-  </data>
-  <data name="SqlServerErrorMessageDiskFull" xml:space="preserve">
-    <value>Node disk is full.</value>
-  </data>
-  <data name="SqlServerErrorMessageInvalidPlan" xml:space="preserve">
-    <value>Invalid plan {0}.</value>
-  </data>
-  <data name="SqlServerErrorMessageLocalDBError" xml:space="preserve">
-    <value>MsSql node local db error.</value>
   </data>
   <data name="StorageQuotaDbListingFormatString" xml:space="preserve">
     <value>&lt;user: '{0}' name: '{1}' size: {2}&gt;</value>
