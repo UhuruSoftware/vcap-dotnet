@@ -173,7 +173,7 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
-        /// Gets varz details about the SQL Server Node.
+        /// Gets varz details about the Node.
         /// </summary>
         /// <returns>
         /// A dictionary containing varz details.
@@ -185,14 +185,30 @@ namespace Uhuru.CloudFoundry.FileService
             Dictionary<string, object> varz = new Dictionary<string, object>();
             try
             {
-                // disk usage per instance
-                object[] status = this.GetInstanceStatus();
-                varz["service_status"] = status;
+                varz["max_capacity"] = this.maxCapacity;
+                varz["available_capacity"] = this.capacity;
+
+                varz["provisioned_instances_num"] = ProvisionedService.GetInstances().Count();
+
+                var provisionedInstances = new List<object>();
+                varz["provisioned_instances"] = provisionedInstances;
+
+                foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+                {
+                    provisionedInstances.Add(GetVarz(instance));
+                }
 
                 // how many provision/binding operations since startup.
                 varz["provision_served"] = this.provisionServed;
-
                 varz["binding_served"] = this.bindingServed;
+
+                varz["instances"] = new Dictionary<string, string>();
+
+                foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+                {
+                    (varz["instances"] as Dictionary<string, string>)[instance.Name] = this.GetStatus(instance);
+                }
+
                 return varz;
             }
             catch (Exception ex)
@@ -200,50 +216,6 @@ namespace Uhuru.CloudFoundry.FileService
                 Logger.Error(Strings.SqlNodeGenerateVarzErrorMessage, ex.ToString());
                 return new Dictionary<string, object>();
             }
-        }
-
-        /// <summary>
-        /// Gets healthz details about the SQL Server Node.
-        /// </summary>
-        /// <returns>
-        /// A dictionary containing healthz details.
-        /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        protected Dictionary<string, string> HealthzDetails()
-        {
-            // TODO: stefi: put this into varz
-            Dictionary<string, string> healthz = new Dictionary<string, string>()
-            {
-                { "self", "ok" }
-            };
-
-            try
-            {
-                string testFile = Path.Combine(this.baseDir, Guid.NewGuid().ToString("N"));
-                File.WriteAllText(testFile, "test");
-                File.Delete(testFile);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(Strings.ErrorGettingDBListErrorMessage, ex.ToString());
-                healthz["self"] = "fail";
-                return healthz;
-            }
-
-            try
-            {
-                foreach (ProvisionedService instance in ProvisionedService.GetInstances())
-                {
-                    healthz[instance.Name] = this.GetInstanceHealthz(instance);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(Strings.ErrorGettingInstanceListErrorMessage, ex.ToString());
-                healthz["self"] = "fail";
-            }
-
-            return healthz;
         }
 
         /// <summary>
@@ -277,11 +249,16 @@ namespace Uhuru.CloudFoundry.FileService
         /// </returns>
         protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials)
         {
-            //// todo: chek for plan
+            if (planRequest != this.plan)
+            {
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceInvalidPlan);
+            }
+
             ProvisionedService provisioned_service = new ProvisionedService();
+
             if (credentials == null)
             {
-                throw new ArgumentNullException("credentials");
+                credentials = GenerateCredentials();
             }
 
             try
@@ -312,7 +289,7 @@ namespace Uhuru.CloudFoundry.FileService
                 if (!ProvisionedService.Save())
                 {
                     Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, provisioned_service.SerializeToJson());
-                    throw new FileServiceErrorException(FileServiceErrorException.MSSqlLocalDBError);
+                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceLocalDBError);
                 }
 
                 ServiceCredentials response = this.GenerateCredential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password, provisioned_service.Port.Value);
@@ -363,7 +340,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             if (provisioned_service == null)
             {
-                throw new FileServiceErrorException(FileServiceErrorException.MSSqlConfigNotFound, name);
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceConfigNotFound, name);
             }
 
             // TODO: validate that database files are not lingering
@@ -389,7 +366,7 @@ namespace Uhuru.CloudFoundry.FileService
             if (!provisioned_service.Destroy())
             {
                 Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
-                throw new FileServiceErrorException(FileServiceErrorException.MSSqlLocalDBError);
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceLocalDBError);
             }
 
             Logger.Debug(Strings.SqlNodeUnprovisionSuccessDebugMessage, name);
@@ -428,7 +405,7 @@ namespace Uhuru.CloudFoundry.FileService
                 ProvisionedService service = ProvisionedService.GetService(name);
                 if (service == null)
                 {
-                    throw new FileServiceErrorException(FileServiceErrorException.MSSqlConfigNotFound, name);
+                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceConfigNotFound, name);
                 }
 
                 // create new credential for binding
@@ -597,7 +574,7 @@ namespace Uhuru.CloudFoundry.FileService
 
                 if (this.capacity < this.CapacityUnit())
                 {
-                    throw new FileServiceErrorException(FileServiceErrorException.MSSqlDiskFull);
+                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceDiskFull);
                 }
 
                 this.capacity -= CapacityUnit();
@@ -646,7 +623,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <param name="instance">The instance for which to get health status</param>
         /// <returns>A string that indicates whether the instance is healthy or not ("ok" / "fail")</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        private string GetInstanceHealthz(ProvisionedService instance)
+        private string GetStatus(ProvisionedService instance)
         {
             // TODO: migrate this into varz: ship service per-instance healthz data over varz: https://github.com/cloudfoundry/vcap-services/commit/8b12af491edfea58953cd07e1c80954a9006b22d
             string res = "ok";
@@ -655,12 +632,8 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 using (new UserImpersonator(instance.User, ".", instance.Password, false))
                 {
-                    string instancePath = Path.Combine(this.baseDir, instance.Name);
-
-                    string testFile = Path.Combine(instancePath, Guid.NewGuid().ToString("N"));
-
+                    string testFile = Path.Combine(this.baseDir, instance.Name, Guid.NewGuid().ToString("N"));
                     File.WriteAllText(testFile, "test");
-
                     File.Delete(testFile);
                 }
             }
@@ -674,14 +647,23 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
-        /// Gets instance status, to be used in a varz message.
+        /// Gets instances status, to be used in a varz message.
         /// </summary>
-        /// <returns>An array containing the status of each instance.</returns>
+        /// <returns>An object containing the status of the instance.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
-        private object[] GetInstanceStatus()
+        private object GetVarz(ProvisionedService instance)
         {
-            // todo: vladi: implement this
-            return new object[0];
+            var varz = new Dictionary<string, object>();
+            varz["name"] = instance.Name;
+            varz["port"] = instance.Port;
+            varz["plan"] = instance.Plan;
+            varz["max_storage_size"] = this.maxStorageSizeMB;
+
+            var usage = new Dictionary<string, object>();
+            varz["usage"] = usage;
+
+            // TODO: stefi: complete this instance varz
+            return varz;
         }
 
         /// <summary>

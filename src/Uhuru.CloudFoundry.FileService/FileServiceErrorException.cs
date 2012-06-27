@@ -19,27 +19,27 @@ namespace Uhuru.CloudFoundry.FileService
         /// <summary>
         /// This is an error code used when disk is full.
         /// </summary>
-        public static readonly ServiceErrorCode MSSqlDiskFull = new ServiceErrorCode() { ErrorCode = 31001, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageDiskFull };
+        public static readonly ServiceErrorCode FileServiceDiskFull = new ServiceErrorCode() { ErrorCode = 31021, HttpError = HttpErrorCode.HttpInternal, Message = Strings.FileServiceErrorMessageDiskFull };
 
         /// <summary>
         /// This is an error code used when the configuration settings are not found.
         /// </summary>
-        public static readonly ServiceErrorCode MSSqlConfigNotFound = new ServiceErrorCode() { ErrorCode = 31002, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.SqlServerErrorMessageConfigurationNotFound };
+        public static readonly ServiceErrorCode FileServiceConfigNotFound = new ServiceErrorCode() { ErrorCode = 31022, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.FileServiceErrorMessageConfigurationNotFound };
 
         /// <summary>
         /// This is an error code used when db credentials are not found.
         /// </summary>
-        public static readonly ServiceErrorCode MSSqlCredentialsNotFound = new ServiceErrorCode() { ErrorCode = 31003, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.SqlServerErrorMessageCredentialNotFound };
+        public static readonly ServiceErrorCode FileServiceCredentialsNotFound = new ServiceErrorCode() { ErrorCode = 31023, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.FileServiceErrorMessageCredentialNotFound };
 
         /// <summary>
         /// This is an error code used when the local database of the node is not found.
         /// </summary>
-        public static readonly ServiceErrorCode MSSqlLocalDBError = new ServiceErrorCode() { ErrorCode = 31004, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageLocalDBError };
+        public static readonly ServiceErrorCode FileServiceLocalDBError = new ServiceErrorCode() { ErrorCode = 31002, HttpError = HttpErrorCode.HttpInternal, Message = Strings.FileServiceErrorMessageLocalDBError };
 
         /// <summary>
         /// This is an error code used when an invalid plan has been specified.
         /// </summary>
-        public static readonly ServiceErrorCode MSSqlInvalidPlan = new ServiceErrorCode() { ErrorCode = 31005, HttpError = HttpErrorCode.HttpInternal, Message = Strings.SqlServerErrorMessageInvalidPlan };
+        public static readonly ServiceErrorCode FileServiceInvalidPlan = new ServiceErrorCode() { ErrorCode = 31025, HttpError = HttpErrorCode.HttpInternal, Message = Strings.FileServiceErrorMessageInvalidPlan };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileServiceErrorException"/> class.
@@ -76,7 +76,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Initializes a new instance of the <see cref="FileServiceErrorException"/> class.
         /// </summary>
         public FileServiceErrorException()
-            : this(0, HttpErrorCode.None, "SQL Server Node Error")
+            : this(0, HttpErrorCode.None, "Uhuru File Service Node Error")
         {
         }
 
