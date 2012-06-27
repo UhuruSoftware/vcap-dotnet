@@ -189,7 +189,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         /// <param name="planRequest">The payment plan for the service.</param>
         /// <returns>Credentials for the provisioned service.</returns>
-        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType planRequest);
+        protected abstract ServiceCredentials Provision(string planRequest);
 
         /// <summary>
         /// Subclasses have to implement this in order to provision services.
@@ -197,7 +197,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <param name="planRequest">The payment plan for the service.</param>
         /// <param name="credentials">Existing credentials for the service.</param>
         /// <returns>Credentials for the provisioned service.</returns>
-        protected abstract ServiceCredentials Provision(ProvisionedServicePlanType planRequest, ServiceCredentials credentials);
+        protected abstract ServiceCredentials Provision(string planRequest, ServiceCredentials credentials);
 
         /// <summary>
         /// Subclasses have to implement this in order to unprovision services.
@@ -257,7 +257,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <param name="filePath">The file path from which to import the service.</param>
         /// <param name="planRequest">The payment plan.</param>
         /// <returns>A bool indicating whether the request was successful.</returns>
-        protected abstract bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType planRequest);
+        protected abstract bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, string planRequest);
 
         /// <summary>
         /// Enables the instance.
@@ -320,7 +320,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
             provision_req.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(msg));
 
-            ProvisionedServicePlanType plan = provision_req.Plan;
+            string plan = provision_req.Plan;
             ServiceCredentials credentials = provision_req.Credentials;
 
             if (credentials == null)
@@ -833,7 +833,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
             object[] credentials = new object[0];
             credentials = JsonConvertibleObject.DeserializeFromJsonArray(msg);
 
-            ProvisionedServicePlanType plan = (ProvisionedServicePlanType)Enum.Parse(typeof(ProvisionedServicePlanType), JsonConvertibleObject.ObjectToValue<string>(credentials[0]));
+            string plan = JsonConvertibleObject.ObjectToValue<string>(credentials[0]);
 
             ServiceCredentials prov_cred = new ServiceCredentials();
             ServiceCredentials binding_creds = new ServiceCredentials();

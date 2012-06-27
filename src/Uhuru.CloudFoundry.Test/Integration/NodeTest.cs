@@ -74,7 +74,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 provisionedService.User = "testuser_" + decoration;
                 provisionedService.Password = "password1234!";
-                provisionedService.Plan = ProvisionedServicePlanType.Free;
+                provisionedService.Plan = "free";
 
                 //////////////////////////////////////////////////////////////////////////
                 // create the provisioned service db and user

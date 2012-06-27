@@ -16,17 +16,6 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using Uhuru.Utilities.Json;
 
     /// <summary>
-    /// Enum detailing service plan types.
-    /// </summary>
-    public enum ProvisionedServicePlanType
-    {
-        /// <summary>
-        /// Free plan.
-        /// </summary>
-        Free
-    }
-
-    /// <summary>
     /// Class containing information about a provisioned service.
     /// </summary>
     [Serializable]
@@ -70,7 +59,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Billing plan for the service.
         /// </summary>
-        private ProvisionedServicePlanType plan;
+        private string plan;
         
         /// <summary>
         /// Indicates whether quota has been exceeded.
@@ -166,7 +155,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// Gets or sets the payment plan for the provisioned service.
         /// </summary>
         [JsonName("plan")]
-        public ProvisionedServicePlanType Plan
+        public string Plan
         {
             get
             {

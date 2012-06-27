@@ -20,7 +20,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"), 
         JsonName("plan")]
-        public ProvisionedServicePlanType Plan
+        public string Plan
         {
             get;
             set;

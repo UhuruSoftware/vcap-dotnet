@@ -152,7 +152,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, ProvisionedServicePlanType planRequest)
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, string planRequest)
         {
             // todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -262,7 +262,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(ProvisionedServicePlanType planRequest)
+        protected override ServiceCredentials Provision(string planRequest)
         {
             return Provision(planRequest, null);
         }
@@ -275,7 +275,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(ProvisionedServicePlanType planRequest, ServiceCredentials credentials)
+        protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials)
         {
             //// todo: chek for plan
             ProvisionedService provisioned_service = new ProvisionedService();
