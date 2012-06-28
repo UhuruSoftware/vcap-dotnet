@@ -32,6 +32,40 @@ namespace Uhuru.Configuration.Service
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the flag if VHD is used when creating a file serivce instance.
+        /// </summary>
+        [ConfigurationProperty("use_vhd", IsRequired = false, DefaultValue = false)]
+        public bool UseVHD
+        {
+            get
+            {
+                return (bool)base["use_vhd"];
+            }
+
+            set
+            {
+                base["use_vhd"] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether VHD is created with a fixed sized or is dynamicly expanded.
+        /// </summary>
+        [ConfigurationProperty("vhd_fixed_size", IsRequired = false, DefaultValue = false)]
+        public bool VHDFixedSize
+        {
+            get
+            {
+                return (bool)base["vhd_fixed_size"];
+            }
+
+            set
+            {
+                base["vhd_fixed_size"] = value;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the <see cref="T:System.Configuration.ConfigurationElement"/> object is read-only.
         /// </summary>
         /// <returns>

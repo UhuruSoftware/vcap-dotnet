@@ -18,6 +18,8 @@
       <word>Ulimit</word>
       <word>Unmount</word>
       <word>ip</word>
+      <word>diskSizeMiB</word>
+      <word>MiB</word>
     </Recognized>
   </Words>
   <Acronyms>
@@ -33,6 +35,8 @@
       <Acronym>FDS</Acronym>
       <Acronym>ip</Acronym>
       <Acronym>IP</Acronym>
+      <Acronym>VHD</Acronym>
+      <Acronym>MiB</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>
