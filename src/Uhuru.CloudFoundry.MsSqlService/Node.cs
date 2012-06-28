@@ -529,8 +529,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.DeleteDatabase(provisioned_service);
 
-            this.capacity += this.CapacityUnit();
-
             if (!provisioned_service.Destroy())
             {
                 Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
@@ -821,12 +819,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
                 this.CreateDatabaseUser(databaseName, databaseUser, databasePassword);
 
-                if (this.capacity < this.CapacityUnit())
-                {
-                    throw new MSSqlErrorException(MSSqlErrorException.MSSqlDiskFull);
-                }
-
-                this.capacity -= this.CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)

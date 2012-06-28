@@ -361,7 +361,6 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             this.DeleteDirectory(provisioned_service);
-            this.capacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
             {
@@ -572,12 +571,6 @@ namespace Uhuru.CloudFoundry.FileService
 
                 WindowsShare.CreateShare(name, directory);
 
-                if (this.capacity < this.CapacityUnit())
-                {
-                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceDiskFull);
-                }
-
-                this.capacity -= CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)

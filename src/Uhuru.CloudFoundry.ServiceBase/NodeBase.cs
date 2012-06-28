@@ -339,6 +339,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                         response.Credentials = credential;
 
+                        this.capacity -= CapacityUnit();
                         Logger.Debug(
                             Strings.OnProvisionSuccessDebugLogMessage,
                             ServiceDescription(),
@@ -388,6 +389,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
                         if (result)
                         {
                             this.nodeNats.Publish(reply, null, EncodeSuccess(response));
+                            this.capacity += CapacityUnit();
                         }
                         else
                         {
