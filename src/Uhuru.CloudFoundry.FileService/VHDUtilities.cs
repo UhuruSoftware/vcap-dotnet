@@ -24,7 +24,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Executes the diskpart script.
         /// </summary>
         /// <param name="script">The script.</param>
-        /// <returns>Output script.</returns>
+        /// <returns>Output script.</returns>help l
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Code more readeble."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String)", Justification = "Code more readeble."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String)", Justification = "Code more readeble.")]
@@ -34,6 +34,7 @@ namespace Uhuru.CloudFoundry.FileService
             File.WriteAllText(tempScriptFile, script);
             ProcessStartInfo psi = new ProcessStartInfo("diskpart", "/s " + "\"" + tempScriptFile + "\"");
             psi.UseShellExecute = false;
+            psi.CreateNoWindow = true;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
             
@@ -47,13 +48,13 @@ namespace Uhuru.CloudFoundry.FileService
 
             if (ps.ExitCode != 0)
             {
-                Logger.Error(message);
+                // Logger.Error(message);
                 throw new Exception(message);
             }
 
             File.Delete(tempScriptFile);
 
-            Logger.Info(message);
+            // Logger.Info(message);
             return output;
         }
 
@@ -98,6 +99,7 @@ namespace Uhuru.CloudFoundry.FileService
                 @"
                     select vdisk file=""{0}"" noerr
                     attach vdisk noerr
+                    select partition 1
                     assign mount=""{1}"" noerr
                 ";
 
@@ -129,8 +131,6 @@ namespace Uhuru.CloudFoundry.FileService
                 path);
 
             ExecuteDiskPartScript(script);
-
-            Directory.Delete(path);
         }
     }
 }
