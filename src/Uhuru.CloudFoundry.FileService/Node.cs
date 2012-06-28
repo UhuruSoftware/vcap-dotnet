@@ -361,7 +361,6 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             this.DeleteDirectory(provisioned_service);
-            this.capacity += this.CapacityUnit();
 
             if (!provisioned_service.Destroy())
             {
@@ -553,6 +552,8 @@ namespace Uhuru.CloudFoundry.FileService
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         private void CreateDirectory(ProvisionedService provisionedService)
         {
+            
+
             string name = provisionedService.Name;
             string password = provisionedService.Password;
             string user = provisionedService.User;
@@ -560,6 +561,9 @@ namespace Uhuru.CloudFoundry.FileService
 
             try
             {
+
+
+
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
@@ -572,12 +576,6 @@ namespace Uhuru.CloudFoundry.FileService
 
                 WindowsShare.CreateShare(name, directory);
 
-                if (this.capacity < this.CapacityUnit())
-                {
-                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceDiskFull);
-                }
-
-                this.capacity -= CapacityUnit();
                 Logger.Debug(Strings.SqlNodeDoneCreatingDBDebugMessage, provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
             }
             catch (Exception ex)
