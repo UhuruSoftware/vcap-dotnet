@@ -37,7 +37,7 @@ namespace Uhuru.CloudFoundry.FileService
             psi.CreateNoWindow = true;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
-            
+
             var ps = Process.Start(psi);
 
             ps.WaitForExit();
@@ -69,11 +69,11 @@ namespace Uhuru.CloudFoundry.FileService
         {
             string script =
                 @"
-                    create vdisk file=""{0}""  maximum={1} type={2} noerr
-                    attach vdisk noerr
-                    create partition primary  noerr
-                    format quick noerr
-                    detach vdisk noerr
+                    create vdisk file=""{0}""  maximum={1} type={2}
+                    attach vdisk
+                    create partition primary 
+                    format quick
+                    detach vdisk
                 ";
 
             script = string.Format(
@@ -97,10 +97,24 @@ namespace Uhuru.CloudFoundry.FileService
 
             string script =
                 @"
-                    select vdisk file=""{0}"" noerr
-                    attach vdisk noerr
+                    select vdisk file=""{0}""
+                    attach vdisk
+                ";
+
+            script = string.Format(
+                CultureInfo.InvariantCulture,
+                script,
+                path);
+
+            ExecuteDiskPartScript(script);
+
+            // Retry on `assign mount` because of this bug: http://social.technet.microsoft.com/Forums/en-US/w7itproinstall/thread/688379ec-79b1-4d2a-a866-a0eef4f3a93c/
+            script =
+                @"
+                    select vdisk file=""{0}""
                     select partition 1
-                    assign mount=""{1}"" noerr
+                    rescan
+                    assign mount=""{1}""
                 ";
 
             script = string.Format(
@@ -109,7 +123,26 @@ namespace Uhuru.CloudFoundry.FileService
                 path,
                 mountPath);
 
-            ExecuteDiskPartScript(script);
+            int retryCount = 20;
+            while (true)
+            {
+                try
+                {
+                    ExecuteDiskPartScript(script);
+                }
+                catch (Exception)
+                {
+                    if (retryCount > 0)
+                    {
+                        retryCount--;
+                        continue;
+                    }
+
+                    throw;
+                }
+
+                break;
+            }
         }
 
         /// <summary>
@@ -121,8 +154,10 @@ namespace Uhuru.CloudFoundry.FileService
         {
             string script =
                 @"
-                    select vdisk file=""{0}"" noerr
-                    detach vdisk noerr
+                    select vdisk file=""{0}""
+                    select partition 1
+                    remove all
+                    detach vdisk
                 ";
 
             script = string.Format(

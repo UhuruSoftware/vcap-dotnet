@@ -42,6 +42,18 @@ namespace Uhuru.CloudFoundry.FileService
         private long maxStorageSizeMB;
 
         /// <summary>
+        /// Maximum storage size. Value in MB.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
+        private bool useVhd;
+
+        /// <summary>
+        /// Maximum storage size. Value in MB.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
+        private bool vhdFixedSize;
+
+        /// <summary>
         /// Number of directory provision requests served by the node.
         /// </summary>
         private int provisionServed;
@@ -79,6 +91,8 @@ namespace Uhuru.CloudFoundry.FileService
 
             this.baseDir = options.BaseDir;
             this.maxStorageSizeMB = options.Uhurufs.MaxStorageSize;
+            this.useVhd = options.Uhurufs.UseVHD;
+            this.vhdFixedSize = options.Uhurufs.VHDFixedSize;
 
             TimerHelper.RecurringCall(
                 StorageQuotaInterval,
@@ -563,9 +577,17 @@ namespace Uhuru.CloudFoundry.FileService
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
                 string directory = Path.Combine(this.baseDir, name);
+                string vhd = Path.Combine(this.baseDir, name + ".vhd");
+
                 Directory.CreateDirectory(directory);
 
                 CreateUser(name, user, password);
+
+                if (this.useVhd)
+                {
+                    VHDUtilities.CreateVHD(vhd, this.maxStorageSizeMB, this.vhdFixedSize);
+                    VHDUtilities.MountVHD(vhd, directory);
+                }
 
                 FtpUtilities.CreateFtpSite(name, directory, port);
 
@@ -596,11 +618,18 @@ namespace Uhuru.CloudFoundry.FileService
                 Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
                 string directory = Path.Combine(this.baseDir, name);
+                string vhd = Path.Combine(this.baseDir, name + ".vhd");
 
                 FtpUtilities.DeleteFtpSite(name);
 
                 WindowsShare ws = new WindowsShare(name);
                 ws.DeleteShare();
+
+                if (this.useVhd)
+                {
+                    VHDUtilities.UnmountVHD(vhd);
+                    File.Delete(vhd);
+                }
 
                 Directory.Delete(directory, true);
             }

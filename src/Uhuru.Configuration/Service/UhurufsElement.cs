@@ -34,34 +34,34 @@ namespace Uhuru.Configuration.Service
         /// <summary>
         /// Gets or sets a value indicating whether the flag if VHD is used when creating a file serivce instance.
         /// </summary>
-        [ConfigurationProperty("use_vhd", IsRequired = false, DefaultValue = false)]
+        [ConfigurationProperty("useVhd", IsRequired = false, DefaultValue = false)]
         public bool UseVHD
         {
             get
             {
-                return (bool)base["use_vhd"];
+                return (bool)base["useVhd"];
             }
 
             set
             {
-                base["use_vhd"] = value;
+                base["useVhd"] = value;
             }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether VHD is created with a fixed sized or is dynamicly expanded.
         /// </summary>
-        [ConfigurationProperty("vhd_fixed_size", IsRequired = false, DefaultValue = false)]
+        [ConfigurationProperty("vhdFixedSize", IsRequired = false, DefaultValue = false)]
         public bool VHDFixedSize
         {
             get
             {
-                return (bool)base["vhd_fixed_size"];
+                return (bool)base["vhdFixedSize"];
             }
 
             set
             {
-                base["vhd_fixed_size"] = value;
+                base["vhdFixedSize"] = value;
             }
         }
 
