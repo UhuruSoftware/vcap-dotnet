@@ -4,50 +4,6 @@
         <name>Uhuru.Utilities.v3_5</name>
     </assembly>
     <members>
-        <member name="T:Uhuru.Utilities.WindowsVCAPUsers">
-            <summary>
-            This is a helper class for creating Windows Users.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.WindowsVCAPUsers.UserDecoration">
-            <summary>
-            A prefix that is appended to all created Windows users.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(System.String,System.String)">
-            <summary>
-            Creates a user based on an id. The created user has a prefix added to it.
-            </summary>
-            <param name="id">An id for the username.</param>
-            <param name="password">A password for the user. Make sure it's strong.</param>
-            <returns>The final username of the newly created Windows User.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateUser(System.String,System.String)">
-            <summary>
-            Creates a user based on an id. The created user has a prefix added to it.
-            </summary>
-            <param name="userName">The username.</param>
-            <param name="password">A password for the user. Make sure it's strong.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(System.String)">
-            <summary>
-            Deletes a windows user based on an Id.
-            </summary>
-            <param name="id">The id that was used to create the user.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(System.String)">
-            <summary>
-            Deletes a windows user based on an Id.
-            </summary>
-            <param name="userName">The username.</param>
-        </member>
-        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DecorateUser(System.String)">
-            <summary>
-            Returns a string that is unique for a given user.
-            </summary>
-            <param name="id"> The id of the user. </param>
-            <returns> The unique string.</returns>
-        </member>
         <member name="T:Uhuru.Utilities.Json.JsonConvertibleObject">
             <summary>
             This object is used for serialization/deserialization of objects into/from JSON.
@@ -125,23 +81,53 @@
             <param name="member">The member (can be a field or a property).</param>
             <param name="value">The value.</param>
         </member>
-        <member name="T:Uhuru.Utilities.Credentials">
+        <member name="T:Uhuru.Utilities.NetworkInterface">
             <summary>
-            This is a helper class that generates credential strings, such as usernames and passwords.
+            Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
             </summary>
         </member>
-        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential">
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress">
             <summary>
-            Generates a credential string with a default length of 12 characters.
+            Get an IP using 198.41.0.4 as a target for openining a socket.
             </summary>
-            <returns>A string containing a randomly generated string with length 12.</returns>
+            <returns>The IP used by the OS to connect to 198.41.0.4</returns>
         </member>
-        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential(System.Int32)">
+        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress(System.String)">
             <summary>
-            Generates a credential string using the specified length.
+            Returns the IP used by the OS to connect to the RouteIPAddress.
+            Pointing to a interface address will return that address.
             </summary>
-            <param name="length">An int specifying the length of the generated string.</param>
-            <returns>A string containing a randomly generated string.</returns>
+            <param name="routeIPAddress">The route IP address.</param>
+            <returns>The local IP address.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.NetworkInterface.GrabEphemeralPort">
+            <summary>
+            This method returns a free port.
+            </summary>
+            <returns>An int that is the free port.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
+            <summary>
+            This is an attribute that is used to decorate fields/properties/enums with JSON names.
+            The JSON name will be used instead of the member's name when serializing.
+            This is used in conjunction <see cref="T:Uhuru.Utilities.Json.JsonConvertibleObject"/>.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.Json.JsonNameAttribute.name">
+            <summary>
+            The JSON name of the member.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Json.JsonNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Uhuru.Utilities.Json.JsonNameAttribute"/> class.
+            </summary>
+            <param name="name">The JSON name of the member.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.Json.JsonNameAttribute.Name">
+            <summary>
+            Gets the Name of the member.
+            </summary>
         </member>
         <member name="T:Uhuru.Utilities.Logger">
             <summary>
@@ -243,168 +229,6 @@
             Sets up the event log source.
             </summary>
         </member>
-        <member name="T:Uhuru.Utilities.RubyCompatibility">
-            <summary>
-            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
-            <summary>
-            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
-            </summary>
-            <param name="date">DateTime to be converted.</param>
-            <returns>An int containing the number of seconds.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
-            <summary>
-            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
-            </summary>
-            <param name="seconds">An int containing the number of seconds.</param>
-            <returns>A DateTime containing the converted value.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
-            <summary>
-            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
-            </summary>
-            <param name="date">The DateTime to be converted.</param>
-            <returns>A string with the formatted date and time.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
-            <summary>
-            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
-            </summary>
-            <param name="date">A string containing the formatted date and time.</param>
-            <returns>A DateTime containing the converted value.</returns>
-        </member>
-        <member name="T:Uhuru.Utilities.NetworkInterface">
-            <summary>
-            Helper class used to retrieve a local ip; this is useful when the machine has multiple NICs
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress">
-            <summary>
-            Get an IP using 198.41.0.4 as a target for openining a socket.
-            </summary>
-            <returns>The IP used by the OS to connect to 198.41.0.4</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.NetworkInterface.GetLocalIPAddress(System.String)">
-            <summary>
-            Returns the IP used by the OS to connect to the RouteIPAddress.
-            Pointing to a interface address will return that address.
-            </summary>
-            <param name="routeIPAddress">The route IP address.</param>
-            <returns>The local IP address.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.NetworkInterface.GrabEphemeralPort">
-            <summary>
-            This method returns a free port.
-            </summary>
-            <returns>An int that is the free port.</returns>
-        </member>
-        <member name="T:Uhuru.Utilities.TimerCallback">
-            <summary>
-            Delegate definition that refers to a method to be called when a timer tick occurs.
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.TimerHelper">
-            <summary>
-            This is a helper class that provides the developer with easy methods of creating timers.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.TimerHelper.DelayedCall(System.Double,Uhuru.Utilities.TimerCallback)">
-            <summary>
-            This method creates a timer that ticks only once and runs a callback method.
-            This method is non-blocking.
-            </summary>
-            <param name="delay">A double specifying the amount of time to sleep before calling the callback method.</param>
-            <param name="callback">A method that gets called when the timer ticks.</param>
-            <returns>The timer that is used to delay the call to the callback method.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.TimerHelper.RecurringCall(System.Double,Uhuru.Utilities.TimerCallback)">
-            <summary>
-            This method creates a timer that ticks forever, and on each tick it calls a callback method.
-            This method is non-blocking.
-            </summary>
-            <param name="delay">A double specifying the interval between each tick.</param>
-            <param name="callback">A method that gets called when the timer ticks.</param>
-            <returns>The timer that is created.</returns>
-        </member>
-        <member name="M:Uhuru.Utilities.TimerHelper.RecurringLongCall(System.Double,Uhuru.Utilities.TimerCallback)">
-            <summary>
-            This method creates a timer that ticks once, and on each tick it calls a callback method.
-            After each call to the callback method, the timer is reset.
-            This method is non-blocking.
-            </summary>
-            <param name="delay">A double specifying the interval between each call of the callback method.</param>
-            <param name="callback">A method that gets called when the timer ticks.</param>
-            <returns>The timer that is created.</returns>
-        </member>
-        <member name="T:Uhuru.Utilities.DiskUsageEntry">
-            <summary>
-            This class contains disk usage information.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.DiskUsageEntry.readableSize">
-            <summary>
-            Directory size as a human readable string.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.DiskUsageEntry.sizeKB">
-            <summary>
-            Directory size in kilobytes.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.DiskUsageEntry.directory">
-            <summary>
-            The path to the directory.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.DiskUsageEntry.#ctor(System.String,System.Int64,System.String)">
-            <summary>
-            Initializes a new instance of the DiskUsageEntry class.
-            </summary>
-            <param name="readableSize">Directory size as a human readable string.</param>
-            <param name="size">Directory size in kilobytes.</param>
-            <param name="directory">The directory path.</param>
-        </member>
-        <member name="P:Uhuru.Utilities.DiskUsageEntry.ReadableSize">
-            <summary>
-            Gets the directory size as a human readable string.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.DiskUsageEntry.SizeKB">
-            <summary>
-            Gets the directory size in kilobytes.
-            </summary>
-        </member>
-        <member name="P:Uhuru.Utilities.DiskUsageEntry.Directory">
-            <summary>
-            Gets the directory path.
-            </summary>
-        </member>
-        <member name="T:Uhuru.Utilities.Json.JsonNameAttribute">
-            <summary>
-            This is an attribute that is used to decorate fields/properties/enums with JSON names.
-            The JSON name will be used instead of the member's name when serializing.
-            This is used in conjunction <see cref="T:Uhuru.Utilities.Json.JsonConvertibleObject"/>.
-            </summary>
-        </member>
-        <member name="F:Uhuru.Utilities.Json.JsonNameAttribute.name">
-            <summary>
-            The JSON name of the member.
-            </summary>
-        </member>
-        <member name="M:Uhuru.Utilities.Json.JsonNameAttribute.#ctor(System.String)">
-            <summary>
-            Initializes a new instance of the <see cref="T:Uhuru.Utilities.Json.JsonNameAttribute"/> class.
-            </summary>
-            <param name="name">The JSON name of the member.</param>
-        </member>
-        <member name="P:Uhuru.Utilities.Json.JsonNameAttribute.Name">
-            <summary>
-            Gets the Name of the member.
-            </summary>
-        </member>
         <member name="T:Uhuru.Utilities.Strings">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
@@ -450,6 +274,182 @@
             <summary>
               Looks up a localized string similar to Unhandled exception caught in ElapsedEventHandler.
             </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.DiskUsageEntry">
+            <summary>
+            This class contains disk usage information.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.readableSize">
+            <summary>
+            Directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.sizeKB">
+            <summary>
+            Directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.DiskUsageEntry.directory">
+            <summary>
+            The path to the directory.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.DiskUsageEntry.#ctor(System.String,System.Int64,System.String)">
+            <summary>
+            Initializes a new instance of the DiskUsageEntry class.
+            </summary>
+            <param name="readableSize">Directory size as a human readable string.</param>
+            <param name="size">Directory size in kilobytes.</param>
+            <param name="directory">The directory path.</param>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.ReadableSize">
+            <summary>
+            Gets the directory size as a human readable string.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.SizeKB">
+            <summary>
+            Gets the directory size in kilobytes.
+            </summary>
+        </member>
+        <member name="P:Uhuru.Utilities.DiskUsageEntry.Directory">
+            <summary>
+            Gets the directory path.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.Credentials">
+            <summary>
+            This is a helper class that generates credential strings, such as usernames and passwords.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential">
+            <summary>
+            Generates a credential string with a default length of 12 characters.
+            </summary>
+            <returns>A string containing a randomly generated string with length 12.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.Credentials.GenerateCredential(System.Int32)">
+            <summary>
+            Generates a credential string using the specified length.
+            </summary>
+            <param name="length">An int specifying the length of the generated string.</param>
+            <returns>A string containing a randomly generated string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.WindowsVCAPUsers">
+            <summary>
+            This is a helper class for creating Windows Users.
+            </summary>
+        </member>
+        <member name="F:Uhuru.Utilities.WindowsVCAPUsers.UserDecoration">
+            <summary>
+            A prefix that is appended to all created Windows users.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateDecoratedUser(System.String,System.String)">
+            <summary>
+            Creates a user based on an id. The created user has a prefix added to it.
+            </summary>
+            <param name="id">An id for the username.</param>
+            <param name="password">A password for the user. Make sure it's strong.</param>
+            <returns>The final username of the newly created Windows User.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.CreateUser(System.String,System.String)">
+            <summary>
+            Creates a user based on an id. The created user has a prefix added to it.
+            </summary>
+            <param name="userName">The username.</param>
+            <param name="password">A password for the user. Make sure it's strong.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(System.String)">
+            <summary>
+            Deletes a windows user based on an Id.
+            </summary>
+            <param name="id">The id that was used to create the user.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(System.String)">
+            <summary>
+            Deletes a windows user based on an Id.
+            </summary>
+            <param name="userName">The username.</param>
+        </member>
+        <member name="M:Uhuru.Utilities.WindowsVCAPUsers.DecorateUser(System.String)">
+            <summary>
+            Returns a string that is unique for a given user.
+            </summary>
+            <param name="id"> The id of the user. </param>
+            <returns> The unique string.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerCallback">
+            <summary>
+            Delegate definition that refers to a method to be called when a timer tick occurs.
+            </summary>
+        </member>
+        <member name="T:Uhuru.Utilities.TimerHelper">
+            <summary>
+            This is a helper class that provides the developer with easy methods of creating timers.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.DelayedCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks only once and runs a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the amount of time to sleep before calling the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is used to delay the call to the callback method.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks forever, and on each tick it calls a callback method.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each tick.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.TimerHelper.RecurringLongCall(System.Double,Uhuru.Utilities.TimerCallback)">
+            <summary>
+            This method creates a timer that ticks once, and on each tick it calls a callback method.
+            After each call to the callback method, the timer is reset.
+            This method is non-blocking.
+            </summary>
+            <param name="delay">A double specifying the interval between each call of the callback method.</param>
+            <param name="callback">A method that gets called when the timer ticks.</param>
+            <returns>The timer that is created.</returns>
+        </member>
+        <member name="T:Uhuru.Utilities.RubyCompatibility">
+            <summary>
+            This is a helper class that containg methods useful for converting .Net variables to Ruby formats.
+            </summary>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToEpochSeconds(System.DateTime)">
+            <summary>
+            This method converts a DateTime to its equivalent in number of seconds from the Epoch - 1st of January 1970.
+            </summary>
+            <param name="date">DateTime to be converted.</param>
+            <returns>An int containing the number of seconds.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromEpochSeconds(System.Int32)">
+            <summary>
+            This method converts a number of seconds from the Epoch (1st of January 1970) to a DateTime value.
+            </summary>
+            <param name="seconds">An int containing the number of seconds.</param>
+            <returns>A DateTime containing the converted value.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeToRubyString(System.DateTime)">
+            <summary>
+            This method converts a DateTime value to a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz).
+            </summary>
+            <param name="date">The DateTime to be converted.</param>
+            <returns>A string with the formatted date and time.</returns>
+        </member>
+        <member name="M:Uhuru.Utilities.RubyCompatibility.DateTimeFromRubyString(System.String)">
+            <summary>
+            This method converts a Ruby Time string (yyyy-MM-dd HH:mm:ss zzz) to a .Net DateTime.
+            </summary>
+            <param name="date">A string containing the formatted date and time.</param>
+            <returns>A DateTime containing the converted value.</returns>
         </member>
     </members>
 </doc>

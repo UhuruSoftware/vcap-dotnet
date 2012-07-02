@@ -290,7 +290,7 @@ namespace Uhuru.CloudFoundry.FileService
                 this.CreateDirectory(provisioned_service);
 
                 // add directory permissions
-                string directory = Path.Combine(this.baseDir, name);
+                string directory = this.GetInstanceDirectory(name);
                 AddDirectoryPermissions(directory, user);
 
                 // add permissions to ftp share
@@ -440,7 +440,7 @@ namespace Uhuru.CloudFoundry.FileService
                 CreateUser(name, binding["user"] as string, binding["password"] as string);
 
                 // add directory permissions
-                string directory = Path.Combine(this.baseDir, name);
+                string directory = this.GetInstanceDirectory(name);
                 AddDirectoryPermissions(directory, binding["user"] as string);
 
                 // add permissions to ftp site
@@ -516,16 +516,17 @@ namespace Uhuru.CloudFoundry.FileService
         /// <param name="usename">The usename.</param>
         private static void AddDirectoryPermissions(string directoryPath, string usename)
         {
-            DirectoryInfo dir = Directory.CreateDirectory(directoryPath);
-
+            DirectoryInfo dir = new DirectoryInfo(directoryPath);
             DirectorySecurity deploymentDirSecurity = dir.GetAccessControl();
+
             deploymentDirSecurity.SetAccessRule(
                 new FileSystemAccessRule(
                     usename,
-                    FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify,
+                    FileSystemRights.FullControl,
                     InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
                     PropagationFlags.None,
                     AccessControlType.Allow));
+
             dir.SetAccessControl(deploymentDirSecurity);
         }
 
@@ -576,18 +577,19 @@ namespace Uhuru.CloudFoundry.FileService
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                string directory = Path.Combine(this.baseDir, name);
-                string vhd = Path.Combine(this.baseDir, name + ".vhd");
+                if (this.useVhd)
+                {
+                    string vhdDirectory = Path.Combine(this.baseDir, name);
+                    string vhd = Path.Combine(this.baseDir, name + ".vhd");
 
-                Directory.CreateDirectory(directory);
+                    VHDUtilities.CreateVHD(vhd, this.maxStorageSizeMB, this.vhdFixedSize);
+                    VHDUtilities.MountVHD(vhd, vhdDirectory);
+                }
 
                 CreateUser(name, user, password);
 
-                if (this.useVhd)
-                {
-                    VHDUtilities.CreateVHD(vhd, this.maxStorageSizeMB, this.vhdFixedSize);
-                    VHDUtilities.MountVHD(vhd, directory);
-                }
+                string directory = this.GetInstanceDirectory(name);
+                Directory.CreateDirectory(directory);
 
                 FtpUtilities.CreateFtpSite(name, directory, port);
 
@@ -617,21 +619,24 @@ namespace Uhuru.CloudFoundry.FileService
                 DeleteUser(user);
                 Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
-                string directory = Path.Combine(this.baseDir, name);
-                string vhd = Path.Combine(this.baseDir, name + ".vhd");
+                string directory = this.GetInstanceDirectory(name);
 
                 FtpUtilities.DeleteFtpSite(name);
 
                 WindowsShare ws = new WindowsShare(name);
                 ws.DeleteShare();
 
+                Directory.Delete(directory, true);
+
                 if (this.useVhd)
                 {
+                    string vhdDirectory = Path.Combine(this.baseDir, name);
+                    string vhd = Path.Combine(this.baseDir, name + ".vhd");
+
                     VHDUtilities.UnmountVHD(vhd);
                     File.Delete(vhd);
+                    Directory.Delete(vhdDirectory, true);
                 }
-
-                Directory.Delete(directory, true);
             }
             catch (Exception ex)
             {
@@ -654,7 +659,7 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 using (new UserImpersonator(instance.User, ".", instance.Password, false))
                 {
-                    string testFile = Path.Combine(this.baseDir, instance.Name, Guid.NewGuid().ToString("N"));
+                    string testFile = Path.Combine(this.GetInstanceDirectory(instance.Name), Guid.NewGuid().ToString("N"));
                     File.WriteAllText(testFile, "test");
                     File.Delete(testFile);
                 }
@@ -713,6 +718,23 @@ namespace Uhuru.CloudFoundry.FileService
             response.Password = password;
 
             return response;
+        }
+
+        /// <summary>
+        /// Gets the instance dir.
+        /// </summary>
+        /// <param name="instanceName">Name of the instance.</param>
+        /// <returns>Instance directory</returns>
+        private string GetInstanceDirectory(string instanceName)
+        {
+            if (this.useVhd)
+            {
+                return Path.Combine(this.baseDir, instanceName, instanceName);
+            }
+            else
+            {
+                return Path.Combine(this.baseDir, instanceName);
+            }
         }
     }
 }
