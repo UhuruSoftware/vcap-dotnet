@@ -42,6 +42,18 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile", Justification = "We need Assembly.Load to parse the uhuru configuration section.")]
         public override void Install(IDictionary stateSaver)
         {
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Plan]))
+            {
+                this.serviceInstaller1.DisplayName += " Plan-" + Context.Parameters[Argument.Plan];
+                this.serviceInstaller1.Description += " Plan-" + Context.Parameters[Argument.Plan];
+            }
+
+            // Override the default service name to allow multiple nodes to be installed on the same Windows.
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.ServiceName]))
+            {
+                this.serviceInstaller1.ServiceName = Context.Parameters[Argument.ServiceName];
+            }
+
             base.Install(stateSaver);
 
             string targetDir = Context.Parameters[Argument.TargetDir].TrimEnd('\\');
@@ -99,21 +111,6 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
                 }
 
                 section.Service.LocalRoute = ip;
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDbSize]))
-            {
-                section.Service.MSSql.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongQuery]))
-            {
-                section.Service.MSSql.MaxLengthyQuery = int.Parse(Context.Parameters[Argument.MaxLongQuery], CultureInfo.InvariantCulture);
-            }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongTx]))
-            {
-                section.Service.MSSql.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Mbus]))
@@ -184,6 +181,21 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
         /// <param name="section"> The Uhuru configuration section</param>
         private void SetMsSqlStorageOptions(UhuruSection section)
         {
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxDbSize]))
+            {
+                section.Service.MSSql.MaxDBSize = long.Parse(Context.Parameters[Argument.MaxDbSize], CultureInfo.InvariantCulture);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongQuery]))
+            {
+                section.Service.MSSql.MaxLengthyQuery = int.Parse(Context.Parameters[Argument.MaxLongQuery], CultureInfo.InvariantCulture);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxLongTx]))
+            {
+                section.Service.MSSql.MaxLengthTX = int.Parse(Context.Parameters[Argument.MaxLongTx], CultureInfo.InvariantCulture);
+            }
+
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.LogicalStorageUnits]))
             {
                 section.Service.MSSql.LogicalStorageUnits = Context.Parameters[Argument.LogicalStorageUnits];
@@ -341,9 +353,19 @@ namespace Uhuru.CloudFoundry.MSSqlService.WindowsService
             public const string Port = "port";
 
             /// <summary>
-            /// Parameter name for StatusPort
+            /// Parameter name for plan
+            /// </summary>
+            public const string Plan = "plan";
+
+            /// <summary>
+            /// Parameter name for StatusPort2
             /// </summary>
             public const string StatusPort = "statusPort";
+
+            /// <summary>
+            /// Parameter name for the service name
+            /// </summary>
+            public const string ServiceName = "serviceName";
 
             /// <summary>
             /// Prevents a default instance of the <see cref="Argument"/> class from being created.

@@ -43,6 +43,18 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile", Justification = "We need Assembly.Load to parse the uhuru configuration section.")]
         public override void Install(IDictionary stateSaver)
         {
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.Plan]))
+            {
+                this.serviceInstaller1.DisplayName += " Plan-" + Context.Parameters[Argument.Plan];
+                this.serviceInstaller1.Description += " Plan-" + Context.Parameters[Argument.Plan];
+            }
+
+            // Override the default service name to allow multiple nodes to be installed on the same Windows.
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.ServiceName]))
+            {
+                this.serviceInstaller1.ServiceName = Context.Parameters[Argument.ServiceName];
+            }
+
             base.Install(stateSaver);
 
             string targetDir = Context.Parameters[Argument.TargetDir].TrimEnd('\\');
@@ -135,6 +147,22 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             if (!string.IsNullOrEmpty(Context.Parameters[Argument.Plan]))
             {
                 section.Service.Plan = Context.Parameters[Argument.Plan];
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxStorageSize]))
+            {
+                long maxStorageSize = Convert.ToInt64(Context.Parameters[Argument.MaxStorageSize], CultureInfo.InvariantCulture);
+                section.Service.Uhurufs.MaxStorageSize = maxStorageSize;
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.UseVhd]))
+            {
+                section.Service.Uhurufs.UseVHD = bool.Parse(Context.Parameters[Argument.UseVhd]);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.VhdFixedSize]))
+            {
+                section.Service.Uhurufs.VHDFixedSize = bool.Parse(Context.Parameters[Argument.VhdFixedSize]);
             }
 
             section.DEA = null;
@@ -245,6 +273,26 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             /// Parameter name for StatusPort
             /// </summary>
             public const string StatusPort = "statusPort";
+
+            /// <summary>
+            /// Parameter name for useVhd
+            /// </summary>
+            public const string UseVhd = "useVhd";
+
+            /// <summary>
+            /// Parameter name for maxStorageSize
+            /// </summary>
+            public const string MaxStorageSize = "maxStorageSize";
+
+            /// <summary>
+            /// Parameter name for vhdFixedSize
+            /// </summary>
+            public const string VhdFixedSize = "vhdFixedSize";
+
+            /// <summary>
+            /// Parameter name for the service name
+            /// </summary>
+            public const string ServiceName = "serviceName";
 
             /// <summary>
             /// Prevents a default instance of the <see cref="Argument"/> class from being created.
