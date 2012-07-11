@@ -81,8 +81,8 @@ namespace Uhuru.CloudFoundry.ServiceBase
             this.nodeId = options.NodeId;
             this.plan = options.Plan;
             this.migrationNfs = options.MigrationNFS;
-            this.capacity = options.Capacity;
-            this.maxCapacity = this.capacity;
+            this.maxCapacity = options.Capacity;
+            this.capacity += options.Capacity;
             this.fqdnHosts = options.FqdnHosts;
             this.operationTimeLimit = options.OperationTimeLimit;
 

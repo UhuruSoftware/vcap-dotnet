@@ -222,7 +222,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             this.CheckDBConsistency();
 
-            this.capacity -= this.CapacityUnit() * ProvisionedService.GetInstances().Count();
+            this.capacity = -this.CapacityUnit() * ProvisionedService.GetInstances().Count();
 
             this.queriesServed = 0;
             this.qpsLastUpdated = DateTime.Now;
@@ -333,19 +333,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 object[] status = this.GetInstanceStatus();
                 varz["database_status"] = status;
 
-                // node capacity
-                // varz["node_storage_capacity"] = this.nodeCapacityBytes;
-
-                // varz["node_storage_used"] = this.nodeCapacityBytes - this.availableStorageBytes;
-
                 // how many long queries and long txs are killed.
                 varz["long_queries_killed"] = this.longQueriesKilled;
-
                 varz["long_transactions_killed"] = this.longTxKilled;
 
                 // how many provision/binding operations since startup.
                 varz["provision_served"] = this.provisionServed;
-
                 varz["binding_served"] = this.bindingServed;
                 return varz;
             }
