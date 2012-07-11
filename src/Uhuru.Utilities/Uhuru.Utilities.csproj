@@ -124,6 +124,7 @@
     <Compile Include="WindowsJobObjects\NativeMethods.cs" />
     <Compile Include="WindowsShare.cs" />
     <Compile Include="WindowsShareException.cs" />
+    <Compile Include="WindowsUsersAndGroups.cs" />
     <Compile Include="WindowsVcapUsers.cs" />
   </ItemGroup>
   <ItemGroup>

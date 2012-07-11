@@ -437,7 +437,7 @@ namespace Uhuru.CloudFoundry.FileService
 
                 binding["bind_opts"] = bindOptions;
 
-                CreateUser(name, binding["user"] as string, binding["password"] as string);
+                CreateWindowsUser(name, binding["user"] as string, binding["password"] as string);
 
                 // add directory permissions
                 string directory = this.GetInstanceDirectory(name);
@@ -502,11 +502,11 @@ namespace Uhuru.CloudFoundry.FileService
         /// <param name="user">The user.</param>
         /// <param name="password">The password.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file.")]
-        private static void CreateUser(string name, string user, string password)
+        private static void CreateWindowsUser(string name, string user, string password)
         {
             Logger.Info(Strings.SqlNodeCreatingCredentialsInfoMessage, user, password, name);
 
-            Uhuru.Utilities.WindowsVCAPUsers.CreateUser(user, password);
+            Uhuru.Utilities.WindowsUsersAndGroups.CreateUser(user, password);
         }
 
         /// <summary>
@@ -541,7 +541,7 @@ namespace Uhuru.CloudFoundry.FileService
             Logger.Info(Strings.SqlNodeDeleteUserInfoMessage, user);
             try
             {
-                Uhuru.Utilities.WindowsVCAPUsers.DeleteUser(user);
+                Uhuru.Utilities.WindowsUsersAndGroups.DeleteUser(user);
             }
             catch (Exception ex)
             {
@@ -586,7 +586,7 @@ namespace Uhuru.CloudFoundry.FileService
                     VHDUtilities.MountVHD(vhd, vhdDirectory);
                 }
 
-                CreateUser(name, user, password);
+                CreateWindowsUser(name, user, password);
 
                 string directory = this.GetInstanceDirectory(name);
                 Directory.CreateDirectory(directory);
