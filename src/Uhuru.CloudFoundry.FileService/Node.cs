@@ -110,7 +110,48 @@ namespace Uhuru.CloudFoundry.FileService
             // initialize qps counter
             this.provisionServed = 0;
             this.bindingServed = 0;
-            base.Start(options);
+
+            //// base.Start(options);
+            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            {
+                Console.WriteLine("Updating instance: {0}", instance.Name);
+
+                Console.WriteLine("Creating user group: {0}", instance.Name);
+                try
+                {
+                    CreateInstanceGroup(instance.Name);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed creating user group: {0}. Exception: {1}", instance.Name, ex.ToString());
+                    Console.WriteLine("Press Enter to continue"); Console.ReadLine();
+                }
+
+                Console.WriteLine("Adding user {0} to group", instance.User);
+                try
+                {
+                    Uhuru.Utilities.WindowsUsersAndGroups.AddUserToGroup(instance.User, instance.Name);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed adding {0} group. Exception: {1}", instance.Name, ex.ToString());
+                    Console.WriteLine("Press Enter to continue"); Console.ReadLine();
+                }
+
+                
+                string directory = this.GetInstanceDirectory(instance.Name);
+                Console.WriteLine("Setting directory {0} permissions", directory);
+                try
+                {
+                    
+                    AddDirectoryPermissions(directory, instance.Name);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed setting directory {0} permissiosn. Exception: {1}", directory, ex.ToString());
+                    Console.WriteLine("Press Enter to continue"); Console.ReadLine();
+                }
+            }
         }
 
         /// <summary>
