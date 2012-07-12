@@ -39,8 +39,8 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 using (FileServiceWindowsService service = new FileServiceWindowsService())
                 {
                     service.Start();
-                    Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
-                    Console.ReadLine();
+                    //// Console.WriteLine(Strings.PressEnterToStopConsoleMessage);
+                    //// Console.ReadLine();
                     service.Stop();
                 }
             }

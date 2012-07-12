@@ -110,7 +110,19 @@ namespace Uhuru.CloudFoundry.FileService
             // initialize qps counter
             this.provisionServed = 0;
             this.bindingServed = 0;
-            base.Start(options);
+
+            //// base.Start(options);
+            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            {
+                CreateInstanceGroup(instance.Name);
+
+                Uhuru.Utilities.WindowsUsersAndGroups.AddUserToGroup(instance.User, instance.Name);
+
+                string directory = this.GetInstanceDirectory(instance.Name);
+
+                // Add permissions
+                AddDirectoryPermissions(directory, instance.Name);
+            }
         }
 
         /// <summary>
