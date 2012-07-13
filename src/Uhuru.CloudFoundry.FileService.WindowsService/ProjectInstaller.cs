@@ -20,7 +20,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
     using Uhuru.Utilities;
 
     /// <summary>
-    /// InstallerClass for MSSQLNode Service
+    /// InstallerClass for Uhurufs Service
     /// </summary>
     [RunInstaller(true)]
     public partial class ProjectInstaller : System.Configuration.Install.Installer
@@ -137,6 +137,21 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
                 section.Service.Plan = Context.Parameters[Argument.Plan];
             }
 
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.UseVhd]))
+            {
+                section.Service.Uhurufs.UseVHD = bool.Parse(Context.Parameters[Argument.UseVhd]);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.MaxStorageSize]))
+            {
+                section.Service.Uhurufs.MaxStorageSize = long.Parse(Context.Parameters[Argument.MaxStorageSize], CultureInfo.InvariantCulture);
+            }
+
+            if (!string.IsNullOrEmpty(Context.Parameters[Argument.VhdFixedSize]))
+            {
+                section.Service.Uhurufs.VHDFixedSize = bool.Parse(Context.Parameters[Argument.VhdFixedSize]);
+            }
+
             section.DEA = null;
             config.Save();
 
@@ -245,6 +260,21 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
             /// Parameter name for StatusPort
             /// </summary>
             public const string StatusPort = "statusPort";
+
+            /// <summary>
+            /// Parameter name for maxStorageSize
+            /// </summary>
+            public const string MaxStorageSize = "maxStorageSize";
+
+            /// <summary>
+            /// Parameter name for useVhd
+            /// </summary>
+            public const string UseVhd = "useVhd";
+
+            /// <summary>
+            /// Parameter name for vhdFixedSize
+            /// </summary>
+            public const string VhdFixedSize = "vhdFixedSize";
 
             /// <summary>
             /// Prevents a default instance of the <see cref="Argument"/> class from being created.
