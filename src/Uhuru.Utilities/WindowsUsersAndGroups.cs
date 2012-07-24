@@ -45,6 +45,7 @@ namespace Uhuru.Utilities
                         newUser.Properties["Description"].Add(description);
                     }
 
+                    newUser.Invoke("Put", new object[] { "UserFlags", 0x10000 });   // 0x10000 is DONT_EXPIRE_PASSWORD 
                     newUser.Invoke("SetPassword", password);
                     newUser.CommitChanges();
                 }
