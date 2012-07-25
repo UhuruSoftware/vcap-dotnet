@@ -1729,9 +1729,9 @@ namespace Uhuru.CloudFoundry.DEA
                         // Stop the instance gracefully before cleaning up.
                         if (isStopped)
                         {
+                            this.monitoring.RemoveInstanceResources(instance);
                             if (instance.Plugin != null)
                             {
-                                this.monitoring.RemoveInstanceResources(instance);
                                 try
                                 {
                                     instance.Plugin.StopApplication();
@@ -1746,13 +1746,13 @@ namespace Uhuru.CloudFoundry.DEA
                         // Remove the instance system resources, except the instance directory
                         if (isCrashed || isOldCrash || isStopped || isDeleted)
                         {
+                            this.monitoring.RemoveInstanceResources(instance);
                             if (instance.Plugin != null)
                             {
                                 Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
 
                                 try
                                 {
-                                    this.monitoring.RemoveInstanceResources(instance);
                                     instance.Plugin.CleanupApplication(instance.Properties.Directory);
                                     UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, instance.Properties.WindowsPassword);
                                     WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
@@ -1810,6 +1810,7 @@ namespace Uhuru.CloudFoundry.DEA
                     // If the remove droplet flag was set, delete the instance form the DEA. The removal is made here to avoid deadlocks.
                     if (removeDroplet)
                     {
+                        this.monitoring.RemoveInstanceResources(instance);
                         this.droplets.RemoveDropletInstance(instance);
                     }
                 });
