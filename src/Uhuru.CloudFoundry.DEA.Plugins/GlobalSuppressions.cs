@@ -16,3 +16,4 @@
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "Uhuru.CloudFoundry.DEA.Plugins", Justification = "This is a plugin, isolated to keep things simple.")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugins", Justification = "The word is in the dictionary, but the warning is still generated.")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Scope = "member", Target = "Uhuru.CloudFoundry.DEA.Plugins.IISPlugin.#AutowireUhurufs(Uhuru.CloudFoundry.DEA.PluginBase.ApplicationInfo,Uhuru.CloudFoundry.DEA.PluginBase.ApplicationVariable[],Uhuru.CloudFoundry.DEA.PluginBase.ApplicationService[],System.String)")]

@@ -756,7 +756,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     foreach (string item in persistedItems)
                     {
-                        persistentFiles[serviceName].Add(item);
+                        persistentFiles[serviceName].Add(item.Replace('/', '\\'));
                     }
                 }
             }
@@ -808,6 +808,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                                     SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
                                 }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.startupLogger.Error(ex.ToString());
                         }
                         finally
                         {
