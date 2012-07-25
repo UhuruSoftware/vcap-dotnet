@@ -736,6 +736,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="variables">All application variables.</param>
         /// <param name="services">The services.</param>
         /// <param name="homeAppPath">The home application path.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged inside startup log")]
         private void AutowireUhurufs(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string homeAppPath)
         {
             this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
@@ -756,7 +757,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     foreach (string item in persistedItems)
                     {
-                        persistentFiles[serviceName].Add(item);
+                        persistentFiles[serviceName].Add(item.Replace('/', '\\'));
                     }
                 }
             }
@@ -808,6 +809,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                                     SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
                                 }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.startupLogger.Error(ex.ToString());
                         }
                         finally
                         {
