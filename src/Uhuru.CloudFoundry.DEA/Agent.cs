@@ -1525,14 +1525,21 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    if (instance.Properties.State != DropletInstanceState.Running || !instance.Lock.TryEnterWriteLock(10))
+                    if (instance.Properties.State != DropletInstanceState.Running)
+                    {
+                        return;
+                    }
+
+                    bool isPortReady = instance.IsPortReady(1500);
+
+                    if (!instance.Lock.TryEnterWriteLock(10))
                     {
                         return;
                     }
 
                     try
                     {
-                        if (instance.IsPortReady(1500))
+                        if (isPortReady)
                         {
                             long currentTicks = instance.JobObject.TotalProcessorTime.Ticks;
                             DateTime currentTicksTimestamp = DateTime.Now;

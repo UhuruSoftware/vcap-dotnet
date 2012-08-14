@@ -55,7 +55,7 @@ namespace Uhuru.Utilities
         /// <param name="remotePassword">A password used for authentication to the share.</param>
         public static void Mount(string remotePath, string remoteUser, string remotePassword)
         {
-            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}""", remotePath, remotePassword, remoteUser));
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" ""{1}"" /USER:""{2}"" /yes", remotePath, remotePassword, remoteUser));
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Uhuru.Utilities
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Unmount", Justification = "Word is added to dictionary, but the warning is still shown.")]
         public static void Unmount(string remotePath)
         {
-            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" /delete", remotePath));
+            ExecuteCommand(string.Format(CultureInfo.InvariantCulture, @"net use ""{0}"" /delete /yes", remotePath));
             //// ExecuteProcess("rmdir", string.Format(CultureInfo.InvariantCulture, @"/q ""{0}""", localPath));
         }
 
