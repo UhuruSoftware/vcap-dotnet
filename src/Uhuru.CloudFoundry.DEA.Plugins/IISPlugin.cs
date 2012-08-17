@@ -673,11 +673,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             string webConfigFile = Path.Combine(appInfo.Path, "web.config");
             if (File.Exists(webConfigFile))
             {
-                string configFileContents = File.ReadAllText(webConfigFile);
+                this.SetApplicationVariables(webConfigFile, variables, logFilePath, errorLogFilePath);
 
-                XmlDocument doc = this.SetApplicationVariables(configFileContents, variables, logFilePath, errorLogFilePath);
-
-                doc.Save(webConfigFile);
                 this.startupLogger.Info(Strings.SavedConfigurationFile);
 
                 this.startupLogger.Info(Strings.SettingUpLogging);
@@ -833,34 +830,25 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <summary>
         /// Auto-wires the application variables and the log file path in the web.config file.
         /// </summary>
-        /// <param name="configFileContents">The config file contents.</param>
+        /// <param name="configPath">The config file path.</param>
         /// <param name="variables">The variables.</param>
         /// <param name="logFilePath">The log file path.</param>
         /// <param name="errorLogFilePath">The error log file path.</param>
-        /// <returns>An xml document ready containing the updated configuration file.</returns>
-        private XmlDocument SetApplicationVariables(string configFileContents, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
+        private void SetApplicationVariables(string configPath, ApplicationVariable[] variables, string logFilePath, string errorLogFilePath)
         {
             this.startupLogger.Info(Strings.SettingUpApplicationVariables);
 
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(configFileContents);
+            var configFile = new FileInfo(configPath);
+            var vdm = new System.Web.Configuration.VirtualDirectoryMapping(configFile.DirectoryName, true, configFile.Name);
+            var wcfm = new System.Web.Configuration.WebConfigurationFileMap();
+            wcfm.VirtualDirectories.Add("/", vdm);
+            System.Configuration.Configuration webConfig = System.Web.Configuration.WebConfigurationManager.OpenMappedWebConfiguration(wcfm, "/");
 
-            XmlNode appSettingsNode = doc.SelectSingleNode("configuration/appSettings");
-
-            if (appSettingsNode == null)
-            {
-                appSettingsNode = doc.CreateNode(XmlNodeType.Element, "appSettings", string.Empty);
-
-                doc.SelectSingleNode("configuration").PrependChild(appSettingsNode);
-            }
-
-            bool exists = false;
             bool hasUhuruLogFile = false;
             bool hasUhuruErrorLogFile = false;
 
             foreach (ApplicationVariable var in variables)
             {
-                exists = false;
                 if (var.Name == "UHURU_LOG_FILE")
                 {
                     hasUhuruLogFile = true;
@@ -871,102 +859,43 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     hasUhuruErrorLogFile = true;
                 }
 
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
-
-                XmlAttribute keyAttr = doc.CreateAttribute("key");
-                keyAttr.Value = var.Name;
-
-                XmlAttribute valueAttr = doc.CreateAttribute("value");
-                valueAttr.Value = var.Value;
-
-                n.Attributes.Append(keyAttr);
-                n.Attributes.Append(valueAttr);
-
-                XPathNodeIterator iter = appSettingsNode.CreateNavigator().Select("add");
-
-                while (iter.MoveNext())
+                if (webConfig.AppSettings.Settings[var.Name] == null)
                 {
-                    string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (!string.IsNullOrEmpty(key) && key == var.Name)
-                    {
-                        exists = true;
-                        iter.Current.ReplaceSelf(n.CreateNavigator());
-                    }
+                    webConfig.AppSettings.Settings.Add(var.Name, var.Value);
                 }
-
-                if (!exists)
+                else
                 {
-                    appSettingsNode.AppendChild(n);
+                    webConfig.AppSettings.Settings[var.Name].Value = var.Value;
                 }
             }
 
             if (!hasUhuruLogFile)
             {
-                exists = false;
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
-
-                XmlAttribute keyAttr = doc.CreateAttribute("key");
-                keyAttr.Value = "UHURU_LOG_FILE";
-
-                XmlAttribute valueAttr = doc.CreateAttribute("value");
-                valueAttr.Value = logFilePath;
-
-                n.Attributes.Append(keyAttr);
-                n.Attributes.Append(valueAttr);
-
-                XPathNodeIterator iter = appSettingsNode.CreateNavigator().Select("add");
-
-                while (iter.MoveNext())
+                if (webConfig.AppSettings.Settings["UHURU_LOG_FILE"] == null)
                 {
-                    string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (!string.IsNullOrEmpty(key) && key == "UHURU_LOG_FILE")
-                    {
-                        exists = true;
-                        iter.Current.ReplaceSelf(n.CreateNavigator());
-                    }
+                    webConfig.AppSettings.Settings.Add("UHURU_LOG_FILE", logFilePath);
                 }
-
-                if (!exists)
+                else
                 {
-                    appSettingsNode.AppendChild(n);
+                    webConfig.AppSettings.Settings["UHURU_LOG_FILE"].Value = logFilePath;
                 }
             }
 
             if (!hasUhuruErrorLogFile)
             {
-                exists = false;
-                XmlNode n = doc.CreateNode(XmlNodeType.Element, "add", string.Empty);
-
-                XmlAttribute keyAttr = doc.CreateAttribute("key");
-                keyAttr.Value = "UHURU_ERROR_LOG_FILE";
-
-                XmlAttribute valueAttr = doc.CreateAttribute("value");
-                valueAttr.Value = errorLogFilePath;
-
-                n.Attributes.Append(keyAttr);
-                n.Attributes.Append(valueAttr);
-
-                XPathNodeIterator iter = appSettingsNode.CreateNavigator().Select("add");
-
-                while (iter.MoveNext())
+                if (webConfig.AppSettings.Settings["UHURU_ERROR_LOG_FILE"] == null)
                 {
-                    string key = iter.Current.GetAttribute("key", string.Empty);
-                    if (!string.IsNullOrEmpty(key) && key == "UHURU_ERROR_LOG_FILE")
-                    {
-                        exists = true;
-                        iter.Current.ReplaceSelf(n.CreateNavigator());
-                    }
+                    webConfig.AppSettings.Settings.Add("UHURU_ERROR_LOG_FILE", errorLogFilePath);
                 }
-
-                if (!exists)
+                else
                 {
-                    appSettingsNode.AppendChild(n);
+                    webConfig.AppSettings.Settings["UHURU_ERROR_LOG_FILE"].Value = errorLogFilePath;
                 }
             }
 
             this.startupLogger.Info(Strings.DoneSettingUpApplication);
 
-            return doc;
+            webConfig.Save();
         }
 
         /// <summary>
