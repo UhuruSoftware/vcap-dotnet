@@ -144,6 +144,21 @@ namespace Uhuru.Utilities.WindowsJobObjects
         private ulong kernelProcessorTime = 0;
 
         /// <summary>
+        /// Total processes that was in the job object.
+        /// </summary>
+        private uint totalProcesses = 0;
+
+        /// <summary>
+        /// Active processes in the job object.
+        /// </summary>
+        private uint activeProcesses = 0;
+
+        /// <summary>
+        /// Processes killed due to job object restrictions.
+        /// </summary>
+        private uint totalTerminatedProcesses = 0;
+
+        /// <summary>
         /// The processes in the job.
         /// </summary>
         private Process[] jobProcesses;
@@ -575,6 +590,42 @@ namespace Uhuru.Utilities.WindowsJobObjects
         }
 
         /// <summary>
+        /// Gets the total processes that was in the job object.
+        /// </summary>
+        public int TotalProcesses
+        {
+            get
+            {
+                this.QueryBasicAndIoAccounting();
+                return (int)this.totalProcesses;
+            }
+        }
+
+        /// <summary>
+        /// Gets active processes in the job object.
+        /// </summary>
+        public int ActiveProcesses
+        {
+            get
+            {
+                this.QueryBasicAndIoAccounting();
+                return (int)this.activeProcesses;
+            }
+        }
+
+        /// <summary>
+        /// Gets processes killed due to job object restrictions.
+        /// </summary>
+        public int TotalTerminatedProcesses
+        {
+            get
+            {
+                this.QueryBasicAndIoAccounting();
+                return (int)this.totalTerminatedProcesses;
+            }
+        }
+
+        /// <summary>
         /// Gets the working set memory in bytes of the Job Object.
         /// </summary>
         public long WorkingSetMemory
@@ -975,7 +1026,10 @@ namespace Uhuru.Utilities.WindowsJobObjects
 
                 this.userProcessorTime = (ulong)accounting.BasicInfo.TotalUserTime;
                 this.kernelProcessorTime = (ulong)accounting.BasicInfo.TotalKernelTime;
-
+                this.totalProcesses = (uint)accounting.BasicInfo.TotalProcesses;
+                this.activeProcesses = (uint)accounting.BasicInfo.ActiveProcesses;
+                this.totalTerminatedProcesses = (uint)accounting.BasicInfo.TotalTerminatedProcesses;
+                
                 this.ioReadBytes = (long)accounting.IoInfo.ReadTransferCount;
                 this.ioWriteBytes = (long)accounting.IoInfo.WriteTransferCount;
                 this.ioOtherBytes = (long)accounting.IoInfo.OtherTransferCount;

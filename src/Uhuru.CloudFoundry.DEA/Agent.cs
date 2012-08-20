@@ -194,7 +194,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
 
             this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
-            
+
             // Replace the ephemeral monitoring port with the configured one
             if (UhuruSection.GetSection().DEA.StatusPort > 0)
             {
@@ -297,7 +297,7 @@ namespace Uhuru.CloudFoundry.DEA
                 500,
                 delegate
                 {
-                        this.InstanceProcessMonitor();
+                    this.InstanceProcessMonitor();
                 });
 
             TimerHelper.RecurringLongCall(
@@ -1545,7 +1545,7 @@ namespace Uhuru.CloudFoundry.DEA
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
-                            
+
                             long ticksDelta = currentTicks - lastTicks;
 
                             // this is the case when the cpu utilization is reported between the last sample timestamp and now
@@ -1826,7 +1826,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Monitors the instance process and adds it to the instance JobObject.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "More clear."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.FileLogger.Error(System.String,System.Object[])", Justification = "More clear."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void InstanceProcessMonitor()
         {
             Dictionary<string, List<Process>> userMappedProcesses = new Dictionary<string, List<Process>>();
@@ -1873,23 +1873,26 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 try
                                 {
-                                    instance.JobObject.AddProcess(instanceProcess);
+                                    if (!instanceProcess.HasExited)
+                                    {
+                                        instance.JobObject.AddProcess(instanceProcess);
+                                    }
                                 }
                                 catch (Win32Exception e)
                                 {
-                                    instanceProcess.Kill();
                                     Logger.Warning(Strings.InstanceProcessCoudNotBeAdded, instanceProcess.Id, e.ToString());
-                                    throw;
+                                    instanceProcess.Kill();
+                                    if (instance.ErrorLog != null)
+                                    {
+                                        instance.ErrorLog.Error("Killed process {0}. Reason: Unable to sandbox the process.", instanceProcess.Id);
+                                    }
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        if (instance.ErrorLog != null)
-                        {
-                            instance.ErrorLog.Error(ex.ToString());
-                        }
+                        Logger.Error("Unable to add process to the job object for app: {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
                     }
                     finally
                     {
