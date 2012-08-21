@@ -78,6 +78,7 @@
     <Compile Include="AutoWiring\ISiteConfigManager.cs" />
     <Compile Include="AutoWiring\SiteConfig.cs" />
     <Compile Include="AutoWiring\INodeConfigRewireBase.cs" />
+    <Compile Include="IISTunnelPlugin.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IISPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
