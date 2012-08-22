@@ -11,6 +11,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Net.Sockets;
     using System.Threading;
+    using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Utilities;
@@ -62,6 +63,16 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
         public IAgentPlugin Plugin
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets disk usage tracking for the instance user.
+        /// </summary>
+        [CLSCompliant(false)]
+        public DIDiskQuotaUser UserDiskQuota
         {
             get;
             set;
