@@ -14,7 +14,9 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Linq;
     using System.Security.AccessControl;
+    using System.Security.Principal;
     using System.Threading;
+    using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Configuration;
@@ -152,6 +154,11 @@ namespace Uhuru.CloudFoundry.DEA
         private int evacuationDelayMs = 30 * 1000;
 
         /// <summary>
+        /// The windows disk quota manager.
+        /// </summary>
+        private DIDiskQuotaControl diskQuotaControl;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
         public Agent()
@@ -229,7 +236,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String)", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
         public override void Run()
         {
             Logger.Info(Strings.StartingVcapDea, Version);
@@ -256,6 +263,28 @@ namespace Uhuru.CloudFoundry.DEA
 
             // Clean everything in the staged directory
             this.stager.CleanCacheDirectory();
+
+            // Initialize disk quota
+            // TODO: stefi: add a disk quota control for every drive that an app can use
+            Logger.Info("Initializing disk quota...");
+            this.diskQuotaControl = new DiskQuotaControlClass();
+            this.diskQuotaControl.Initialize(Path.GetPathRoot(this.stager.AppsDir), true);
+            this.diskQuotaControl.QuotaState = QuotaStateConstants.dqStateEnforce;
+
+            // Set to ResolveNone to prevent blocking when using account names.
+            this.diskQuotaControl.UserNameResolution = UserNameResolutionConstants.dqResolveNone;
+            this.diskQuotaControl.LogQuotaThreshold = true;
+            this.diskQuotaControl.LogQuotaLimit = true;
+
+            // Disable default quota limit and threshold
+            this.diskQuotaControl.DefaultQuotaThreshold = -1;
+            this.diskQuotaControl.DefaultQuotaLimit = -1;
+
+            // Wait until the volume diskquota is initialized
+            while (this.diskQuotaControl.QuotaFileIncomplete || this.diskQuotaControl.QuotaFileRebuilding)
+            {
+                Thread.Sleep(200);
+            }
 
             this.fileViewer.Start(this.stager.AppsDir);
 
@@ -345,6 +374,7 @@ namespace Uhuru.CloudFoundry.DEA
                     this.monitoring.AddInstanceResources(instance);
                     instance.Properties.StopProcessed = false;
                     instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
 
                     try
                     {
@@ -474,11 +504,16 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             // Allows messages to get out.
-            Thread.Sleep(100);
+            Thread.Sleep(500);
 
             this.fileViewer.Stop();
             this.deaReactor.NatsClient.Close();
             this.TheReaper();
+
+            // Execute twice because of TryEnterWriteLock(10)
+            this.TheReaper();
+            this.TheReaper();
+
             this.droplets.ScheduleSnapshotAppState();
             Logger.Info(Strings.ByeMessage);
         }
@@ -1133,14 +1168,26 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="sha1">The sha1 of the droplet file.</param>
         /// <param name="executableFile">The path to the droplet file.</param>
         /// <param name="executableUri">The URI to the droplet file.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String,System.Object[])", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Major rewrites have to be done."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void StartDropletInstance(DropletInstance instance, string sha1, string executableFile, Uri executableUri)
         {
             try
             {
+                try
+                {
+                    instance.Lock.EnterWriteLock();
+                    
+                    instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
+                    instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
+                    Logger.Info("Created Windows Local User: {0}", instance.Properties.WindowsUserName);
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
+                }
+
                 string tgzFile = Path.Combine(this.stager.StagedDir, sha1 + ".tgz");
                 this.stager.StageAppDirectory(executableFile, executableUri, sha1, tgzFile, instance);
-
                 Logger.Debug(Strings.Downloadcompleate);
 
                 string starting = string.Format(CultureInfo.InvariantCulture, Strings.StartingUpInstanceOnPort, instance.Properties.LoggingId, instance.Properties.Port);
@@ -1161,20 +1208,11 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-
-                    instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
-                    instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
-
-                    DirectoryInfo deploymentDir = new DirectoryInfo(instance.Properties.Directory);
-                    DirectorySecurity deploymentDirSecurity = deploymentDir.GetAccessControl();
-                    deploymentDirSecurity.SetAccessRule(
-                        new FileSystemAccessRule(
-                            instance.Properties.WindowsUserName,
-                            FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.FullControl,
-                            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                            PropagationFlags.None | PropagationFlags.InheritOnly,
-                            AccessControlType.Allow));
-                    deploymentDir.SetAccessControl(deploymentDirSecurity);
+                    
+                    // Set the quoata limits for the windows user of the app instance
+                    instance.UserDiskQuota = this.diskQuotaControl.AddUser(instance.Properties.WindowsUserName);
+                    instance.UserDiskQuota.QuotaLimit = instance.Properties.DiskQuotaBytes;
+                    instance.UserDiskQuota.QuotaThreshold = instance.Properties.DiskQuotaBytes;
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -1487,33 +1525,7 @@ namespace Uhuru.CloudFoundry.DEA
             long memoryUsageKbytes = 0;
             List<object> runningApps = new List<object>();
 
-            // if (this.droplets.NoMonitorableApps())
-            // {
-            //    this.monitoring.MemoryUsageKbytes = 0;
-            //    return;
-            // }
             DateTime monitorStart = DateTime.Now;
-            DateTime diskUsageStart = DateTime.Now;
-
-            DiskUsageEntry[] diskUsageAll = DiskUsage.GetDiskUsage(this.stager.AppsDir, true);
-
-            TimeSpan diskUsageElapsed = DateTime.Now - diskUsageStart;
-
-            if (diskUsageElapsed.TotalMilliseconds > 800)
-            {
-                Logger.Warning(Strings.TookXSecondsToExecuteDu, diskUsageElapsed.TotalSeconds);
-                if ((diskUsageElapsed.TotalSeconds > 10) && ((DateTime.Now - this.monitoring.LastAppDump).TotalSeconds > Monitoring.AppsDumpIntervalMilliseconds))
-                {
-                    this.monitoring.DumpAppsDirDiskUsage(this.stager.AppsDir);
-                    this.monitoring.LastAppDump = DateTime.Now;
-                }
-            }
-
-            Dictionary<string, long> diskUsageHash = new Dictionary<string, long>();
-            foreach (DiskUsageEntry entry in diskUsageAll)
-            {
-                diskUsageHash[entry.Directory] = entry.SizeKB * 1024;
-            }
 
             Dictionary<string, Dictionary<string, Dictionary<string, long>>> metrics = new Dictionary<string, Dictionary<string, Dictionary<string, long>>>() 
             {
@@ -1562,7 +1574,9 @@ namespace Uhuru.CloudFoundry.DEA
 
                             long memBytes = instance.JobObject.WorkingSetMemory;
 
-                            long diskBytes = diskUsageHash.ContainsKey(instance.Properties.Directory) ? diskUsageHash[instance.Properties.Directory] : 0;
+                            // Invalidate will update quota used
+                            instance.UserDiskQuota.Invalidate();
+                            long diskBytes = instance.UserDiskQuota != null ? (long)instance.UserDiskQuota.QuotaUsed : 0;
 
                             instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
 
@@ -1654,6 +1668,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Checks the usage of the instance. If it has a usage above the quota and the DEA is in secure mode, the instance will be stopped.
         /// </summary>
         /// <param name="instance">The instance to checks.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "MiB", Justification = "Correct"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.FileLogger.Fatal(System.String,System.Object[])", Justification = "More clear")]
         private void CheckUsage(DropletInstance instance)
         {
             DropletInstanceUsage curUsage = instance.Properties.LastUsage;
@@ -1664,19 +1679,25 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             // Check Memory
-            if (curUsage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024))
+            // Memory usage also enforced by windows job object
+            if (curUsage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024) * 1.05)
             {
-                instance.ErrorLog.Fatal(Strings.MemoryLimitOfExceeded, instance.Properties.MemoryQuotaBytes / 1024 / 1024);
-                instance.ErrorLog.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.MemoryKbytes / 1024);
+                instance.ErrorLog.Fatal(
+                     "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance... :(",
+                     instance.Properties.MemoryQuotaBytes / 1024 / 1024,
+                     curUsage.MemoryKbytes / 1024);
                 this.StopDroplet(instance);
             }
 
             // Check Disk
-            if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes)
+            // Disk usage also enforced by windows disk quota
+            if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes * 1.05)
             {
-                instance.ErrorLog.Fatal(Strings.DiskUsageLimitOf, instance.Properties.DiskQuotaBytes / 1024 / 1024);
-                instance.ErrorLog.Fatal(Strings.ActualUsageWasProcessTerminated, curUsage.DiskBytes / 1024 / 1024);
-                this.StopDroplet(instance);
+                 instance.ErrorLog.Fatal(
+                     "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance... :(",
+                     instance.Properties.DiskQuotaBytes / 1024 / 1024,
+                     curUsage.DiskBytes / 1024 / 1024);
+                 this.StopDroplet(instance);
             }
 
             // Check CPU
@@ -1712,7 +1733,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Does all the cleaning that is needed for an instance if stopped gracefully or has crashed
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Warning(System.String,System.Object[])", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void TheReaper()
         {
             this.droplets.ForEach(
@@ -1745,7 +1766,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 }
                                 catch (Exception ex)
                                 {
-                                    instance.ErrorLog.Error(ex.ToString());
+                                    Logger.Warning("Unable to stop application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
                                 }
                             }
                         }
@@ -1767,7 +1788,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 }
                                 catch (Exception ex)
                                 {
-                                    instance.ErrorLog.Error(ex.ToString());
+                                    Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
                                 }
                                 finally
                                 {
@@ -1798,8 +1819,9 @@ namespace Uhuru.CloudFoundry.DEA
 
                                     instance.Properties.Directory = null;
                                 }
-                                catch (UnauthorizedAccessException)
+                                catch (UnauthorizedAccessException ex)
                                 {
+                                    Logger.Warning("Unable to delete application directory {0}. Exception: {1}", instance.Properties.Directory, ex.ToString());
                                 }
                             }
 
@@ -1887,6 +1909,20 @@ namespace Uhuru.CloudFoundry.DEA
                                         instance.ErrorLog.Error("Killed process {0}. Reason: Unable to sandbox the process.", instanceProcess.Id);
                                     }
                                 }
+                            }
+
+                            if (instance.TotalTerminatedProcessesTracked < instance.JobObject.TotalTerminatedProcesses)
+                            {
+                                if (instance.ErrorLog != null)
+                                {
+                                    instance.ErrorLog.Error("{0} process(es) killed due to memory quota limitations or other sandboxing limitations.", instance.JobObject.TotalTerminatedProcesses - instance.TotalTerminatedProcessesTracked);
+                                }
+
+                                instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
+                            }
+                            else if (instance.TotalTerminatedProcessesTracked > instance.JobObject.TotalTerminatedProcesses)
+                            {
+                                instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
                             }
                         }
                     }
