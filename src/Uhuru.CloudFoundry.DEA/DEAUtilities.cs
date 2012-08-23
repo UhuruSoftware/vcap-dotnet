@@ -191,6 +191,54 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Setups the zlib library; gets the proper 32 or 64 bit library as a stream from a resource, and loads it.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Zlib", Justification = "Zlib is a spelled correctly")]
+        public static void SetupZlib()
+        {
+            if (zlibInitalized)
+            {
+                return;
+            }
+
+            lock (zlibLock)
+            {
+                if (zlibInitalized)
+                {
+                    return;
+                }
+
+                Stream stream = null;
+                Assembly asm = Assembly.GetExecutingAssembly();
+                string libraryPath = string.Empty;
+
+                if (IntPtr.Size == 8)
+                {
+                    libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z64.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z64.dll");                    
+                }
+                else
+                {
+                    libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z86.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z86.dll");
+                }
+
+                if (!File.Exists(libraryPath))
+                {
+                    byte[] myAssembly = new byte[stream.Length];
+                    stream.Read(myAssembly, 0, (int)stream.Length);
+                    File.WriteAllBytes(libraryPath, myAssembly);
+                    stream.Close();
+                }
+
+                SevenZipCompressor.SetLibraryPath(libraryPath);
+                SevenZipExtractor.SetLibraryPath(libraryPath);
+
+                zlibInitalized = true;
+            }
+        }
+
+        /// <summary>
         /// Starts up a new process and executes a command.
         /// </summary>
         /// <param name="command"> The command to execute. </param>
@@ -217,53 +265,6 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 return result;
-            }
-        }
-
-        /// <summary>
-        /// Setups the zlib library; gets the proper 32 or 64 bit library as a stream from a resource, and loads it.
-        /// </summary>
-        private static void SetupZlib()
-        {
-            if (zlibInitalized)
-            {
-                return;
-            }
-
-            lock (zlibLock)
-            {
-                if (zlibInitalized)
-                {
-                    return;
-                }
-
-                Stream stream = null;
-                Assembly asm = Assembly.GetExecutingAssembly();
-                string libraryPath = string.Empty;
-
-                if (IntPtr.Size == 8)
-                {
-                    libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z64.dll");
-                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z64.dll");
-                }
-                else
-                {
-                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.DEA.lib.7z86.dll");
-                    libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z86.dll");
-                }
-
-                if (!File.Exists(libraryPath))
-                {
-                    byte[] myAssembly = new byte[stream.Length];
-                    stream.Read(myAssembly, 0, (int)stream.Length);
-                    File.WriteAllBytes(libraryPath, myAssembly);
-                    stream.Close();
-                }
-
-                SevenZipCompressor.SetLibraryPath(libraryPath);
-                SevenZipExtractor.SetLibraryPath(libraryPath);
-
-                zlibInitalized = true;
             }
         }
     }

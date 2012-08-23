@@ -38,6 +38,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public Stager()
         {
+            // Setup the Zlib here to avoid errors when extracting for the first time under an impersonated user
+            DEAUtilities.SetupZlib();
             this.Runtimes = new Dictionary<string, DeaRuntime>();
             if (!this.DisableDirCleanup)
             {
