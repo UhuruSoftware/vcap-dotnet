@@ -30,6 +30,23 @@ namespace Uhuru.Configuration.Service
                 base["maxStorageSize"] = value;
             }
         }
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether the flag if Fsrm is used for quota enforcement and disk size accounting.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Fsrm", Justification = "No..."), ConfigurationProperty("useFsrm", IsRequired = false, DefaultValue = false)]
+        public bool UseFsrm
+        {
+            get
+            {
+                return (bool)base["useFsrm"];
+            }
+
+            set
+            {
+                base["useFsrm"] = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the flag if VHD is used when creating a file serivce instance.
