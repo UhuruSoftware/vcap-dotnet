@@ -12,7 +12,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
     [TestClass]
     public class DirectoryAccountingTest
     {
-        [TestMethod, TestCategory("Integration"), Description("Create VHD should create a file with the expected size.")]
+        [TestMethod, TestCategory("Integration"), Description("DirectoryAccounting should account for the directories space used and enforce the limti if set.")]
         public void DirectorySizeTest1()
         {
             string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -81,5 +81,31 @@ namespace Uhuru.CloudFoundry.Test.Integration
             Directory.Delete(tempDir, true);
         }
 
+        [TestMethod, TestCategory("Integration"), Description("DirectoryAccounting should make quick disk size queries.")]
+        public void DirectorySizeStressTest()
+        {
+            string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempDir);
+            DirectoryAccounting da = new DirectoryAccounting();
+
+            da.SetDirectoryQuota(tempDir, 1024*1024*1);
+
+            DateTime start = DateTime.Now;
+
+            long lastDirSize = 0;
+            for (int i = 0; i < 100; i++)
+            {
+                string file0 = Path.Combine(tempDir, "file" + i.ToString());
+                File.WriteAllBytes(file0, new byte[1024 * 1]);
+
+                long dirSize = da.GetDirectorySize(tempDir);
+                Assert.IsTrue(dirSize > lastDirSize);
+            }
+
+            long elapedMs = (DateTime.Now - start).Milliseconds;
+            Assert.IsTrue(elapedMs < 2000);
+
+            Directory.Delete(tempDir, true);
+        }
     }
 }
