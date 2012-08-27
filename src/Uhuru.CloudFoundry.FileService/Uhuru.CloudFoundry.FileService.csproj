@@ -78,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
-    <Compile Include="DiskQuotaUtilities.cs" />
+    <Compile Include="DirectoryAccounting.cs" />
     <Compile Include="FileServiceErrorException.cs" />
     <Compile Include="FileServiceOptions.cs" />
     <Compile Include="FtpUtilities.cs" />

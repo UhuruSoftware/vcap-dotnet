@@ -21,3 +21,6 @@ a lot of Kernel memory) but the isolation is more strict. Another issue is manag
 in VMware's terms). After some disk space has been freed in the VHD's file system, the system has to manualy 
 compat the VHD to reduce the size of the VHD file, which will requrie the disk to be offline (maybe some tricks
 can be made with Mirror Volumes to compat a VHD without taking it offline).
+
+This feature has to be installed on the windows server box:
+ FS-Resource-Manager: `powershell.exe -command "& {Import-Module Servermanager; add-windowsfeature FS-Resource-Manager}"`

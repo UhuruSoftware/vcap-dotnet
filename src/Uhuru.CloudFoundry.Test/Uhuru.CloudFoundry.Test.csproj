@@ -103,6 +103,7 @@
     <Compile Include="Performance\UmbracoParallelTest.cs" />
     <Compile Include="Integration\FTPUtilitiesTest.cs" />
     <Compile Include="SystemTests\UhurufsServicesTest.cs" />
+    <Compile Include="Integration\DirectoryAccountingTest.cs" />
     <Compile Include="Unit\PluginHostTest.cs" />
     <Compile Include="SystemTests\CloudTestAppTest.cs" />
     <Compile Include="SystemTests\DifferentDotNetVersionTest.cs" />
