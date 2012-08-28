@@ -835,7 +835,7 @@ namespace Uhuru.CloudFoundry.FileService
             
             var usage = new Dictionary<string, object>();
             varz["usage"] = usage;
-            usage["max_storage_size"] = this.maxStorageSizeMB;
+            usage["max_storage_size"] = this.maxStorageSizeMB * 1024 * 1024;
 
             if (this.useFsrm)
             {
