@@ -156,7 +156,7 @@ namespace Uhuru.CloudFoundry.FileService
                 @"
                     select vdisk file=""{0}""
                     select partition 1
-                    remove all
+                    remove all dismount noerr
                     detach vdisk
                 ";
 
