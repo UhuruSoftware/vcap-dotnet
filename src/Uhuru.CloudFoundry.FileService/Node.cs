@@ -38,20 +38,27 @@ namespace Uhuru.CloudFoundry.FileService
         /// <summary>
         /// Maximum storage size. Value in MB.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
         private long maxStorageSizeMB;
 
         /// <summary>
-        /// Maximum storage size. Value in MB.
+        /// Use VHD or not.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
         private bool useVhd;
 
         /// <summary>
-        /// Maximum storage size. Value in MB.
+        /// Is the VHD is fixed or expandable.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields", Justification = "Future use.")]
         private bool vhdFixedSize;
+
+        /// <summary>
+        /// Use File Server Resource Manager or not to enforce qutoa and account for disk usage.
+        /// </summary>
+        private bool useFsrm;
+
+        /// <summary>
+        /// Use File Server Resource Manager or not to enforce qutoa and account for disk usage.
+        /// </summary>
+        private DirectoryAccounting dirAccounting;
 
         /// <summary>
         /// Number of directory provision requests served by the node.
@@ -93,6 +100,16 @@ namespace Uhuru.CloudFoundry.FileService
             this.maxStorageSizeMB = options.Uhurufs.MaxStorageSize;
             this.useVhd = options.Uhurufs.UseVHD;
             this.vhdFixedSize = options.Uhurufs.VHDFixedSize;
+            this.useFsrm = options.Uhurufs.UseFsrm;
+
+            if (this.useFsrm)
+            {
+                this.dirAccounting = new DirectoryAccounting();
+            }
+            else
+            {
+                this.dirAccounting = null;
+            }
 
             TimerHelper.RecurringCall(
                 StorageQuotaInterval,
@@ -103,9 +120,14 @@ namespace Uhuru.CloudFoundry.FileService
 
             ProvisionedService.Initialize(options.LocalDB);
 
-            this.CheckDBConsistency();
-
-            this.capacity = -this.CapacityUnit() * ProvisionedService.GetInstances().Count();
+            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            {
+                this.capacity = -this.CapacityUnit();
+                if (this.useFsrm)
+                {
+                    this.dirAccounting.SetDirectoryQuota(this.GetInstanceDirectory(instance.Name), this.maxStorageSizeMB * 1024 * 1024);
+                }
+            }
 
             // initialize qps counter
             this.provisionServed = 0;
@@ -605,16 +627,6 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
-        /// Checks local database consistency.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
-        private void CheckDBConsistency()
-        {
-            // method present in mysql and postgresql
-            // todo: vladi: this should be replaced with ms sql server code
-        }
-
-        /// <summary>
         /// Creates the database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which a directory has to be created.</param>
@@ -644,6 +656,11 @@ namespace Uhuru.CloudFoundry.FileService
 
                 string directory = this.GetInstanceDirectory(name);
                 Directory.CreateDirectory(directory);
+
+                if (this.useFsrm)
+                {
+                    this.dirAccounting.SetDirectoryQuota(directory, this.maxStorageSizeMB * 1024 * 1024);
+                }
 
                 FtpUtilities.CreateFtpSite(name, directory, port);
 
@@ -690,6 +707,19 @@ namespace Uhuru.CloudFoundry.FileService
                 catch (Exception ex)
                 {
                     Logger.Error("Unable to delete Windows Share for instance {0}. Exception: {1}", name, ex.ToString());
+                }
+
+                try
+                {
+                    string directory = this.GetInstanceDirectory(name);
+                    if (this.useFsrm)
+                    {
+                        this.dirAccounting.RemoveDirectoryQuota(directory);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Unable to delete directory quota rule for instance {0}. Exception: {1}", name, ex.ToString());
                 }
 
                 try
@@ -802,12 +832,22 @@ namespace Uhuru.CloudFoundry.FileService
             varz["name"] = instance.Name;
             varz["port"] = instance.Port;
             varz["plan"] = instance.Plan;
-            varz["max_storage_size"] = this.maxStorageSizeMB;
-
+            
             var usage = new Dictionary<string, object>();
             varz["usage"] = usage;
+            usage["max_storage_size"] = this.maxStorageSizeMB;
+
+            if (this.useFsrm)
+            {
+                usage["used_storage_size"] = this.dirAccounting.GetDirectoryQuota(this.GetInstanceDirectory(instance.Name));
+            }
+            else
+            {
+                usage["used_storage_size"] = -1;
+            }
 
             // TODO: stefi: complete this instance varz
+            // add: samba active connectoins, ftp active connections, disk IO (if possible), network IO (if possible)
             return varz;
         }
 
