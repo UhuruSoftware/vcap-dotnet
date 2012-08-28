@@ -70,7 +70,7 @@ namespace Uhuru.CloudFoundry.FileService
         {
             IFsrmQuota dirQutoa = this.GetDirectoryFsrmQuota(path);
             dirQutoa.RefreshUsageProperties();
-            return (long)dirQutoa.QuotaLimit;
+            return (long)(decimal)dirQutoa.QuotaLimit;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             dirQutoa.RefreshUsageProperties();
 
-            int retires = 100;
+            int retires = 400;
 
             // FsrmQuotaFlags_StatusRebuilding   = 0x00020000
             while ((dirQutoa.QuotaFlags & 0x00020000) != 0)

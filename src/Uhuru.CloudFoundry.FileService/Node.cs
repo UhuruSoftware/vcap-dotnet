@@ -839,7 +839,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             if (this.useFsrm)
             {
-                usage["used_storage_size"] = this.dirAccounting.GetDirectoryQuota(this.GetInstanceDirectory(instance.Name));
+                usage["used_storage_size"] = this.dirAccounting.GetDirectorySize(this.GetInstanceDirectory(instance.Name));
             }
             else
             {
