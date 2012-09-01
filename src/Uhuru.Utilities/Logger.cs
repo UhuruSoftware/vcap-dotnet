@@ -10,6 +10,7 @@ namespace Uhuru.Utilities
     using System.Globalization;
     using System.Linq;
     using log4net;
+    using log4net.Appender;
     
     /// <summary>
     /// This is a helper logger class that is used throughout the code.
@@ -163,13 +164,17 @@ namespace Uhuru.Utilities
                     if (!isSourceConfigured)
                     {
                         isSourceConfigured = true;
-                        if (!EventLog.Exists(((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName))
+                        EventLogAppender eventLogAppender = log.Logger.Repository.GetAppenders().FirstOrDefault(a => a.Name == "EventLogAppender") as EventLogAppender;
+                        if (eventLogAppender != null)
                         {
-                            EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
-                        }
+                            if (!EventLog.Exists(eventLogAppender.LogName))
+                            {
+                                EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
+                            }
 
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
-                        ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
+                            ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
+                            ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
+                        }
                     }
                 }
             }
