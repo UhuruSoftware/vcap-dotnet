@@ -7,7 +7,7 @@
 namespace Uhuru.Configuration.DEA
 {
     using System.Configuration;
-    
+
     /// <summary>
     /// This is a configuration class that defines settings for the DEA component.
     /// </summary>
@@ -37,47 +37,57 @@ namespace Uhuru.Configuration.DEA
         /// Heart beat interval configuration property.
         /// </summary>
         private static ConfigurationProperty propertyHeartBeatInterval;
-        
+
         /// <summary>
         /// Message bus configuration property.
         /// </summary>
         private static ConfigurationProperty propertyMessageBus;
-       
+
         /// <summary>
         /// Muti-tenant configuration property.
         /// </summary>
         private static ConfigurationProperty propertyMultiTenant;
-       
+
         /// <summary>
         /// Maximum memory configuration property.
         /// </summary>
         private static ConfigurationProperty propertyMaxMemory;
-      
+
         /// <summary>
         /// "Is secure" configuration property.
         /// </summary>
         private static ConfigurationProperty propertySecure;
-      
+
         /// <summary>
-        /// Enforec usage limit configuration property.
+        /// Enforce usage limit configuration property.
         /// </summary>
         private static ConfigurationProperty propertyEnforceUsageLimit;
-      
+
         /// <summary>
         /// Disable directory cleanup configuration property.
         /// </summary>
         private static ConfigurationProperty propertyDisableDirCleanup;
-      
+
         /// <summary>
         /// Force http sharing configuration property.
         /// </summary>
         private static ConfigurationProperty propertyForceHttpSharing;
-      
+
+        /// <summary>
+        /// If enabled, the Windows NTFS disk quota will be used to track and enforce disk usage.
+        /// </summary>
+        private static ConfigurationProperty propertyUseDiskQuota;
+
+        /// <summary>
+        /// Maximum number of droplets that can be in a starting state. After that dea.discover messages are ignored.
+        /// </summary>
+        private static ConfigurationProperty propertyMaxConcurrentStarts;
+
         /// <summary>
         /// Runtimes configuration property.
         /// </summary>
         private static ConfigurationProperty propertyRuntimes;
-        
+
         /// <summary>
         /// Configuration properties collection.
         /// </summary>
@@ -153,6 +163,16 @@ namespace Uhuru.Configuration.DEA
                 typeof(bool),
                 false);
 
+            propertyUseDiskQuota = new ConfigurationProperty(
+                "useDiskQuota",
+                typeof(bool),
+                true);
+
+            propertyMaxConcurrentStarts = new ConfigurationProperty(
+                "maxConcurrentStarts",
+                typeof(int),
+                3);
+
             propertyRuntimes = new ConfigurationProperty(
              "runtimes",
              typeof(RuntimeCollection),
@@ -172,6 +192,8 @@ namespace Uhuru.Configuration.DEA
             properties.Add(propertySecure);
             properties.Add(propertyEnforceUsageLimit);
             properties.Add(propertyForceHttpSharing);
+            properties.Add(propertyUseDiskQuota);
+            properties.Add(propertyMaxConcurrentStarts);
             properties.Add(propertyRuntimes);
         }
 
@@ -191,7 +213,7 @@ namespace Uhuru.Configuration.DEA
                 base[propertyBaseDir] = value;
             }
         }
-        
+
         /// <summary>
         /// Gets or sets the local route.
         /// The local route is the IP address of a well known server on your network,
@@ -263,7 +285,7 @@ namespace Uhuru.Configuration.DEA
                 base[propertyHeartBeatInterval] = value;
             }
         }
-         
+
         /// <summary>
         /// Gets or sets the NATS message bus URI.
         /// </summary>
@@ -382,6 +404,40 @@ namespace Uhuru.Configuration.DEA
             set
             {
                 base[propertyForceHttpSharing] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Windows NTFS disk quota will be used to track and enforce disk usage.
+        /// </summary>
+        [ConfigurationProperty("useDiskQuota", IsRequired = false, DefaultValue = true)]
+        public bool UseDiskQuota
+        {
+            get
+            {
+                return (bool)base[propertyUseDiskQuota];
+            }
+
+            set
+            {
+                base[propertyUseDiskQuota] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value. Maximum number of droplets that can be in a starting state. After that dea.discover messages are ignored.
+        /// </summary>
+        [ConfigurationProperty("maxConcurrentStarts", IsRequired = false, DefaultValue = 3)]
+        public int MaxConcurrentStarts
+        {
+            get
+            {
+                return (int)base[propertyMaxConcurrentStarts];
+            }
+
+            set
+            {
+                base[propertyMaxConcurrentStarts] = value;
             }
         }
 
