@@ -154,6 +154,11 @@ namespace Uhuru.CloudFoundry.DEA
         private int evacuationDelayMs = 30 * 1000;
 
         /// <summary>
+        /// 
+        /// </summary>
+        private int maxConcurrentStarts = 3;
+
+        /// <summary>
         /// The windows disk quota manager.
         /// </summary>
         private DIDiskQuotaControl diskQuotaControl;
@@ -813,6 +818,23 @@ namespace Uhuru.CloudFoundry.DEA
             if (this.monitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > this.monitoring.MaxMemoryMbytes)
             {
                 Logger.Debug(Strings.IgnoringRequestNotEnoughMemory);
+                return;
+            }
+
+
+            int curStartingApps = 0;
+
+            this.droplets.ForEach(delegate(DropletInstance instance)
+            {
+                if (instance.Properties.State == DropletInstanceState.Starting)
+                {
+                    curStartingApps++;
+                }
+            });
+
+            if (curStartingApps >= this.maxConcurrentStarts)
+            {
+                Logger.Debug("More then {0} apps starting. Ignoring request", this.maxConcurrentStarts);
                 return;
             }
 
@@ -1740,10 +1762,10 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    if (!instance.Lock.TryEnterWriteLock(10))
-                    {
-                        return;
-                    }
+                    //if (!instance.Lock.TryEnterWriteLock(10))
+                    //{
+                    //    return;
+                    //}
 
                     bool removeDroplet = false;
 
@@ -1833,7 +1855,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     finally
                     {
-                        instance.Lock.ExitWriteLock();
+                        // instance.Lock.ExitWriteLock();
                     }
 
                     // If the remove droplet flag was set, delete the instance form the DEA. The removal is made here to avoid deadlocks.
