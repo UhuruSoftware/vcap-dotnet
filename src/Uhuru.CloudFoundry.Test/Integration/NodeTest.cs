@@ -25,7 +25,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod()]
         [TestCategory("Integration")]
         [DeploymentItem("Uhuru.CloudFoundry.MSSqlService.dll")]
-        [DeploymentItem("log4net.config")]
+        [DeploymentItem("NLog.config")]
         [DeploymentItem("Uhuru.CloudFoundry.Test\\lib\\TestDLLToLoad.dll")]
         public void CreateDatabaseTest()
         {
@@ -204,7 +204,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod()]
         [TestCategory("Integration")]
         [DeploymentItem("Uhuru.CloudFoundry.MSSqlService.dll")]
-        [DeploymentItem("log4net.config")]
+        [DeploymentItem("NLog.config")]
         [DeploymentItem("Uhuru.CloudFoundry.Test\\lib\\TestDLLToLoad.dll")]
         public void KillLongTransactionsTest()
         {

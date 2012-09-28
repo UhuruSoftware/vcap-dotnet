@@ -9,8 +9,7 @@ namespace Uhuru.Utilities
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
-    using log4net;
-    using log4net.Appender;
+    using NLog;
     
     /// <summary>
     /// This is a helper logger class that is used throughout the code.
@@ -18,19 +17,9 @@ namespace Uhuru.Utilities
     public static class Logger
     {
         /// <summary>
-        /// A lock object used to make sure multiple threads don't configure an event log source at the same time.
+        /// The NLog.Logger object used for logging.
         /// </summary>
-        private static readonly object configureEventLogSourceLock = new object();
-
-        /// <summary>
-        /// The log4net ILog object used for logging.
-        /// </summary>
-        private static readonly ILog log = LogManager.GetLogger(System.AppDomain.CurrentDomain.FriendlyName);
-        
-        /// <summary>
-        /// Specifies whether the Windows Event Log source has been configured.
-        /// </summary>
-        private static bool isSourceConfigured = false;
+        private static readonly NLog.Logger log = LogManager.GetLogger(System.AppDomain.CurrentDomain.FriendlyName);
 
         /// <summary>
         /// Logs a fatal message.
@@ -39,7 +28,6 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Fatal(string message)
         {
-            SetEventLogSource();
             log.Fatal(message);
         }
 
@@ -50,7 +38,6 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Error(string message)
         {
-            SetEventLogSource();
             log.Error(message);
         }
 
@@ -61,7 +48,6 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Warning(string message)
         {
-            SetEventLogSource();
             log.Warn(message);
         }
 
@@ -72,7 +58,6 @@ namespace Uhuru.Utilities
         /// <param name="message">The message to be logged.</param>
         public static void Info(string message)
         {
-            SetEventLogSource();
             log.Info(message);
         }
 
@@ -88,7 +73,6 @@ namespace Uhuru.Utilities
                 return;
             }
 
-            SetEventLogSource();
             log.Debug(message);
         }
 
@@ -100,8 +84,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Fatal(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.FatalFormat(CultureInfo.InvariantCulture, message, args);
+            log.Fatal(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -112,8 +95,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Error(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.ErrorFormat(CultureInfo.InvariantCulture, message, args);
+            log.Error(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -124,8 +106,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Warning(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.WarnFormat(CultureInfo.InvariantCulture, message, args);
+            log.Warn(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -136,8 +117,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Info(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.InfoFormat(CultureInfo.InvariantCulture, message, args);
+            log.Info(CultureInfo.InvariantCulture, message, args);
         }
 
         /// <summary>
@@ -148,36 +128,7 @@ namespace Uhuru.Utilities
         /// <param name="args">The arguments used for formatting.</param>
         public static void Debug(string message, params object[] args)
         {
-            SetEventLogSource();
-            log.DebugFormat(CultureInfo.InvariantCulture, message, args);
-        }
-
-        /// <summary>
-        /// Sets up the event log source.
-        /// </summary>
-        private static void SetEventLogSource()
-        {
-            if (!isSourceConfigured)
-            {
-                lock (configureEventLogSourceLock)
-                {
-                    if (!isSourceConfigured)
-                    {
-                        isSourceConfigured = true;
-                        EventLogAppender eventLogAppender = log.Logger.Repository.GetAppenders().FirstOrDefault(a => a.Name == "EventLogAppender") as EventLogAppender;
-                        if (eventLogAppender != null)
-                        {
-                            if (!EventLog.Exists(eventLogAppender.LogName))
-                            {
-                                EventLog.CreateEventSource(System.AppDomain.CurrentDomain.FriendlyName, ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).LogName);
-                            }
-
-                            ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ApplicationName = System.AppDomain.CurrentDomain.FriendlyName;
-                            ((log4net.Appender.EventLogAppender)log.Logger.Repository.GetAppenders().Single(a => a.Name == "EventLogAppender")).ActivateOptions();
-                        }
-                    }
-                }
-            }
+            log.Debug(CultureInfo.InvariantCulture, message, args);
         }
     }
 }

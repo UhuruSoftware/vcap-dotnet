@@ -15,7 +15,7 @@ using System.Reflection;
 namespace Uhuru.CloudFoundry.Test.Integration
 {
     [TestClass]
-    [DeploymentItem("log4net.config")]
+    [DeploymentItem("NLog.config")]
     public class FileServerTest
     {
 

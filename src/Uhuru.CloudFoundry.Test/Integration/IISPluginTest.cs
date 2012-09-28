@@ -13,7 +13,7 @@ using System.IO;
 namespace Uhuru.CloudFoundry.Test.Integration
 {
     [TestClass]
-    [DeploymentItem("log4net.config")]
+    [DeploymentItem("NLog.config")]
     public class IISPluginTest
     {
         string user;
