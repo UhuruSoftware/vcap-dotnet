@@ -485,24 +485,21 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             this.startupLogger.Info(Strings.DeterminingApplication);
 
-            string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
+            DotNetVersion version = NetFrameworkVersion.GetFrameworkFromConfig(Path.Combine(appInfo.Path, "web.config"));
 
-            DotNetVersion version = DotNetVersion.Two;
-
-            if (allAssemblies.Length == 0)
+            if (version == DotNetVersion.Two)
             {
-                version = NetFrameworkVersion.GetFrameworkFromConfig(Path.Combine(appInfo.Path, "web.config"));
-            }
+                string[] allAssemblies = Directory.GetFiles(appInfo.Path, "*.dll", SearchOption.AllDirectories);
 
-            foreach (string assembly in allAssemblies)
-            {
-                if (NetFrameworkVersion.GetVersion(assembly) == DotNetVersion.Four)
+                foreach (string assembly in allAssemblies)
                 {
-                    version = DotNetVersion.Four;
-                    break;
+                    if (NetFrameworkVersion.GetVersion(assembly) == DotNetVersion.Four)
+                    {
+                        version = DotNetVersion.Four;
+                        break;
+                    }
                 }
             }
-
             this.startupLogger.Info(Strings.DetectedNet + GetAspDotNetVersion(version));
 
             return version;
