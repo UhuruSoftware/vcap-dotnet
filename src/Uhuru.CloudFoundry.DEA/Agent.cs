@@ -134,6 +134,11 @@ namespace Uhuru.CloudFoundry.DEA
         private bool enforceUlimit;
 
         /// <summary>
+        /// If the enforcement of usage limit is enabled.
+        /// </summary>
+        private bool useDiskQuota;
+
+        /// <summary>
         /// The DEA reactor. Is is the middleware to the message bus. 
         /// </summary>
         private DeaReactor deaReactor;
@@ -152,6 +157,11 @@ namespace Uhuru.CloudFoundry.DEA
         /// The delay
         /// </summary>
         private int evacuationDelayMs = 30 * 1000;
+
+        /// <summary>
+        /// Maximum number of droplets that can be in a starting state. After that dea.discover messages are ingored.
+        /// </summary>
+        private int maxConcurrentStarts;
 
         /// <summary>
         /// The windows disk quota manager.
@@ -201,6 +211,9 @@ namespace Uhuru.CloudFoundry.DEA
             this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
 
             this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
+
+            this.useDiskQuota = UhuruSection.GetSection().DEA.UseDiskQuota;
+            this.maxConcurrentStarts = UhuruSection.GetSection().DEA.MaxConcurrentStarts;
 
             // Replace the ephemeral monitoring port with the configured one
             if (UhuruSection.GetSection().DEA.StatusPort > 0)
@@ -264,26 +277,29 @@ namespace Uhuru.CloudFoundry.DEA
             // Clean everything in the staged directory
             this.stager.CleanCacheDirectory();
 
-            // Initialize disk quota
-            // TODO: stefi: add a disk quota control for every drive that an app can use
-            Logger.Info("Initializing disk quota...");
-            this.diskQuotaControl = new DiskQuotaControlClass();
-            this.diskQuotaControl.Initialize(Path.GetPathRoot(this.stager.AppsDir), true);
-            this.diskQuotaControl.QuotaState = QuotaStateConstants.dqStateEnforce;
-
-            // Set to ResolveNone to prevent blocking when using account names.
-            this.diskQuotaControl.UserNameResolution = UserNameResolutionConstants.dqResolveNone;
-            this.diskQuotaControl.LogQuotaThreshold = true;
-            this.diskQuotaControl.LogQuotaLimit = true;
-
-            // Disable default quota limit and threshold
-            this.diskQuotaControl.DefaultQuotaThreshold = -1;
-            this.diskQuotaControl.DefaultQuotaLimit = -1;
-
-            // Wait until the volume diskquota is initialized
-            while (this.diskQuotaControl.QuotaFileIncomplete || this.diskQuotaControl.QuotaFileRebuilding)
+            if (this.useDiskQuota)
             {
-                Thread.Sleep(200);
+                // Initialize disk quota
+                // TODO: stefi: add a disk quota control for every drive that an app can use
+                Logger.Info("Initializing disk quota...");
+                this.diskQuotaControl = new DiskQuotaControlClass();
+                this.diskQuotaControl.Initialize(Path.GetPathRoot(this.stager.AppsDir), true);
+                this.diskQuotaControl.QuotaState = QuotaStateConstants.dqStateEnforce;
+
+                // Set to ResolveNone to prevent blocking when using account names.
+                this.diskQuotaControl.UserNameResolution = UserNameResolutionConstants.dqResolveNone;
+                this.diskQuotaControl.LogQuotaThreshold = true;
+                this.diskQuotaControl.LogQuotaLimit = true;
+
+                // Disable default quota limit and threshold
+                this.diskQuotaControl.DefaultQuotaThreshold = -1;
+                this.diskQuotaControl.DefaultQuotaLimit = -1;
+
+                // Wait until the volume diskquota is initialized
+                while (this.diskQuotaControl.QuotaFileIncomplete || this.diskQuotaControl.QuotaFileRebuilding)
+                {
+                    Thread.Sleep(200);
+                }
             }
 
             this.fileViewer.Start(this.stager.AppsDir);
@@ -374,7 +390,11 @@ namespace Uhuru.CloudFoundry.DEA
                     this.monitoring.AddInstanceResources(instance);
                     instance.Properties.StopProcessed = false;
                     instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
-                    instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
+
+                    if (this.useDiskQuota)
+                    {
+                        instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
+                    }
 
                     try
                     {
@@ -792,6 +812,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Debug(System.String,System.Object[])", Justification = "More clear.")]
         private void DeaDiscoverHandler(string message, string reply, string subject)
         {
             Logger.Debug(Strings.DeaReceivedDiscoveryMessage, message);
@@ -813,6 +834,22 @@ namespace Uhuru.CloudFoundry.DEA
             if (this.monitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > this.monitoring.MaxMemoryMbytes)
             {
                 Logger.Debug(Strings.IgnoringRequestNotEnoughMemory);
+                return;
+            }
+
+            int curStartingApps = 0;
+
+            this.droplets.ForEach(delegate(DropletInstance instance)
+            {
+                if (instance.Properties.State == DropletInstanceState.Starting)
+                {
+                    curStartingApps++;
+                }
+            });
+
+            if (curStartingApps >= this.maxConcurrentStarts)
+            {
+                Logger.Debug("More then {0} apps starting. Ignoring request", this.maxConcurrentStarts);
                 return;
             }
 
@@ -1176,7 +1213,7 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-                    
+
                     instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
                     instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
                     Logger.Info("Created Windows Local User: {0}", instance.Properties.WindowsUserName);
@@ -1208,11 +1245,14 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-                    
-                    // Set the quoata limits for the windows user of the app instance
-                    instance.UserDiskQuota = this.diskQuotaControl.AddUser(instance.Properties.WindowsUserName);
-                    instance.UserDiskQuota.QuotaLimit = instance.Properties.DiskQuotaBytes;
-                    instance.UserDiskQuota.QuotaThreshold = instance.Properties.DiskQuotaBytes;
+
+                    if (this.useDiskQuota)
+                    {
+                        // Set the quoata limits for the windows user of the app instance
+                        instance.UserDiskQuota = this.diskQuotaControl.AddUser(instance.Properties.WindowsUserName);
+                        instance.UserDiskQuota.QuotaLimit = instance.Properties.DiskQuotaBytes;
+                        instance.UserDiskQuota.QuotaThreshold = instance.Properties.DiskQuotaBytes;
+                    }
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -1574,8 +1614,12 @@ namespace Uhuru.CloudFoundry.DEA
 
                             long memBytes = instance.JobObject.WorkingSetMemory;
 
-                            // Invalidate will update quota used
-                            instance.UserDiskQuota.Invalidate();
+                            if (this.useDiskQuota)
+                            {
+                                // Invalidate will update quota used
+                                instance.UserDiskQuota.Invalidate();
+                            }
+
                             long diskBytes = instance.UserDiskQuota != null ? (long)instance.UserDiskQuota.QuotaUsed : 0;
 
                             instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
@@ -1693,11 +1737,11 @@ namespace Uhuru.CloudFoundry.DEA
             // Disk usage also enforced by windows disk quota
             if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes * 1.05)
             {
-                 instance.ErrorLog.Fatal(
-                     "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance... :(",
-                     instance.Properties.DiskQuotaBytes / 1024 / 1024,
-                     curUsage.DiskBytes / 1024 / 1024);
-                 this.StopDroplet(instance);
+                instance.ErrorLog.Fatal(
+                    "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance... :(",
+                    instance.Properties.DiskQuotaBytes / 1024 / 1024,
+                    curUsage.DiskBytes / 1024 / 1024);
+                this.StopDroplet(instance);
             }
 
             // Check CPU
@@ -1740,100 +1784,89 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    if (!instance.Lock.TryEnterWriteLock(10))
-                    {
-                        return;
-                    }
-
+                    // TODO: watch for race conditions
                     bool removeDroplet = false;
 
-                    try
+                    bool isCrashed = instance.Properties.State == DropletInstanceState.Crashed;
+                    bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
+                    bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
+                    bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
+
+                    // Stop the instance gracefully before cleaning up.
+                    if (isStopped)
                     {
-                        bool isCrashed = instance.Properties.State == DropletInstanceState.Crashed;
-                        bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
-                        bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
-                        bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
-
-                        // Stop the instance gracefully before cleaning up.
-                        if (isStopped)
+                        this.monitoring.RemoveInstanceResources(instance);
+                        if (instance.Plugin != null)
                         {
-                            this.monitoring.RemoveInstanceResources(instance);
-                            if (instance.Plugin != null)
+                            try
                             {
-                                try
-                                {
-                                    instance.Plugin.StopApplication();
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Warning("Unable to stop application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
-                                }
+                                instance.Plugin.StopApplication();
                             }
-                        }
-
-                        // Remove the instance system resources, except the instance directory
-                        if (isCrashed || isOldCrash || isStopped || isDeleted)
-                        {
-                            this.monitoring.RemoveInstanceResources(instance);
-                            if (instance.Plugin != null)
+                            catch (Exception ex)
                             {
-                                Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-
-                                try
-                                {
-                                    instance.Plugin.CleanupApplication(instance.Properties.Directory);
-                                    UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, instance.Properties.WindowsPassword);
-                                    WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
-                                    PluginHost.RemoveInstance(instance.Plugin);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
-                                }
-                                finally
-                                {
-                                    instance.Plugin = null;
-                                }
-                            }
-                        }
-
-                        // Remove the instance directory, including the logs
-                        if (isOldCrash || isStopped || isDeleted)
-                        {
-                            if (this.stager.DisableDirCleanup)
-                            {
-                                instance.Properties.Directory = null;
-                            }
-
-                            if (instance.Properties.Directory != null && instance.Plugin == null)
-                            {
-                                try
-                                {
-                                    try
-                                    {
-                                        Directory.Delete(instance.Properties.Directory, true);
-                                    }
-                                    catch (IOException)
-                                    {
-                                    }
-
-                                    instance.Properties.Directory = null;
-                                }
-                                catch (UnauthorizedAccessException ex)
-                                {
-                                    Logger.Warning("Unable to delete application directory {0}. Exception: {1}", instance.Properties.Directory, ex.ToString());
-                                }
-                            }
-
-                            if (instance.Plugin == null && instance.Properties.Directory == null)
-                            {
-                                removeDroplet = true;
+                                Logger.Warning("Unable to stop application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
                             }
                         }
                     }
-                    finally
+
+                    // Remove the instance system resources, except the instance directory
+                    if (isCrashed || isOldCrash || isStopped || isDeleted)
                     {
-                        instance.Lock.ExitWriteLock();
+                        this.monitoring.RemoveInstanceResources(instance);
+                        if (instance.Plugin != null)
+                        {
+                            Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
+
+                            try
+                            {
+                                instance.Plugin.CleanupApplication(instance.Properties.Directory);
+                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, instance.Properties.WindowsPassword);
+                                WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
+                                PluginHost.RemoveInstance(instance.Plugin);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
+                            }
+                            finally
+                            {
+                                instance.Plugin = null;
+                            }
+                        }
+                    }
+
+                    // Remove the instance directory, including the logs
+                    if (isOldCrash || isStopped || isDeleted)
+                    {
+                        if (this.stager.DisableDirCleanup)
+                        {
+                            instance.Properties.Directory = null;
+                        }
+
+                        if (instance.Properties.Directory != null && instance.Plugin == null)
+                        {
+                            try
+                            {
+                                try
+                                {
+                                    Directory.Delete(instance.Properties.Directory, true);
+                                }
+                                catch (IOException)
+                                {
+                                }
+
+                                instance.Properties.Directory = null;
+                            }
+                            catch (UnauthorizedAccessException ex)
+                            {
+                                Logger.Warning("Unable to delete application directory {0}. Exception: {1}", instance.Properties.Directory, ex.ToString());
+                            }
+                        }
+
+                        if (instance.Plugin == null && instance.Properties.Directory == null)
+                        {
+                            removeDroplet = true;
+                        }
                     }
 
                     // If the remove droplet flag was set, delete the instance form the DEA. The removal is made here to avoid deadlocks.
