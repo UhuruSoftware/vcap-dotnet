@@ -468,10 +468,6 @@ namespace Uhuru.CloudFoundry.FileService
                 // add permissions to ftp site
                 FtpUtilities.AddUserAccess(name, binding["user"] as string);
 
-                // add permissions to windows share
-                Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
-                ws.AddSharePermissions(binding["user"] as string);
-
                 ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string, service.Port.Value);
 
                 Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
