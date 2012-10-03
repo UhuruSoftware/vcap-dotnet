@@ -17,7 +17,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     using System.Text;
     using System.Threading;
     using System.Xml;
-    using System.Xml.XPath;
     using Microsoft.Web.Administration;
     using Uhuru.CloudFoundry.DEA.AutoWiring;
     using Uhuru.CloudFoundry.DEA.PluginBase;
@@ -28,7 +27,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
     /// Class implementing the IAgentPlugin interface
     /// Responsible for automatically deploying and managing an IIS .Net application
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Keeping everything in one file for now."), 
+    System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "The word is in the dictionary, but the warning is still generated.")]
     public class IISTunnelPlugin : MarshalByRefObject, IAgentPlugin
     {
         /// <summary>
@@ -312,6 +312,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     serverMgr.Sites.Remove(currentSite);
                     serverMgr.CommitChanges();
                     FirewallTools.ClosePort(port);
+                    FirewallTools.ClosePort(IISTunnelPlugin.GetNetTcpPort(currentSite.Applications["/"].VirtualDirectories["/"].PhysicalPath));
                     ApplicationPool applicationPool = serverMgr.ApplicationPools[currentSite.Applications["/"].ApplicationPoolName];
                     serverMgr.ApplicationPools[applicationPool.Name].Stop();
                     time = 0;
@@ -396,6 +397,20 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
 
             return dotNetVersion;
+        }
+
+        /// <summary>
+        /// Gets a random port for use with a net.tcp binding.
+        /// </summary>
+        /// <param name="appPath">Path to application.</param>
+        /// <returns>A random port.</returns>
+        private static int GetNetTcpPort(string appPath)
+        {
+            string webConfigPath = Path.Combine(appPath, "web.config");
+            XmlDocument doc = new XmlDocument();
+            doc.Load(webConfigPath);
+            string netTcpPort = doc.SelectSingleNode("configuration/appSettings/add[@key='TUNNEL_NET_TCP_PORT']/@value").Value;
+            return Convert.ToInt32(netTcpPort, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -567,11 +582,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     deploymentDir.SetAccessControl(deploymentDirSecurity);
 
                     Site mySite = serverMgr.Sites.Add(this.appName, appInfo.Path, appInfo.Port);
-                    mySite.Bindings[0].BindingInformation = string.Format(CultureInfo.InvariantCulture, "{0}:{1}", appInfo.LocalIP, appInfo.Port);
-                    Binding netTcpBinding = mySite.Bindings.Add(string.Format(CultureInfo.InvariantCulture, "*:{0}", appInfo.Port), "net.tcp");
-                    netTcpBinding.Protocol = "net.tcp";
 
-                    mySite.Bindings.Add(netTcpBinding);
+                    mySite.ApplicationDefaults.EnabledProtocols = "http,net.tcp";
+
+                    mySite.Bindings[0].BindingInformation = string.Format(CultureInfo.InvariantCulture, "{0}:{1}:", appInfo.LocalIP, appInfo.Port);
+
+                    mySite.Bindings.Add(
+                        string.Format(
+                        CultureInfo.InvariantCulture, 
+                        "{0}:*", 
+                        new object[] { IISTunnelPlugin.GetNetTcpPort(appInfo.Path) }), 
+                        "net.tcp");
                     
                     mySite.ServerAutoStart = false;
 
@@ -597,6 +618,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     mySite.Applications["/"].ApplicationPoolName = this.appName;
                     FirewallTools.OpenPort(appInfo.Port, appInfo.Name);
+                    FirewallTools.OpenPort(IISTunnelPlugin.GetNetTcpPort(appInfo.Path), appInfo.Name); 
                     serverMgr.CommitChanges();
                 }
             }
@@ -618,6 +640,13 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private void AutowireApp(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string logFilePath, string errorLogFilePath)
         {
             this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
+
+            List<ApplicationVariable> varList = variables.ToList<ApplicationVariable>();
+            ApplicationVariable applicationVariable = new ApplicationVariable();
+            applicationVariable.Name = "TUNNEL_NET_TCP_PORT";
+            applicationVariable.Value = NetworkInterface.GrabEphemeralPort().ToString(CultureInfo.InvariantCulture);
+            varList.Add(applicationVariable);
+            variables = varList.ToArray();
 
             // get all config files
             string[] allConfigFiles = Directory.GetFiles(appInfo.Path, "*.config", SearchOption.AllDirectories);
