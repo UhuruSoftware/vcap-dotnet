@@ -39,6 +39,24 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Creates a user based on an id.
+        /// </summary>
+        /// <param name="id">An id for the username.</param>
+        /// <param name="password">A password for the user. Make sure it's strong.</param>
+        /// <returns>The final username of the newly created Windows User.</returns>
+        public static string CreateUser(string id, string password)
+        {
+            if (password == null)
+            {
+                password = Utilities.Credentials.GenerateCredential();
+            }
+                        
+            WindowsUsersAndGroups.CreateUser(id, password, "Uhuru Vcap Instance " + id + " user");
+
+            return id;
+        }
+
+        /// <summary>
         /// Deletes a windows user based on an Id.
         /// </summary>
         /// <param name="id">The id that was used to create the user.</param>
@@ -46,6 +64,15 @@ namespace Uhuru.Utilities
         {
             string decoratedUsername = DecorateUser(id);
             WindowsUsersAndGroups.DeleteUser(decoratedUsername);
+        }
+
+        /// <summary>
+        /// Deletes a windows user based on an Id.
+        /// </summary>
+        /// <param name="id">The id that was used to create the user.</param>
+        public static void DeleteUser(string id)
+        {
+            WindowsUsersAndGroups.DeleteUser(id);
         }
 
         /// <summary>
