@@ -215,13 +215,13 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
         }
 
         [TestMethod, TestCategory("System")]
-        public void TC005_CloudTestAppCreate5Parallel()
+        public void TC005_CloudTestAppCreate3Parallel()
         {
             // Arrange
             Dictionary<string, string> apps = new Dictionary<string, string>();
             List<Thread> threads = new List<Thread>();
             List<Exception> exceptions = new List<Exception>();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 string name = TestUtil.GenerateAppName();
                 string url = "http://" + target.Replace("api", name);
@@ -280,13 +280,13 @@ namespace Uhuru.CloudFoundry.Test.SystemTests
         }
 
         [TestMethod, TestCategory("System")]
-        public void TC006_CloudTestAppDelete5Parallel()
+        public void TC006_CloudTestAppDelete3Parallel()
         {
             // Arrange
             Dictionary<string, string> apps = new Dictionary<string, string>();
             List<Thread> threads = new List<Thread>();
             List<Exception> exceptions = new List<Exception>();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 string name = TestUtil.GenerateAppName();
                 string url = "http://" + target.Replace("api", name);
