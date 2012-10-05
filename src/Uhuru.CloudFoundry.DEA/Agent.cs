@@ -1122,6 +1122,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "Readable message."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void DeaStartHandler(string message, string reply, string subject)
         {
             DeaStartMessageRequest pmessage;
@@ -1139,7 +1140,17 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.DeaReceivedStartMessage, message);
 
                 pmessage = new DeaStartMessageRequest();
-                pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+                // Environment variable ca be of any type. It comes directly from the user with no validation, sanitization or preprocessing.
+                try
+                {
+                    pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Ignoring dea.start request. Unable to parse dea.start message. Exception: {0}", e.ToString());
+                    return;
+                }
 
                 long memoryMbytes = pmessage.Limits != null && pmessage.Limits.MemoryMbytes != null ? pmessage.Limits.MemoryMbytes.Value : Monitoring.DefaultAppMemoryMbytes;
                 long diskMbytes = pmessage.Limits != null && pmessage.Limits.DiskMbytes != null ? pmessage.Limits.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
