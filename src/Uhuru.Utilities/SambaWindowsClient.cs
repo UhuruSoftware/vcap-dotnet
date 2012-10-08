@@ -99,78 +99,6 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
-        /// Persists a resource on a mounted share, and then links it.
-        /// This method will make sure the folder and file structure remains the same on the local file system, while also persisting data on a share.
-        /// </summary>
-        /// <param name="instancePath">The directory considered to be the "root" of the resources that have to be persisted.</param>
-        /// <param name="persistentItem">The directory or file that has to be persisted.</param>
-        /// <param name="mountPath">The mounted directory that points to a share.</param>
-        public static void Link(string instancePath, string persistentItem, string mountPath)
-        {
-            if (string.IsNullOrEmpty(instancePath))
-            {
-                throw new ArgumentNullException("instancePath");
-            }
-
-            if (string.IsNullOrEmpty(persistentItem))
-            {
-                throw new ArgumentNullException("instancePath");
-            }
-
-            if (string.IsNullOrEmpty(mountPath))
-            {
-                throw new ArgumentNullException("instancePath");
-            }
-
-            string mountItem = Path.Combine(mountPath, persistentItem);
-            string instanceItem = Path.Combine(instancePath, persistentItem);
-
-            if (Directory.Exists(mountItem) || Directory.Exists(instanceItem))
-            {
-                Directory.CreateDirectory(mountItem);
-                Directory.CreateDirectory(instanceItem);
-
-                CopyFolderRecursively(instanceItem, mountItem);
-
-                try
-                {
-                    Directory.Delete(instanceItem, true);
-                }
-                catch (DirectoryNotFoundException)
-                {
-                }
-
-                // ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
-                CreateDirectorySymbolicLink(instanceItem, mountItem);
-            }
-
-            if (File.Exists(mountItem) || File.Exists(instanceItem))
-            {
-                Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
-                Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
-
-                try
-                {
-                    File.Copy(instanceItem, mountItem);
-                }
-                catch (IOException)
-                {
-                }
-
-                try
-                {
-                    File.Delete(instanceItem);
-                }
-                catch (DirectoryNotFoundException)
-                {
-                }
-
-                // ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
-                CreateFileSymbolicLink(instanceItem, mountItem);
-            }
-        }
-
-        /// <summary>
         /// Creates the symbolic link.
         /// </summary>
         /// <param name="symlinkFileName">Name of the symlink file.</param>
@@ -202,44 +130,6 @@ namespace Uhuru.Utilities
             {
                 process.WaitForExit();
                 return process.ExitCode;
-            }
-        }
-
-        /// <summary>
-        /// Copies a directory recursively, without overwriting.
-        /// </summary>
-        /// <param name="source">Source folder to copy.</param>
-        /// <param name="destination">Destination folder.</param>
-        private static void CopyFolderRecursively(string source, string destination)
-        {
-            if (!Directory.Exists(destination))
-            {
-                Directory.CreateDirectory(destination);
-            }
-
-            string[] files = Directory.GetFiles(source);
-
-            foreach (string file in files)
-            {
-                string name = Path.GetFileName(file);
-                string dest = Path.Combine(destination, name);
-
-                try
-                {
-                    File.Copy(file, dest, false);
-                }
-                catch (IOException)
-                {
-                }
-            }
-
-            string[] folders = Directory.GetDirectories(source);
-
-            foreach (string folder in folders)
-            {
-                string name = Path.GetFileName(folder);
-                string dest = Path.Combine(destination, name);
-                CopyFolderRecursively(folder, dest);
             }
         }
     }

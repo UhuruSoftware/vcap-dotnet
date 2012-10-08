@@ -94,7 +94,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
 
                 this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
-                this.AutowireUhurufs(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.HomeAppPath);
             }
             catch (Exception ex)
             {
@@ -756,107 +755,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 errorLogDir.SetAccessControl(errorLogDirSecurity);
                 logDir.SetAccessControl(logDirSecurity);
-            }
-        }
-
-        /// <summary>
-        /// Autowires the service connections and ASP.NET health monitoring in the application's web.config
-        /// </summary>
-        /// <param name="appInfo">The application info structure.</param>
-        /// <param name="variables">All application variables.</param>
-        /// <param name="services">The services.</param>
-        /// <param name="homeAppPath">The home application path.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear.", MessageId = "Uhuru.Utilities.FileLogger.Error(System.String,System.Object[])"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged inside startup log")]
-        private void AutowireUhurufs(ApplicationInfo appInfo, ApplicationVariable[] variables, ApplicationService[] services, string homeAppPath)
-        {
-            this.startupLogger.Info(Strings.StartingApplicationAutoWiring);
-
-            Dictionary<string, HashSet<string>> persistentFiles = new Dictionary<string, HashSet<string>>();
-
-            foreach (ApplicationVariable var in variables)
-            {
-                if (var.Name.StartsWith("uhurufs_", StringComparison.Ordinal))
-                {
-                    string serviceName = var.Name.Split(new string[] { "uhurufs_" }, 2, StringSplitOptions.RemoveEmptyEntries)[0];
-                    if (!persistentFiles.ContainsKey(serviceName))
-                    {
-                        persistentFiles[serviceName] = new HashSet<string>();
-                    }
-
-                    string[] persistedItems = var.Value.Trim(new char[] { '"' }).Split(new char[] { ';', ',', ':' });
-
-                    foreach (string item in persistedItems)
-                    {
-                        persistentFiles[serviceName].Add(item.Replace('/', '\\'));
-                    }
-                }
-            }
-
-            foreach (ApplicationService serv in services)
-            {
-                if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
-                {
-                    try
-                    {
-                        mut.WaitOne();
-
-                        string shareHost = serv.InstanceName;
-                        try
-                        {
-                            if (!SystemHosts.Exists(shareHost))
-                            {
-                                SystemHosts.Add(shareHost, serv.Host);
-                            }
-                        }
-                        catch (ArgumentException)
-                        {
-                            // If the service host cannot be added to hosts connect
-                            shareHost = serv.Host;
-                        }
-
-                        string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
-                        string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
-                        Directory.CreateDirectory(Path.Combine(mountPath, @".."));
-
-                        using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
-                        {
-                            SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
-                        }
-
-                        try
-                        {
-                            // The impersonated user cannot create links 
-                            // Watch out for concurrency issues
-                            SambaWindowsClient.Unmount(remotePath);
-
-                            SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
-                            SambaWindowsClient.LinkDirectory(remotePath, mountPath);
-
-                            if (persistentFiles.ContainsKey(serv.Name))
-                            {
-                                foreach (string fileSystemItem in persistentFiles[serv.Name])
-                                {
-                                    try
-                                    {
-                                        SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        this.startupLogger.Error("Failed linking file/directory: {0}. Exception: {1}", fileSystemItem, ex.ToString());
-                                    }
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            SambaWindowsClient.Unmount(remotePath);
-                        }
-                    }
-                    finally
-                    {
-                        mut.ReleaseMutex();
-                    }
-                }
             }
         }
 

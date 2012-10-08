@@ -72,6 +72,11 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         private CpuTarget cpuTarget;
 
         /// <summary>
+        /// Parsed data.
+        /// </summary>
+        private ApplicationParsedData parsedData;
+
+        /// <summary>
         /// sets the initial data for an application
         /// </summary>
         /// <param name="variables">All variables needed to run the application.</param>
@@ -79,22 +84,22 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
-                this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
+                this.parsedData = PluginHelper.GetParsedData(variables);
+                this.startupLogger = new FileLogger(this.parsedData.StartupLogFilePath);
 
-                this.appName = RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
-                this.appPath = parsedData.AppInfo.Path;
+                this.appName = RemoveSpecialCharacters(this.parsedData.AppInfo.Name) + this.parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appPath = this.parsedData.AppInfo.Path;
 
-                this.applicationInfo = parsedData.AppInfo;
+                this.applicationInfo = this.parsedData.AppInfo;
 
-                this.autoWireTemplates = parsedData.AutoWireTemplates;
+                this.autoWireTemplates = this.parsedData.AutoWireTemplates;
 
                 this.aspDotNetVersion = this.GetAppVersion(this.applicationInfo);
 
                 this.cpuTarget = this.GetCpuTarget(this.applicationInfo);
 
-                this.AutowireApp(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.LogFilePath, parsedData.ErrorLogFilePath);
-                this.AutowireUhurufs(parsedData.AppInfo, variables, parsedData.GetServices(), parsedData.HomeAppPath);
+                this.AutowireApp(this.parsedData.AppInfo, variables, this.parsedData.GetServices(), this.parsedData.LogFilePath, this.parsedData.ErrorLogFilePath);
+                this.AutowireUhurufs(this.parsedData.AppInfo, variables, this.parsedData.GetServices(), this.parsedData.HomeAppPath);
             }
             catch (Exception ex)
             {
@@ -111,12 +116,12 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         {
             try
             {
-                ApplicationParsedData parsedData = PluginHelper.GetParsedData(variables);
-                this.startupLogger = new FileLogger(parsedData.StartupLogFilePath);
-                this.appName = RemoveSpecialCharacters(parsedData.AppInfo.Name) + parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
-                this.appPath = parsedData.AppInfo.Path;
-                this.applicationInfo = parsedData.AppInfo;
-                this.autoWireTemplates = parsedData.AutoWireTemplates;
+                this.parsedData = PluginHelper.GetParsedData(variables);
+                this.startupLogger = new FileLogger(this.parsedData.StartupLogFilePath);
+                this.appName = RemoveSpecialCharacters(this.parsedData.AppInfo.Name) + this.parsedData.AppInfo.Port.ToString(CultureInfo.InvariantCulture);
+                this.appPath = this.parsedData.AppInfo.Path;
+                this.applicationInfo = this.parsedData.AppInfo;
+                this.autoWireTemplates = this.parsedData.AutoWireTemplates;
             }
             catch (Exception ex)
             {
@@ -200,6 +205,17 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         /// <param name="applicationPath">The path.</param>
         public void CleanupApplication(string applicationPath)
         {
+            // Remove the uhurufs servers from the system host file.
+            var services = this.parsedData.GetServices();
+            foreach (ApplicationService serv in services)
+            {
+                if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
+                {
+                    string shareHost = "DEA-" + this.parsedData.AppInfo + "-" + serv.InstanceName + "-" + serv.User;
+                    SystemHosts.TryRemove(shareHost);
+                }
+            }
+
             Cleanup(applicationPath);
         }
 
@@ -210,6 +226,44 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
         public override object InitializeLifetimeService()
         {
             return null;
+        }
+
+        /// <summary>
+        /// Copies a directory recursively, without overwriting.
+        /// </summary>
+        /// <param name="source">Source folder to copy.</param>
+        /// <param name="destination">Destination folder.</param>
+        private static void CopyFolderRecursively(string source, string destination)
+        {
+            if (!Directory.Exists(destination))
+            {
+                Directory.CreateDirectory(destination);
+            }
+
+            string[] files = Directory.GetFiles(source);
+
+            foreach (string file in files)
+            {
+                string name = Path.GetFileName(file);
+                string dest = Path.Combine(destination, name);
+
+                try
+                {
+                    File.Copy(file, dest, false);
+                }
+                catch (IOException)
+                {
+                }
+            }
+
+            string[] folders = Directory.GetDirectories(source);
+
+            foreach (string folder in folders)
+            {
+                string name = Path.GetFileName(folder);
+                string dest = Path.Combine(destination, name);
+                CopyFolderRecursively(folder, dest);
+            }
         }
 
         /// <summary>
@@ -761,67 +815,141 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
+                    string shareHost = "DEA-" + appInfo.InstanceId + "-" + serv.InstanceName + "-" + serv.User;
                     try
                     {
-                        mut.WaitOne();
-
-                        string shareHost = serv.InstanceName;
-                        try
+                        if (!SystemHosts.Exists(shareHost))
                         {
-                            if (!SystemHosts.Exists(shareHost))
-                            {
-                                SystemHosts.Add(shareHost, serv.Host);
-                            }
-                        }
-                        catch (ArgumentException)
-                        {
-                            // If the service host cannot be added to hosts connect
-                            shareHost = serv.Host;
-                        }
-
-                        string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
-                        string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
-                        Directory.CreateDirectory(Path.Combine(mountPath, @".."));
-
-                        using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
-                        {
-                            SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
-                        }
-
-                        try
-                        {
-                            // The impersonated user cannot create links 
-                            // Watch out for concurrency issues
-                            SambaWindowsClient.Unmount(remotePath);
-
-                            SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
-                            SambaWindowsClient.LinkDirectory(remotePath, mountPath);
-
-                            if (persistentFiles.ContainsKey(serv.Name))
-                            {
-                                foreach (string fileSystemItem in persistentFiles[serv.Name])
-                                {
-                                    try
-                                    {
-                                        SambaWindowsClient.Link(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        this.startupLogger.Error("Failed linking file/directory: {0}. Exception: {1}", fileSystemItem, ex.ToString());
-                                    }
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            SambaWindowsClient.Unmount(remotePath);
+                            // Note: delete the host after the app is deleted
+                            SystemHosts.Add(shareHost, serv.Host);
                         }
                     }
-                    finally
+                    catch (ArgumentException)
                     {
-                        mut.ReleaseMutex();
+                        // If the service host cannot be added to hosts connect
+                        shareHost = serv.Host;
+                    }
+
+                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
+                    string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
+                    Directory.CreateDirectory(Path.Combine(mountPath, @".."));
+
+                    // Add the share users credentials to the application user.
+                    // This way the application can use the share directly without invoking `net use` with the credentials.
+                    using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
+                    {
+                        SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
+                    }
+
+                    // The impersonated user cannot create links 
+                    // Note: unmount the share after the app is deleted
+                    // SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
+                    SambaWindowsClient.LinkDirectory(remotePath, mountPath);
+
+                    if (persistentFiles.ContainsKey(serv.Name))
+                    {
+                        foreach (string fileSystemItem in persistentFiles[serv.Name])
+                        {
+                            try
+                            {
+                                this.PersistFileSystemItem(appInfo.Path, fileSystemItem, Path.Combine(mountPath, appInfo.Name));
+                            }
+                            catch (Exception ex)
+                            {
+                                this.startupLogger.Error("Failed linking file/directory: {0}. Exception: {1}", fileSystemItem, ex.ToString());
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Persists a resource on a mounted share, and then links it.
+        /// This method will make sure the folder and file structure remains the same on the local file system, while also persisting data on a share.
+        /// </summary>
+        /// <param name="instancePath">The directory considered to be the "root" of the resources that have to be persisted.</param>
+        /// <param name="persistentItem">The directory or file that has to be persisted.</param>
+        /// <param name="mountPath">The mounted directory that points to a share.</param>
+        private void PersistFileSystemItem(string instancePath, string persistentItem, string mountPath)
+        {
+            if (string.IsNullOrEmpty(instancePath))
+            {
+                throw new ArgumentNullException("instancePath");
+            }
+
+            if (string.IsNullOrEmpty(persistentItem))
+            {
+                throw new ArgumentNullException("instancePath");
+            }
+
+            if (string.IsNullOrEmpty(mountPath))
+            {
+                throw new ArgumentNullException("instancePath");
+            }
+
+            string mountItem = Path.Combine(mountPath, persistentItem);
+            string instanceItem = Path.Combine(instancePath, persistentItem);
+
+            bool isDirectory, isFile;
+
+            using (new UserImpersonator(this.parsedData.AppInfo.WindowsUserName, ".", this.parsedData.AppInfo.WindowsPassword, true))
+            {
+                isDirectory = Directory.Exists(mountItem) || Directory.Exists(instanceItem);
+
+                if (isDirectory)
+                {
+                    Directory.CreateDirectory(mountItem);
+                    Directory.CreateDirectory(instanceItem);
+
+                    CopyFolderRecursively(instanceItem, mountItem);
+
+                    try
+                    {
+                        Directory.Delete(instanceItem, true);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                    }
+                }
+            }
+
+            if (isDirectory)
+            {
+                // Creating links without an admin user is not allowed by default
+                // ExecuteCommand("mklink" + " /d " + instanceItem + " " + mountItem);
+                SambaWindowsClient.CreateDirectorySymbolicLink(instanceItem, mountItem);
+            }
+
+            using (new UserImpersonator(this.parsedData.AppInfo.WindowsUserName, ".", this.parsedData.AppInfo.WindowsPassword, true))
+            {
+                isFile = File.Exists(mountItem) || File.Exists(instanceItem);
+
+                Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
+                Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
+
+                try
+                {
+                    File.Copy(instanceItem, mountItem);
+                }
+                catch (IOException)
+                {
+                }
+
+                try
+                {
+                    File.Delete(instanceItem);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                }
+            }
+
+            if (isFile)
+            {
+                // Creating links without an admin user is not allowed by default
+                // ExecuteCommand("mklink" + " " + instanceItem + " " + mountItem);
+                SambaWindowsClient.CreateFileSymbolicLink(instanceItem, mountItem);
             }
         }
 
