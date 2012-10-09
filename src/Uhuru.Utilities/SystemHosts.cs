@@ -49,6 +49,11 @@ namespace Uhuru.Utilities
                 throw new ArgumentNullException("ipAddress");
             }
 
+            if (hostName.Length > 64)
+            {
+                throw new ArgumentException("Invalid hostName. It has more then 64 characters.", "hostName");
+            }
+
             IPAddress ip;
             if (!IPAddress.TryParse(ipAddress, out ip))
             {

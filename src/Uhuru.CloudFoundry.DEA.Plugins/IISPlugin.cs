@@ -211,7 +211,10 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    string shareHost = "DEA-" + this.parsedData.AppInfo + "-" + serv.InstanceName + "-" + serv.User;
+                    string shareHost = GenerateUhurufsHost(this.parsedData.AppInfo.InstanceId, serv.InstanceName, serv.User);
+                    string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
+                    SambaWindowsClient.Unmount(remotePath);
+                    
                     SystemHosts.TryRemove(shareHost);
                 }
             }
@@ -490,6 +493,34 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Generates a host for the uhurufs service to be autowired.
+        /// </summary>
+        /// <param name="appInstanceId">Application Instance ID.</param>
+        /// <param name="serviceInstanceName">Service Instance Name.</param>
+        /// <param name="serviceUsername">Service Username credential.</param>
+        /// <returns>The generate host.</returns>
+        private static string GenerateUhurufsHost(string appInstanceId, string serviceInstanceName, string serviceUsername)
+        {
+            // N.B. Max length for host is 64 character
+            appInstanceId = appInstanceId.Substring(0, Math.Min(appInstanceId.Length, 15));
+            serviceInstanceName = serviceInstanceName.Substring(0, Math.Min(serviceInstanceName.Length, 20));
+            serviceUsername = serviceUsername.Substring(0, Math.Min(serviceUsername.Length, 15));
+
+            return "DEA-" + appInstanceId + "-" + serviceInstanceName + "-" + serviceUsername;
+        }
+
+        /// <summary>
+        /// Generates the path where the uhurufs instance to be mounted to.
+        /// </summary>
+        /// <param name="homeAppPath">Path to the app directory.</param>
+        /// <param name="serviceName">Service name.</param>
+        /// <returns>Uhurufs service mount path.</returns>
+        private static string GenerateMountPath(string homeAppPath, string serviceName)
+        {
+            return Path.Combine(homeAppPath, "uhurufs", serviceName);
         }
 
         /// <summary>
@@ -815,7 +846,8 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 if (serv.ServiceLabel.StartsWith("uhurufs", StringComparison.Ordinal))
                 {
-                    string shareHost = "DEA-" + appInfo.InstanceId + "-" + serv.InstanceName + "-" + serv.User;
+                    string shareHost = GenerateUhurufsHost(appInfo.InstanceId, serv.InstanceName, serv.User);
+                    
                     try
                     {
                         if (!SystemHosts.Exists(shareHost))
@@ -831,7 +863,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     }
 
                     string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
-                    string mountPath = Path.Combine(homeAppPath, "uhurufs", serv.Name);
+                    string mountPath = GenerateMountPath(homeAppPath, serv.Name);
                     Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
                     // Add the share users credentials to the application user.
@@ -843,7 +875,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     // The impersonated user cannot create links 
                     // Note: unmount the share after the app is deleted
-                    // SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
+                    SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
                     SambaWindowsClient.LinkDirectory(remotePath, mountPath);
 
                     if (persistentFiles.ContainsKey(serv.Name))
