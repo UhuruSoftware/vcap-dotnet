@@ -864,18 +864,18 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     string remotePath = string.Format(CultureInfo.InvariantCulture, @"\\{0}\{1}", shareHost, serv.InstanceName);
                     string mountPath = GenerateMountPath(homeAppPath, serv.Name);
-                    Directory.CreateDirectory(Path.Combine(mountPath, @".."));
 
                     // Add the share users credentials to the application user.
                     // This way the application can use the share directly without invoking `net use` with the credentials.
                     using (new UserImpersonator(appInfo.WindowsUserName, ".", appInfo.WindowsPassword, true))
                     {
+                        Directory.CreateDirectory(Path.Combine(mountPath, @".."));
                         SaveCredentials.AddDomainUserCredential(shareHost, serv.User, serv.Password);
                     }
 
                     // The impersonated user cannot create links 
                     // Note: unmount the share after the app is deleted
-                    SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
+                    // SambaWindowsClient.Mount(remotePath, serv.User, serv.Password);
                     SambaWindowsClient.LinkDirectory(remotePath, mountPath);
 
                     if (persistentFiles.ContainsKey(serv.Name))
