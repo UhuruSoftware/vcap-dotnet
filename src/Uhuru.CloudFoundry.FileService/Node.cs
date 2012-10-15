@@ -311,23 +311,23 @@ namespace Uhuru.CloudFoundry.FileService
 
                 CreateInstanceGroup(name);
                 CreateInstanceUser(name, user, password);
+                AddInstanceUserToGroup(name, user);
                 this.CreateInstanceStorage(provisioned_service);
 
-                // add directory permissions
+                // Add directory permissions
                 string directory = this.GetInstanceDirectory(name);
 
                 // Add permissions
                 AddDirectoryPermissions(directory, name);
 
-                // add permissions to ftp share
-                FtpUtilities.AddUserAccess(name, user);
+                // Add permissions to ftp share to the service group
+                FtpUtilities.AddUserAccess(name, name);
 
-                // add permissions to windows share
+                // Add permissions to windows share
                 Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
 
-                // also add the provisioned services group to the share
+                // Add the provisioned services group to the share
                 ws.AddSharePermissions(name); 
-                ws.AddSharePermissions(user);
                 
                 if (!ProvisionedService.Save())
                 {
@@ -337,11 +337,12 @@ namespace Uhuru.CloudFoundry.FileService
 
                 ServiceCredentials response = this.GenerateCredential(provisioned_service.Name, provisioned_service.User, provisioned_service.Password, provisioned_service.Port.Value);
                 this.provisionServed += 1;
+
                 return response;
             }
             catch (Exception)
             {
-                this.DeleteDirectory(provisioned_service);
+                this.DeleteInstanceStorage(provisioned_service);
                 throw;
             }
         }
@@ -369,13 +370,15 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A boolean specifying whether the unprovision request was successful.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "More clear."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
         protected override bool Unprovision(string name, ServiceCredentials[] bindings)
         {
             if (string.IsNullOrEmpty(name))
             {
                 return false;
             }
+
+            bool success = true;
 
             Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray()));
 
@@ -400,10 +403,33 @@ namespace Uhuru.CloudFoundry.FileService
             }
             catch (Exception)
             {
-                // ignore
+                success = false;
             }
 
-            this.DeleteDirectory(provisioned_service);
+            if (!this.DeleteInstanceStorage(provisioned_service))
+            {
+                success = false;
+            }
+
+            try
+            {
+                DeleteInstanceUser(provisioned_service.User);
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                Logger.Error("Unable to delete user {0} for instance {1}. Exception: {2}", provisioned_service.User, name, ex.ToString());
+            }
+
+            try
+            {
+                DeleteInstanceGroup(name);
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                Logger.Error("Unable to delete group {0} for instance {1}. Exception: {2}", name, name, ex.ToString());
+            }
 
             if (!provisioned_service.Destroy())
             {
@@ -412,7 +438,7 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             Logger.Debug(Strings.SqlNodeUnprovisionSuccessDebugMessage, name);
-            return true;
+            return success;
         }
 
         /// <summary>
@@ -441,51 +467,36 @@ namespace Uhuru.CloudFoundry.FileService
         protected override ServiceCredentials Bind(string name, Dictionary<string, object> bindOptions, ServiceCredentials credentials)
         {
             Logger.Debug(Strings.SqlNodeBindServiceDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindOptions));
-            Dictionary<string, object> binding = null;
-            try
+
+            ProvisionedService service = ProvisionedService.GetService(name);
+            if (service == null)
             {
-                ProvisionedService service = ProvisionedService.GetService(name);
-                if (service == null)
-                {
-                    throw new FileServiceErrorException(FileServiceErrorException.FileServiceConfigNotFound, name);
-                }
-
-                // create new credential for binding
-                binding = new Dictionary<string, object>();
-
-                if (credentials != null)
-                {
-                    binding["user"] = credentials.User;
-                    binding["password"] = credentials.Password;
-                }
-                else
-                {
-                    binding["user"] = "US3R" + Credentials.GenerateCredential();
-                    binding["password"] = "P4SS" + Credentials.GenerateCredential();
-                }
-
-                binding["bind_opts"] = bindOptions;
-
-                CreateInstanceUser(name, binding["user"] as string, binding["password"] as string);
-
-                // add permissions to ftp site
-                FtpUtilities.AddUserAccess(name, binding["user"] as string);
-
-                ServiceCredentials response = this.GenerateCredential(name, binding["user"] as string, binding["password"] as string, service.Port.Value);
-
-                Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
-                this.bindingServed += 1;
-                return response;
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceConfigNotFound, name);
             }
-            catch (Exception)
+
+            string user = null;
+            string password = null;
+
+            if (credentials != null)
             {
-                if (binding != null)
-                {
-                    DeleteInstanceUser(binding["user"] as string);
-                }
-
-                throw;
+                user = credentials.User;
+                password = credentials.Password;
             }
+            else
+            {
+                user = "US3R" + Credentials.GenerateCredential();
+                password = "P4SS" + Credentials.GenerateCredential();
+            }
+
+            CreateInstanceUser(name, user, password);
+            AddInstanceUserToGroup(name, user);
+
+            ServiceCredentials response = this.GenerateCredential(name, user, password, service.Port.Value);
+
+            Logger.Debug(Strings.SqlNodeBindResponseDebugMessage, response.SerializeToJson());
+            this.bindingServed += 1;
+
+            return response;
         }
 
         /// <summary>
@@ -504,39 +515,24 @@ namespace Uhuru.CloudFoundry.FileService
                 return false;
             }
 
+            bool success = true;
+
             Logger.Debug(Strings.SqlNodeUnbindServiceDebugMessage, credentials.SerializeToJson());
 
+            string name = credentials.Name;
             string user = credentials.User;
 
             try
             {
-                FtpUtilities.DeleteUserAccess(credentials.Name, user);
+                DeleteInstanceUser(user);
             }
             catch (Exception ex)
             {
-                Logger.Error("Unable to revoke FTP access for instance {0} and user {1}. Exception: {2}", credentials.Name, user, ex.ToString());
+                Logger.Error("Unable to delete bound user {1} for instance {0}. Exception: {2}", name, user, ex.ToString());
+                success = false;
             }
 
-            try
-            {
-                WindowsShare ws = new WindowsShare(credentials.Name);
-                ws.DeleteSharePermission(credentials.Name);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Unable to revoke Windows Share access for instance {0} and user {1}. Exception: {2}", credentials.Name, user, ex.ToString());
-            }
-
-            try
-            {
-                DeleteInstanceUser(credentials.Name);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Unable to delete bound user {1} for instance {0}. Exception: {2}", credentials.Name, user, ex.ToString());
-            }
-
-            return true;
+            return success;
         }
 
         /// <summary>
@@ -561,7 +557,16 @@ namespace Uhuru.CloudFoundry.FileService
         {
             Logger.Info("Creating Windows user {0} for instance {1}", user, name);
             Uhuru.Utilities.WindowsUsersAndGroups.CreateUser(user, password, "Uhuru File System Instance " + name);
+        }
 
+        /// <summary>
+        /// Creates a Windows user for permissions.
+        /// </summary>
+        /// <param name="name">Instace name.</param>
+        /// <param name="user">The user.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String,System.Object[])", Justification = "Less error prone.")]
+        private static void AddInstanceUserToGroup(string name, string user)
+        {
             Logger.Info("Adding Windows user {0} to group {1}", user, name);
             Uhuru.Utilities.WindowsUsersAndGroups.AddUserToGroup(user, name);
         }
@@ -677,13 +682,15 @@ namespace Uhuru.CloudFoundry.FileService
         /// Deletes a database.
         /// </summary>
         /// <param name="provisionedService">The provisioned service for which the directory needs to be deleted.</param>
+        /// <returns>If the operation was successful true, else false.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "Less error prone."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        private void DeleteDirectory(ProvisionedService provisionedService)
+        private bool DeleteInstanceStorage(ProvisionedService provisionedService)
         {
+            bool success = true;
+
             string name = provisionedService.Name;
-            string user = provisionedService.User;
 
             try
             {
@@ -695,6 +702,7 @@ namespace Uhuru.CloudFoundry.FileService
                 }
                 catch (Exception ex)
                 {
+                    success = false;
                     Logger.Error("Unable to delete FTP site for instance {0}. Exception: {1}", name, ex.ToString());
                 }
 
@@ -705,6 +713,7 @@ namespace Uhuru.CloudFoundry.FileService
                 }
                 catch (Exception ex)
                 {
+                    success = false;
                     Logger.Error("Unable to delete Windows Share for instance {0}. Exception: {1}", name, ex.ToString());
                 }
 
@@ -718,35 +727,22 @@ namespace Uhuru.CloudFoundry.FileService
                 }
                 catch (Exception ex)
                 {
+                    success = false;
                     Logger.Error("Unable to delete directory quota rule for instance {0}. Exception: {1}", name, ex.ToString());
                 }
 
-                try
+                if (!this.useVhd)
                 {
-                    string directory = this.GetInstanceDirectory(name);
-                    Directory.Delete(directory, true);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Unable to delete instance directory for instance {0}. Exception: {1}", name, ex.ToString());
-                }
-
-                try
-                {
-                    DeleteInstanceUser(user);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Unable to delete user {0} for instance {1}. Exception: {2}", user, name, ex.ToString());
-                }
-
-                try
-                {
-                    DeleteInstanceGroup(name);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Unable to delete group {0} for instance {1}. Exception: {2}", name, name, ex.ToString());
+                    try
+                    {
+                        string directory = this.GetInstanceDirectory(name);
+                        Directory.Delete(directory, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        success = false;
+                        Logger.Error("Unable to delete instance directory for instance {0}. Exception: {1}", name, ex.ToString());
+                    }
                 }
 
                 if (this.useVhd)
@@ -760,6 +756,7 @@ namespace Uhuru.CloudFoundry.FileService
                     }
                     catch (Exception ex)
                     {
+                        success = false;
                         Logger.Error("Unable to un-mount VHD {0} for instance {1}. Exception: {2}", vhd, name, ex.ToString());
                     }
 
@@ -769,6 +766,7 @@ namespace Uhuru.CloudFoundry.FileService
                     }
                     catch (Exception ex)
                     {
+                        success = false;
                         Logger.Error("Unable to delete VHD file {0} for instance {1}. Exception: {2}", vhd, name, ex.ToString());
                     }
 
@@ -778,14 +776,18 @@ namespace Uhuru.CloudFoundry.FileService
                     }
                     catch (Exception ex)
                     {
+                        success = false;
                         Logger.Error("Unable to delete VHD mount directory {0} for instance {1}. Exception: {2}", vhd, name, ex.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
+                success = false;
                 Logger.Fatal(Strings.SqlNodeCannotDeleteDBFatalMessage, ex.ToString());
             }
+
+            return success;
         }
 
         /// <summary>
