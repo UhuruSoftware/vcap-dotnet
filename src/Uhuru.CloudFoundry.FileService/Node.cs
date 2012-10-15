@@ -324,7 +324,9 @@ namespace Uhuru.CloudFoundry.FileService
 
                 // add permissions to windows share
                 Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
+                ws.AddSharePermissions(name); //also add the group
                 ws.AddSharePermissions(user);
+                
 
                 if (!ProvisionedService.Save())
                 {
