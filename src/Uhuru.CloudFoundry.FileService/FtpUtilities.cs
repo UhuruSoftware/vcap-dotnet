@@ -163,5 +163,49 @@ namespace Uhuru.CloudFoundry.FileService
                 serverManager.CommitChanges();
             }
         }
+
+        /// <summary>
+        /// Adds the group access.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="group">The group.</param>
+        public static void AddGroupAccess(string siteName, string group)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+                ConfigurationElement newAuthorization = authorization.CreateElement("add");
+                newAuthorization["accessType"] = "Allow";
+                newAuthorization["roles"] = group;
+                newAuthorization["permissions"] = "Read, Write";
+
+                authorization.Add(newAuthorization);
+
+                serverManager.CommitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the group access.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="group">The group.</param>
+        public static void DeleteGroupAccess(string siteName, string group)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+
+                ConfigurationElement userAccess = authorization.Where(a => (string)a["roles"] == group).FirstOrDefault();
+
+                authorization.Remove(userAccess);
+
+                serverManager.CommitChanges();
+            }
+        }
     }
 }

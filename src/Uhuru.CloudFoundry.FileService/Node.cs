@@ -321,7 +321,7 @@ namespace Uhuru.CloudFoundry.FileService
                 AddDirectoryPermissions(directory, name);
 
                 // Add permissions to ftp share to the service group
-                FtpUtilities.AddUserAccess(name, name);
+                FtpUtilities.AddGroupAccess(name, name);
 
                 // Add permissions to windows share
                 Uhuru.Utilities.WindowsShare ws = new Uhuru.Utilities.WindowsShare(name);
@@ -406,11 +406,6 @@ namespace Uhuru.CloudFoundry.FileService
                 success = false;
             }
 
-            if (!this.DeleteInstanceStorage(provisioned_service))
-            {
-                success = false;
-            }
-
             try
             {
                 DeleteInstanceUser(provisioned_service.User);
@@ -429,6 +424,11 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 success = false;
                 Logger.Error("Unable to delete group {0} for instance {1}. Exception: {2}", name, name, ex.ToString());
+            }
+
+            if (!this.DeleteInstanceStorage(provisioned_service))
+            {
+                success = false;
             }
 
             if (!provisioned_service.Destroy())
