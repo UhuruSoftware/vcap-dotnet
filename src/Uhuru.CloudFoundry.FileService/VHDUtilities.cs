@@ -12,7 +12,9 @@ namespace Uhuru.CloudFoundry.FileService
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Management;
     using System.Text;
+    using System.Threading;
     using Uhuru.Utilities;
 
     /// <summary>
@@ -91,6 +93,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// </summary>
         /// <param name="path">The file path to the VHD.</param>
         /// <param name="mountPath">The target mount path.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Necessary.")]
         public static void MountVHD(string path, string mountPath)
         {
             Directory.CreateDirectory(mountPath);
@@ -138,6 +141,15 @@ namespace Uhuru.CloudFoundry.FileService
                         continue;
                     }
 
+                    // On error detach the vhd
+                    try
+                    {
+                        UnmountVHD(path);
+                    }
+                    catch (Exception)
+                    {
+                    }
+
                     throw;
                 }
 
@@ -166,6 +178,18 @@ namespace Uhuru.CloudFoundry.FileService
                 path);
 
             ExecuteDiskPartScript(script);
+
+            Directory.Delete(path);
+        }
+
+        /// <summary>
+        /// Verifies if the path is a mount point.
+        /// </summary>
+        /// <param name="mountPoint">The mount point.</param>
+        /// <returns>True if mount point is present.</returns>
+        public static bool IsMountPointPresent(string mountPoint)
+        {
+            return Alphaleonis.Win32.Filesystem.Volume.IsVolume(mountPoint + "\\");
         }
     }
 }

@@ -180,6 +180,18 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Test if the share exists.
+        /// </summary>
+        /// <returns>True if the share exists.</returns>
+        public bool Exists()
+        {
+            using (var shareQuery = new ManagementObjectSearcher(@"SELECT * FROM Win32_Share Where Name = '" + this.shareName + "'"))
+            {
+                return shareQuery.Get().Count > 0;
+            }
+        }
+
+        /// <summary>
         /// Adds the share permissions.
         /// </summary>
         /// <param name="accountName">Name of the account.</param>

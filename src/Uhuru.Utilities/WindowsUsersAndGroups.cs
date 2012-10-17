@@ -10,6 +10,7 @@ namespace Uhuru.Utilities
     using System.Collections.Generic;
     using System.DirectoryServices;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>
@@ -69,6 +70,38 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Verify if the user exists.
+        /// </summary>
+        /// <param name="userName">The user name.</param>
+        /// <returns>True if the user exists.</returns>
+        public static bool ExistsUser(string userName)
+        {
+            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            {
+                DirectoryEntries localChildren = localEntry.Children;
+                try
+                {
+                    using (DirectoryEntry userEntry = localChildren.Find(userName, "User"))
+                    {
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The user name could not be found."))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Creates a Windows group.
         /// </summary>
         /// <param name="groupName">Name of the group.</param>
@@ -112,6 +145,38 @@ namespace Uhuru.Utilities
                     localChildren.Remove(groupEntry);
                 }
             }
+        }
+
+        /// <summary>
+        /// Verify if the group exists.
+        /// </summary>
+        /// <param name="groupName">The group name.</param>
+        /// <returns>True if group exists.</returns>
+        public static bool ExistsGroup(string groupName)
+        {
+            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            {
+                DirectoryEntries localChildren = localEntry.Children;
+                try
+                {
+                    using (DirectoryEntry groupEntry = localChildren.Find(groupName, "Group"))
+                    {
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The group name could not be found."))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

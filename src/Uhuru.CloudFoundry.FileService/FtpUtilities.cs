@@ -121,6 +121,32 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
+        /// Verify if the ftp site exists.
+        /// </summary>
+        /// <param name="name">The name of the virtual directory.</param>
+        /// <returns>True if the ftp site exists.</returns>
+        public static bool Exists(string name)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationSection sitesSection = config.GetSection("system.applicationHost/sites");
+
+                ConfigurationElementCollection sitesCollection = sitesSection.GetCollection();
+
+                ConfigurationElement fileServiceSite = sitesCollection.FirstOrDefault(c => (string)c.Attributes["name"].Value == name);
+
+                if (fileServiceSite == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Adds the user access.
         /// </summary>
         /// <param name="siteName">Name of the site.</param>

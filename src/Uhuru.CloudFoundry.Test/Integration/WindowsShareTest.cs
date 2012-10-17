@@ -64,7 +64,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             ws.AddSharePermissions("Everyone");
 
+            Assert.IsTrue(ws.Exists());
+
             ws.DeleteShare();
+
+            Assert.IsFalse(ws.Exists());
+
             ws = null;
             string contentsRead = File.ReadAllText(@"\\localhost\" + shareName + @"\test.txt");
         }
