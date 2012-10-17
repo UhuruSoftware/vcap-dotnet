@@ -22,15 +22,23 @@ namespace Uhuru.CloudFoundry.Test.Unit
             string group1 = groupbase + "1";
             string group2 = groupbase + "2";
 
-
+            // test users
             WindowsUsersAndGroups.CreateUser(user1, "test1234#");
             WindowsUsersAndGroups.CreateUser(user2, "test1234#", "Delete me pls...");
-            WindowsUsersAndGroups.DeleteUser(user2);
 
+            Assert.IsTrue(WindowsUsersAndGroups.ExistsUser(user2));
+            WindowsUsersAndGroups.DeleteUser(user2);
+            Assert.IsFalse(WindowsUsersAndGroups.ExistsUser(user2));
+
+            // test groups
             WindowsUsersAndGroups.CreateGroup(group1);
             WindowsUsersAndGroups.CreateGroup(group2, "delete me too...");
-            WindowsUsersAndGroups.DeleteGroup(group2);
 
+            Assert.IsTrue(WindowsUsersAndGroups.ExistsGroup(group2));
+            WindowsUsersAndGroups.DeleteGroup(group2);
+            Assert.IsFalse(WindowsUsersAndGroups.ExistsGroup(group2));
+
+            // test users and groups
             Assert.IsFalse(WindowsUsersAndGroups.IsUserMemberOfGroup(user1, group1));
             WindowsUsersAndGroups.AddUserToGroup(user1, group1);
             Assert.IsTrue(WindowsUsersAndGroups.IsUserMemberOfGroup(user1, group1));

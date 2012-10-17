@@ -16,51 +16,57 @@ namespace Uhuru.CloudFoundry.Test.Integration
         public void CreateVHDTest1()
         {
             var tempPath = Path.GetTempPath();
-            var tempFile = Path.Combine(tempPath, Guid.NewGuid().ToString());
-            VHDUtilities.CreateVHD(tempFile, 100, true);
+            var tempVhdFile = Path.Combine(tempPath, Guid.NewGuid().ToString() + ".vhd");
+            VHDUtilities.CreateVHD(tempVhdFile, 100, true);
 
-            Assert.IsTrue(new FileInfo(tempFile).Length > 100 * 1024 * 1024);
+            Assert.IsTrue(new FileInfo(tempVhdFile).Length > 100 * 1024 * 1024);
 
-            File.Delete(tempFile);
+            File.Delete(tempVhdFile);
         }
 
         [TestMethod, TestCategory("Integration"), Description("Create VHD with fixed size set to false should not allocate the entire disk size.")]
         public void CreateVHDTest2()
         {
             var tempPath = Path.GetTempPath();
-            var tempFile = Path.Combine(tempPath, Guid.NewGuid().ToString());
-            VHDUtilities.CreateVHD(tempFile, 1000, false);
+            var tempVhdFile = Path.Combine(tempPath, Guid.NewGuid().ToString() + ".vhd");
+            VHDUtilities.CreateVHD(tempVhdFile, 1000, false);
 
             // should use less then 20MB for a 1GB empty VHD.
-            Assert.IsTrue(new FileInfo(tempFile).Length < 20 * 1024 * 1024);
+            Assert.IsTrue(new FileInfo(tempVhdFile).Length < 20 * 1024 * 1024);
 
-            File.Delete(tempFile);
+            File.Delete(tempVhdFile);
         }
 
         [TestMethod, TestCategory("Integration"), Description("Mount VHD should allow you write access.")]
         public void MountVHDTest1()
         {
             var tempPath = Path.GetTempPath();
-            var tempFile = Path.Combine(tempPath, Guid.NewGuid().ToString());
+
+            // n.b. if the extension is not present an error will be thrown by diskpart when selecting the file
+            var tempVhdFile = Path.Combine(tempPath, Guid.NewGuid().ToString() + ".vhd");
             var tempMountPath = Path.Combine(tempPath, Guid.NewGuid().ToString());
 
-            VHDUtilities.CreateVHD(tempFile, 100, false);
+            VHDUtilities.CreateVHD(tempVhdFile, 100, false);
 
-            VHDUtilities.MountVHD(tempFile, tempMountPath);
+            Assert.IsFalse(VHDUtilities.IsMountPointPresent(tempMountPath));
+
+            VHDUtilities.MountVHD(tempVhdFile, tempMountPath);
+
+            Assert.IsTrue(VHDUtilities.IsMountPointPresent(tempMountPath));
 
             File.WriteAllText(Path.Combine(tempMountPath, "test"), "test");
 
             Assert.IsTrue(File.ReadAllText(Path.Combine(tempMountPath, "test")) == "test" );
 
-            VHDUtilities.UnmountVHD(tempFile);
+            VHDUtilities.UnmountVHD(tempVhdFile);
 
             Assert.IsTrue(File.Exists(Path.Combine(tempMountPath, "test")) == false);
 
-            VHDUtilities.MountVHD(tempFile, tempMountPath);
+            VHDUtilities.MountVHD(tempVhdFile, tempMountPath);
             Assert.IsTrue(File.ReadAllText(Path.Combine(tempMountPath, "test")) == "test");
-            VHDUtilities.UnmountVHD(tempFile);
+            VHDUtilities.UnmountVHD(tempVhdFile);
 
-            File.Delete(tempFile);
+            File.Delete(tempVhdFile);
         }
 
     }

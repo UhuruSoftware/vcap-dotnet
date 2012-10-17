@@ -38,7 +38,11 @@ namespace Uhuru.CloudFoundry.Test.Integration
             FtpUtilities.AddUserAccess(name, decoratedUsername);
             FtpUtilities.DeleteUserAccess(name, decoratedUsername);
 
+            Assert.IsTrue(FtpUtilities.Exists(name));
+
             FtpUtilities.DeleteFtpSite(name);
+
+            Assert.IsFalse(FtpUtilities.Exists(name));
 
             Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username);
             Uhuru.Utilities.WindowsVCAPUsers.DeleteDecoratedBasedUser(username + "2");
