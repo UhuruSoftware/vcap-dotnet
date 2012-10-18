@@ -59,5 +59,16 @@ namespace Uhuru.CloudFoundry.ServiceBase
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the supported versions.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "These are needed for JSON (de)serialization"), 
+        JsonName("supported_versions")]
+        public string[] SupportedVersions
+        {
+            get;
+            set;
+        }
     }
 }

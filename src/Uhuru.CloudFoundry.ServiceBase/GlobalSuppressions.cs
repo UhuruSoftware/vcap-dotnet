@@ -27,3 +27,5 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Scope = "member", Target = "Uhuru.CloudFoundry.ServiceBase.NodeBase.#maxCapacity")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Scope = "member", Target = "Uhuru.CloudFoundry.ServiceBase.NodeBase.#fqdnHosts")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Nfs", Scope = "member", Target = "Uhuru.CloudFoundry.ServiceBase.NodeBase.#migrationNfs")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Scope = "member", Target = "Uhuru.CloudFoundry.ServiceBase.NodeBase.#defaultVersion")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Scope = "member", Target = "Uhuru.CloudFoundry.ServiceBase.NodeBase.#supportedVersions")]

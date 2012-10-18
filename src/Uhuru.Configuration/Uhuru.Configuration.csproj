@@ -79,6 +79,8 @@
     <Compile Include="Service\MsSqlElement.cs" />
     <Compile Include="Service\ServiceElement.cs" />
     <Compile Include="Service\UhurufsElement.cs" />
+    <Compile Include="Service\SupportedVersionsCollection.cs" />
+    <Compile Include="Service\SupportedVersionElement.cs" />
     <Compile Include="UhuruSection.cs" />
   </ItemGroup>
   <ItemGroup>

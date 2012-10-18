@@ -293,6 +293,21 @@ namespace Uhuru.Configuration.Service
             }
         }
 
+        /// <summary>
+        /// Gets the supported versions for the service.
+        /// </summary>
+        /// <value>
+        /// The supported versions.
+        /// </value>
+        [ConfigurationProperty("supportedVersions", IsRequired = true)]
+        public SupportedVersionsCollection SupportedVersions
+        {
+            get
+            {
+                return (SupportedVersionsCollection)base["supportedVersions"];
+            }
+        }
+
         #region Overrides
 
         /// <summary>

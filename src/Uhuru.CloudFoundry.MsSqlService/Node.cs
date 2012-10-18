@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SqlClient;
     using System.Diagnostics;
@@ -120,6 +121,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 Announcement a = new Announcement();
                 a.AvailableCapacity = this.capacity;
                 a.CapacityUnit = this.CapacityUnit();
+                a.SupportedVersions = this.supportedVersions.ToArray();
                 return a;
             }
         }
@@ -259,10 +261,37 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is being logged")]
+        protected override bool DisableInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            Logger.Debug(Strings.SqlNodeDisableInstanceStartMessage, provisionedCredential.Name);
+
+            bindingCredentials.Add(provisionedCredential);
+
+            try
+            {
+                foreach (ServiceCredentials credential in bindingCredentials)
+                {
+                    this.Unbind(credential);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(Strings.SqlNodeDisableInstanceError, provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -274,26 +303,87 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is being logged")]
+        protected override bool DumpInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials, string filePath)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            string dumpFile = Path.Combine(filePath, provisionedCredential.Name);
+
+            Logger.Info(Strings.SqlNodeDumpDatabaseStartMessage, provisionedCredential.Name, dumpFile);
+
+            try
+            {
+                using (TransactionScope ts = new TransactionScope())
+                {
+                    using (SqlCommand dumpDatabaseCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDumpDatabaseSQL, provisionedCredential.Name, dumpFile), this.connection))
+                    {
+                        dumpDatabaseCommand.ExecuteNonQuery();
+                    }
+
+                    ts.Complete();
+                }
+
+                Logger.Info(Strings.SqlNodeDumpDatabaseEndMessage, provisionedCredential.Name);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(Strings.SqlNodeDumpDatabaseError, provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
         /// Imports an instance from a path.
         /// </summary>
         /// <param name="provisionedCredential">The provisioned credential.</param>
-        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="bindingCredentialsHash">The binding credentials.</param>
         /// <param name="filePath">The file path from which to import the service.</param>
         /// <param name="planRequest">The payment plan.</param>
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, string planRequest)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is being logged")]
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentialsHash, string filePath, string planRequest)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentialsHash == null)
+            {
+                throw new ArgumentNullException("bindingCredentialsHash");
+            }
+
+            string dumpFile = Path.Combine(filePath, provisionedCredential.Name);
+            Logger.Info(Strings.SqlNodeImportDatabaseStartMessage, provisionedCredential.Name, dumpFile);
+
+            try
+            {
+                ServiceCredentials credentials = this.Provision(planRequest, provisionedCredential, this.defaultVersion);
+                this.ImportDatabase(credentials, dumpFile);
+                Logger.Info(Strings.SqlNodeImportDatabaseEndMessage, provisionedCredential.Name);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(Strings.SqlNodeImportDatabaseError, provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -304,10 +394,40 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is being logged")]
         protected override bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentialsHash == null)
+            {
+                throw new ArgumentNullException("bindingCredentialsHash");
+            }
+
+            Logger.Debug(Strings.SqlNodeEnableInstanceStartMessage, provisionedCredential.Name);
+
+            try
+            {
+                provisionedCredential = Bind(provisionedCredential.Name, null, provisionedCredential);
+                foreach (KeyValuePair<string, object> pair in bindingCredentialsHash)
+                {
+                    Handle handle = (Handle)pair.Value;
+                    ServiceCredentials cred = new ServiceCredentials();
+                    cred.FromJsonIntermediateObject(handle.Credentials);
+                    Dictionary<string, object> bindingOptions = handle.Credentials.BindOptions;
+                    Bind(cred.Name, bindingOptions, cred);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(Strings.SqlNodeEnableInstanceError, provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -415,7 +535,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// </returns>
         protected override ServiceCredentials Provision(string planRequest)
         {
-            return Provision(planRequest, null);
+            return Provision(planRequest, null, this.defaultVersion);
         }
 
         /// <summary>
@@ -423,11 +543,22 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// </summary>
         /// <param name="planRequest">The payment plan for the service.</param>
         /// <param name="credentials">Existing credentials for the service.</param>
+        /// <param name="version">The service version.</param>
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials)
+        protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials, string version)
         {
+            if (planRequest != this.plan)
+            {
+                throw new MSSqlErrorException(MSSqlErrorException.MSSqlInvalidPlan);
+            }
+
+            if (!this.supportedVersions.Contains(version))
+            {
+                throw new MSSqlErrorException(ServiceException.UnsupportedVersion);
+            }
+
             //// todo: chek for plan
             ProvisionedService provisioned_service = new ProvisionedService();
             if (credentials == null)
@@ -593,7 +724,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             {
                 if (binding != null)
                 {
-                    this.DeleteDatabaseUser(binding["user"] as string);
+                    this.DeleteDatabaseUser(binding["user"] as string, name);
                 }
 
                 throw;
@@ -635,8 +766,56 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 }
             }
 
-            this.DeleteDatabaseUser(user);
+            this.DeleteDatabaseUser(user, databaseName);
             return true;
+        }
+
+        /// <summary>
+        /// Updates service bindings.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credentials.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <returns>
+        /// Updated service credentials
+        /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error logged")]
+        protected override object[] UpdateInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentials)
+        {
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            object[] response = new object[2];
+
+            string name = provisionedCredential.Name;
+            try
+            {
+                provisionedCredential = Bind(name, null, provisionedCredential);
+                Dictionary<string, object> bindingCredentialsResponse = new Dictionary<string, object>();
+
+                foreach (KeyValuePair<string, object> pair in bindingCredentials)
+                {
+                    ServiceCredentials cred = (ServiceCredentials)pair.Value;
+                    ServiceCredentials bindingCred = Bind(cred.Name, cred.BindOptions, cred);
+                    bindingCredentialsResponse[pair.Key] = bindingCred;
+                }
+
+                response[0] = provisionedCredential;
+                response[1] = bindingCredentialsResponse;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(ex.ToString());
+                return new object[0];
+            }
         }
 
         /// <summary>
@@ -786,7 +965,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
 
-                this.createDBScript = this.ExtractSqlScriptFromTemplate(databaseName);
+                this.createDBScript = this.ExtractSqlScriptFromTemplate("Uhuru.CloudFoundry.MSSqlService.CreateServiceDatabaseTemplate.sql", databaseName);
 
                 // split script on GO command
                 IEnumerable<string> commandStrings = Regex.Split(this.createDBScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
@@ -822,14 +1001,47 @@ namespace Uhuru.CloudFoundry.MSSqlService
         }
 
         /// <summary>
+        /// Imports the database.
+        /// </summary>
+        /// <param name="credentials">The service credentials.</param>
+        /// <param name="backupLocation">The backup location.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file.")]
+        private void ImportDatabase(ServiceCredentials credentials, string backupLocation)
+        {
+            string importDBScript = this.ExtractSqlScriptFromTemplate("Uhuru.CloudFoundry.MSSqlService.ImportServiceDatabaseTemplate.sql", credentials.Name);
+
+            importDBScript = importDBScript.Replace("<NfsLocation>", backupLocation);
+
+            // split script on GO command
+            IEnumerable<string> commandStrings = Regex.Split(importDBScript, "^\\s*GO\\s*$", RegexOptions.Multiline);
+
+            using (TransactionScope ts = new TransactionScope())
+            {
+                foreach (string commandString in commandStrings)
+                {
+                    if (!string.IsNullOrEmpty(commandString.Trim()) && !commandString.Contains("[master]"))
+                    {
+                        using (SqlCommand cmd = new SqlCommand(commandString, this.connection))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Loads the sql template and replaces the tags with user supplied values
         /// </summary>
+        /// <param name="resourceFile">The resource file.</param>
         /// <param name="databaseName">The database name</param>
-        /// <returns>An SQL script</returns>
+        /// <returns>
+        /// An SQL script
+        /// </returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA2204", Justification = "lol")]
-        private string ExtractSqlScriptFromTemplate(string databaseName)
+        private string ExtractSqlScriptFromTemplate(string resourceFile, string databaseName)
         {
-            Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Uhuru.CloudFoundry.MSSqlService.CreateServiceDatabaseTemplate.sql");
+            Stream templateStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceFile);
 
             if (templateStream == null)
             {
@@ -944,7 +1156,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
 
             try
             {
-                this.DeleteDatabaseUser(user);
+                this.DeleteDatabaseUser(user, name);
                 Logger.Info(Strings.SqlNodeDeletingDatabaseInfoMessage, name);
 
                 using (TransactionScope ts = new TransactionScope())
@@ -977,9 +1189,10 @@ namespace Uhuru.CloudFoundry.MSSqlService
         /// Deletes a database user.
         /// </summary>
         /// <param name="user">The user that has to be deleted.</param>
+        /// <param name="database">The database owned by the user.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Query is retrieved from resource file."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is properly logged, it should not bubble up here")]
-        private void DeleteDatabaseUser(string user)
+        private void DeleteDatabaseUser(string user, string database)
         {
             Logger.Info(Strings.SqlNodeDeleteUserInfoMessage, user);
             try
@@ -998,6 +1211,11 @@ namespace Uhuru.CloudFoundry.MSSqlService
                     using (SqlCommand dropLoginCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropLoginSQL, user), this.connection))
                     {
                         dropLoginCommand.ExecuteNonQuery();
+                    }
+
+                    using (SqlCommand dropUserCommand = new SqlCommand(string.Format(CultureInfo.InvariantCulture, Strings.SqlNodeDropUserSQL, database, user), this.connection))
+                    {
+                        dropUserCommand.ExecuteNonQuery();
                     }
 
                     ts.Complete();

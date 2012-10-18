@@ -154,7 +154,7 @@
     <value>{0}.check_orphan</value>
   </data>
   <data name="NatsSubjectCleanupNfs" xml:space="preserve">
-    <value>{0}.cleanup_nfs.{1}</value>
+    <value>{0}.cleanupnfs_instance.{1}</value>
   </data>
   <data name="NatsSubjectDisableInstance" xml:space="preserve">
     <value>{0}.disable_instance.{1}</value>
@@ -210,6 +210,12 @@
   <data name="OnRestoreDebugLogMessage" xml:space="preserve">
     <value>{0}: Restore request: {1} from {2}</value>
   </data>
+  <data name="OnUpdateInstanceRequestDebugLogMessage" xml:space="preserve">
+    <value>{0}: Update instance {1} request from: {2}</value>
+  </data>
+  <data name="ProvisionBackwardsCompatibilityModeInfoMessage" xml:space="preserve">
+    <value>Provision request has no version specified. Provisioning with default version.</value>
+  </data>
   <data name="ProvisionedServiceListSaveErrorLogMessage" xml:space="preserve">
     <value>Could not save ProvisionedService list {0}</value>
   </data>
@@ -257,6 +263,9 @@
   </data>
   <data name="ServiceExceptionUnknownLabel" xml:space="preserve">
     <value>Unknown label</value>
+  </data>
+  <data name="ServiceExceptionUnsupportedVersion" xml:space="preserve">
+    <value>Unsupported service version.</value>
   </data>
   <data name="ShuttingDownLogMessage" xml:space="preserve">
     <value>{0}: Shutting down</value>

@@ -112,6 +112,12 @@ namespace Uhuru.CloudFoundry.ServiceBase
         public static readonly ServiceErrorCode GatewayTimeout = new ServiceErrorCode() { ErrorCode = 30700, HttpError = HttpErrorCode.HttpGatewayTimeout, Message = Strings.ServiceExceptionGatewayTimeout };
 
         /// <summary>
+        /// Error codes between 30800 - 30599; 404 Not Found
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        public static readonly ServiceErrorCode UnsupportedVersion = new ServiceErrorCode() { ErrorCode = 30800, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.ServiceExceptionUnsupportedVersion };
+
+        /// <summary>
         /// Error code of the service exception.
         /// </summary>
         private ServiceErrorCode errorCode;

@@ -169,10 +169,16 @@
     <value>CREATE DATABASE {0}</value>
   </data>
   <data name="SqlNodeCreateLoginSQL" xml:space="preserve">
-    <value>CREATE LOGIN {0} WITH PASSWORD = '{1}'</value>
+    <value>IF NOT EXISTS (SELECT principal_id FROM sys.server_principals WHERE name = '{0}')
+BEGIN
+CREATE LOGIN {0} WITH PASSWORD = '{1}'
+END</value>
   </data>
   <data name="SqlNodeCreateUserSQL" xml:space="preserve">
-    <value>CREATE USER {0} FOR LOGIN {0}</value>
+    <value>IF NOT EXISTS (SELECT principal_id FROM sys.database_principals WHERE name = '{0}')
+BEGIN
+CREATE USER {0} FOR LOGIN {0}
+END</value>
   </data>
   <data name="SqlNodeCreatingCredentialsInfoMessage" xml:space="preserve">
     <value>Creating credentials: {0}/{1} for database {2}</value>
@@ -186,6 +192,12 @@
   <data name="SqlNodeDeletingDatabaseInfoMessage" xml:space="preserve">
     <value>Deleting database: {0}</value>
   </data>
+  <data name="SqlNodeDisableInstanceError" xml:space="preserve">
+    <value>Could not disable instance {0}: [{1}]</value>
+  </data>
+  <data name="SqlNodeDisableInstanceStartMessage" xml:space="preserve">
+    <value>Disable instance {0} request.</value>
+  </data>
   <data name="SqlNodeDisableLoginSQL" xml:space="preserve">
     <value>ALTER LOGIN {0} DISABLE</value>
   </data>
@@ -197,6 +209,27 @@
   </data>
   <data name="SqlNodeDropLoginSQL" xml:space="preserve">
     <value>DROP LOGIN {0}</value>
+  </data>
+  <data name="SqlNodeDropUserSQL" xml:space="preserve">
+    <value>USE {0}; DROP USER {1}</value>
+  </data>
+  <data name="SqlNodeDumpDatabaseEndMessage" xml:space="preserve">
+    <value>Finished dumping database {0}.</value>
+  </data>
+  <data name="SqlNodeDumpDatabaseError" xml:space="preserve">
+    <value>Could not dump database {0} : [{1}]</value>
+  </data>
+  <data name="SqlNodeDumpDatabaseSQL" xml:space="preserve">
+    <value>BACKUP DATABASE {0} TO DISK = '{1}'</value>
+  </data>
+  <data name="SqlNodeDumpDatabaseStartMessage" xml:space="preserve">
+    <value>Dumping database {0} to {1}.</value>
+  </data>
+  <data name="SqlNodeEnableInstanceError" xml:space="preserve">
+    <value>Could not enable instance {0}: [{1}]</value>
+  </data>
+  <data name="SqlNodeEnableInstanceStartMessage" xml:space="preserve">
+    <value>Enable instance {0} request.</value>
   </data>
   <data name="SqlNodeGenerateVarzDebugMessage" xml:space="preserve">
     <value>Generate varz.</value>
@@ -210,11 +243,26 @@
   <data name="SqlNodeGetUserSessionsSQL" xml:space="preserve">
     <value>SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = '{0}'</value>
   </data>
+  <data name="SqlNodeImportDatabaseEndMessage" xml:space="preserve">
+    <value>Finished importing database {0}.</value>
+  </data>
+  <data name="SqlNodeImportDatabaseError" xml:space="preserve">
+    <value>Could not import database {0}: [{1}]</value>
+  </data>
+  <data name="SqlNodeImportDatabaseSQL" xml:space="preserve">
+    <value>RESTORE DATABASE {0} FROM DISK = '{1}' WITH REPLACE</value>
+  </data>
+  <data name="SqlNodeImportDatabaseStartMessage" xml:space="preserve">
+    <value>Importing database {0} from {1}</value>
+  </data>
   <data name="SqlNodeKeepAliveSQL" xml:space="preserve">
     <value>select CURRENT_TIMESTAMP</value>
   </data>
   <data name="SqlNodeKillSessionSQL" xml:space="preserve">
     <value>KILL {0}</value>
+  </data>
+  <data name="SqlNodeRevokeViewAnyDefinition" xml:space="preserve">
+    <value>REVOKE VIEW ANY DEFINITION FROM {0}</value>
   </data>
   <data name="SqlNodeTakeDBOfflineSQL" xml:space="preserve">
     <value>ALTER DATABASE {0} SET OFFLINE WITH ROLLBACK IMMEDIATE</value>

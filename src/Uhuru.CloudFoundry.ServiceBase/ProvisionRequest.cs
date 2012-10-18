@@ -36,5 +36,16 @@ namespace Uhuru.CloudFoundry.ServiceBase
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the version for the service that is to be provisioned.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "These are used for (de)serialization"),
+        JsonName("version")]
+        public string Version
+        {
+            get;
+            set;
+        }
     }
 }

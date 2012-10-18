@@ -8,13 +8,10 @@ namespace Uhuru.CloudFoundry.FileService
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
+    using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
     using System.Security.AccessControl;
-    using System.Threading;
-    using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Configuration.Service;
     using Uhuru.Utilities;
@@ -156,7 +153,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool DisableInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials)
+        protected override bool DisableInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials)
         {
             // todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -171,7 +168,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool DumpInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath)
+        protected override bool DumpInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials, string filePath)
         {
             // todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -181,13 +178,13 @@ namespace Uhuru.CloudFoundry.FileService
         /// Imports an instance from a path.
         /// </summary>
         /// <param name="provisionedCredential">The provisioned credential.</param>
-        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <param name="bindingCredentialsHash">The binding credentials.</param>
         /// <param name="filePath">The file path from which to import the service.</param>
         /// <param name="planRequest">The payment plan.</param>
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        protected override bool ImportInstance(ServiceCredentials provisionedCredential, ServiceCredentials bindingCredentials, string filePath, string planRequest)
+        protected override bool ImportInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentialsHash, string filePath, string planRequest)
         {
             // todo: vladi: Replace with code for odbc object for SQL Server
             return false;
@@ -271,7 +268,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// </returns>
         protected override ServiceCredentials Provision(string planRequest)
         {
-            return Provision(planRequest, null);
+            return Provision(planRequest, null, this.defaultVersion);
         }
 
         /// <summary>
@@ -279,14 +276,20 @@ namespace Uhuru.CloudFoundry.FileService
         /// </summary>
         /// <param name="planRequest">The payment plan for the service.</param>
         /// <param name="credentials">Existing credentials for the service.</param>
+        /// <param name="version">The service version.</param>
         /// <returns>
         /// Credentials for the provisioned service.
         /// </returns>
-        protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials)
+        protected override ServiceCredentials Provision(string planRequest, ServiceCredentials credentials, string version)
         {
             if (planRequest != this.plan)
             {
                 throw new FileServiceErrorException(FileServiceErrorException.FileServiceInvalidPlan);
+            }
+
+            if (!this.supportedVersions.Contains(version))
+            {
+                throw new FileServiceErrorException(ServiceException.UnsupportedVersion);
             }
 
             ProvisionedService provisioned_service = new ProvisionedService();
@@ -342,6 +345,19 @@ namespace Uhuru.CloudFoundry.FileService
                 "US3r" + Credentials.GenerateCredential(),
                 "P4Ss" + Credentials.GenerateCredential(),
                 Uhuru.Utilities.NetworkInterface.GrabEphemeralPort());
+        }
+
+        /// <summary>
+        /// Subclasses have to implement this in order to update services.
+        /// </summary>
+        /// <param name="provisionedCredential">The provisioned credentials.</param>
+        /// <param name="bindingCredentials">The binding credentials.</param>
+        /// <returns>
+        /// Updated service credentials
+        /// </returns>
+        protected override object[] UpdateInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentials)
+        {
+            return new object[0];
         }
 
         /// <summary>
