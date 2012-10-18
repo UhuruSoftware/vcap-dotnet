@@ -153,10 +153,38 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is properly logged")]
         protected override bool DisableInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            Logger.Info("Disable instance {0} request", provisionedCredential.Name);
+
+            bindingCredentials.Add(provisionedCredential);
+
+            try
+            {
+                foreach (ServiceCredentials credential in bindingCredentials)
+                {
+                    this.Unbind(credential);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning("Error disabling instance {0}: [{1}]", provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -168,10 +196,41 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is logged"),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone.")]
         protected override bool DumpInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials, string filePath)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            string dumpFile = Path.Combine(filePath, provisionedCredential.Name);
+
+            Logger.Info("Dump instance {0} content to {1}", provisionedCredential.Name, dumpFile);
+
+            try
+            {
+                string instanceDir = this.GetInstanceDirectory(provisionedCredential.Name);
+                if (!Directory.EnumerateFileSystemEntries(instanceDir).Any())
+                {
+                    File.Create(Path.Combine(instanceDir, Strings.MigrationEmptyFolderDummyFileName)).Dispose();
+                }
+
+                ZipUtilities.ZipFile(instanceDir, dumpFile);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning("Error dumping instance {0}: [{1}]", provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -184,10 +243,40 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is logged"), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone.")]
         protected override bool ImportInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentialsHash, string filePath, string planRequest)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentialsHash == null)
+            {
+                throw new ArgumentNullException("bindingCredentialsHash");
+            }
+
+            string dumpFile = Path.Combine(filePath, provisionedCredential.Name);
+            Logger.Debug("Import instance {0} from {1}", provisionedCredential.Name, dumpFile);
+
+            try
+            {
+                this.Provision(planRequest, provisionedCredential, this.defaultVersion);
+                string instanceDir = this.GetInstanceDirectory(provisionedCredential.Name);
+                ZipUtilities.UnzipFile(this.GetInstanceDirectory(provisionedCredential.Name), dumpFile);
+                if (File.Exists(Path.Combine(instanceDir, Strings.MigrationEmptyFolderDummyFileName)))
+                {
+                    File.Delete(Path.Combine(instanceDir, Strings.MigrationEmptyFolderDummyFileName));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning("Error importing instance {0} from {1}: [{2}]", provisionedCredential.Name, dumpFile, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -198,10 +287,41 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is properly logged"),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone.")]
         protected override bool EnableInstance(ref ServiceCredentials provisionedCredential, ref Dictionary<string, object> bindingCredentialsHash)
         {
-            // todo: vladi: Replace with code for odbc object for SQL Server
-            return false;
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentialsHash == null)
+            {
+                throw new ArgumentNullException("bindingCredentialsHash");
+            }
+
+            Logger.Debug("Enabling instance {0}", provisionedCredential.Name);
+
+            try
+            {
+                provisionedCredential = Bind(provisionedCredential.Name, null, provisionedCredential);
+                foreach (KeyValuePair<string, object> pair in bindingCredentialsHash)
+                {
+                    Handle handle = (Handle)pair.Value;
+                    ServiceCredentials cred = new ServiceCredentials();
+                    cred.FromJsonIntermediateObject(handle.Credentials);
+                    Dictionary<string, object> bindingOptions = handle.Credentials.BindOptions;
+                    Bind(cred.Name, bindingOptions, cred);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning("Could not enable instance {0}: [{1}]", provisionedCredential.Name, ex.ToString());
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -355,9 +475,44 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// Updated service credentials
         /// </returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is logged")]
         protected override object[] UpdateInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentials)
         {
-            return new object[0];
+            if (provisionedCredential == null)
+            {
+                throw new ArgumentNullException("provisionedCredential");
+            }
+
+            if (bindingCredentials == null)
+            {
+                throw new ArgumentNullException("bindingCredentials");
+            }
+
+            object[] response = new object[2];
+
+            string name = provisionedCredential.Name;
+            try
+            {
+                provisionedCredential = Bind(name, null, provisionedCredential);
+                Dictionary<string, object> bindingCredentialsResponse = new Dictionary<string, object>();
+
+                foreach (KeyValuePair<string, object> pair in bindingCredentials)
+                {
+                    ServiceCredentials cred = (ServiceCredentials)pair.Value;
+                    ServiceCredentials bindingCred = Bind(cred.Name, cred.BindOptions, cred);
+                    bindingCredentialsResponse[pair.Key] = bindingCred;
+                }
+
+                response[0] = provisionedCredential;
+                response[1] = bindingCredentialsResponse;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Logger.Warning(ex.ToString());
+                return new object[0];
+            }
         }
 
         /// <summary>
@@ -377,8 +532,6 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             bool success = true;
-
-            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray()));
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
 
@@ -401,14 +554,11 @@ namespace Uhuru.CloudFoundry.FileService
             }
             catch (Exception)
             {
-                success = false;
-            }            
-
-            if (!this.InstanceCleanup(provisioned_service))
-            {
-                success = false;
+                // ignore
             }
 
+            success = this.InstanceCleanup(provisioned_service);
+            
             if (!provisioned_service.Destroy())
             {
                 Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
@@ -466,8 +616,11 @@ namespace Uhuru.CloudFoundry.FileService
                 password = "P4SS" + Credentials.GenerateCredential();
             }
 
-            CreateInstanceUser(name, user, password);
-            AddInstanceUserToGroup(name, user);
+            if (!WindowsUsersAndGroups.ExistsUser(user))
+            {
+                CreateInstanceUser(name, user, password);
+                AddInstanceUserToGroup(name, user);
+            }
 
             ServiceCredentials response = this.GenerateCredential(name, user, password, service.Port.Value);
 

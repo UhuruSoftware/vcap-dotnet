@@ -337,7 +337,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
             }
             catch (Exception ex)
             {
-                Logger.Error(Strings.SqlNodeDumpDatabaseError, provisionedCredential.Name, ex.ToString());
+                Logger.Warning(Strings.SqlNodeDumpDatabaseError, provisionedCredential.Name, ex.ToString());
                 return false;
             }
 
@@ -624,8 +624,6 @@ namespace Uhuru.CloudFoundry.MSSqlService
             {
                 return false;
             }
-
-            Logger.Debug(Strings.SqlNodeUnprovisionDatabaseDebugMessage, name, JsonConvertibleObject.SerializeToJson(bindings.Select(binding => binding.ToJsonIntermediateObject()).ToArray()));
 
             ProvisionedService provisioned_service = ProvisionedService.GetService(name);
 
