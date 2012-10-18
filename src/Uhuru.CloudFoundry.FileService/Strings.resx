@@ -144,6 +144,9 @@
   <data name="LongTXKillerDisabledInfoMessage" xml:space="preserve">
     <value>Long transaction killer is disabled.</value>
   </data>
+  <data name="MigrationEmptyFolderDummyFileName" xml:space="preserve">
+    <value>uhuru_dummy_d759d30b-9447-4d62-90cb-a9a10af60fef</value>
+  </data>
   <data name="SqlNodeBindResponseDebugMessage" xml:space="preserve">
     <value>Bind response: {0}</value>
   </data>
