@@ -1,0 +1,7 @@
+Verified+1: Jenkins 
+Code-Review+2: Stefan Schneider <stefan.schneider@uhurusoftware.com>
+Submitted-by: Florin Dragos <florind@uhurusoftware.com>
+Submitted-at: Fri, 19 Oct 2012 11:09:14 +0300
+Reviewed-on: http://gerrit.uhurusoftware.org/576
+Project: private-vcap-dotnet
+Branch: refs/heads/master
