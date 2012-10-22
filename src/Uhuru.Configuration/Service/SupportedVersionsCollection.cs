@@ -9,7 +9,7 @@ namespace Uhuru.Configuration.Service
     using System.Configuration;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Collection of supported versions
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "This is a configuration class, no need to implement ICollection"),
     ConfigurationCollection(typeof(SupportedVersionElement), CollectionType = ConfigurationElementCollectionType.BasicMap)]
@@ -26,11 +26,6 @@ namespace Uhuru.Configuration.Service
         private static ConfigurationProperty propertyDefaultVersion;
 
         /// <summary>
-        /// Supported Version Collection configuration property
-        /// </summary>
-        private static ConfigurationProperty propertySupportedVersions;
-
-        /// <summary>
         /// Initializes static members of the <see cref="SupportedVersionsCollection"/> class.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Code is cleaner this way")]
@@ -40,20 +35,14 @@ namespace Uhuru.Configuration.Service
             propertyDefaultVersion = new ConfigurationProperty(
                 "defaultVersion", 
                 typeof(string),
-                null, 
+                string.Empty, 
                 ConfigurationPropertyOptions.IsRequired);
 
-            propertySupportedVersions = new ConfigurationProperty(
-                "supportedVersions",
-                typeof(SupportedVersionsCollection),
-                new SupportedVersionsCollection());
-
             properties.Add(propertyDefaultVersion);
-            properties.Add(propertySupportedVersions);
         }
 
         /// <summary>
-        /// Initializes a new instance of the SupportedVersionsCollection class.
+        /// Initializes a new instance of the <see cref="SupportedVersionsCollection"/> class.
         /// </summary>
         public SupportedVersionsCollection()
         {

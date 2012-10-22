@@ -14,6 +14,19 @@ namespace Uhuru.Configuration.Service
     public class ServiceElement : ConfigurationElement
     {
         /// <summary>
+        /// Supported versions configuration property
+        /// </summary>
+        private static ConfigurationProperty supportedVersions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceElement"/> class.
+        /// </summary>
+        public ServiceElement()
+        {
+            supportedVersions = new ConfigurationProperty("supportedVersions", typeof(SupportedVersionsCollection), new SupportedVersionsCollection());
+        }
+
+        /// <summary>
         /// Gets or sets the node id for the service.
         /// </summary>
         [ConfigurationProperty("nodeId", IsRequired = true, DefaultValue = null)]
@@ -299,12 +312,12 @@ namespace Uhuru.Configuration.Service
         /// <value>
         /// The supported versions.
         /// </value>
-        [ConfigurationProperty("supportedVersions", IsRequired = true)]
+        [ConfigurationProperty("supportedVersions", IsRequired = false, DefaultValue = null)]
         public SupportedVersionsCollection SupportedVersions
         {
             get
             {
-                return (SupportedVersionsCollection)base["supportedVersions"];
+                return (SupportedVersionsCollection)base[supportedVersions];
             }
         }
 
