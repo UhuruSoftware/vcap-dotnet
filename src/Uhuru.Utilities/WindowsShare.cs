@@ -195,7 +195,7 @@ namespace Uhuru.Utilities
         /// Adds the share permissions.
         /// </summary>
         /// <param name="accountName">Name of the account.</param>
-        public void AddSharePermissions(string accountName)
+        public void AddSharePermission(string accountName)
         {
             ManagementObject trustee = null;
             ManagementObject ace = null;
@@ -290,6 +290,74 @@ namespace Uhuru.Utilities
                 if (share != null)
                 {
                     share.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the the share has permissions.
+        /// </summary>
+        /// <param name="accountName">Name of the account.</param>
+        /// <returns>True if the share contains the permission.</returns>
+        public bool HasPermission(string accountName)
+        {
+            ManagementObject win32LogicalSecuritySetting = null;
+            ManagementBaseObject getSecurityDescriptorReturn = null;
+            ManagementBaseObject securityDescriptor = null;
+
+            try
+            {
+                win32LogicalSecuritySetting = new ManagementObject(@"root\cimv2:Win32_LogicalShareSecuritySetting.Name='" + this.shareName + "'");
+
+                getSecurityDescriptorReturn = win32LogicalSecuritySetting.InvokeMethod("GetSecurityDescriptor", null, null);
+
+                if ((uint)getSecurityDescriptorReturn["ReturnValue"] != 0)
+                {
+                    throw new WindowsShareException("Unable to check share permission. Error Code: " + getSecurityDescriptorReturn["ReturnValue"]);
+                }
+
+                securityDescriptor = getSecurityDescriptorReturn["Descriptor"] as ManagementBaseObject;
+                ManagementBaseObject[] dacl = securityDescriptor["DACL"] as ManagementBaseObject[];
+
+                if (dacl == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    foreach (var curAce in dacl)
+                    {
+                        string curTrustee = (curAce["Trustee"] as ManagementBaseObject)["Name"] as string;
+
+                        // if iTrustee == accountName
+                        if (curTrustee.Equals(accountName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new WindowsShareException("Unable to check share permission", ex);
+            }
+            finally
+            {
+                if (win32LogicalSecuritySetting != null)
+                {
+                    win32LogicalSecuritySetting.Dispose();
+                }
+
+                if (getSecurityDescriptorReturn != null)
+                {
+                    getSecurityDescriptorReturn.Dispose();
+                }
+
+                if (securityDescriptor != null)
+                {
+                    securityDescriptor.Dispose();
                 }
             }
         }

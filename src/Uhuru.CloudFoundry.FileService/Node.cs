@@ -153,7 +153,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is properly logged")]
         protected override bool DisableInstance(ServiceCredentials provisionedCredential, Collection<ServiceCredentials> bindingCredentials)
         {
@@ -243,7 +243,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// A bool indicating whether the request was successful.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is logged"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Error is logged"),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Less error prone.")]
         protected override bool ImportInstance(ServiceCredentials provisionedCredential, Dictionary<string, object> bindingCredentialsHash, string filePath, string planRequest)
         {
@@ -561,7 +561,7 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 success = false;
             }
-            
+
             if (!provisioned_service.Destroy())
             {
                 Logger.Error(Strings.SqlNodeDeleteServiceErrorMessage, provisioned_service.Name);
@@ -822,17 +822,25 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
-
-                // create the group and user if necessary
+                
+                // The group and users have to be recreated if the box was recreated by bosh.
+                // In that case only the file system resrouces remain. Every system 
+                // resource of configuration has to be provisioned again.
+                //
+                // Create the group and user if necessary
                 if (!WindowsUsersAndGroups.ExistsGroup(name))
                 {
+                    Logger.Info("Creating window group: {0}, for instance {1}", name, name);
                     CreateInstanceGroup(name);
 
                     // Add group permissions to directory
+                    // TODO: stefi: consider cleaning up orphan users and groups
+                    Logger.Info("Adding group permissions for directory: {0}", directory);
                     AddDirectoryPermissions(directory, name);
 
                     if (!WindowsUsersAndGroups.ExistsUser(user))
                     {
+                        Logger.Info("Creating user: {0}, for instance {1}", user, name);
                         CreateInstanceUser(name, user, password);
                         AddInstanceUserToGroup(name, user);
                     }
@@ -846,29 +854,44 @@ namespace Uhuru.CloudFoundry.FileService
 
                     if (!VHDUtilities.IsMountPointPresent(vhdDirectory))
                     {
+                        Logger.Info("Mounting VHD: {0}, at: {1}, for instance {2}", vhd, vhdDirectory, name);
                         VHDUtilities.MountVHD(vhd, vhdDirectory);
                     }
                 }
 
                 if (this.useFsrm)
                 {
+                    Logger.Info("Setting up windows FSRM for instance: {0}, with quota size: {1} MB", name, this.maxStorageSizeMB);
                     this.dirAccounting.SetDirectoryQuota(directory, this.maxStorageSizeMB * 1024 * 1024);
                 }
 
+                // create ftp service if necessary
                 if (!FtpUtilities.Exists(name))
                 {
+                    Logger.Info("Creating ftp site for instance: {0}, at: {1}, with port: {2}", name, directory, port);
                     FtpUtilities.CreateFtpSite(name, directory, port);
+                }
 
+                if (!FtpUtilities.HasGroupAccess(name, name))
+                {
                     // Add group permissions to ftp share
+                    Logger.Info("Adding group permission for ftp site for instance: {0}", name);
                     FtpUtilities.AddGroupAccess(name, name);
                 }
 
-                if (!new WindowsShare(name).Exists())
+                // create the windows share with necessary permission 
+                var ws = new WindowsShare(name);
+                if (!ws.Exists())
                 {
-                    var ws = WindowsShare.CreateShare(name, directory);
+                    Logger.Info("Creating windows share for instance: {0}, at: {1}", name, directory);
+                    ws = WindowsShare.CreateShare(name, directory);
+                }
 
+                if (ws.HasPermission(name))
+                {
                     // Add group permissions to windows share
-                    ws.AddSharePermissions(name);
+                    Logger.Info("Adding group permission for windows share for instance: {0}", name);
+                    ws.AddSharePermission(name);
                 }
 
                 Logger.Debug("Done setting up instance {0}. Took {1}s.", provisionedService.SerializeToJson(), (start - DateTime.Now).TotalSeconds);
