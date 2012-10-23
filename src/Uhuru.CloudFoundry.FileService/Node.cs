@@ -13,7 +13,7 @@ namespace Uhuru.CloudFoundry.FileService
     using System.Linq;
     using System.Security.AccessControl;
     using Uhuru.CloudFoundry.ServiceBase;
-    using Uhuru.Configuration.Service;
+    using Uhuru.Configuration;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
 

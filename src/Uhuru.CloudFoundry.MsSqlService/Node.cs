@@ -20,7 +20,7 @@ namespace Uhuru.CloudFoundry.MSSqlService
     using System.Threading;
     using System.Transactions;
     using Uhuru.CloudFoundry.ServiceBase;
-    using Uhuru.Configuration.Service;
+    using Uhuru.Configuration;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
 

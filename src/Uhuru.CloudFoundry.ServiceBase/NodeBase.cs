@@ -13,7 +13,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using Uhuru.Configuration.Service;
+    using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;

@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
@@ -42,8 +43,9 @@ namespace Uhuru.CloudFoundry.DEA
                 this.UUID = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.UUID);
             }
 
-            this.Host = NetworkInterface.GetLocalIPAddress(UhuruSection.GetSection().DEA.LocalRoute);
-            VCAPReactor.Uri = new Uri(UhuruSection.GetSection().DEA.MessageBus);
+            UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
+            this.Host = NetworkInterface.GetLocalIPAddress(uhuruSection.DEA.LocalRoute);
+            VCAPReactor.Uri = new Uri(uhuruSection.DEA.MessageBus);
 
             // http server port
             this.Port = NetworkInterface.GrabEphemeralPort();

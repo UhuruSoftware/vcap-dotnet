@@ -9,10 +9,9 @@ namespace Uhuru.CloudFoundry.ServiceBase
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using Uhuru.Configuration.Service;
+    using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
-    using Uhuru.Utilities.Json;
 
     /// <summary>
     /// This is the service base for all Cloud Foundry system services.

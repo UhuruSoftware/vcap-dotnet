@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.Configuration;
 using System.IO;
+using System.Configuration;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
@@ -16,28 +17,32 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestCategory("Integration")]
         public void TC001_TestConfig()
         {
+            UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
+
             if (!File.Exists("uhuruTest.config"))
                 Assert.Fail();
-            Assert.AreEqual("c:\\droplets", UhuruSection.GetSection().DEA.BaseDir);
-            Assert.AreEqual("iis", UhuruSection.GetSection().DEA.Runtimes["iis"].Name);
-            Assert.AreEqual("7.0", UhuruSection.GetSection().DEA.Runtimes["iis"].Environment["iisVersion"].Value);
-            Assert.AreEqual("3.5;4.0", UhuruSection.GetSection().DEA.Runtimes["iis"].Environment["supportedFrameworks"].Value);
-            Assert.AreEqual("true", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["useCredentials"].Value);
-            Assert.AreEqual("60000", UhuruSection.GetSection().DEA.Runtimes["iis"].Debug["simple"].Environment["connectionTimeout"].Value);
+            Assert.AreEqual("c:\\droplets", uhuruSection.DEA.BaseDir);
+            Assert.AreEqual("iis", uhuruSection.DEA.Runtimes["iis"].Name);
+            Assert.AreEqual("7.0", uhuruSection.DEA.Runtimes["iis"].Environment["iisVersion"].Value);
+            Assert.AreEqual("3.5;4.0", uhuruSection.DEA.Runtimes["iis"].Environment["supportedFrameworks"].Value);
+            Assert.AreEqual("true", uhuruSection.DEA.Runtimes["iis"].Debug["simple"].Environment["useCredentials"].Value);
+            Assert.AreEqual("60000", uhuruSection.DEA.Runtimes["iis"].Debug["simple"].Environment["connectionTimeout"].Value);
         }
 
         [TestMethod]
         [TestCategory("Integration")]
         public void TC002_ServiceTestConfig()
         {
-            Assert.AreEqual(".\\", UhuruSection.GetSection().Service.BaseDir);
-            Assert.AreEqual(0, UhuruSection.GetSection().Service.Index);
-            Assert.AreEqual("198.41.0.4", UhuruSection.GetSection().Service.LocalRoute);
-            Assert.AreEqual("(local)", UhuruSection.GetSection().Service.MSSql.Host);
-            Assert.AreEqual("sa", UhuruSection.GetSection().Service.MSSql.User);
-            Assert.AreEqual(1433, UhuruSection.GetSection().Service.MSSql.Port);
-            Assert.AreEqual(200, UhuruSection.GetSection().Service.Uhurufs.MaxStorageSize);
-            Assert.AreEqual(false, UhuruSection.GetSection().Service.FqdnHosts);
+            UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
+
+            Assert.AreEqual(".\\", uhuruSection.Service.BaseDir);
+            Assert.AreEqual(0, uhuruSection.Service.Index);
+            Assert.AreEqual("198.41.0.4", uhuruSection.Service.LocalRoute);
+            Assert.AreEqual("(local)", uhuruSection.Service.MSSql.Host);
+            Assert.AreEqual("sa", uhuruSection.Service.MSSql.User);
+            Assert.AreEqual(1433, uhuruSection.Service.MSSql.Port);
+            Assert.AreEqual(200, uhuruSection.Service.Uhurufs.MaxStorageSize);
+            Assert.AreEqual(false, uhuruSection.Service.FqdnHosts);
         }
     }
 }
