@@ -50,12 +50,12 @@ namespace Uhuru.CloudFoundry.FileService
                 ConfigurationElement sslElement = securityElement.GetChildElement("ssl");
                 sslElement["controlChannelPolicy"] = "SslAllow";
                 sslElement["dataChannelPolicy"] = "SslAllow";
-                
+
                 ConfigurationElement authenticationElement = securityElement.GetChildElement("authentication");
 
                 ConfigurationElement basicAuthenticationElement = authenticationElement.GetChildElement("basicAuthentication");
                 basicAuthenticationElement["enabled"] = true;
-        
+
                 ConfigurationElementCollection siteCollection = siteElement.GetCollection();
 
                 ConfigurationElement applicationElement = siteCollection.CreateElement("application");
@@ -69,7 +69,7 @@ namespace Uhuru.CloudFoundry.FileService
                 applicationCollection.Add(virtualDirectoryElement);
                 siteCollection.Add(applicationElement);
                 sitesCollection.Add(siteElement);
-                
+
                 serverManager.CommitChanges();
             }
 
@@ -96,7 +96,7 @@ namespace Uhuru.CloudFoundry.FileService
                 {
                     sitesCollection.Remove(fileServiceSite);
                 }
-                
+
                 ConfigurationElementCollection bindingsCollection = fileServiceSite.GetCollection("bindings");
 
                 ConfigurationElement bindingElement = bindingsCollection.CreateElement("binding");
@@ -170,6 +170,34 @@ namespace Uhuru.CloudFoundry.FileService
         }
 
         /// <summary>
+        /// Checks if the user access is set.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="user">The user.</param>
+        /// <returns>True if the user is set.</returns>
+        public static bool HasUserAccess(string siteName, string user)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+
+                foreach (var ace in authorization)
+                {
+                    string curUser = ace["users"] as string;
+
+                    if (curUser.Equals(user, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Deletes the user access.
         /// </summary>
         /// <param name="siteName">Name of the site.</param>
@@ -210,6 +238,34 @@ namespace Uhuru.CloudFoundry.FileService
                 authorization.Add(newAuthorization);
 
                 serverManager.CommitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Checks if the group access is set.
+        /// </summary>
+        /// <param name="siteName">Name of the site.</param>
+        /// <param name="group">The group.</param>
+        /// <returns>True if the group is set.</returns>
+        public static bool HasGroupAccess(string siteName, string group)
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationElementCollection authorization = config.GetSection("system.ftpServer/security/authorization", siteName).GetCollection();
+
+                foreach (var ace in authorization)
+                {
+                    string curGroup = ace["roles"] as string;
+
+                    if (curGroup.Equals(group, System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 

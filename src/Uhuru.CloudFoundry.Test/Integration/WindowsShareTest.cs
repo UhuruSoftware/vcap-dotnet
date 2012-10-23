@@ -50,7 +50,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod, TestCategory("Integration"), Description("Create a share and read a file from it.")]
         public void CreateShare()
         {
-            ws.AddSharePermissions("Everyone");
+            ws.AddSharePermission("Everyone");
 
             string contentsRead = File.ReadAllText(@"\\localhost\" + shareName + @"\test.txt");
 
@@ -62,7 +62,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         public void DeleteShare()
         {
 
-            ws.AddSharePermissions("Everyone");
+            ws.AddSharePermission("Everyone");
 
             Assert.IsTrue(ws.Exists());
 
@@ -84,7 +84,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         [TestMethod, TestCategory("Integration"), Description("The adding and deletion of permissions should work.")]
         public void AddAndDeletePermisions()
         {
-            ws.AddSharePermissions(decoratedUsername);
+            ws.AddSharePermission(decoratedUsername);
 
             Assert.AreEqual(ws.GetSharePermissions().Count(), 1);
             Assert.AreEqual(ws.GetSharePermissions()[0], decoratedUsername);
@@ -92,6 +92,20 @@ namespace Uhuru.CloudFoundry.Test.Integration
             ws.DeleteSharePermission(decoratedUsername);
 
             Assert.AreEqual(ws.GetSharePermissions().Count(), 0);
+        }
+
+        [TestMethod, TestCategory("Integration"), Description("The checking of permissions should work.")]
+        public void CheckPermisions()
+        {
+            Assert.IsFalse(ws.HasPermission(decoratedUsername));
+
+            ws.AddSharePermission(decoratedUsername);
+
+            Assert.IsTrue(ws.HasPermission(decoratedUsername));
+
+            ws.DeleteSharePermission(decoratedUsername);
+
+            Assert.IsFalse(ws.HasPermission(decoratedUsername));
         }
 
     }
