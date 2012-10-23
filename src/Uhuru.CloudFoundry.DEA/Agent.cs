@@ -9,12 +9,11 @@ namespace Uhuru.CloudFoundry.DEA
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Configuration;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
-    using System.Security.AccessControl;
-    using System.Security.Principal;
     using System.Threading;
     using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.Messages;
@@ -23,7 +22,6 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
-    using Uhuru.Utilities.ProcessPerformance;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -173,7 +171,9 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public Agent()
         {
-            foreach (Configuration.DEA.RuntimeElement deaConf in UhuruSection.GetSection().DEA.Runtimes)
+            UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
+
+            foreach (RuntimeElement deaConf in uhuruSection.DEA.Runtimes)
             {
                 DeaRuntime dea = new DeaRuntime();
 
@@ -183,15 +183,15 @@ namespace Uhuru.CloudFoundry.DEA
                 dea.AdditionalChecks = deaConf.AdditionalChecks;
                 dea.Enabled = true;
 
-                foreach (Configuration.DEA.EnvironmentElement ienv in deaConf.Environment)
+                foreach (EnvironmentElement ienv in deaConf.Environment)
                 {
                     dea.Environment.Add(ienv.Name, ienv.Value);
                 }
 
-                foreach (Configuration.DEA.DebugElement debugEnv in deaConf.Debug)
+                foreach (DebugElement debugEnv in deaConf.Debug)
                 {
                     dea.DebugEnvironmentVariables.Add(debugEnv.Name, new Dictionary<string, string>());
-                    foreach (Configuration.DEA.EnvironmentElement ienv in debugEnv.Environment)
+                    foreach (EnvironmentElement ienv in debugEnv.Environment)
                     {
                         dea.DebugEnvironmentVariables[debugEnv.Name].Add(ienv.Name, ienv.Value);
                     }
@@ -200,35 +200,35 @@ namespace Uhuru.CloudFoundry.DEA
                 this.stager.Runtimes.Add(deaConf.Name, dea);
             }
 
-            string baseDir = UhuruSection.GetSection().DEA.BaseDir;
+            string baseDir = uhuruSection.DEA.BaseDir;
             this.stager.DropletDir = new DirectoryInfo(baseDir).FullName;
 
-            this.stager.DisableDirCleanup = UhuruSection.GetSection().DEA.DisableDirCleanup;
-            this.multiTenant = UhuruSection.GetSection().DEA.Multitenant;
-            this.secure = UhuruSection.GetSection().DEA.Secure;
-            this.enforceUlimit = UhuruSection.GetSection().DEA.EnforceUsageLimit;
+            this.stager.DisableDirCleanup = uhuruSection.DEA.DisableDirCleanup;
+            this.multiTenant = uhuruSection.DEA.Multitenant;
+            this.secure = uhuruSection.DEA.Secure;
+            this.enforceUlimit = uhuruSection.DEA.EnforceUsageLimit;
 
-            this.monitoring.MaxMemoryMbytes = UhuruSection.GetSection().DEA.MaxMemory;
+            this.monitoring.MaxMemoryMbytes = uhuruSection.DEA.MaxMemory;
 
-            this.fileViewer.Port = UhuruSection.GetSection().DEA.FilerPort;
+            this.fileViewer.Port = uhuruSection.DEA.FilerPort;
 
-            this.useDiskQuota = UhuruSection.GetSection().DEA.UseDiskQuota;
-            this.maxConcurrentStarts = UhuruSection.GetSection().DEA.MaxConcurrentStarts;
+            this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
+            this.maxConcurrentStarts = uhuruSection.DEA.MaxConcurrentStarts;
 
             // Replace the ephemeral monitoring port with the configured one
-            if (UhuruSection.GetSection().DEA.StatusPort > 0)
+            if (uhuruSection.DEA.StatusPort > 0)
             {
-                this.Port = UhuruSection.GetSection().DEA.StatusPort;
+                this.Port = uhuruSection.DEA.StatusPort;
             }
 
-            this.stager.ForceHttpFileSharing = UhuruSection.GetSection().DEA.ForceHttpSharing;
+            this.stager.ForceHttpFileSharing = uhuruSection.DEA.ForceHttpSharing;
 
             this.ComponentType = "DEA";
 
             // apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
             this.monitoring.AppsDumpDirectory = Path.GetTempPath();
 
-            // heartbeat_interval = UhuruSection.GetSection().DEA.HeartBeatInterval;
+            // heartbeat_interval = uhuruSection.DEA.HeartBeatInterval;
             this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
             this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");

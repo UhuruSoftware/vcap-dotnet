@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Configuration;
 using System.Data.SqlClient;
+using System.Globalization;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Uhuru.CloudFoundry.MSSqlService;
 using Uhuru.CloudFoundry.ServiceBase;
 using Uhuru.Configuration;
-using System.Globalization;
-using System.Threading;
-using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
@@ -35,7 +36,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
                 Node_Accessor target = new Node_Accessor(new PrivateObject(node));
                 target.mssqlConfig = new MSSqlOptions();
-                UhuruSection config = UhuruSection.GetSection();
+                UhuruSection config = (UhuruSection)ConfigurationManager.GetSection("uhuru");
 
                 var po = new PrivateObject(node, new PrivateType(typeof(NodeBase)));
                 NodeBase_Accessor nodebase = new NodeBase_Accessor(po);
@@ -210,7 +211,7 @@ namespace Uhuru.CloudFoundry.Test.Integration
         {
             Node_Accessor target = new Node_Accessor();
             target.mssqlConfig = new MSSqlOptions();
-            UhuruSection config = UhuruSection.GetSection();
+            UhuruSection config = (UhuruSection)ConfigurationManager.GetSection("uhuru");
 
             target.mssqlConfig.Host = config.Service.MSSql.Host;
             target.mssqlConfig.User = config.Service.MSSql.User;

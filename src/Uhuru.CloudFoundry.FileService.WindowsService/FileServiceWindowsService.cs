@@ -6,10 +6,9 @@
 
 namespace Uhuru.CloudFoundry.FileService.WindowsService
 {
+    using System.Configuration;
     using Uhuru.CloudFoundry.FileService;
-    using Uhuru.CloudFoundry.ServiceBase;
     using Uhuru.Configuration;
-    using Uhuru.Configuration.Service;
 
     /// <summary>
     /// This is the Windows Service class that hosts an MS SQL Node.
@@ -34,7 +33,7 @@ namespace Uhuru.CloudFoundry.FileService.WindowsService
         /// </summary>
         internal void Start()
         {
-            ServiceElement serviceConfig = UhuruSection.GetSection().Service;
+            ServiceElement serviceConfig = ((UhuruSection)ConfigurationManager.GetSection("uhuru")).Service;
 
             this.node = new FileServiceNode();
             this.node.Start(serviceConfig);
