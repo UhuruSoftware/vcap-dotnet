@@ -303,6 +303,11 @@
             <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/SupportedVersionsCollection" />
           </type>
         </elementProperty>
+        <elementProperty name="Backup" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="backup" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/BackupElement" />
+          </type>
+        </elementProperty>
       </elementProperties>
     </configurationElement>
     <configurationElementCollection name="EnvironmentCollection" collectionType="BasicMap" xmlItemName="env" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
@@ -401,6 +406,25 @@
     <configurationElement name="SupportedVersionElement">
       <attributeProperties>
         <attributeProperty name="Name" isRequired="true" isKey="true" isDefaultCollection="false" xmlName="name" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+    </configurationElement>
+    <configurationElement name="BackupElement">
+      <attributeProperties>
+        <attributeProperty name="BackupBaseDir" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="backupBaseDir" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Timeout" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="timeout" isReadOnly="false" defaultValue="120">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="ServiceName" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serviceName" isReadOnly="false">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
           </type>

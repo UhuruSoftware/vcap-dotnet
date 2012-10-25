@@ -66,7 +66,7 @@
     </Reference>
     <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\SevenZipSharp.dll</HintPath>
+      <HintPath>..\..\lib\SevenZipSharp.dll</HintPath>
     </Reference>
     <Reference Include="srmlib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -87,6 +87,7 @@
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="DirectoryAccounting.cs" />
+    <Compile Include="FileServiceBackup.cs" />
     <Compile Include="FileServiceErrorException.cs" />
     <Compile Include="FileServiceOptions.cs" />
     <Compile Include="FtpUtilities.cs" />
@@ -133,9 +134,6 @@
   <ItemGroup>
     <EmbeddedResource Include="lib\7z64.dll" />
     <EmbeddedResource Include="lib\7z86.dll" />
-    <Content Include="lib\SevenZipSharp.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -20,6 +20,7 @@
       <word>ip</word>
       <word>diskSizeMiB</word>
       <word>MiB</word>
+      <word>nfs</word>
     </Recognized>
   </Words>
   <Acronyms>
@@ -37,6 +38,7 @@
       <Acronym>IP</Acronym>
       <Acronym>VHD</Acronym>
       <Acronym>MiB</Acronym>
+      <Acronym>NFS</Acronym>
     </CasingExceptions>
   </Acronyms>
 </Dictionary>

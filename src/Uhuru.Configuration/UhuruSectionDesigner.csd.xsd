@@ -231,6 +231,11 @@
 					<xs:documentation>The SupportedVersions.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element minOccurs="0" name="backup" type="tns:Uhuru.Configuration.BackupElementCT">
+				<xs:annotation>
+					<xs:documentation>The Backup.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="nodeId" use="optional" type="xs:string">
 			<xs:annotation>
@@ -408,6 +413,25 @@
 		<xs:attribute name="name" use="required" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The Name.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.BackupElementCT">
+		<xs:sequence>
+		</xs:sequence>
+		<xs:attribute name="backupBaseDir" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The BackupBaseDir.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="timeout" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The Timeout.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="serviceName" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The ServiceName.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>

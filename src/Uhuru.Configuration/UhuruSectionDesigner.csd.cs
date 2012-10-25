@@ -1709,6 +1709,32 @@ namespace Uhuru.Configuration
             }
         }
         #endregion
+        
+        #region Backup Property
+        /// <summary>
+        /// The XML name of the <see cref="Backup"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string BackupPropertyName = "backup";
+        
+        /// <summary>
+        /// Gets or sets the Backup.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Backup.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ServiceElement.BackupPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual global::Uhuru.Configuration.BackupElement Backup
+        {
+            get
+            {
+                return ((global::Uhuru.Configuration.BackupElement)(base[global::Uhuru.Configuration.ServiceElement.BackupPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ServiceElement.BackupPropertyName] = value;
+            }
+        }
+        #endregion
     }
 }
 namespace Uhuru.Configuration
@@ -2642,6 +2668,106 @@ namespace Uhuru.Configuration
             set
             {
                 base[global::Uhuru.Configuration.SupportedVersionElement.NamePropertyName] = value;
+            }
+        }
+        #endregion
+    }
+}
+namespace Uhuru.Configuration
+{
+    
+    
+    /// <summary>
+    /// The BackupElement Configuration Element.
+    /// </summary>
+    public partial class BackupElement : global::System.Configuration.ConfigurationElement
+    {
+        
+        #region IsReadOnly override
+        /// <summary>
+        /// Gets a value indicating whether the element is read-only.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
+        #endregion
+        
+        #region BackupBaseDir Property
+        /// <summary>
+        /// The XML name of the <see cref="BackupBaseDir"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string BackupBaseDirPropertyName = "backupBaseDir";
+        
+        /// <summary>
+        /// Gets or sets the BackupBaseDir.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The BackupBaseDir.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.BackupElement.BackupBaseDirPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string BackupBaseDir
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.BackupElement.BackupBaseDirPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.BackupElement.BackupBaseDirPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Timeout Property
+        /// <summary>
+        /// The XML name of the <see cref="Timeout"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string TimeoutPropertyName = "timeout";
+        
+        /// <summary>
+        /// Gets or sets the Timeout.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Timeout.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.BackupElement.TimeoutPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false, DefaultValue=120)]
+        public virtual int Timeout
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.BackupElement.TimeoutPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.BackupElement.TimeoutPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region ServiceName Property
+        /// <summary>
+        /// The XML name of the <see cref="ServiceName"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string ServiceNamePropertyName = "serviceName";
+        
+        /// <summary>
+        /// Gets or sets the ServiceName.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The ServiceName.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.BackupElement.ServiceNamePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string ServiceName
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.BackupElement.ServiceNamePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.BackupElement.ServiceNamePropertyName] = value;
             }
         }
         #endregion
