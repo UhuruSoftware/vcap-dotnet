@@ -887,7 +887,7 @@ namespace Uhuru.CloudFoundry.FileService
                     ws = WindowsShare.CreateShare(name, directory);
                 }
 
-                if (ws.HasPermission(name))
+                if (!ws.HasPermission(name))
                 {
                     // Add group permissions to windows share
                     Logger.Info("Adding group permission for windows share for instance: {0}", name);
