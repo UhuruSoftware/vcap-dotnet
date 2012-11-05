@@ -185,10 +185,30 @@ namespace Uhuru.Utilities
         /// <returns>True if the share exists.</returns>
         public bool Exists()
         {
-            using (var shareQuery = new ManagementObjectSearcher(@"SELECT * FROM Win32_Share Where Name = '" + this.shareName + "'"))
+            // using (var shareQuery = new ManagementObjectSearcher(@"SELECT * FROM Win32_Share Where Name = '" + this.shareName + "'"))
+            // {
+            //     return shareQuery.Get().Count > 0;
+            // }
+            ManagementObject shareInstance = null;
+
+            try
             {
-                return shareQuery.Get().Count > 0;
+                shareInstance = new ManagementObject(@"root\cimv2:Win32_Share.Name='" + this.shareName + "'");
+                shareInstance.Get();
             }
+            catch (ManagementException)
+            {
+                return false;
+            }
+            finally
+            {
+                if (shareInstance != null)
+                {
+                    shareInstance.Dispose();
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
