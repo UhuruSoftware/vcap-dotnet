@@ -125,7 +125,7 @@ namespace Uhuru.CloudFoundry.FileService
                 // This will setup the instance with new config changes or if the OS is fresh
                 try
                 {
-                    this.InstanceSystemSetup(instance);
+                    // this.InstanceSystemSetup(instance);
                 }
                 catch
                 {
