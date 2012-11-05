@@ -15,7 +15,7 @@ EXEC sys.xp_create_subdir '<EvenNbrFileDrive>\mssql\log\'
 GO
 
 CREATE DATABASE [<DatabaseName>] ON  PRIMARY 
-( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = 102400KB , MAXSIZE = UNLIMITED, FILEGROWTH = 102400KB ), 
+( NAME = N'<DatabaseName>PriData', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
  FILEGROUP [DATA]  DEFAULT 
 ( NAME = N'<DatabaseName>Data01', FILENAME = N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
 ( NAME = N'<DatabaseName>Data02', FILENAME = N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf' ,  SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ),
