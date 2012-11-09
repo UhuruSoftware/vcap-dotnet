@@ -1049,35 +1049,12 @@ namespace Uhuru.CloudFoundry.MSSqlService
             StreamReader sr = new StreamReader(templateStream);
 
             string createDBSqlScript = sr.ReadToEnd();
-            string[] storageUnits = null;
 
-            if (!string.IsNullOrEmpty(this.mssqlConfig.LogicalStorageUnits))
-            {
-                storageUnits = this.mssqlConfig.LogicalStorageUnits.Split(new char[] { ',' }).ToArray();
-            }
-            else
-            {
-                storageUnits = new string[] { "C" };
-            }
-
-            Regex regex = new Regex(@"\<DatabaseName\>");
+            Regex regex = new Regex(@"<DatabaseName>");
             createDBSqlScript = regex.Replace(createDBSqlScript, databaseName);
 
-            string driveMatch = @"\<.*NbrFileDrive\>";
-
-            regex = new Regex(driveMatch);
-            int distinctCount = 0;
-
-            createDBSqlScript = regex.Replace(
-                createDBSqlScript,
-                new MatchEvaluator(
-                    (Match m) =>
-                    {
-                        int idx = (distinctCount++) % storageUnits.Length;
-                        Regex r = new Regex(driveMatch);
-
-                        return r.Replace(m.Value, storageUnits[idx] + Path.VolumeSeparatorChar);
-                    }));
+            regex = new Regex(@"<RootDataPath>");
+            createDBSqlScript = regex.Replace(createDBSqlScript, string.IsNullOrEmpty(this.mssqlConfig.LogicalStorageUnits) ? "C:" : this.mssqlConfig.LogicalStorageUnits);
 
             regex = new Regex(@"<InitialDataSize>");
             createDBSqlScript = regex.Replace(createDBSqlScript, this.mssqlConfig.InitialDataSize);
