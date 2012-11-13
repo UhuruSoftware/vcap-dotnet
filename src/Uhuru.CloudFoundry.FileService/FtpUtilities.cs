@@ -17,6 +17,27 @@ namespace Uhuru.CloudFoundry.FileService
     public static class FtpUtilities
     {
         /// <summary>
+        /// Get all the ftp sites on the system.
+        /// </summary>
+        /// <returns>Names of the ftp sites.</returns>
+        public static string[] GetFtpSties()
+        {
+            using (ServerManager serverManager = new ServerManager())
+            {
+                Configuration config = serverManager.GetApplicationHostConfiguration();
+
+                ConfigurationSection sitesSection = config.GetSection("system.applicationHost/sites");
+
+                ConfigurationElementCollection sitesCollection = sitesSection.GetCollection();
+
+                var sites = from site in sitesCollection
+                            select (string)site.Attributes["name"].Value;
+
+                return sites.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Creates an ftp virtual directory on the "fileService" ftp site.
         /// </summary>
         /// <param name="siteName">The name of the new ftp site.</param>
