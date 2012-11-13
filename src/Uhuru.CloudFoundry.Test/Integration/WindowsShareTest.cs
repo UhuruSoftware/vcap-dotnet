@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Uhuru.Utilities;
+using System.Diagnostics;
 
 namespace Uhuru.CloudFoundry.Test.Integration
 {
@@ -65,10 +66,12 @@ namespace Uhuru.CloudFoundry.Test.Integration
             ws.AddSharePermission("Everyone");
 
             Assert.IsTrue(ws.Exists());
+            Assert.IsTrue(WindowsShare.GetShares().Any(s => s.ShareName == ws.ShareName));
 
             ws.DeleteShare();
 
             Assert.IsFalse(ws.Exists());
+            Assert.IsFalse(WindowsShare.GetShares().Any(s => s.ShareName == ws.ShareName));
 
             ws = null;
             string contentsRead = File.ReadAllText(@"\\localhost\" + shareName + @"\test.txt");
@@ -101,8 +104,21 @@ namespace Uhuru.CloudFoundry.Test.Integration
 
             ws.AddSharePermission(decoratedUsername);
 
-            Assert.IsTrue(ws.HasPermission(decoratedUsername));
+            int count = 0;
 
+            while (true)
+            {
+
+                count++;
+
+                ws.Exists();
+                ws.HasPermission(decoratedUsername);
+                ws.AddSharePermission(decoratedUsername);
+                ws.DeleteSharePermission(decoratedUsername);
+                Debug.WriteLine(count);
+
+                if (count > 200) break;
+            }
             ws.DeleteSharePermission(decoratedUsername);
 
             Assert.IsFalse(ws.HasPermission(decoratedUsername));

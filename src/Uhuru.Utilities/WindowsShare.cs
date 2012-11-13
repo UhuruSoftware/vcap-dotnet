@@ -34,6 +34,17 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Gets the name of the share.
+        /// </summary>
+        public string ShareName
+        {
+            get
+            {
+                return this.shareName;
+            }
+        }
+
+        /// <summary>
         /// Creates the share.
         /// </summary>
         /// <param name="shareName">Name of the share.</param>

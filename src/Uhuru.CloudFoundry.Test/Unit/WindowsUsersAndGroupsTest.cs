@@ -27,7 +27,9 @@ namespace Uhuru.CloudFoundry.Test.Unit
             WindowsUsersAndGroups.CreateUser(user2, "test1234#", "Delete me pls...");
 
             Assert.IsTrue(WindowsUsersAndGroups.ExistsUser(user2));
+            Assert.IsTrue(WindowsUsersAndGroups.GetUsers().Contains(user2));
             WindowsUsersAndGroups.DeleteUser(user2);
+            Assert.IsFalse(WindowsUsersAndGroups.GetUsers().Contains(user2));
             Assert.IsFalse(WindowsUsersAndGroups.ExistsUser(user2));
 
             // test groups
@@ -35,7 +37,9 @@ namespace Uhuru.CloudFoundry.Test.Unit
             WindowsUsersAndGroups.CreateGroup(group2, "delete me too...");
 
             Assert.IsTrue(WindowsUsersAndGroups.ExistsGroup(group2));
+            Assert.IsTrue(WindowsUsersAndGroups.GetGroups().Contains(group2));
             WindowsUsersAndGroups.DeleteGroup(group2);
+            Assert.IsFalse(WindowsUsersAndGroups.GetGroups().Contains(group2));
             Assert.IsFalse(WindowsUsersAndGroups.ExistsGroup(group2));
 
             // test users and groups
