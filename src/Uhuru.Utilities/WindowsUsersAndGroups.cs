@@ -9,6 +9,7 @@ namespace Uhuru.Utilities
     using System;
     using System.Collections.Generic;
     using System.DirectoryServices;
+    using System.Globalization;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -18,6 +19,29 @@ namespace Uhuru.Utilities
     /// </summary>
     public static class WindowsUsersAndGroups
     {
+        /// <summary>
+        /// Gets all the existing windows users.
+        /// </summary>
+        /// <returns>Local users account names.</returns>
+        public static string[] GetUsers()
+        {
+            List<string> users = new List<string>();
+
+            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            {
+                DirectoryEntries localChildren = localEntry.Children;
+                foreach (DirectoryEntry i in localChildren)
+                {
+                    if (i.SchemaClassName == "User")
+                    {
+                        users.Add(i.Name);
+                    }
+                }
+            }
+
+            return users.ToArray();
+        }
+
         /// <summary>
         /// Creates a Windows user.
         /// </summary>
@@ -76,29 +100,45 @@ namespace Uhuru.Utilities
         /// <returns>True if the user exists.</returns>
         public static bool ExistsUser(string userName)
         {
+            string userPath = string.Format(CultureInfo.InvariantCulture, "WinNT://./{0},User", userName);
+            try
+            {
+                return DirectoryEntry.Exists(userPath);
+            }
+            catch (COMException ex)
+            {
+                if (ex.Message.Contains("The user name could not be found."))
+                {
+                    return false;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets all the existing windows groups.
+        /// </summary>
+        /// <returns>Local group names.</returns>
+        public static string[] GetGroups()
+        {
+            List<string> users = new List<string>();
+
             using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
             {
                 DirectoryEntries localChildren = localEntry.Children;
-                try
+                foreach (DirectoryEntry i in localChildren)
                 {
-                    using (DirectoryEntry userEntry = localChildren.Find(userName, "User"))
+                    if (i.SchemaClassName == "Group")
                     {
-                    }
-                }
-                catch (COMException ex)
-                {
-                    if (ex.Message.Contains("The user name could not be found."))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        throw;
+                        users.Add(i.Name);
                     }
                 }
             }
 
-            return true;
+            return users.ToArray();
         }
 
         /// <summary>
@@ -154,29 +194,22 @@ namespace Uhuru.Utilities
         /// <returns>True if group exists.</returns>
         public static bool ExistsGroup(string groupName)
         {
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            string groupPath = string.Format(CultureInfo.InvariantCulture, "WinNT://./{0},Group", groupName);
+            try
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                try
+                return DirectoryEntry.Exists(groupPath);
+            }
+            catch (COMException ex)
+            {
+                if (ex.Message.Contains("The specified local group does not exist."))
                 {
-                    using (DirectoryEntry groupEntry = localChildren.Find(groupName, "Group"))
-                    {
-                    }
+                    return false;
                 }
-                catch (COMException ex)
+                else
                 {
-                    if (ex.Message.Contains("The group name could not be found."))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
-
-            return true;
         }
 
         /// <summary>
@@ -222,7 +255,8 @@ namespace Uhuru.Utilities
             {
                 try
                 {
-                    return (bool)groupEntry.Invoke("IsMember", new object[] { "WinNT://" + Environment.MachineName + "/" + userName });
+                    var userPath = string.Format(CultureInfo.InvariantCulture, "WinNT://{0}/{1}", Environment.MachineName, userName);
+                    return (bool)groupEntry.Invoke("IsMember", new object[] { userPath });
                 }
                 catch
                 {
