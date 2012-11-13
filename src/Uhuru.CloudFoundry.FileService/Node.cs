@@ -86,6 +86,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Start the node on instances failure.")]
         public override void Start(ServiceElement options)
         {
             if (options == null)
@@ -122,7 +123,13 @@ namespace Uhuru.CloudFoundry.FileService
                 this.capacity = -this.CapacityUnit();
 
                 // This will setup the instance with new config changes or if the OS is fresh
-                this.InstanceSystemSetup(instance);
+                try
+                {
+                    this.InstanceSystemSetup(instance);
+                }
+                catch
+                {
+                }
             }
 
             // initialize qps counter
@@ -822,7 +829,7 @@ namespace Uhuru.CloudFoundry.FileService
             {
                 DateTime start = DateTime.Now;
                 Logger.Debug(Strings.SqlNodeCreateDatabaseDebugMessage, provisionedService.SerializeToJson());
-                
+
                 // The group and users have to be recreated if the box was recreated by bosh.
                 // In that case only the file system resrouces remain. Every system 
                 // resource of configuration has to be provisioned again.
