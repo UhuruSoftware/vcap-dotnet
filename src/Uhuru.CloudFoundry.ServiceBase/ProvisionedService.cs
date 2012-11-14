@@ -81,8 +81,21 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 services.Add(this);
             }
+
+            this.Bindings = new List<ServiceBinding>();
         }
-        
+
+        /// <summary>
+        /// Gets or sets the service bindings list.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "For serialization."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "For serialization.")]
+        public List<ServiceBinding> Bindings
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Gets or sets the name of the provisioned service.
         /// </summary>

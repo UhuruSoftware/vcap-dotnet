@@ -86,7 +86,8 @@ namespace Uhuru.CloudFoundry.FileService
         /// Starts the node.
         /// </summary>
         /// <param name="options">The configuration options for the node.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Start the node on instances failure.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "Code more clear and readable."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Start the node on instances failure.")]
         public override void Start(ServiceElement options)
         {
             if (options == null)
@@ -109,28 +110,48 @@ namespace Uhuru.CloudFoundry.FileService
                 this.dirAccounting = null;
             }
 
+            ProvisionedService.Initialize(options.LocalDB);
+
+            HashSet<string> sharesCache = new HashSet<string>(WindowsShare.GetShares());
+
+            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            {
+                this.capacity = -this.CapacityUnit();
+
+                // This check will make initialization faster.
+                if (!sharesCache.Contains(instance.Name))
+                {
+                    // This will setup the instance with new config changes or if the OS is fresh.
+                    // Don't want to fail if an instance is inconsistent or has errors.
+                    try
+                    {
+                        this.InstanceSystemSetup(instance);
+
+                        foreach (ServiceBinding binding in instance.Bindings)
+                        {
+                            try
+                            {
+                                Bind(instance, binding);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error("Error binding instance {0} with {1}. Exception: {2}", instance.Name, binding.User, ex.ToString());
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Error setting up instance {0}. Exception: {1}", instance.Name, ex.ToString());
+                    }
+                }
+            }
+
             TimerHelper.RecurringCall(
                 StorageQuotaInterval,
                 delegate
                 {
                     this.EnforceStorageQuota();
                 });
-
-            ProvisionedService.Initialize(options.LocalDB);
-
-            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
-            {
-                this.capacity = -this.CapacityUnit();
-
-                // This will setup the instance with new config changes or if the OS is fresh
-                try
-                {
-                    this.InstanceSystemSetup(instance);
-                }
-                catch
-                {
-                }
-            }
 
             // initialize qps counter
             this.provisionServed = 0;
@@ -626,10 +647,20 @@ namespace Uhuru.CloudFoundry.FileService
                 password = "P4SS" + Credentials.GenerateCredential();
             }
 
-            if (!WindowsUsersAndGroups.ExistsUser(user))
+            var binding = new ServiceBinding
+                {
+                    User = user,
+                    Password = password
+                };
+
+            Bind(service, binding);
+
+            service.Bindings.Add(binding);
+
+            if (!ProvisionedService.Save())
             {
-                CreateInstanceUser(name, user, password);
-                AddInstanceUserToGroup(name, user);
+                Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, credentials == null ? string.Empty : credentials.SerializeToJson());
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceLocalDBError);
             }
 
             ServiceCredentials response = this.GenerateCredential(name, user, password, service.Port.Value);
@@ -663,6 +694,18 @@ namespace Uhuru.CloudFoundry.FileService
             string name = credentials.Name;
             string user = credentials.User;
 
+            ProvisionedService serviceInstance = ProvisionedService.GetService(name);
+
+            // Remove the binding form the local db
+            var binding = serviceInstance.Bindings.FirstOrDefault(p => p.User == user);
+            serviceInstance.Bindings.Remove(binding);
+
+            if (!ProvisionedService.Save())
+            {
+                Logger.Error(Strings.SqlNodeCannotSaveProvisionedServicesErrorMessage, credentials.SerializeToJson());
+                throw new FileServiceErrorException(FileServiceErrorException.FileServiceLocalDBError);
+            }
+
             try
             {
                 DeleteInstanceUser(user);
@@ -674,6 +717,20 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             return success;
+        }
+
+        /// <summary>
+        /// Bind the service instance.
+        /// </summary>
+        /// <param name="service">The service instance.</param>
+        /// <param name="binding">Binding information.</param>
+        private static void Bind(ProvisionedService service, ServiceBinding binding)
+        {
+            if (!WindowsUsersAndGroups.ExistsUser(binding.User))
+            {
+                CreateInstanceUser(service.Name, binding.User, binding.Password);
+                AddInstanceUserToGroup(service.Name, binding.User);
+            }
         }
 
         /// <summary>
