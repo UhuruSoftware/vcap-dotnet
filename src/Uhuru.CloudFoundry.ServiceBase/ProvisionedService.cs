@@ -81,8 +81,19 @@ namespace Uhuru.CloudFoundry.ServiceBase
 
                 services.Add(this);
             }
+
+            this.Bindings = new List<ServiceBinding>();
         }
-        
+
+        /// <summary>
+        /// Gets the service bindings list.
+        /// </summary>
+        public IList<ServiceBinding> Bindings
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
         /// Gets or sets the name of the provisioned service.
         /// </summary>
