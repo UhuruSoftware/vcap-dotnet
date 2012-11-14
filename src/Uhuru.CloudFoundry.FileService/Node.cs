@@ -109,28 +109,46 @@ namespace Uhuru.CloudFoundry.FileService
                 this.dirAccounting = null;
             }
 
+            ProvisionedService.Initialize(options.LocalDB);
+
+            HashSet<string> sharesCache = new HashSet<string>(WindowsShare.GetShares());
+
+            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            {
+                this.capacity = -this.CapacityUnit();
+
+                // This check will make initialization faster.
+                if (!sharesCache.Contains(instance.Name))
+                {
+                    // This will setup the instance with new config changes or if the OS is fresh.
+                    // Don't want to fail if an instance is inconsistent or has errors.
+                    try
+                    {
+                        this.InstanceSystemSetup(instance);
+                    }
+                    catch
+                    {
+                    }
+
+                    foreach (ServiceBinding binding in instance.Bindings)
+                    {
+                        try
+                        {
+                            Bind(instance, binding);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+            }
+
             TimerHelper.RecurringCall(
                 StorageQuotaInterval,
                 delegate
                 {
                     this.EnforceStorageQuota();
                 });
-
-            ProvisionedService.Initialize(options.LocalDB);
-
-            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
-            {
-                this.capacity = -this.CapacityUnit();
-
-                // This will setup the instance with new config changes or if the OS is fresh
-                try
-                {
-                    this.InstanceSystemSetup(instance);
-                }
-                catch
-                {
-                }
-            }
 
             // initialize qps counter
             this.provisionServed = 0;
@@ -626,11 +644,14 @@ namespace Uhuru.CloudFoundry.FileService
                 password = "P4SS" + Credentials.GenerateCredential();
             }
 
-            if (!WindowsUsersAndGroups.ExistsUser(user))
-            {
-                CreateInstanceUser(name, user, password);
-                AddInstanceUserToGroup(name, user);
-            }
+            var binding = new ServiceBinding
+                {
+                    User = user,
+                    Password = password
+                };
+
+            Bind(service, binding);
+            service.Bindings.Add(binding);
 
             ServiceCredentials response = this.GenerateCredential(name, user, password, service.Port.Value);
 
@@ -674,6 +695,20 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             return success;
+        }
+
+        /// <summary>
+        /// Bind the service instance.
+        /// </summary>
+        /// <param name="service">The service instance.</param>
+        /// <param name="binding">Binding information.</param>
+        private static void Bind(ProvisionedService service, ServiceBinding binding)
+        {
+            if (!WindowsUsersAndGroups.ExistsUser(binding.User))
+            {
+                CreateInstanceUser(service.Name, binding.User, binding.Password);
+                AddInstanceUserToGroup(service.Name, binding.User);
+            }
         }
 
         /// <summary>
