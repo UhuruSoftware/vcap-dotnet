@@ -34,6 +34,17 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Gets the name of the share.
+        /// </summary>
+        public string ShareName
+        {
+            get
+            {
+                return this.shareName;
+            }
+        }
+
+        /// <summary>
         /// Creates the share.
         /// </summary>
         /// <param name="shareName">Name of the share.</param>
@@ -112,12 +123,12 @@ namespace Uhuru.Utilities
         /// <summary>
         /// Gets the shares.
         /// </summary>
-        /// <returns>The WindowsShare instances.</returns>
-        public static WindowsShare[] GetShares()
+        /// <returns>The all WindowsShare instances names.</returns>
+        public static string[] GetShares()
         {
             ManagementObjectSearcher searcher = null;
 
-            List<WindowsShare> ret = new List<WindowsShare>();
+            var ret = new List<string>();
 
             try
             {
@@ -125,7 +136,7 @@ namespace Uhuru.Utilities
 
                 foreach (ManagementObject queryObj in searcher.Get())
                 {
-                    ret.Add(new WindowsShare((string)queryObj["Name"]));
+                    ret.Add((string)queryObj["Name"]);
                 }
             }
             catch (Exception ex)

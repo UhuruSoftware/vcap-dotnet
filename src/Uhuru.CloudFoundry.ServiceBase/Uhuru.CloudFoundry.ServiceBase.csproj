@@ -76,6 +76,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Handle.cs" />
     <Compile Include="Announcement.cs" />
+    <Compile Include="ServiceBinding.cs" />
     <Compile Include="ServiceConfiguration.cs" />
     <Compile Include="ServiceCredentials.cs" />
     <Compile Include="RestoreRequest.cs" />
