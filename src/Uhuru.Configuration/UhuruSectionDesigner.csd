@@ -308,6 +308,11 @@
             <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/BackupElement" />
           </type>
         </elementProperty>
+        <elementProperty name="Worker" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="worker" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/WorkerElement" />
+          </type>
+        </elementProperty>
       </elementProperties>
     </configurationElement>
     <configurationElementCollection name="EnvironmentCollection" collectionType="BasicMap" xmlItemName="env" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
@@ -427,6 +432,105 @@
         <attributeProperty name="ServiceName" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serviceName" isReadOnly="false">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+    </configurationElement>
+    <configurationElement name="WorkerElement">
+      <attributeProperties>
+        <attributeProperty name="SnapshotsBaseDir" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="snapshotsBaseDir" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="SerializationBaseDir" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serializationBaseDir" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="SnapshotQuota" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="snapshotQuota" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="TempDir" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="tempDir" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="DownloadUrlTemplate" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="downloadUrlTemplate" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="ServiceName" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serviceName" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Queues" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="queues" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Interval" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="interval" isReadOnly="false" defaultValue="5">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="JobTTL" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="jobTTL" isReadOnly="false" defaultValue="600">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+      <elementProperties>
+        <elementProperty name="Resque" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="resque" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/ResqueElement" />
+          </type>
+        </elementProperty>
+        <elementProperty name="Serialization" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serialization" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/SerializationElement" />
+          </type>
+        </elementProperty>
+      </elementProperties>
+    </configurationElement>
+    <configurationElement name="ResqueElement">
+      <attributeProperties>
+        <attributeProperty name="Host" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="host" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Port" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="port" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Password" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="password" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Timeout" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="timeout" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+    </configurationElement>
+    <configurationElement name="SerializationElement">
+      <attributeProperties>
+        <attributeProperty name="MaxDownloadSize" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="maxDownloadSize" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int64" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="MaxDownloadRedirects" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="maxDownloadRedirects" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>
         </attributeProperty>
       </attributeProperties>

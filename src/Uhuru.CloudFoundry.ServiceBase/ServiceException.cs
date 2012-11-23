@@ -66,56 +66,63 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// Error codes between 30000 - 30099; 400 Bad Request
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode InvalidContent = new ServiceErrorCode() { ErrorCode = 30000, HttpError = HttpErrorCode.HttpBadRequest, Message = Strings.ServiceExceptionInvalidContentType };
 
         /// <summary>
         /// Error codes between 30000 - 30099; 400 Bad Request
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode MalFormattedRequest = new ServiceErrorCode() { ErrorCode = 30001, HttpError = HttpErrorCode.HttpBadRequest, Message = Strings.ServiceExceptionMalformedContent };
 
         /// <summary>
         /// Error codes between 30000 - 30099; 400 Bad Request
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode UnknownLabel = new ServiceErrorCode() { ErrorCode = 30002, HttpError = HttpErrorCode.HttpBadRequest, Message = Strings.ServiceExceptionUnknownLabel };
 
         /// <summary>
         /// Error codes between 30100 - 30199; 401 Unauthorized
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public readonly ServiceErrorCode NotAuthorized = new ServiceErrorCode() { ErrorCode = 30100, HttpError = HttpErrorCode.HttpNotAuthorized, Message = Strings.ServiceExceptionNotAuthorized };
 
         /// <summary>
         /// Error codes between 30300 - 30399; 404 Not Found 
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode NotFound = new ServiceErrorCode() { ErrorCode = 30300, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.ServiceExceptionNotFound };
 
         /// <summary>
         /// Error codes between 30500 - 30599; 500 Internal Error
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode InternalError = new ServiceErrorCode() { ErrorCode = 30500, HttpError = HttpErrorCode.HttpInternal, Message = Strings.ServiceExceptionInternalError };
 
         /// <summary>
         /// Error codes between 30600 - 30699; 503 Service Unavailable
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode ServiceUnavailable = new ServiceErrorCode() { ErrorCode = 30600, HttpError = HttpErrorCode.HttpServiceUnavailable, Message = Strings.ServiceExceptionServiceUnavailable };
 
         /// <summary>
         /// Error codes between 30700 - 30799; 500 Gateway Timeout
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode GatewayTimeout = new ServiceErrorCode() { ErrorCode = 30700, HttpError = HttpErrorCode.HttpGatewayTimeout, Message = Strings.ServiceExceptionGatewayTimeout };
 
         /// <summary>
         /// Error codes between 30800 - 30599; 404 Not Found
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like field that defines a service error.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
         public static readonly ServiceErrorCode UnsupportedVersion = new ServiceErrorCode() { ErrorCode = 30800, HttpError = HttpErrorCode.HttpNotFound, Message = Strings.ServiceExceptionUnsupportedVersion };
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
+        public static readonly ServiceErrorCode InvalidSnapshotName = new ServiceErrorCode() { ErrorCode = 30808, HttpError = HttpErrorCode.HttpBadRequest, Message = "Invalid snapshot name. {0}" };
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "This is a constant-like className that defines a service error.")]
+        public static readonly ServiceErrorCode OverQuota = new ServiceErrorCode() { ErrorCode = 30800, HttpError = HttpErrorCode.HttpInternal, Message = "Instance {0} has {1} snapshots. Quota is {2} " };
+
 
         /// <summary>
         /// Error code of the service exception.

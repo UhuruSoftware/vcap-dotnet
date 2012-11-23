@@ -1735,6 +1735,32 @@ namespace Uhuru.Configuration
             }
         }
         #endregion
+        
+        #region Worker Property
+        /// <summary>
+        /// The XML name of the <see cref="Worker"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string WorkerPropertyName = "worker";
+        
+        /// <summary>
+        /// Gets or sets the Worker.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Worker.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ServiceElement.WorkerPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual global::Uhuru.Configuration.WorkerElement Worker
+        {
+            get
+            {
+                return ((global::Uhuru.Configuration.WorkerElement)(base[global::Uhuru.Configuration.ServiceElement.WorkerPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ServiceElement.WorkerPropertyName] = value;
+            }
+        }
+        #endregion
     }
 }
 namespace Uhuru.Configuration
@@ -2768,6 +2794,514 @@ namespace Uhuru.Configuration
             set
             {
                 base[global::Uhuru.Configuration.BackupElement.ServiceNamePropertyName] = value;
+            }
+        }
+        #endregion
+    }
+}
+namespace Uhuru.Configuration
+{
+    
+    
+    /// <summary>
+    /// The WorkerElement Configuration Element.
+    /// </summary>
+    public partial class WorkerElement : global::System.Configuration.ConfigurationElement
+    {
+        
+        #region IsReadOnly override
+        /// <summary>
+        /// Gets a value indicating whether the element is read-only.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
+        #endregion
+        
+        #region SnapshotsBaseDir Property
+        /// <summary>
+        /// The XML name of the <see cref="SnapshotsBaseDir"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string SnapshotsBaseDirPropertyName = "snapshotsBaseDir";
+        
+        /// <summary>
+        /// Gets or sets the SnapshotsBaseDir.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The SnapshotsBaseDir.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.SnapshotsBaseDirPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string SnapshotsBaseDir
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.SnapshotsBaseDirPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.SnapshotsBaseDirPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region SerializationBaseDir Property
+        /// <summary>
+        /// The XML name of the <see cref="SerializationBaseDir"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string SerializationBaseDirPropertyName = "serializationBaseDir";
+        
+        /// <summary>
+        /// Gets or sets the SerializationBaseDir.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The SerializationBaseDir.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.SerializationBaseDirPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string SerializationBaseDir
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.SerializationBaseDirPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.SerializationBaseDirPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region SnapshotQuota Property
+        /// <summary>
+        /// The XML name of the <see cref="SnapshotQuota"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string SnapshotQuotaPropertyName = "snapshotQuota";
+        
+        /// <summary>
+        /// Gets or sets the SnapshotQuota.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The SnapshotQuota.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.SnapshotQuotaPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual int SnapshotQuota
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.WorkerElement.SnapshotQuotaPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.SnapshotQuotaPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region TempDir Property
+        /// <summary>
+        /// The XML name of the <see cref="TempDir"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string TempDirPropertyName = "tempDir";
+        
+        /// <summary>
+        /// Gets or sets the TempDir.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The TempDir.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.TempDirPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string TempDir
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.TempDirPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.TempDirPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region DownloadUrlTemplate Property
+        /// <summary>
+        /// The XML name of the <see cref="DownloadUrlTemplate"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string DownloadUrlTemplatePropertyName = "downloadUrlTemplate";
+        
+        /// <summary>
+        /// Gets or sets the DownloadUrlTemplate.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The DownloadUrlTemplate.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.DownloadUrlTemplatePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string DownloadUrlTemplate
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.DownloadUrlTemplatePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.DownloadUrlTemplatePropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region ServiceName Property
+        /// <summary>
+        /// The XML name of the <see cref="ServiceName"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string ServiceNamePropertyName = "serviceName";
+        
+        /// <summary>
+        /// Gets or sets the ServiceName.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The ServiceName.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.ServiceNamePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string ServiceName
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.ServiceNamePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.ServiceNamePropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Queues Property
+        /// <summary>
+        /// The XML name of the <see cref="Queues"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string QueuesPropertyName = "queues";
+        
+        /// <summary>
+        /// Gets or sets the Queues.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Queues.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.QueuesPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string Queues
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.WorkerElement.QueuesPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.QueuesPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Interval Property
+        /// <summary>
+        /// The XML name of the <see cref="Interval"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string IntervalPropertyName = "interval";
+        
+        /// <summary>
+        /// Gets or sets the Interval.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Interval.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.IntervalPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false, DefaultValue=5)]
+        public virtual int Interval
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.WorkerElement.IntervalPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.IntervalPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region JobTTL Property
+        /// <summary>
+        /// The XML name of the <see cref="JobTTL"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string JobTTLPropertyName = "jobTTL";
+        
+        /// <summary>
+        /// Gets or sets the JobTTL.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The JobTTL.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.JobTTLPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false, DefaultValue=600)]
+        public virtual int JobTTL
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.WorkerElement.JobTTLPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.JobTTLPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Resque Property
+        /// <summary>
+        /// The XML name of the <see cref="Resque"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string ResquePropertyName = "resque";
+        
+        /// <summary>
+        /// Gets or sets the Resque.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Resque.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.ResquePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual global::Uhuru.Configuration.ResqueElement Resque
+        {
+            get
+            {
+                return ((global::Uhuru.Configuration.ResqueElement)(base[global::Uhuru.Configuration.WorkerElement.ResquePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.ResquePropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Serialization Property
+        /// <summary>
+        /// The XML name of the <see cref="Serialization"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string SerializationPropertyName = "serialization";
+        
+        /// <summary>
+        /// Gets or sets the Serialization.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Serialization.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.WorkerElement.SerializationPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual global::Uhuru.Configuration.SerializationElement Serialization
+        {
+            get
+            {
+                return ((global::Uhuru.Configuration.SerializationElement)(base[global::Uhuru.Configuration.WorkerElement.SerializationPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.WorkerElement.SerializationPropertyName] = value;
+            }
+        }
+        #endregion
+    }
+}
+namespace Uhuru.Configuration
+{
+    
+    
+    /// <summary>
+    /// The ResqueElement Configuration Element.
+    /// </summary>
+    public partial class ResqueElement : global::System.Configuration.ConfigurationElement
+    {
+        
+        #region IsReadOnly override
+        /// <summary>
+        /// Gets a value indicating whether the element is read-only.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
+        #endregion
+        
+        #region Host Property
+        /// <summary>
+        /// The XML name of the <see cref="Host"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string HostPropertyName = "host";
+        
+        /// <summary>
+        /// Gets or sets the Host.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Host.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ResqueElement.HostPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string Host
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.ResqueElement.HostPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ResqueElement.HostPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Port Property
+        /// <summary>
+        /// The XML name of the <see cref="Port"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string PortPropertyName = "port";
+        
+        /// <summary>
+        /// Gets or sets the Port.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Port.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ResqueElement.PortPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual int Port
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.ResqueElement.PortPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ResqueElement.PortPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Password Property
+        /// <summary>
+        /// The XML name of the <see cref="Password"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string PasswordPropertyName = "password";
+        
+        /// <summary>
+        /// Gets or sets the Password.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Password.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ResqueElement.PasswordPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string Password
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.ResqueElement.PasswordPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ResqueElement.PasswordPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region Timeout Property
+        /// <summary>
+        /// The XML name of the <see cref="Timeout"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string TimeoutPropertyName = "timeout";
+        
+        /// <summary>
+        /// Gets or sets the Timeout.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The Timeout.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.ResqueElement.TimeoutPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual int Timeout
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.ResqueElement.TimeoutPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.ResqueElement.TimeoutPropertyName] = value;
+            }
+        }
+        #endregion
+    }
+}
+namespace Uhuru.Configuration
+{
+    
+    
+    /// <summary>
+    /// The SerializationElement Configuration Element.
+    /// </summary>
+    public partial class SerializationElement : global::System.Configuration.ConfigurationElement
+    {
+        
+        #region IsReadOnly override
+        /// <summary>
+        /// Gets a value indicating whether the element is read-only.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
+        #endregion
+        
+        #region MaxDownloadSize Property
+        /// <summary>
+        /// The XML name of the <see cref="MaxDownloadSize"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string MaxDownloadSizePropertyName = "maxDownloadSize";
+        
+        /// <summary>
+        /// Gets or sets the MaxDownloadSize.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The MaxDownloadSize.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.SerializationElement.MaxDownloadSizePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual long MaxDownloadSize
+        {
+            get
+            {
+                return ((long)(base[global::Uhuru.Configuration.SerializationElement.MaxDownloadSizePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.SerializationElement.MaxDownloadSizePropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region MaxDownloadRedirects Property
+        /// <summary>
+        /// The XML name of the <see cref="MaxDownloadRedirects"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        internal const string MaxDownloadRedirectsPropertyName = "maxDownloadRedirects";
+        
+        /// <summary>
+        /// Gets or sets the MaxDownloadRedirects.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.0.5")]
+        [global::System.ComponentModel.DescriptionAttribute("The MaxDownloadRedirects.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.SerializationElement.MaxDownloadRedirectsPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual int MaxDownloadRedirects
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.SerializationElement.MaxDownloadRedirectsPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.SerializationElement.MaxDownloadRedirectsPropertyName] = value;
             }
         }
         #endregion

@@ -236,6 +236,11 @@
 					<xs:documentation>The Backup.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element minOccurs="0" name="worker" type="tns:Uhuru.Configuration.WorkerElementCT">
+				<xs:annotation>
+					<xs:documentation>The Worker.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="nodeId" use="optional" type="xs:string">
 			<xs:annotation>
@@ -432,6 +437,103 @@
 		<xs:attribute name="serviceName" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The ServiceName.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.WorkerElementCT">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="resque" type="tns:Uhuru.Configuration.ResqueElementCT">
+				<xs:annotation>
+					<xs:documentation>The Resque.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element minOccurs="0" name="serialization" type="tns:Uhuru.Configuration.SerializationElementCT">
+				<xs:annotation>
+					<xs:documentation>The Serialization.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="snapshotsBaseDir" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The SnapshotsBaseDir.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="serializationBaseDir" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The SerializationBaseDir.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="snapshotQuota" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The SnapshotQuota.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="tempDir" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The TempDir.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="downloadUrlTemplate" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The DownloadUrlTemplate.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="serviceName" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The ServiceName.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="queues" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The Queues.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="interval" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The Interval.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="jobTTL" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The JobTTL.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.ResqueElementCT">
+		<xs:sequence>
+		</xs:sequence>
+		<xs:attribute name="host" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The Host.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="port" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The Port.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="password" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The Password.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="timeout" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The Timeout.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.SerializationElementCT">
+		<xs:sequence>
+		</xs:sequence>
+		<xs:attribute name="maxDownloadSize" use="optional" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>The MaxDownloadSize.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="maxDownloadRedirects" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The MaxDownloadRedirects.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>

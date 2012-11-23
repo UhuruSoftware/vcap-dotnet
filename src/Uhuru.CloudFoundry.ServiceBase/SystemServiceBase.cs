@@ -196,7 +196,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// NATS the error handler.
         /// </summary>
         /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
+        /// <param name="payload">The <see cref="Uhuru.NatsClient.ReactorErrorEventArgs"/> instance containing the error data.</param>
         private void NatsErrorHandler(object sender, ReactorErrorEventArgs args)
         {
             string errorThrown = args.Message == null ? string.Empty : args.Message;

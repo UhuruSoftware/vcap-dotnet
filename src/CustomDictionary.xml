@@ -21,6 +21,7 @@
       <word>diskSizeMiB</word>
       <word>MiB</word>
       <word>nfs</word>
+      <Word>Resque</Word>
     </Recognized>
   </Words>
   <Acronyms>

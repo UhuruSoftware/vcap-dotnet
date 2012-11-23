@@ -64,10 +64,6 @@
     <Reference Include="Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Windows\System32\inetsrv\Microsoft.Web.Administration.dll</HintPath>
     </Reference>
-    <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\SevenZipSharp.dll</HintPath>
-    </Reference>
     <Reference Include="srmlib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -100,7 +96,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="VHDUtilities.cs" />
-    <Compile Include="ZipUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.CloudFoundry.ServiceBase\Uhuru.CloudFoundry.ServiceBase.csproj">
@@ -132,8 +127,6 @@
     <None Include="key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="lib\7z64.dll" />
-    <EmbeddedResource Include="lib\7z86.dll" />
     <Content Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

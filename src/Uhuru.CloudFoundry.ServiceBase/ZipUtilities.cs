@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Uhuru.CloudFoundry.FileService
+namespace Uhuru.CloudFoundry.ServiceBase
 {
     using System;
     using System.IO;
@@ -38,6 +38,20 @@ namespace Uhuru.CloudFoundry.FileService
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.ArchiveFormat = OutArchiveFormat.Zip;
             compressor.CompressDirectory(sourceDir, fileName);
+        }
+
+        /// <summary>
+        /// Compresses files using gzip format
+        /// </summary>
+        /// <param name="files">The files.</param>
+        /// <param name="destination">The destination.</param>
+        public static void GZipFiles(string[] files, string destination)
+        {
+            SetupZlib();
+
+            SevenZipCompressor compressor = new SevenZipCompressor();
+            compressor.ArchiveFormat = OutArchiveFormat.GZip;
+            compressor.CompressFiles(destination, files);           
         }
 
         /// <summary>
@@ -80,12 +94,12 @@ namespace Uhuru.CloudFoundry.FileService
                 if (IntPtr.Size == 8)
                 {
                     libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z64.dll");
-                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.FileService.lib.7z64.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.ServiceBase.lib.7z64.dll");
                 }
                 else
                 {
                     libraryPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SevenZipExtractor)).Location), @"7z86.dll");
-                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.FileService.lib.7z86.dll");
+                    stream = asm.GetManifestResourceStream("Uhuru.CloudFoundry.ServiceBase.lib.7z86.dll");
                 }
 
                 if (!File.Exists(libraryPath))

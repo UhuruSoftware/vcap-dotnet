@@ -29,12 +29,12 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>..\..\doc\Uhuru.CloudFoundry.ServiceBase.XML</DocumentationFile>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <StyleCopTreatErrorsAsWarnings>false</StyleCopTreatErrorsAsWarnings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -57,6 +57,17 @@
     <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BookSleeve">
+      <HintPath>..\..\lib\BookSleeve.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.3.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SevenZipSharp, Version=0.64.3890.29348, Culture=neutral, PublicKeyToken=20de82c62b055c88, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\SevenZipSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -69,6 +80,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="Worker\AsyncJob\BaseCreateSnapshotJob.cs" />
+    <Compile Include="Worker\AsyncJob\Config.cs" />
+    <Compile Include="Worker\AsyncJob\Lock.cs" />
+    <Compile Include="Worker\AsyncJob\Package.cs" />
+    <Compile Include="Worker\AsyncJob\Serialization.cs" />
+    <Compile Include="Worker\AsyncJob\Snapshot.cs" />
     <Compile Include="BackupBase.cs" />
     <Compile Include="CheckOrphanResponse.cs" />
     <Compile Include="CheckOrphanRequest.cs" />
@@ -76,6 +93,9 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Handle.cs" />
     <Compile Include="Announcement.cs" />
+    <Compile Include="Worker\AsyncJob\SnapshotJob.cs" />
+    <Compile Include="Worker\Objects\CreateSnapshotRequest.cs" />
+    <Compile Include="Worker\Objects\SnapshotObject.cs" />
     <Compile Include="ServiceConfiguration.cs" />
     <Compile Include="ServiceCredentials.cs" />
     <Compile Include="RestoreRequest.cs" />
@@ -100,6 +120,8 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="VcapComponent.cs" />
+    <Compile Include="Worker\WorkerBase.cs" />
+    <Compile Include="ZipUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.Configuration\Uhuru.Configuration.csproj">
@@ -109,6 +131,10 @@
     <ProjectReference Include="..\Uhuru.NatsClient\Uhuru.NatsClient.csproj">
       <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
       <Name>Uhuru.NatsClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.ResqueClient\Uhuru.ResqueClient.csproj">
+      <Project>{512C71E4-A826-4343-992C-95B43A541C88}</Project>
+      <Name>Uhuru.ResqueClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>
@@ -131,8 +157,14 @@
   <ItemGroup>
     <None Include="key.snk" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="lib\7z64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="lib\7z86.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\StyleCop.targets" />
+  <!--<Import Project="$(SolutionDir)\StyleCop.targets" /> -->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
