@@ -14,13 +14,15 @@ namespace Uhuru.CloudFoundry.ServiceBase.Worker.AsyncJob
     using Uhuru.CloudFoundry.ServiceBase.Worker.Objects;
     using System.IO;
     using Newtonsoft.Json;
+    using BookSleeve;
 
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public abstract class BaseCreateSnapshotJob : SnapshotJob
     {
-        public BaseCreateSnapshotJob() : base() 
+        public BaseCreateSnapshotJob()
+            : base()
         {
             this.snapshotFiles = new List<string>();
         }
@@ -36,9 +38,14 @@ namespace Uhuru.CloudFoundry.ServiceBase.Worker.AsyncJob
                 this.Name = request.ServiceId;
                 List<string> snapshotFiles = new List<string>();
 
-                using (Lock lck = new Lock(Name))
+                var redisConn = new RedisConnection(config.Worker.Resque.Host, config.Worker.Resque.Port, password: config.Worker.Resque.Password, syncTimeout: config.Worker.Resque.Timeout);
+
+                // TODO: set the Lock TTL from config file.
+                using (Lock lck = new Lock(redisConn, Name))
                 {
-                    lck.RaiseLockExpired += new Lock.LockExpired(lck_RaiseLockExpired);
+                    lck.OnTtlExpired += new EventHandler(lck_RaiseLockExpired);
+                    lck.OnRefreshError += new EventHandler(lck_RaiseLockExpired);
+
                     int quota = config.Worker.SnapshotQuota;
                     int current = ServiceSnapshotsCount(Name);
                     if (current > quota)
@@ -99,7 +106,7 @@ namespace Uhuru.CloudFoundry.ServiceBase.Worker.AsyncJob
             }
         }
 
-        void lck_RaiseLockExpired()
+        void lck_RaiseLockExpired(object state, EventArgs e)
         {
             this.Cancel();
         }

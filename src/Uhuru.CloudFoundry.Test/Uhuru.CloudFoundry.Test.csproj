@@ -39,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BookSleeve">
+      <HintPath>..\..\lib\BookSleeve.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <Private>False</Private>
     </Reference>
@@ -91,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyFileInfo.cs" />
+    <Compile Include="Integration\RedisLockTest.cs" />
     <Compile Include="Integration\SambaWindowsClientTest.cs" />
     <Compile Include="Integration\VHDUtilitiesTests.cs" />
     <Compile Include="Integration\WindowsShareTest.cs" />
