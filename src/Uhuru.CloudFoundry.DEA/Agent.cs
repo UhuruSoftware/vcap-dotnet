@@ -1479,7 +1479,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             foreach (string key in whitelist)
             {
-                if (jsonInstance[key] != null)
+                if (jsonInstance.ContainsKey(key))
                 {
                     // result[key] = JsonConvertibleObject.ObjectToValue<object>(jInstance[key]);
                     result[key] = jsonInstance[key];

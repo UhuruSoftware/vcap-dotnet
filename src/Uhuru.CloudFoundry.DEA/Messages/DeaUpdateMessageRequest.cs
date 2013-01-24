@@ -18,7 +18,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// Gets or sets the droplet id.
         /// </summary>
         [JsonName("droplet")]
-        public int DropletId { get; set; }
+        public string DropletId { get; set; }
 
         /// <summary>
         /// Gets or sets the new uris of the droplet.
