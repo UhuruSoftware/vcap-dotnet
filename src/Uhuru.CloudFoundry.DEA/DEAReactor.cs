@@ -86,6 +86,13 @@ namespace Uhuru.CloudFoundry.DEA
         public event SubscribeCallback OnDeaUpdate;
 
         /// <summary>
+        /// Occurs when dea.locate message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
+        public event SubscribeCallback OnDeaLocate;
+
+        /// <summary>
         /// Gets or sets the UUID of the vcap component.
         /// </summary>
         public string UUID
@@ -106,6 +113,7 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.discover", this.OnDeaDiscover);
             NatsClient.Subscribe("dea.find.droplet", this.OnDeaFindDroplet);
             NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
+            NatsClient.Subscribe("dea.locate", this.OnDeaLocate);
 
             NatsClient.Subscribe("dea.stop", this.OnDeaStop);
             NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.UUID), this.OnDeaStart);
@@ -158,6 +166,15 @@ namespace Uhuru.CloudFoundry.DEA
         public void SendRouterUnregister(string message)
         {
             NatsClient.Publish("router.unregister", null, message);
+        }
+
+        /// <summary>
+        /// Sends the DEA advertise message for centralized apps placement.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void SendDeaAdvertise(string message)
+        {
+            NatsClient.Publish("dea.advertise", null, message);
         }
     }
 }

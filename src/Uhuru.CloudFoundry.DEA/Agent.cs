@@ -311,6 +311,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.deaReactor.OnDeaDiscover += new SubscribeCallback(this.DeaDiscoverHandler);
             this.deaReactor.OnDeaFindDroplet += new SubscribeCallback(this.DeaFindDropletHandler);
             this.deaReactor.OnDeaUpdate += new SubscribeCallback(this.DeaUpdateHandler);
+            this.deaReactor.OnDeaLocate += new SubscribeCallback(this.DeaLocateHandler);
 
             this.deaReactor.OnDeaStop += new SubscribeCallback(this.DeaStopHandler);
             this.deaReactor.OnDeaStart += new SubscribeCallback(this.DeaStartHandler);
@@ -329,6 +330,13 @@ namespace Uhuru.CloudFoundry.DEA
                 delegate
                 {
                     this.SendHeartbeat();
+                });
+
+            TimerHelper.RecurringLongCall(
+                Monitoring.AdvertiseIntervalMilliseconds,
+                delegate
+                {
+                    this.SendAdvertise();
                 });
 
             TimerHelper.RecurringLongCall(
@@ -360,6 +368,7 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
+            this.SendAdvertise();
         }
 
         /// <summary>
@@ -720,6 +729,25 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Sends the heartbeat of every droplet instnace the DEA is aware of.
+        /// </summary>
+        private void SendAdvertise()
+        {
+            if (this.shuttingDown || this.monitoring.Clients >= this.monitoring.MaxClients || this.monitoring.MemoryReservedMbytes >= this.monitoring.MaxMemoryMbytes)
+            {
+                return;
+            }
+
+            DeaAdvertiseMessage response = new DeaAdvertiseMessage();
+            response.Id = UUID;
+            response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
+            response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
+            response.Prod = false; // TODO: set this from config
+
+            this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
+        }
+
+        /// <summary>
         /// Snapshots the varz with basic resource information.
         /// </summary>
         private new void SnapshotVarz()
@@ -999,6 +1027,20 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 }
             });
+        }
+
+        /// <summary>
+        /// The handler for dea.locate message.
+        /// The DEA should respond on dea.advertise when receiving this message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="replay">The replay.</param>
+        /// <param name="subject">The subject.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Debug(System.String)", Justification = "Readable.")]
+        private void DeaLocateHandler(string message, string replay, string subject)
+        {
+            Logger.Debug("Dea received locate message");
+            this.SendAdvertise();
         }
 
         /// <summary>

@@ -64,6 +64,12 @@ namespace Uhuru.CloudFoundry.DEA
         public const int HeartbeatIntervalMilliseconds = 10 * 1000;
 
         /// <summary>
+        /// The interval the DEA is sending advertise messages.
+        /// The cloud_controller_ng's default DEA_ADVERTISEMENT_EXPIRATION is 10.
+        /// </summary>
+        public const int AdvertiseIntervalMilliseconds = 5 * 1000;
+
+        /// <summary>
         /// The interval at which the DEA is updating the varz values.
         /// </summary>
         public const int VarzUpdateIntervalMilliseconds = 1 * 1000;
