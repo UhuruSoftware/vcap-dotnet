@@ -331,7 +331,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                     Site currentSite = null;
                     foreach (Site site in serverMgr.Sites)
                     {
-                        if (site.Bindings[0].EndPoint.Port == port)
+                        if (site.Bindings != null && site.Bindings[0] != null && site.Bindings[0].EndPoint != null && site.Bindings[0].EndPoint.Port == port)
                         {
                             currentSite = site;
                             break;
