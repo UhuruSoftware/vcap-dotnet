@@ -37,12 +37,6 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.UUID = Guid.NewGuid().ToString("N");
 
-            // Initialize Index from config file
-            if (this.Index != null)
-            {
-                this.UUID = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.UUID);
-            }
-
             UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
             this.Host = NetworkInterface.GetLocalIPAddress(uhuruSection.DEA.LocalRoute);
             VCAPReactor.Uri = new Uri(uhuruSection.DEA.MessageBus);
@@ -109,7 +103,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the index.
         /// </summary>
-        protected string Index
+        protected int? Index
         {
             get;
             set;
@@ -187,15 +181,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public virtual void Run()
         {
-            // Listen for discovery requests
-            VCAPReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
-            {
-                this.UpdateDiscoverUptime();
-                VCAPReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(this.Discover));
-            };
-
-            VCAPReactor.Start();
-
             this.Discover = new Dictionary<string, object>() 
             {
               { "type", this.ComponentType },
@@ -205,6 +190,15 @@ namespace Uhuru.CloudFoundry.DEA
               { "credentials", this.Authentication },
               { "start", RubyCompatibility.DateTimeToRubyString(this.StartedAt = DateTime.Now) }
             };
+
+            // Listen for discovery requests
+            VCAPReactor.OnComponentDiscover += delegate(string msg, string reply, string subject)
+            {
+                this.UpdateDiscoverUptime();
+                VCAPReactor.SendReply(reply, JsonConvertibleObject.SerializeToJson(this.Discover));
+            };
+
+            VCAPReactor.Start();
             
             // Varz is customizable
             this.Varz = new Dictionary<string, object>();

@@ -80,15 +80,10 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
                 section.DEA.StatusPort = port;
                 FirewallTools.OpenPort(port, "DEA Status");
             }
-
-            if (!string.IsNullOrEmpty(Context.Parameters[Arguments.ForceHttpSharing]))
-            {
-                section.DEA.ForceHttpSharing = Convert.ToBoolean(Context.Parameters[Arguments.ForceHttpSharing], CultureInfo.InvariantCulture);
-            }
-
+            
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.HeartBeatInterval]))
             {
-                section.DEA.HeartbeatInterval = Convert.ToInt32(Context.Parameters[Arguments.HeartBeatInterval], CultureInfo.InvariantCulture);
+                section.DEA.HeartbeatIntervalMs = Convert.ToInt32(Context.Parameters[Arguments.HeartBeatInterval], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.LocalRoute]))
@@ -112,7 +107,7 @@ namespace Uhuru.CloudFoundry.DEA.WindowsService
 
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.MaxMemory]))
             {
-                section.DEA.MaxMemory = Convert.ToInt32(Context.Parameters[Arguments.MaxMemory], CultureInfo.InvariantCulture);
+                section.DEA.MaxMemoryMB = Convert.ToInt32(Context.Parameters[Arguments.MaxMemory], CultureInfo.InvariantCulture);
             }
 
             if (!string.IsNullOrEmpty(Context.Parameters[Arguments.MessageBus]))

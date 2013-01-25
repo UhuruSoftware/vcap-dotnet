@@ -64,20 +64,9 @@ namespace Uhuru.CloudFoundry.DEA
         public const int HeartbeatIntervalMilliseconds = 10 * 1000;
 
         /// <summary>
-        /// The interval the DEA is sending advertise messages.
-        /// The cloud_controller_ng's default DEA_ADVERTISEMENT_EXPIRATION is 10.
-        /// </summary>
-        public const int AdvertiseIntervalMilliseconds = 5 * 1000;
-
-        /// <summary>
         /// The interval at which the DEA is updating the varz values.
         /// </summary>
         public const int VarzUpdateIntervalMilliseconds = 1 * 1000;
-
-        /// <summary>
-        /// The interval at which the DEA is monitoring the applications.
-        /// </summary>
-        public const int MonitorIntervalMilliseconds = 10 * 1000;
 
         /// <summary>
         /// The interval at which the DEA is invoking the reaper.
@@ -116,6 +105,25 @@ namespace Uhuru.CloudFoundry.DEA
             set { this.slimLock = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the interval at which the DEA is monitoring the applications.
+        /// </summary>
+        public int MonitorIntervalMilliseconds
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the interval the DEA is sending advertise messages.
+        /// The cloud_controller_ng's default DEA_ADVERTISEMENT_EXPIRATION is 10.
+        /// </summary>
+        public int AdvertiseIntervalMilliseconds
+        {
+            get;
+            set;
+        }
+     
         /// <summary>
         /// Gets or sets where to dump the applications disk usage.
         /// </summary>

@@ -137,6 +137,14 @@ namespace Uhuru.CloudFoundry.DEA
         private bool useDiskQuota;
 
         /// <summary>
+        /// When a DEA has the "prod" flag set to true, only the apps that have
+        /// "prod" flag will be run on that DEA.  When the DEA's prod flag is
+        /// set to false (default value), the prod flag of the application is
+        /// ignored.
+        /// </summary>
+        private bool onlyProductionApps;
+
+        /// <summary>
         /// The DEA reactor. Is is the middleware to the message bus. 
         /// </summary>
         private DeaReactor deaReactor;
@@ -208,11 +216,13 @@ namespace Uhuru.CloudFoundry.DEA
             this.secure = uhuruSection.DEA.Secure;
             this.enforceUlimit = uhuruSection.DEA.EnforceUsageLimit;
 
-            this.monitoring.MaxMemoryMbytes = uhuruSection.DEA.MaxMemory;
+            this.monitoring.MaxMemoryMbytes = uhuruSection.DEA.MaxMemoryMB;
 
             this.fileViewer.Port = uhuruSection.DEA.FilerPort;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
+            this.onlyProductionApps = uhuruSection.DEA.OnlyProductionApps;
+
             this.maxConcurrentStarts = uhuruSection.DEA.MaxConcurrentStarts;
 
             // Replace the ephemeral monitoring port with the configured one
@@ -221,14 +231,25 @@ namespace Uhuru.CloudFoundry.DEA
                 this.Port = uhuruSection.DEA.StatusPort;
             }
 
-            this.stager.ForceHttpFileSharing = uhuruSection.DEA.ForceHttpSharing;
+            this.stager.ForceHttpFileSharing = false;
 
             this.ComponentType = "DEA";
+            if (uhuruSection.DEA.Index >= 0)
+            {
+                this.Index = uhuruSection.DEA.Index;
+            }
+            
+            if (this.Index != null)
+            {
+                this.UUID = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.UUID);
+            }
 
             // apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
             this.monitoring.AppsDumpDirectory = Path.GetTempPath();
 
-            // heartbeat_interval = uhuruSection.DEA.HeartBeatInterval;
+            this.monitoring.MonitorIntervalMilliseconds = uhuruSection.DEA.HeartbeatIntervalMs;
+            this.monitoring.AdvertiseIntervalMilliseconds = uhuruSection.DEA.AdvertiseIntervalMs;
+                
             this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
             this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");
@@ -237,7 +258,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.droplets.AppStateFile = Path.Combine(this.stager.DropletDir, "applications.json");
 
-            this.deaReactor.UUID = UUID;
+            this.deaReactor.UUID = this.UUID;
 
             this.helloMessage.Id = this.UUID;
             this.helloMessage.Host = this.Host;
@@ -333,14 +354,14 @@ namespace Uhuru.CloudFoundry.DEA
                 });
 
             TimerHelper.RecurringLongCall(
-                Monitoring.AdvertiseIntervalMilliseconds,
+                this.monitoring.AdvertiseIntervalMilliseconds,
                 delegate
                 {
                     this.SendAdvertise();
                 });
 
             TimerHelper.RecurringLongCall(
-                Monitoring.MonitorIntervalMilliseconds,
+                this.monitoring.MonitorIntervalMilliseconds,
                 delegate
                 {
                     this.MonitorApps();
@@ -724,7 +745,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private void SendHeartbeat()
         {
-            string response = this.droplets.GenerateHeartbeatMessage().SerializeToJson();
+            string response = this.droplets.GenerateHeartbeatMessage(this.UUID, this.onlyProductionApps).SerializeToJson();
             this.deaReactor.SendDeaHeartbeat(response);
         }
 
@@ -739,10 +760,10 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             DeaAdvertiseMessage response = new DeaAdvertiseMessage();
-            response.Id = UUID;
+            response.Id = this.UUID;
             response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            response.Prod = false; // TODO: set this from config
+            response.Prod = this.onlyProductionApps;
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
         }
@@ -840,7 +861,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Debug(System.String,System.Object[])", Justification = "More clear.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear.")]
         private void DeaDiscoverHandler(string message, string reply, string subject)
         {
             Logger.Debug(Strings.DeaReceivedDiscoveryMessage, message);
@@ -856,6 +877,13 @@ namespace Uhuru.CloudFoundry.DEA
             if (!this.stager.RuntimeSupported(pmessage.Runtime))
             {
                 Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
+                return;
+            }
+
+            // Ensure app's prod flag is set if DEA's prod flag is set
+            if (this.onlyProductionApps && !pmessage.Prod)
+            {
+                Logger.Debug("Ignoring request, app's prod flag isn't set to true, and DEA 'only Production Apps' is.");
                 return;
             }
 
@@ -1164,7 +1192,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "Readable message."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void DeaStartHandler(string message, string reply, string subject)
         {
             DeaStartMessageRequest pmessage;
@@ -1213,6 +1242,13 @@ namespace Uhuru.CloudFoundry.DEA
                 if (!this.stager.RuntimeSupported(pmessage.Runtime))
                 {
                     Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                    return;
+                }
+
+                // Ensure app's prod flag is set if DEA's prod flag is set
+                if (this.onlyProductionApps && !pmessage.Prod)
+                {
+                    Logger.Info("Ignoring request, app's prod flag isn't set to true, and DEA 'only Production Apps' is.");
                     return;
                 }
 

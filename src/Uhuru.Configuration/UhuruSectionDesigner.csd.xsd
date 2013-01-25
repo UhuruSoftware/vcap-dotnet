@@ -51,9 +51,9 @@
 				<xs:documentation>The StatusPort.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="heartBeatInterval" use="optional" type="xs:int">
+		<xs:attribute name="heartbeatIntervalMs" use="optional" type="xs:int">
 			<xs:annotation>
-				<xs:documentation>The HeartbeatInterval.</xs:documentation>
+				<xs:documentation>The HeartbeatIntervalMs.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="messageBus" use="optional" type="xs:string">
@@ -66,9 +66,9 @@
 				<xs:documentation>The Multitenant.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="maxMemory" use="optional" type="xs:int">
+		<xs:attribute name="maxMemoryMB" use="optional" type="xs:int">
 			<xs:annotation>
-				<xs:documentation>The MaxMemory.</xs:documentation>
+				<xs:documentation>The MaxMemoryMB.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="secure" use="optional" type="xs:boolean">
@@ -86,11 +86,6 @@
 				<xs:documentation>The DisableDirCleanup.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="forceHttpSharing" use="optional" type="xs:boolean">
-			<xs:annotation>
-				<xs:documentation>The ForceHttpSharing.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
 		<xs:attribute name="useDiskQuota" use="optional" type="xs:boolean">
 			<xs:annotation>
 				<xs:documentation>The UseDiskQuota.</xs:documentation>
@@ -99,6 +94,21 @@
 		<xs:attribute name="maxConcurrentStarts" use="optional" type="xs:int">
 			<xs:annotation>
 				<xs:documentation>The MaxConcurrentStarts.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="index" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The Index.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="onlyProductionApps" use="optional" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>The OnlyProductionApps.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="advertiseIntervalMs" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The AdvertiseIntervalMs.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>

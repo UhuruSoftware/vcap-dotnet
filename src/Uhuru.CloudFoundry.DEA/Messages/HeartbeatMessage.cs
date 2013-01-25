@@ -43,6 +43,26 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
+        /// Gets or sets a value indicating the Dea id.
+        /// </summary>
+        [JsonName("dea")]
+        public string Dea
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether it accepts only production apps.
+        /// </summary>
+        [JsonName("prod")]
+        public bool Prod
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// A class that encapsulates a message containing a set of droplet instance properties.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Code is cleaner this way.")]

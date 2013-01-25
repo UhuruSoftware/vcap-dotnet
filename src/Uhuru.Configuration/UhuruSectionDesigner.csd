@@ -47,7 +47,7 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>
         </attributeProperty>
-        <attributeProperty name="HeartbeatInterval" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="heartBeatInterval" isReadOnly="false" defaultValue="10000">
+        <attributeProperty name="HeartbeatIntervalMs" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="heartbeatIntervalMs" isReadOnly="false" defaultValue="10000">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>
@@ -62,7 +62,7 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
           </type>
         </attributeProperty>
-        <attributeProperty name="MaxMemory" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="maxMemory" isReadOnly="false" defaultValue="2048">
+        <attributeProperty name="MaxMemoryMB" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="maxMemoryMB" isReadOnly="false" defaultValue="2048">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>
@@ -82,17 +82,27 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
           </type>
         </attributeProperty>
-        <attributeProperty name="ForceHttpSharing" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="forceHttpSharing" isReadOnly="false" defaultValue="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
-          </type>
-        </attributeProperty>
         <attributeProperty name="UseDiskQuota" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="useDiskQuota" isReadOnly="false" defaultValue="true">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
           </type>
         </attributeProperty>
         <attributeProperty name="MaxConcurrentStarts" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="maxConcurrentStarts" isReadOnly="false" defaultValue="3">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Index" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="index" isReadOnly="false" defaultValue="-1">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="OnlyProductionApps" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="onlyProductionApps" isReadOnly="false" defaultValue="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="AdvertiseIntervalMs" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="advertiseIntervalMs" isReadOnly="false" defaultValue="5000">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>

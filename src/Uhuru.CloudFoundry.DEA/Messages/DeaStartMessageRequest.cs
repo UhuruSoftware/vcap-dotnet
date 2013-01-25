@@ -173,5 +173,15 @@ namespace Uhuru.CloudFoundry.DEA.Messages
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the app is for production DEA.
+        /// </summary>
+        [JsonName("prod")]
+        public bool Prod
+        {
+            get;
+            set;
+        }
     }
 }
