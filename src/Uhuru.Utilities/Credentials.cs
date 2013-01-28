@@ -6,7 +6,9 @@
 
 namespace Uhuru.Utilities
 {
+    using System;
     using System.Collections.Generic;
+    using System.Security.Cryptography;
     using System.Web.Security;
     
     /// <summary>
@@ -58,6 +60,21 @@ namespace Uhuru.Utilities
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Generated a GUID with a cryptographically secure random number generator.
+        /// </summary>
+        /// <returns>Secure GUID.</returns>
+        public static Guid GenerateSecureGuid()
+        {
+            var secureGuid = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(secureGuid);
+            }
+
+            return new Guid(secureGuid);
         }
     }
 }

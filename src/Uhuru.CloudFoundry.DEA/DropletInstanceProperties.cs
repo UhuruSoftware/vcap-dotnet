@@ -299,6 +299,19 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Gets or sets the private_instance_id. It is internal id that represents the instance. Here we
+        /// contatenate 2 UUIDs to genreate a 32 chars long private_instance_id.
+        /// Currently, we broadcast private_instance_id to all routers. Routers use
+        /// that as sticky session of the instance..
+        /// </summary>
+        [JsonName("private_instance_id")]
+        public string PrivateInstanceId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the version of the application/droplet.
         /// </summary>
         [JsonName("version")]

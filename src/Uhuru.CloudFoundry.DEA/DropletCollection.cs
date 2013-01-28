@@ -10,6 +10,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Security.Cryptography;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
@@ -340,13 +341,15 @@ namespace Uhuru.CloudFoundry.DEA
 
             instance = new DropletInstance();
 
-            string instanceId = Guid.NewGuid().ToString("N");
+            string instanceId = Credentials.GenerateSecureGuid().ToString("N");
+            string privateInstanceId = Credentials.GenerateSecureGuid().ToString("N") + Credentials.GenerateSecureGuid().ToString("N");
 
             instance.Properties.State = DropletInstanceState.Starting;
             instance.Properties.StateTimestamp = DateTime.Now;
             instance.Properties.Start = DateTime.Now;
 
             instance.Properties.InstanceId = instanceId;
+            instance.Properties.PrivateInstanceId = privateInstanceId;
 
             instance.Properties.DropletId = message.DropletId;
             instance.Properties.InstanceIndex = message.Index;

@@ -1574,6 +1574,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 response.DeaId = UUID;
+                response.DropletId = instance.Properties.DropletId;
                 response.Host = Host;
                 response.Port = instance.Properties.Port;
                 response.Uris = new List<string>(instance.Properties.Uris).ToArray();
@@ -1581,6 +1582,8 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Tags = new RouterMessage.TagsObject();
                 response.Tags.Framework = instance.Properties.Framework;
                 response.Tags.Runtime = instance.Properties.Runtime;
+
+                response.PrivateInstanceId = instance.Properties.PrivateInstanceId;
             }
             finally
             {

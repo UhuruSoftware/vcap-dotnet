@@ -25,6 +25,16 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
+        /// Gets or sets the app/droplet id.
+        /// </summary>
+        [JsonName("app")]
+        public string DropletId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the host of the DEA service.
         /// </summary>
         [JsonName("host")]
@@ -60,6 +70,16 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// </summary>
         [JsonName("tags")]
         public TagsObject Tags
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the private instance id, used as a sticky session of the instance.
+        /// </summary>
+        [JsonName("private_instance_id")]
+        public string PrivateInstanceId
         {
             get;
             set;
