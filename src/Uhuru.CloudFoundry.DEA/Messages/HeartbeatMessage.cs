@@ -136,6 +136,16 @@ namespace Uhuru.CloudFoundry.DEA.Messages
                 get;
                 set;
             }
+
+            /// <summary>
+            /// Gets or sets the cloud controller partition.
+            /// </summary>
+            [JsonName("cc_partition")]
+            public string CloudControllerPartition
+            {
+                get;
+                set;
+            }
         }
     }
 }

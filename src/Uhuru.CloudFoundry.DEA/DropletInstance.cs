@@ -187,6 +187,7 @@ namespace Uhuru.CloudFoundry.DEA
                 beat.InstanceIndex = this.Properties.InstanceIndex;
                 beat.State = this.Properties.State;
                 beat.StateTimestamp = this.Properties.StateTimestamp;
+                beat.CloudControllerPartition = this.Properties.CloudControllerPartition;
             }
             finally
             {

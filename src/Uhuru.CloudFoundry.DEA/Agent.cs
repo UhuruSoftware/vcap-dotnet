@@ -1880,6 +1880,7 @@ namespace Uhuru.CloudFoundry.DEA
                     bool removeDroplet = false;
 
                     bool isCrashed = instance.Properties.State == DropletInstanceState.Crashed;
+                    bool isFlapping = instance.Properties.Flapping == true;
                     bool isOldCrash = instance.Properties.State == DropletInstanceState.Crashed && (DateTime.Now - instance.Properties.StateTimestamp).TotalMilliseconds > Monitoring.CrashesReaperTimeoutMilliseconds;
                     bool isStopped = instance.Properties.State == DropletInstanceState.Stopped;
                     bool isDeleted = instance.Properties.State == DropletInstanceState.Deleted;
@@ -1928,7 +1929,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
 
                     // Remove the instance directory, including the logs
-                    if (isOldCrash || isStopped || isDeleted)
+                    if ((isCrashed && isFlapping) || isOldCrash || isStopped || isDeleted)
                     {
                         if (this.stager.DisableDirCleanup)
                         {

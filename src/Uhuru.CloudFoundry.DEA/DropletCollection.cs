@@ -360,6 +360,8 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Framework = message.Framework;
             instance.Properties.Runtime = message.Runtime;
             instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
+            instance.Properties.Flapping = message.Flapping;
+            instance.Properties.CloudControllerPartition = message.CloudControllerPartition;
 
             this.AddDropletInstance(instance);
 

@@ -486,5 +486,25 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the app is in a flapping state.
+        /// </summary>
+        [JsonName("flapping")]
+        public bool Flapping
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the cloud controller partition.
+        /// </summary>
+        [JsonName("cc_partition")]
+        public string CloudControllerPartition
+        {
+            get;
+            set;
+        }
     }
 }
