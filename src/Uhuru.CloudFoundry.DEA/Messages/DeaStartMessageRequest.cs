@@ -62,9 +62,19 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the URLs that are mapped to the droplet.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."),
         JsonName("uris")]
         public string[] Uris
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the runtime that the droplet needs to run.
+        /// </summary>
+        [JsonName("runtime_info")]
+        public RuntimeInfo RuntimeInfo
         {
             get;
             set;
@@ -113,7 +123,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the executable URI.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for this context."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for this context."),
         JsonName("executableUri")]
         public string ExecutableUri
         {
@@ -134,7 +144,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the services that are bound to this droplet.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context."),
         JsonName("services")]
         public Dictionary<string, object>[] Services
         {
@@ -145,7 +155,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the environment variables for the droplet.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."),
         JsonName("env")]
         public string[] Environment
         {
@@ -156,7 +166,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the users that own the droplet.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for this context."),
         JsonName("users")]
         public string[] Users
         {

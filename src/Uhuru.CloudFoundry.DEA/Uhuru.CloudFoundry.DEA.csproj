@@ -100,6 +100,7 @@
     <Compile Include="Messages\HeartbeatMessage.cs" />
     <Compile Include="Messages\HelloMessage.cs" />
     <Compile Include="Messages\RouterMessage.cs" />
+    <Compile Include="Messages\RuntimeInfo.cs" />
     <Compile Include="Messages\StartRequestDropletLimits.cs" />
     <Compile Include="Monitoring.cs" />
     <Compile Include="PluginData.cs" />

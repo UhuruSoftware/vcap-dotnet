@@ -44,6 +44,16 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
+        /// Gets or sets the runtime that the droplet needs to run.
+        /// </summary>
+        [JsonName("runtime_info")]
+        public RuntimeInfo RuntimeInfo
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the runtime the droplet needs.
         /// </summary>
         [JsonName("runtime")]

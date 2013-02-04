@@ -16,6 +16,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text.RegularExpressions;
+    using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
 
     /// <summary>
@@ -161,6 +162,74 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Checks weather the runtime is supported.
+        /// </summary>
+        /// <param name="runtime">The runtime.</param>
+        /// <param name="runtimeInfo">The runtime metadata.</param>
+        /// <returns>True if the runtime is supported.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Clearer."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Required for validation.")]
+        public bool RuntimeSupported(string runtime, RuntimeInfo runtimeInfo)
+        {
+            if (string.IsNullOrEmpty(runtime) || !this.Runtimes.ContainsKey(runtime))
+            {
+                Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, runtime);
+                return false;
+            }
+
+            if (runtimeInfo == null)
+            {
+                throw new ArgumentNullException("runtimeInfo");
+            }
+
+            string versionExecutable = runtimeInfo.VersionExecutable;
+            if (string.IsNullOrEmpty(versionExecutable))
+            {
+                // Use the runtime executable if the version executable is not present.
+                versionExecutable = runtimeInfo.Executable;
+            }
+
+            if (!string.IsNullOrEmpty(versionExecutable))
+            {
+                string versionFlag = runtimeInfo.VersionParameters;
+                string currentVersion;
+
+                try
+                {
+                    currentVersion = DEAUtilities.RunCommandAndGetOutputAndErrors(versionExecutable, versionFlag).Trim();
+                }
+                catch (Exception e)
+                {
+                    Logger.Info("Validation failed for runtime '{0}'. Error: {1}", runtime, e.ToString());
+                    return false;
+                }
+
+                if (runtimeInfo.VersionOutput != null)
+                {
+                    var expectedOutput = new Regex(runtimeInfo.VersionOutput);
+                    if (!expectedOutput.IsMatch(currentVersion))
+                    {
+                        Logger.Info("Validation failed for runtime '{0}'. Version mismatch. Expected: '{1}', Actual: '{2}'.", runtime, runtimeInfo.VersionOutput, currentVersion);
+                        return false;
+                    }
+                }
+
+                // Additional checks should return true
+                if (runtimeInfo.AdditionalChecks != null)
+                {
+                    string additionalChecksOutput = DEAUtilities.RunCommandAndGetOutputAndErrors(versionExecutable, runtimeInfo.AdditionalChecks);
+                    if (!new Regex("true", RegexOptions.IgnoreCase).IsMatch(additionalChecksOutput))
+                    {
+                        Logger.Info("Additional validation checks failed for runtime '{0}'. Expected: 'true', Actual: '{1}'.", runtime, additionalChecksOutput);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Setups the runtimes.
         /// </summary>
         public void SetupRuntimes()
@@ -177,7 +246,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 string name = kvp.Key;
                 DeaRuntime runtime = kvp.Value;
-                
+
                 // Only enable when we succeed
                 runtime.Enabled = false;
 
@@ -196,7 +265,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 // java prints to stderr, so munch them both..
                 string version_check = DEAUtilities.RunCommandAndGetOutputAndErrors(
-                    expanded_exec, 
+                    expanded_exec,
                     string.Format(CultureInfo.InvariantCulture, "{0} {1}", expanded_exec, version_flag)).Trim();
 
                 runtime.Executable = expanded_exec;
@@ -213,7 +282,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (!string.IsNullOrEmpty(runtime.AdditionalChecks))
                     {
                         string additional_check = DEAUtilities.RunCommandAndGetOutputAndErrors(
-                            runtime.Executable, 
+                            runtime.Executable,
                             string.Format(CultureInfo.InvariantCulture, "{0}", runtime.AdditionalChecks));
                         if (!new Regex("true").IsMatch(additional_check))
                         {
@@ -347,9 +416,9 @@ namespace Uhuru.CloudFoundry.DEA
                 File.Move(pendingTgzFile, tgzFile);
             }
             finally
-            { 
+            {
                 client.Dispose();
-                }
+            }
 
             string fileSha1;
             using (Stream stream = File.OpenRead(tgzFile))
@@ -359,12 +428,12 @@ namespace Uhuru.CloudFoundry.DEA
                     fileSha1 = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
                 }
             }
-            
+
             if (fileSha1.ToUpperInvariant() != sha1.ToUpperInvariant())
             {
                 Logger.Warning(Strings.DonlodedFileFromIs, bitsUri, fileSha1, sha1);
                 throw new InvalidOperationException(Strings.Downlodedfileiscorrupt);
             }
-        }       
+        }
     }
 }

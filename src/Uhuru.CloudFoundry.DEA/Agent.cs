@@ -238,7 +238,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 this.Index = uhuruSection.DEA.Index;
             }
-            
+
             if (this.Index != null)
             {
                 this.UUID = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.UUID);
@@ -249,7 +249,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.monitoring.MonitorIntervalMilliseconds = uhuruSection.DEA.HeartbeatIntervalMs;
             this.monitoring.AdvertiseIntervalMilliseconds = uhuruSection.DEA.AdvertiseIntervalMs;
-                
+
             this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
             this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");
@@ -874,10 +874,21 @@ namespace Uhuru.CloudFoundry.DEA
             DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-            if (!this.stager.RuntimeSupported(pmessage.Runtime))
+            if (pmessage.RuntimeInfo == null)
             {
-                Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
-                return;
+                if (!this.stager.RuntimeSupported(pmessage.Runtime))
+                {
+                    Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
+                    return;
+                }
+            }
+            else
+            {
+                if (!this.stager.RuntimeSupported(pmessage.Runtime, pmessage.RuntimeInfo))
+                {
+                    Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
+                    return;
+                }
             }
 
             // Ensure app's prod flag is set if DEA's prod flag is set
@@ -1192,7 +1203,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void DeaStartHandler(string message, string reply, string subject)
         {
@@ -1239,10 +1250,21 @@ namespace Uhuru.CloudFoundry.DEA
                     return;
                 }
 
-                if (!this.stager.RuntimeSupported(pmessage.Runtime))
+                if (pmessage.RuntimeInfo == null)
                 {
-                    Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
-                    return;
+                    if (!this.stager.RuntimeSupported(pmessage.Runtime))
+                    {
+                        Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!this.stager.RuntimeSupported(pmessage.Runtime, pmessage.RuntimeInfo))
+                    {
+                        Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                        return;
+                    }
                 }
 
                 // Ensure app's prod flag is set if DEA's prod flag is set
