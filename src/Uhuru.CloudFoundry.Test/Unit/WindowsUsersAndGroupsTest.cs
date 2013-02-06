@@ -26,9 +26,16 @@ namespace Uhuru.CloudFoundry.Test.Unit
             WindowsUsersAndGroups.CreateUser(user1, "test1234#");
             WindowsUsersAndGroups.CreateUser(user2, "test1234#", "Delete me pls...");
 
+            using (new UserImpersonator(user2, "", "test1234#", true))
+            {
+            }
+            UserImpersonator.DeleteUserProfile(user2, "");
+
             Assert.IsTrue(WindowsUsersAndGroups.ExistsUser(user2));
             Assert.IsTrue(WindowsUsersAndGroups.GetUsers().Contains(user2));
+
             WindowsUsersAndGroups.DeleteUser(user2);
+
             Assert.IsFalse(WindowsUsersAndGroups.GetUsers().Contains(user2));
             Assert.IsFalse(WindowsUsersAndGroups.ExistsUser(user2));
 

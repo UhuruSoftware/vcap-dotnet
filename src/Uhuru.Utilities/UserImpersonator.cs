@@ -9,6 +9,7 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.ComponentModel;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Security.Principal;
@@ -24,7 +25,7 @@ namespace Uhuru.Utilities
     /// article http://support.microsoft.com/default.aspx?scid=kb;en-us;Q306158
     /// Encapsulate an instance into a using-directive like e.g.:
     /// </remarks>
-    public sealed class UserImpersonator : IDisposable
+    public class UserImpersonator : IDisposable
     {
         /// <summary>
         /// Interactive logon.
@@ -37,9 +38,25 @@ namespace Uhuru.Utilities
         private const int Logon32ProviderDefault = 0;
 
         /// <summary>
+        /// Disposed flag.
+        /// </summary>
+        private bool disposed = false;
+
+        /// <summary>
         /// Impersonation context.
         /// </summary>
         private WindowsImpersonationContext impersonationContext = null;
+
+        /// <summary>
+        /// User profile handle.
+        /// </summary>
+        private IntPtr profileHandle;
+
+        /// <summary>
+        /// User Duplicate Token handle.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources", Justification = "Keep it simple.")]
+        private IntPtr userToken;
 
         /// <summary>
         /// Initializes a new instance of the UserImpersonator class.
@@ -57,27 +74,26 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Finalizes an instance of the UserImpersonator class.
+        /// </summary>
+        ~UserImpersonator()
+        {
+            this.Dispose(false);
+        }
+
+        /// <summary>
         /// Deletes the user profile.
         /// </summary>
         /// <param name="userName">Name of the user.</param>
-        /// <param name="password">The password.</param>
-        public static void DeleteUserProfile(string userName, string password)
+        /// <param name="domainName">The domain name of the user to act as.</param>
+        public static void DeleteUserProfile(string userName, string domainName)
         {
-            string profilePath = null;
-            using (new UserImpersonator(userName, ".", password, false))
-            {
-                profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            }
+            NTAccount ntaccount = new NTAccount(domainName, userName);
+            string userSid = ntaccount.Translate(typeof(SecurityIdentifier)).Value;
 
-            try
+            if (!DeleteProfile(userSid, null, null))
             {
-                Directory.Delete(profilePath, true);
-            }
-            catch (IOException)
-            {
-            }
-            catch (ArgumentNullException)
-            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
             }
         }
 
@@ -86,7 +102,43 @@ namespace Uhuru.Utilities
         /// </summary>
         public void Dispose()
         {
-            this.UndoImpersonation();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Disposes the current object.
+        /// </summary>
+        /// <param name="disposing">True if disposing from user code.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                // Suppress finalization of this disposed instance. 
+                if (disposing)
+                {
+                    if (this.impersonationContext != null)
+                    {
+                        this.impersonationContext.Undo();
+                        this.impersonationContext.Dispose();
+                        this.impersonationContext = null;
+                    }
+                }
+
+                if (this.profileHandle != IntPtr.Zero)
+                {
+                    UnloadUserProfile(this.userToken, this.profileHandle);
+                    this.profileHandle = IntPtr.Zero;
+                }
+
+                if (this.userToken != IntPtr.Zero)
+                {
+                    CloseHandle(this.userToken);
+                    this.userToken = IntPtr.Zero;
+                }
+
+                this.disposed = true;
+            }
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
@@ -108,9 +160,20 @@ namespace Uhuru.Utilities
         private static extern bool CloseHandle(IntPtr handle);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
-        [System.Runtime.InteropServices.DllImportAttribute("userenv.dll", EntryPoint = "LoadUserProfile", SetLastError = true, CharSet = CharSet.Auto)]
-        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
-        private static extern bool LoadUserProfile([System.Runtime.InteropServices.InAttribute()] System.IntPtr token, ref ProfileInfo profileInfo);
+        [DllImport("userenv.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAsAttribute(UnmanagedType.Bool)]
+        private static extern bool LoadUserProfile([In] System.IntPtr token, ref ProfileInfo profileInfo);
+
+        // http://support.microsoft.com/kb/196070
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("userenv.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [return: MarshalAsAttribute(UnmanagedType.Bool)]
+        private static extern bool UnloadUserProfile([In] System.IntPtr token, [In] System.IntPtr profile);
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1060:MovePInvokesToNativeMethodsClass", Justification = "Keeping everything in one file for clarity.")]
+        [DllImport("userenv.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        [return: MarshalAsAttribute(UnmanagedType.Bool)]
+        private static extern bool DeleteProfile([In] string sidString, [In, Optional] string profilePath, [In, Optional] string computerName);
 
         /// <summary>
         /// Does the actual impersonation.
@@ -121,18 +184,22 @@ namespace Uhuru.Utilities
         /// <param name="loadUserProfile">if set to <c>true</c> [load user profile].</param>
         private void ImpersonateValidUser(string userName, string domain, string password, bool loadUserProfile)
         {
+            this.profileHandle = IntPtr.Zero;
+            this.userToken = IntPtr.Zero;
+
             WindowsIdentity tempWindowsIdentity = null;
             IntPtr token = IntPtr.Zero;
-            IntPtr tokenDuplicate = IntPtr.Zero;
 
             ProfileInfo profileInfo = new ProfileInfo();
 
             profileInfo.Size = Marshal.SizeOf(profileInfo.GetType());
             profileInfo.Flags = 0x1;
             profileInfo.UserName = userName;
-            profileInfo.DefaultPath = null;
-            profileInfo.PolicyPath = null;
+
             profileInfo.ProfilePath = null;
+            profileInfo.DefaultPath = null;
+
+            profileInfo.PolicyPath = null;
             profileInfo.ServerName = domain;
 
             try
@@ -147,17 +214,20 @@ namespace Uhuru.Utilities
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                if (DuplicateToken(token, 2, ref tokenDuplicate) == 0)
+                if (DuplicateToken(token, 2, ref this.userToken) == 0)
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                if (loadUserProfile && !LoadUserProfile(tokenDuplicate, ref profileInfo))
+                if (loadUserProfile && !LoadUserProfile(this.userToken, ref profileInfo))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
-                using (tempWindowsIdentity = new WindowsIdentity(tokenDuplicate))
+                // Save the handle for dispose
+                this.profileHandle = profileInfo.Profile;
+
+                using (tempWindowsIdentity = new WindowsIdentity(this.userToken))
                 {
                     this.impersonationContext = tempWindowsIdentity.Impersonate();
                 }
@@ -168,22 +238,6 @@ namespace Uhuru.Utilities
                 {
                     CloseHandle(token);
                 }
-
-                if (tokenDuplicate != IntPtr.Zero)
-                {
-                    CloseHandle(tokenDuplicate);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Reverts the impersonation.
-        /// </summary>
-        private void UndoImpersonation()
-        {
-            if (this.impersonationContext != null)
-            {
-                this.impersonationContext.Undo();
             }
         }
 

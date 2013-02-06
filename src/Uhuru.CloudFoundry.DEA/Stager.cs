@@ -231,6 +231,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         /// <summary>
         /// Setups the runtimes.
+        /// TODO: Remove this. Deprecated.
         /// </summary>
         public void SetupRuntimes()
         {
