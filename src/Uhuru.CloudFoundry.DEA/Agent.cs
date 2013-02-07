@@ -270,7 +270,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String)", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear"), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
         public override void Run()
         {
             Logger.Info(Strings.StartingVcapDea, Version);
@@ -302,9 +303,11 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 // Initialize disk quota
                 // TODO: stefi: add a disk quota control for every drive that an app can use
-                Logger.Info("Initializing disk quota...");
+                string rootPath = DEAUtilities.GetVolumeFromPath(this.stager.AppsDir);
+
+                Logger.Info("Initializing disk quota for '{0}'.", rootPath);
                 this.diskQuotaControl = new DiskQuotaControlClass();
-                this.diskQuotaControl.Initialize(Path.GetPathRoot(this.stager.AppsDir), true);
+                this.diskQuotaControl.Initialize(rootPath, true);
                 this.diskQuotaControl.QuotaState = QuotaStateConstants.dqStateEnforce;
 
                 // Set to ResolveNone to prevent blocking when using account names.
@@ -321,6 +324,8 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     Thread.Sleep(200);
                 }
+
+                Logger.Info("Disk quota initialization complete for volume '{0}'.", rootPath);
             }
 
             this.fileViewer.Start(this.stager.AppsDir);
