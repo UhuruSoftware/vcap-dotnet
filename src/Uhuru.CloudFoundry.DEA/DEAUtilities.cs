@@ -239,6 +239,26 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Get the volume root mount of the path. 
+        /// </summary>
+        /// <param name="path">The path for which the volume should be returned.</param>
+        /// <returns>The root volume path.</returns>
+        public static string GetVolumeFromPath(string path)
+        {
+            string currentPath = path + "\\";
+            bool isVolume = Alphaleonis.Win32.Filesystem.Volume.IsVolume(currentPath);
+            if (isVolume)
+            {
+                return currentPath;
+            }
+            else
+            {
+                string parentPath = new DirectoryInfo(path).Parent.FullName;
+                return GetVolumeFromPath(parentPath);
+            }
+        }
+
+        /// <summary>
         /// Starts up a new process and executes a command.
         /// </summary>
         /// <param name="command"> The command to execute. </param>
