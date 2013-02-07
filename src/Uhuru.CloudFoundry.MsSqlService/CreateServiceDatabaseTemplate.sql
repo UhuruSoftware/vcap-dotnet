@@ -15,9 +15,9 @@ CREATE DATABASE [<DatabaseName>] ON  PRIMARY
 ( NAME = N'<DatabaseName>PriData', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
  FILEGROUP [DATA]  DEFAULT 
 ( NAME = N'<DatabaseName>Data01', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data01.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
-( NAME = N'<DatabaseName>Data02', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data03.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ),
+( NAME = N'<DatabaseName>Data02', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data03.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> )
  LOG ON 
-( NAME = N'<DatabaseName>LogData01', FILENAME = N'<RootDataPath>\MSSQL\LOG\<DatabaseName>Log01.ldf' ,  SIZE = <InitialLogSize> ,  MAXSIZE = <MaxLogSize>,  FILEGROWTH = <LogFileGrowth> ),
+( NAME = N'<DatabaseName>LogData01', FILENAME = N'<RootDataPath>\MSSQL\LOG\<DatabaseName>Log01.ldf' ,  SIZE = <InitialLogSize> ,  MAXSIZE = <MaxLogSize>,  FILEGROWTH = <LogFileGrowth> )
 GO
 
 ALTER DATABASE [<DatabaseName>] SET RECOVERY SIMPLE WITH NO_WAIT

@@ -100,6 +100,7 @@
     <Compile Include="Integration\FTPUtilitiesTest.cs" />
     <Compile Include="SystemTests\UhurufsServicesTest.cs" />
     <Compile Include="Integration\DirectoryAccountingTest.cs" />
+    <Compile Include="Unit\DirectoryServer\DirectoryServerTest.cs" />
     <Compile Include="Unit\PluginHostTest.cs" />
     <Compile Include="SystemTests\CloudTestAppTest.cs" />
     <Compile Include="SystemTests\DifferentDotNetVersionTest.cs" />
@@ -123,6 +124,10 @@
     <Compile Include="Unit\WindowsUsersAndGroupsTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.DirectoryServer\Uhuru.CloudFoundry.DEA.DirectoryServer.csproj">
+      <Project>{0C7A0FCA-20C9-45F5-9497-738258A3717A}</Project>
+      <Name>Uhuru.CloudFoundry.DEA.DirectoryServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.Plugins\Uhuru.CloudFoundry.DEA.Plugins.csproj">
       <Project>{E4F8E3CD-1F1E-4255-BF80-C62283BF0597}</Project>
       <Name>Uhuru.CloudFoundry.DEA.Plugins</Name>

@@ -30,6 +30,11 @@
 					<xs:documentation>The Runtimes.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element minOccurs="0" name="directoryServer" type="tns:Uhuru.Configuration.DirectoryServerElementCT">
+				<xs:annotation>
+					<xs:documentation>The DirectoryServer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="baseDir" use="optional" type="xs:string">
 			<xs:annotation>
@@ -442,6 +447,35 @@
 		<xs:attribute name="serviceName" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The ServiceName.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.DirectoryServerElementCT">
+		<xs:sequence>
+		</xs:sequence>
+		<xs:attribute name="fileApiPort" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The FileApiPort.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="v1Port" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The V1Port.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="v2Port" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The V2Port.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="streamingTimeoutMS" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The StreamingTimeoutMS.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="logger" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The Logger.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
