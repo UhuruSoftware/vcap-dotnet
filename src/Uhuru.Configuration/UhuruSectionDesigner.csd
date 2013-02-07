@@ -114,6 +114,11 @@
             <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/RuntimeCollection" />
           </type>
         </elementProperty>
+        <elementProperty name="DirectoryServer" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="directoryServer" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/DirectoryServerElement" />
+          </type>
+        </elementProperty>
       </elementProperties>
     </configurationElement>
     <configurationElement name="MSSqlElement">
@@ -435,6 +440,35 @@
           </type>
         </attributeProperty>
         <attributeProperty name="ServiceName" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="serviceName" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+    </configurationElement>
+    <configurationElement name="DirectoryServerElement">
+      <attributeProperties>
+        <attributeProperty name="FileApiPort" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="fileApiPort" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="V1Port" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="v1Port" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="V2Port" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="v2Port" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="StreamingTimeoutMS" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="streamingTimeoutMS" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="Logger" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="logger" isReadOnly="false">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
           </type>
