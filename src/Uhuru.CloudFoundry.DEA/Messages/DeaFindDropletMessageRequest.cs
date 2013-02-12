@@ -112,5 +112,15 @@ namespace Uhuru.CloudFoundry.DEA.Messages
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the path a client wants to view from the Droplet Instace directory.
+        /// </summary>
+        [JsonName("path")]
+        public string Path
+        {
+            get;
+            set;
+        }
     }
 }

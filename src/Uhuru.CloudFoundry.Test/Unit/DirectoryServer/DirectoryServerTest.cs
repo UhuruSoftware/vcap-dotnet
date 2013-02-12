@@ -73,8 +73,8 @@ namespace Uhuru.CloudFoundry.Test.Unit.DirectoryServer
             MockDeaClient.SetResponse(Path.GetTempPath());
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
-            server.Start("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            server.Start();
 
             string output = DownloadString(string.Format("http://127.0.0.1:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, pathQuery));
 
@@ -114,8 +114,8 @@ file2.txt                               {1}K
             MockDeaClient.SetResponse(tempDir);
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
-            server.Start("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            server.Start();
 
             string output = DownloadString(string.Format("http://127.0.0.1:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, "file.txt"));
 
@@ -146,10 +146,10 @@ file2.txt                               {1}K
             MockDeaClient.SetResponse(tempDir);
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
             DEAElement config = DirectoryConfiguration.ReadConfig();
+            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("127.0.0.1", config, client);
             config.DirectoryServer.StreamingTimeoutMS = 5000;
-            server.Start("127.0.0.1", config, client);
+            server.Start();
 
             Random rnd = new Random();
 
