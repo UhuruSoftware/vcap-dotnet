@@ -13,8 +13,12 @@ using Uhuru.Configuration;
 namespace Uhuru.CloudFoundry.Test.Unit.DirectoryServer
 {
     [TestClass()]
+    [DeploymentItem("uhuruTest.config")]
+    [DeploymentItem("nlog.config")]
     public class DirectoryServerTest
     {
+        string localIp = NetworkInterface.GetLocalIPAddress(UhuruSection.Instance.DEA.LocalRoute);
+
         private class MockDeaClient : IDeaClient
         {
             private static string path;
@@ -38,6 +42,7 @@ namespace Uhuru.CloudFoundry.Test.Unit.DirectoryServer
         {
             HttpWebResponse response = null;
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(uri);
+            request.Proxy = null;
             response = (HttpWebResponse)request.GetResponse();
             Encoding responseEncoding = Encoding.GetEncoding(response.CharacterSet);
             using (StreamReader sr = new StreamReader(response.GetResponseStream(), responseEncoding))
@@ -73,22 +78,27 @@ namespace Uhuru.CloudFoundry.Test.Unit.DirectoryServer
             MockDeaClient.SetResponse(Path.GetTempPath());
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
-            server.Start("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            using (Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("ccng-dev.net", DirectoryConfiguration.ReadConfig(), client))
+            {
+                server.Start();
 
-            string output = DownloadString(string.Format("http://127.0.0.1:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, pathQuery));
 
-            server.Stop();
+                Thread.Sleep(1000);
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(output));
+                string output = DownloadString(string.Format("http://{2}:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, pathQuery, localIp));
 
-            string expectedOutput = string.Format(@"dir1/                                        -
+                server.Stop();
+
+                Assert.IsFalse(string.IsNullOrWhiteSpace(output));
+
+                string expectedOutput = string.Format(@"dir1/                                        -
 dir2/                                        -
 file1.txt                                  {0}B
 file2.txt                               {1}K
 ", loremIpsum.Length, ((1024.0 * loremIpsum.Length) / 1024).ToString("0.00"));
 
-            Assert.IsTrue(output == expectedOutput);
+                Assert.IsTrue(output == expectedOutput);
+            }
         }
 
         [TestMethod()]
@@ -114,18 +124,19 @@ file2.txt                               {1}K
             MockDeaClient.SetResponse(tempDir);
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
-            server.Start("127.0.0.1", DirectoryConfiguration.ReadConfig(), client);
+            using (Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("ccng-dev.net", DirectoryConfiguration.ReadConfig(), client))
+            {
+                server.Start();
 
-            string output = DownloadString(string.Format("http://127.0.0.1:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, "file.txt"));
+                string output = DownloadString(string.Format("http://{2}:{0}/{1}", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, "file.txt", localIp));
 
-            server.Stop();
+                server.Stop();
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(output));
+                Assert.IsFalse(string.IsNullOrWhiteSpace(output));
 
-            Assert.IsTrue(output == sb.ToString());
+                Assert.IsTrue(output == sb.ToString());
+            }
         }
-
 
         [TestMethod()]
         [TestCategory("Unit")]
@@ -146,75 +157,78 @@ file2.txt                               {1}K
             MockDeaClient.SetResponse(tempDir);
 
             MockDeaClient client = new MockDeaClient();
-            Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer();
             DEAElement config = DirectoryConfiguration.ReadConfig();
-            config.DirectoryServer.StreamingTimeoutMS = 5000;
-            server.Start("127.0.0.1", config, client);
-
-            Random rnd = new Random();
-
-            string returnBytes = string.Empty;
-            string sentBytes = string.Empty;
-            int readCount = 0;
-
-            string appendChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-            Thread newThread = new Thread(() =>
+            using (Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer server = new DEA.DirectoryServer.DirectoryServer("ccng-dev.net", config, client))
             {
-                byte[] randomBytes = new byte[rnd.Next(100)];
-                rnd.NextBytes(randomBytes);
+                config.DirectoryServer.StreamingTimeoutMS = 5000;
+                server.Start();
 
-                File.AppendAllText(filePath, ASCIIEncoding.ASCII.GetString(randomBytes));
+                Random rnd = new Random();
 
-                HttpWebResponse response = null;
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(string.Format("http://127.0.0.1:{0}/{1}?tail", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, "file.txt"));
-                response = (HttpWebResponse)request.GetResponse();
+                string returnBytes = string.Empty;
+                string sentBytes = string.Empty;
+                int readCount = 0;
 
-                Stream responseStream = response.GetResponseStream();
+                string appendChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-                byte[] responseBytes = new byte[200];
-
-                int read;
-
-                do 
+                Thread newThread = new Thread(() =>
                 {
-                    read = responseStream.Read(responseBytes, 0, responseBytes.Length);
-                    returnBytes += ASCIIEncoding.ASCII.GetString(responseBytes, 0, read);
-                    readCount ++;
-                }
-                while (read != 0);
-            });
+                    byte[] randomBytes = new byte[rnd.Next(100)];
+                    rnd.NextBytes(randomBytes);
 
-            Thread writerThread = new Thread(() =>
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    Thread.Sleep(50);
+                    File.AppendAllText(filePath, ASCIIEncoding.ASCII.GetString(randomBytes));
 
-                    string toWrite = string.Empty;
+                    HttpWebResponse response = null;
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(string.Format("http://{2}:{0}/{1}?tail", DirectoryConfiguration.ReadConfig().DirectoryServer.V2Port, "file.txt", localIp));
+                    request.Proxy = null;
+                    response = (HttpWebResponse)request.GetResponse();
 
-                    for (int j = 0; j < rnd.Next(100); j++)
+                    Stream responseStream = response.GetResponseStream();
+
+                    byte[] responseBytes = new byte[200];
+
+                    int read;
+
+                    do
                     {
-                        toWrite += appendChars[rnd.Next(appendChars.Length)];
+                        read = responseStream.Read(responseBytes, 0, responseBytes.Length);
+                        returnBytes += ASCIIEncoding.ASCII.GetString(responseBytes, 0, read);
+                        readCount++;
                     }
+                    while (read != 0);
+                });
+
+                Thread writerThread = new Thread(() =>
+                {
+                    for (int i = 0; i < 10; i++)
+                    {
+                        Thread.Sleep(50);
+
+                        string toWrite = string.Empty;
+
+                        for (int j = 0; j < rnd.Next(100); j++)
+                        {
+                            toWrite += appendChars[rnd.Next(appendChars.Length)];
+                        }
 
 
-                    File.AppendAllText(filePath, toWrite);
-                    sentBytes += toWrite;
-                }
-            });
+                        File.AppendAllText(filePath, toWrite);
+                        sentBytes += toWrite;
+                    }
+                });
 
-            newThread.Start();
-            Thread.Sleep(1000);
-            writerThread.Start();
+                newThread.Start();
+                Thread.Sleep(1000);
+                writerThread.Start();
 
-            writerThread.Join();
-            newThread.Join();
+                writerThread.Join();
+                newThread.Join();
 
-            server.Stop();
+                server.Stop();
 
-            Assert.AreEqual(sentBytes, returnBytes);
-            Assert.IsTrue(readCount > 1);
+                Assert.AreEqual(sentBytes, returnBytes);
+                Assert.IsTrue(readCount > 1);
+            }
         }
     }
 }

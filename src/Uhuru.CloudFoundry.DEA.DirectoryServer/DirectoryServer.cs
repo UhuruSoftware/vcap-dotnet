@@ -58,26 +58,72 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
         private HttpListener listener = new HttpListener();
 
         /// <summary>
-        /// Starts the directory server at the specified host, port. Validates HTTP
-        /// requests with the DEA's HTTP server which serves requests on the same host and
-        /// specified DAE port.
+        /// The host on which to listen.
         /// </summary>
-        /// <param name="hostAddress">The host on which to listen.</param>
-        /// <param name="config">The configuration of the DEA.</param>
-        /// <param name="deaClientInstance">The dea client.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "If anything bad happens, make sure the server stays online.")]
-        public void Start(string hostAddress, DEAElement config, IDeaClient deaClientInstance)
+        private string domain;
+
+        /// <summary>
+        /// An ID used to identify the directory server and register it with the VCAP router.
+        /// </summary>
+        private Guid directoryServerId;
+
+        /// <summary>
+        /// Configuration of the DEA.
+        /// </summary>
+        private DEAElement config;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DirectoryServer"/> class.
+        /// </summary>
+        /// <param name="domain">The domain of the cloud.</param>
+        /// <param name="config">The config of the DEA.</param>
+        /// <param name="deaClient">The DeaClient that can lookup paths.</param>
+        public DirectoryServer(string domain, DEAElement config, IDeaClient deaClient)
         {
             if (config == null)
             {
                 throw new ArgumentNullException("config");
             }
 
-            this.deaClient = deaClientInstance;
+            this.directoryServerId = Guid.NewGuid();
+            this.config = config;
+            this.domain = domain;
+            this.deaClient = deaClient;
             this.streamingTimeout = config.DirectoryServer.StreamingTimeoutMS;
+        }
 
+        /// <summary>
+        /// Gets the external hostname of the directory server.
+        /// </summary>
+        public string ExternalHostName
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", this.directoryServerId.ToString("N"), this.domain);
+            }
+        }
+
+        /// <summary>
+        /// Gets the port of the directory server.
+        /// </summary>
+        public int Port
+        {
+            get
+            {
+                return this.config.DirectoryServer.V2Port;
+            }
+        }
+
+        /// <summary>
+        /// Starts the directory server at the specified host, port. Validates HTTP
+        /// requests with the DEA's HTTP server which serves requests on the same host and
+        /// specified DAE port.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "If anything bad happens, make sure the server stays online.")]
+        public void Start()
+        {
             this.listener.Start();
-            this.listener.Prefixes.Add(string.Format(CultureInfo.InvariantCulture, "http://{0}:{1}/", hostAddress, config.DirectoryServer.V2Port));
+            this.listener.Prefixes.Add(string.Format(CultureInfo.InvariantCulture, "http://{0}:{1}/", NetworkInterface.GetLocalIPAddress(this.config.LocalRoute), this.config.DirectoryServer.V2Port));
 
             ThreadStart listenerThreadStart = new ThreadStart(
                 () =>
@@ -337,15 +383,14 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
 
             PathLookupResponse response = this.deaClient.LookupPath(uri);
 
-            if (!string.IsNullOrWhiteSpace(response.Error))
+            if (response.Error != null)
             {
                 Logger.Warning(Strings.ErrorInLookupPath, response.Error);
                 DirectoryServer.WriteServerError(Strings.WinDEADidNotRespondProperly, context);
             }
             else
             {
-                var queryString = string.Join(string.Empty, uri.PathAndQuery.Split('?').Skip(1));
-                NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(queryString);
+                NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(uri.Query);
                 bool tail = queryStrings.AllKeys.Select(key => queryStrings.GetValues(key).Contains("tail")).Any(v => v);
 
                 this.ListPath(response.Path, tail, context);
