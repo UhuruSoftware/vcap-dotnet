@@ -4,13 +4,10 @@ GO
 RESTORE DATABASE [<DatabaseName>]
 FROM DISK = N'<NfsLocation>'
 WITH REPLACE,
-MOVE N'<DatabaseName>PriData' TO N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>PriData.mdf', 
-MOVE N'<DatabaseName>Data01' TO N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data01.ndf',
-MOVE N'<DatabaseName>Data02' TO N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data02.ndf',
-MOVE N'<DatabaseName>Data03' TO N'<OddNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data03.ndf',
-MOVE N'<DatabaseName>Data04' TO N'<EvenNbrFileDrive>\MSSQL\DATA\<DatabaseName>Data04.ndf',
-MOVE N'<DatabaseName>LogData01' TO N'<OddNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log01.ldf',
-MOVE N'<DatabaseName>LogData02' TO N'<EvenNbrFileDrive>\MSSQL\LOG\<DatabaseName>Log02.ldf'
+MOVE N'<DatabaseName>PriData' TO N'<RootDataPath>\MSSQL\DATA\<DatabaseName>PriData.mdf', 
+MOVE N'<DatabaseName>Data01' TO N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data01.ndf',
+MOVE N'<DatabaseName>Data02' TO N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data02.ndf',
+MOVE N'<DatabaseName>LogData01' TO N'<RootDataPath>\MSSQL\LOG\<DatabaseName>Log01.ldf'
 GO
 
 ALTER DATABASE [<DatabaseName>] SET RECOVERY SIMPLE WITH NO_WAIT
@@ -115,22 +112,3 @@ EXEC sp_dboption [<DatabaseName>], 'auto create statistics', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'auto update statistics', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'torn page detection', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'autoshrink', 'TRUE'
-
-GO
-sp_configure 'show advanced options', 1
-GO
-RECONFIGURE
-GO
-sp_configure 'fill factor (%)', 90
-GO
-RECONFIGURE
-GO
-sp_configure 'lightweight pooling', 1
-GO
-RECONFIGURE
-GO
-sp_configure 'priority boost', 1
-GO
-RECONFIGURE
-
-

@@ -5,6 +5,11 @@ GO
 -- Create the storage folders. 
 -- This extended stored procedure does not fail if the path allready exists; instead it does nothing 
 ----------------------------------------------------------------
+--must be executed on sql server when node is installed:
+--sp_configure 'show advanced options', 1
+--sp_configure 'fill factor (%)', 90
+--sp_configure 'lightweight pooling', 1
+--sp_configure 'priority boost', 1
 
 EXEC sys.xp_create_subdir '<RootDataPath>\mssql\data\'
 EXEC sys.xp_create_subdir '<RootDataPath>\mssql\log\'
@@ -15,7 +20,7 @@ CREATE DATABASE [<DatabaseName>] ON  PRIMARY
 ( NAME = N'<DatabaseName>PriData', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>PriData.mdf' , SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
  FILEGROUP [DATA]  DEFAULT 
 ( NAME = N'<DatabaseName>Data01', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data01.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> ), 
-( NAME = N'<DatabaseName>Data02', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data03.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> )
+( NAME = N'<DatabaseName>Data02', FILENAME = N'<RootDataPath>\MSSQL\DATA\<DatabaseName>Data02.ndf' ,   SIZE = <InitialDataSize> , MAXSIZE = <MaxDataSize>, FILEGROWTH = <DataFileGrowth> )
  LOG ON 
 ( NAME = N'<DatabaseName>LogData01', FILENAME = N'<RootDataPath>\MSSQL\LOG\<DatabaseName>Log01.ldf' ,  SIZE = <InitialLogSize> ,  MAXSIZE = <MaxLogSize>,  FILEGROWTH = <LogFileGrowth> )
 GO
@@ -122,22 +127,4 @@ EXEC sp_dboption [<DatabaseName>], 'auto create statistics', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'auto update statistics', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'torn page detection', 'TRUE'
 EXEC sp_dboption [<DatabaseName>], 'autoshrink', 'TRUE'
-
-GO
-sp_configure 'show advanced options', 1
-GO
-RECONFIGURE
-GO
-sp_configure 'fill factor (%)', 90
-GO
-RECONFIGURE
-GO
-sp_configure 'lightweight pooling', 1
-GO
-RECONFIGURE
-GO
-sp_configure 'priority boost', 1
-GO
-RECONFIGURE
-
 
