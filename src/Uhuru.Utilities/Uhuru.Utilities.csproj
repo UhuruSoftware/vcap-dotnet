@@ -105,7 +105,6 @@
     <Compile Include="ProcessPerformance\ProcessTimes.cs" />
     <Compile Include="ProcessPerformance\SystemTime.cs" />
     <Compile Include="DiskUsage.cs" />
-    <Compile Include="FileServer.cs" />
     <Compile Include="MonitoringServer.cs" />
     <Compile Include="ProcessPerformance\ProcessInformation.cs" />
     <Compile Include="ProcessUser.cs" />

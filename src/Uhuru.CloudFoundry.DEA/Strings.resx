@@ -473,4 +473,49 @@
   <data name="InstanceProcessCoudNotBeAdded" xml:space="preserve">
     <value>The {0} instance process could not be added to the instance job object: {1}</value>
   </data>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entity not found</value>
+  </data>
+  <data name="HMACMismatch" xml:space="preserve">
+    <value>HMAC mismatch</value>
+  </data>
+  <data name="HMACParameterRequired" xml:space="preserve">
+    <value>'hmac' parameter required</value>
+  </data>
+  <data name="InstancePathUnavailable" xml:space="preserve">
+    <value>Instance path unavailable, instance_id={0}</value>
+  </data>
+  <data name="InstanceUnavailable" xml:space="preserve">
+    <value>Instance unavailable</value>
+  </data>
+  <data name="InvalidHMAC" xml:space="preserve">
+    <value>Invalid HMAC</value>
+  </data>
+  <data name="InvalidTimestampParameter" xml:space="preserve">
+    <value>Invalid 'timestamp' parameter</value>
+  </data>
+  <data name="NotAccessible" xml:space="preserve">
+    <value>Not accessible</value>
+  </data>
+  <data name="PathParameterRequired" xml:space="preserve">
+    <value>'path' parameter required</value>
+  </data>
+  <data name="RequestedPathOutsideInstance" xml:space="preserve">
+    <value>Requested path '{0}' points outside instance to '{1}'</value>
+  </data>
+  <data name="TimeStampParameterRequired" xml:space="preserve">
+    <value>'timestamp' parameter required</value>
+  </data>
+  <data name="UnknownInstance" xml:space="preserve">
+    <value>Unknown instance</value>
+  </data>
+  <data name="UnknownInstanceId" xml:space="preserve">
+    <value>Unknown instance, instance_id={0}</value>
+  </data>
+  <data name="URLExpired" xml:space="preserve">
+    <value>Url expired</value>
+  </data>
+  <data name="URLTooOld" xml:space="preserve">
+    <value>Url too old (age={0}s, max={1}s)</value>
+  </data>
 </root>

@@ -506,5 +506,19 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the instance path is available.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if instance is running or crashed; otherwise, <c>false</c>.
+        /// </value>
+        public bool InstancePathAvailable
+        {
+            get
+            {
+                return this.State == DropletInstanceState.Running || this.State == DropletInstanceState.Crashed;
+            }
+        }
     }
 }
