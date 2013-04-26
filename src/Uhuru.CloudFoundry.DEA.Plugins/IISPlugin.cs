@@ -957,23 +957,27 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
             {
                 isFile = File.Exists(mountItem) || File.Exists(instanceItem);
 
-                Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
-                Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
+                if (isFile)
+                {
 
-                try
-                {
-                    File.Copy(instanceItem, mountItem);
-                }
-                catch (IOException)
-                {
-                }
+                    Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
+                    Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
+                
+                    try
+                    {
+                        File.Copy(instanceItem, mountItem);
+                    }
+                    catch (IOException)
+                    {
+                    }
 
-                try
-                {
-                    File.Delete(instanceItem);
-                }
-                catch (DirectoryNotFoundException)
-                {
+                    try
+                    {
+                        File.Delete(instanceItem);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                    }
                 }
             }
 
