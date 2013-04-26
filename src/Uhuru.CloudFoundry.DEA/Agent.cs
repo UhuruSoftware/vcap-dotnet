@@ -107,6 +107,11 @@ namespace Uhuru.CloudFoundry.DEA
         private Stager stager = new Stager();
 
         /// <summary>
+        /// The DEA's HTTP droplet file viewer. Helps receive the logs.
+        /// </summary>
+        private FileViewer fileViewer = new FileViewer();
+
+        /// <summary>
         /// The monitoring resource.
         /// </summary>
         private Monitoring monitoring = new Monitoring();
@@ -170,16 +175,6 @@ namespace Uhuru.CloudFoundry.DEA
         private DIDiskQuotaControl diskQuotaControl;
 
         /// <summary>
-        /// The directory server used to server droplet instance contents.
-        /// </summary>
-        private Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer directoryServer;
-
-        /// <summary>
-        /// The cloud domain.
-        /// </summary>
-        private string cloudDomain;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
         public Agent()
@@ -223,9 +218,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.monitoring.MaxMemoryMbytes = uhuruSection.DEA.MaxMemoryMB;
 
-            FileApi.Configure(this.droplets, Guid.NewGuid().ToString(), 60 * 60);
-            this.cloudDomain = uhuruSection.DEA.Domain;
-            this.directoryServer = new DirectoryServer.DirectoryServer(this.cloudDomain, uhuruSection.DEA, new FileApi());
+            this.fileViewer.Port = uhuruSection.DEA.FilerPort;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
             this.onlyProductionApps = uhuruSection.DEA.OnlyProductionApps;
@@ -269,6 +262,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.helloMessage.Id = this.UUID;
             this.helloMessage.Host = this.Host;
+            this.helloMessage.FileViewerPort = this.fileViewer.Port;
             this.helloMessage.Version = Version;
         }
 
@@ -334,7 +328,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info("Disk quota initialization complete for volume '{0}'.", rootPath);
             }
 
-            this.StartDirectoryServer();
+            this.fileViewer.Start(this.stager.AppsDir);
 
             this.VCAPReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
 
@@ -401,23 +395,6 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
-            this.RegisterDirectoryServerV2();
-        }
-
-        /// <summary>
-        /// Sets up the file API server.
-        /// </summary>
-        public void SetupFileApi()
-        {
-            FileApi.Configure(this.droplets, Guid.NewGuid().ToString(), 60 * 60);
-        }
-
-        /// <summary>
-        /// Starts the directory server.
-        /// </summary>
-        public void StartDirectoryServer()
-        {
-            this.directoryServer.Start();
         }
 
         /// <summary>
@@ -584,7 +561,7 @@ namespace Uhuru.CloudFoundry.DEA
             // Allows messages to get out.
             Thread.Sleep(500);
 
-            this.UnregisterDirectoryServerV2();
+            this.fileViewer.Stop();
             this.deaReactor.NatsClient.Close();
             this.TheReaper();
 
@@ -611,14 +588,14 @@ namespace Uhuru.CloudFoundry.DEA
                         this.droplets.Dispose();
                     }
 
+                    if (this.fileViewer != null)
+                    {
+                        this.fileViewer.Dispose();
+                    }
+
                     if (this.monitoring != null)
                     {
                         this.monitoring.Dispose();
-                    }
-
-                    if (this.directoryServer != null)
-                    {
-                        this.directoryServer.Dispose();
                     }
                 }
             }
@@ -835,6 +812,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = UUID;
             response.Host = Host;
+            response.FileViewerPort = this.fileViewer.Port;
             response.Version = Version;
             response.MaxMemoryMbytes = this.monitoring.MaxMemoryMbytes;
             response.MemoryReservedMbytes = this.monitoring.MemoryReservedMbytes;
@@ -1024,14 +1002,11 @@ namespace Uhuru.CloudFoundry.DEA
                         response.Index = instance.Properties.InstanceIndex;
                         response.State = instance.Properties.State;
                         response.StateTimestamp = instance.Properties.StateTimestamp;
+                        response.FileUri = string.Format(CultureInfo.InvariantCulture, Strings.HttpDroplets, Host, this.fileViewer.Port);
+                        response.FileAuth = this.fileViewer.Credentials;
                         response.Staged = instance.Properties.Staged;
                         response.DebugIP = instance.Properties.DebugIP;
                         response.DebugPort = instance.Properties.DebugPort;
-
-                        if (!string.IsNullOrEmpty(pmessage.Path))
-                        {
-                            response.FileUriV2 = string.Format(CultureInfo.InvariantCulture, "http://{0}{1}", this.cloudDomain, FileApi.GenerateFileUrl(instance.Properties.InstanceId, pmessage.Path));
-                        }
 
                         if (pmessage.IncludeStates && instance.Properties.State == DropletInstanceState.Running)
                         {
@@ -1607,8 +1582,6 @@ namespace Uhuru.CloudFoundry.DEA
                     this.RegisterInstanceWithRouter(instance);
                 }
             });
-
-            this.RegisterDirectoryServerV2();
         }
 
         /// <summary>
@@ -2132,32 +2105,6 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Lock.ExitWriteLock();
                     }
                 });
-        }
-
-        /// <summary>
-        /// Registers the Directory Server with routers.
-        /// </summary>
-        private void RegisterDirectoryServerV2()
-        {
-            RouterMessage response = new RouterMessage();
-            response.DeaId = this.UUID;
-            response.Host = this.Host;
-            response.Port = this.directoryServer.Port;
-            response.Uris = new List<string>() { this.directoryServer.ExternalHostName }.ToArray();
-            this.deaReactor.SendRouterRegister(response.SerializeToJson());
-        }
-
-        /// <summary>
-        /// Unegisters the Directory Server from routers.
-        /// </summary>
-        private void UnregisterDirectoryServerV2()
-        {
-            RouterMessage response = new RouterMessage();
-            response.DeaId = this.UUID;
-            response.Host = this.Host;
-            response.Port = this.directoryServer.Port;
-            response.Uris = new List<string>() { this.directoryServer.ExternalHostName }.ToArray();
-            this.deaReactor.SendRouterUnregister(response.SerializeToJson());
         }
     }
 }

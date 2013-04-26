@@ -116,11 +116,6 @@
 				<xs:documentation>The AdvertiseIntervalMs.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="domain" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Domain.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.MSSqlElementCT">
 		<xs:sequence>

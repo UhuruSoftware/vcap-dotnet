@@ -106,17 +106,6 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
-        /// Gets or sets the URI to the file server V2 that can serve droplet instance files.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for the current context"), 
-        JsonName("file_uri_v2")]
-        public string FileUriV2
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets the authentication credentials for the file server.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "Suitable for the current context"), 
