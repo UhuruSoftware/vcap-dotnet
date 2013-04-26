@@ -960,20 +960,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
                 Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
                 Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
 
-                try
+                if (isFile)
                 {
-                    File.Copy(instanceItem, mountItem);
-                }
-                catch (IOException)
-                {
-                }
+                    try
+                    {
+                        File.Copy(instanceItem, mountItem);
+                    }
+                    catch (IOException)
+                    {
+                    }
 
-                try
-                {
-                    File.Delete(instanceItem);
-                }
-                catch (DirectoryNotFoundException)
-                {
+                    try
+                    {
+                        File.Delete(instanceItem);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                    }
                 }
             }
 
