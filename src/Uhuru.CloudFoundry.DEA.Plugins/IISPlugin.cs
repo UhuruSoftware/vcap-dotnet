@@ -959,7 +959,6 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                 if (isFile)
                 {
-
                     Directory.CreateDirectory(new DirectoryInfo(mountItem).Parent.FullName);
                     Directory.CreateDirectory(new DirectoryInfo(instanceItem).Parent.FullName);
                 
