@@ -1967,8 +1967,15 @@ namespace Uhuru.CloudFoundry.DEA
                             try
                             {
                                 instance.Plugin.CleanupApplication(instance.Properties.Directory);
-                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, string.Empty);
-                                WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
+                                PluginHost.RemoveInstance(instance.Plugin);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
+                            }
+
+                            try
+                            {
                                 PluginHost.RemoveInstance(instance.Plugin);
                             }
                             catch (Exception ex)
@@ -1978,6 +1985,16 @@ namespace Uhuru.CloudFoundry.DEA
                             finally
                             {
                                 instance.Plugin = null;
+                            }
+
+                            try
+                            {
+                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, string.Empty);
+                                WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
                             }
                         }
                     }
