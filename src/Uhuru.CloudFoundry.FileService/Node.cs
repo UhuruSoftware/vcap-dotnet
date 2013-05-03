@@ -963,7 +963,6 @@ namespace Uhuru.CloudFoundry.FileService
             catch (Exception ex)
             {
                 Logger.Error("Cloud not setup instance {0}. Exception {1}.", provisionedService.SerializeToJson(), ex.ToString());
-                throw;
             }
         }
 
