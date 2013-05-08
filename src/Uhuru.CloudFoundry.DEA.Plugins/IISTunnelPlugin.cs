@@ -586,13 +586,7 @@ namespace Uhuru.CloudFoundry.DEA.Plugins
 
                     mySite.Bindings[0].BindingInformation = string.Format(CultureInfo.InvariantCulture, "{0}:{1}:", appInfo.LocalIP, appInfo.Port);
 
-                    mySite.Bindings.Add(
-                        string.Format(
-                        CultureInfo.InvariantCulture, 
-                        "{0}:*", 
-                        new object[] { IISTunnelPlugin.GetNetTcpPort(appInfo.Path) }), 
-                        "net.tcp");
-                    
+                    // Disable net.tcp bindings to allow the app to bind to that TCP port.
                     mySite.ServerAutoStart = false;
 
                     ApplicationPool applicationPool = serverMgr.ApplicationPools[this.appName];
