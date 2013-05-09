@@ -1731,7 +1731,7 @@ namespace Uhuru.CloudFoundry.DEA
                             // trim it to one decimal precision
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
-                            long memBytes = instance.JobObject.WorkingSetMemory;
+                            long memBytes = instance.JobObject.PrivateMemory;                            
 
                             if (this.useDiskQuota)
                             {
