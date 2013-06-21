@@ -20,7 +20,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// Gets or sets the droplet id to be stopped.
         /// </summary>
         [JsonName("droplet")]
-        public string DropletId
+        public int DropletId
         {
             get;
             set;

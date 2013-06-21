@@ -769,6 +769,7 @@ namespace Uhuru.CloudFoundry.DEA
             response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
             response.Prod = this.onlyProductionApps;
+            response.Ready = true;
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
         }

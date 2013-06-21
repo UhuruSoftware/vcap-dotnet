@@ -32,7 +32,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Where the droplet collection is stored, keyed with the droplet ID.
         /// DropletId -> Droplet
         /// </summary>
-        private Dictionary<string, Droplet> droplets = new Dictionary<string, Droplet>();
+        private Dictionary<int, Droplet> droplets = new Dictionary<int, Droplet>();
 
         /// <summary>
         /// The collection's lock.
@@ -48,7 +48,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the collection members, organized by IDs.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Suitable for this context.")]
-        public Dictionary<string, Droplet> Droplets
+        public Dictionary<int, Droplet> Droplets
         {
             get
             {
@@ -151,7 +151,7 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     this.Lock.EnterReadLock();
-                    foreach (KeyValuePair<string, Droplet> instances in this.Droplets)
+                    foreach (KeyValuePair<int, Droplet> instances in this.Droplets)
                     {
                         foreach (KeyValuePair<string, DropletInstance> instance in instances.Value.DropletInstances)
                         {
@@ -174,7 +174,7 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     this.Lock.EnterReadLock();
-                    foreach (KeyValuePair<string, Droplet> instances in this.Droplets)
+                    foreach (KeyValuePair<int, Droplet> instances in this.Droplets)
                     {
                         foreach (KeyValuePair<string, DropletInstance> instance in instances.Value.DropletInstances)
                         {
