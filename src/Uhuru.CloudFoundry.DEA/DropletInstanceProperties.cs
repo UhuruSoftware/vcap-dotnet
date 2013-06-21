@@ -325,7 +325,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the droplet/application id.
         /// </summary>
         [JsonName("droplet_id")]
-        public string DropletId
+        public int DropletId
         {
             get;
             set;

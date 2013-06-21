@@ -28,7 +28,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// Gets or sets the app/droplet id.
         /// </summary>
         [JsonName("app")]
-        public string DropletId
+        public int DropletId
         {
             get;
             set;
