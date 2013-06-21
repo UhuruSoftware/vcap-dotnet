@@ -56,5 +56,15 @@ namespace Uhuru.CloudFoundry.DEA.Messages
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether it is ready. Change made to be compatible with Stackato.
+        /// </summary>
+        [JsonName("ready")]
+        public bool Ready
+        {
+            get;
+            set;
+        }
     }
 }
