@@ -116,7 +116,7 @@ namespace Uhuru.CloudFoundry.FileService
 
             foreach (ProvisionedService instance in ProvisionedService.GetInstances())
             {
-                this.capacity = -this.CapacityUnit();
+                this.capacity -= this.CapacityUnit();
 
                 // This check will make initialization faster.
                 if (!sharesCache.Contains(instance.Name))
@@ -1145,7 +1145,9 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// An object containing the status of the instance.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Warning(System.String,System.Object[])", Justification = "Easier to find logs."), 
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Don't crash the entire method."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
         private object GetVarz(ProvisionedService instance)
         {
             var varz = new Dictionary<string, object>();
@@ -1159,7 +1161,15 @@ namespace Uhuru.CloudFoundry.FileService
 
             if (this.useFsrm)
             {
-                usage["used_storage_size"] = this.dirAccounting.GetDirectorySize(this.GetInstanceDirectory(instance.Name));
+                try
+                {
+                    usage["used_storage_size"] = this.dirAccounting.GetDirectorySize(this.GetInstanceDirectory(instance.Name));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning("Error getting FSRM info for {0}. Exception: {1}", instance.Name, ex.ToString());
+                    usage["used_storage_size"] = -1;
+                }
             }
             else
             {

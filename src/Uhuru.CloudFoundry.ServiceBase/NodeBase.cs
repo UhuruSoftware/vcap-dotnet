@@ -42,7 +42,7 @@ namespace Uhuru.CloudFoundry.ServiceBase
         /// <summary>
         /// The available capapcity of the node.
         /// </summary>
-        protected int capacity;
+        protected int capacity = 0;
 
         /// <summary>
         /// The maximum capacity of the node.
