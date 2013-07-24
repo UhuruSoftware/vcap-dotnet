@@ -21,18 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0D1AF6805879796988C277D68A72488E"
-        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0D1AF6805879796988C277D68A72488E"
-        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_28B66C33AFDB62E86E50AAE700F1BF6B"
         "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
@@ -111,6 +99,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8C420742B0B7E3FFDBFB25C08CF55B77"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C420742B0B7E3FFDBFB25C08CF55B77"
+        "OwnerKey" = "8:_CDE431A886935E7B62843E3A74936DDD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8E8AFE6F1899A00278BE7F9E9F0E4E5F"
         "OwnerKey" = "8:_CDE431A886935E7B62843E3A74936DDD"
         "MsmSig" = "8:_UNDEFINED"
@@ -153,20 +153,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9594598D087EDA1EA8D4C7716A0DCA72"
+        "MsmKey" = "8:_92234E0F93F22FA4F030C84D76CF7157"
         "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9594598D087EDA1EA8D4C7716A0DCA72"
+        "MsmKey" = "8:_92234E0F93F22FA4F030C84D76CF7157"
         "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9594598D087EDA1EA8D4C7716A0DCA72"
+        "MsmKey" = "8:_92234E0F93F22FA4F030C84D76CF7157"
         "OwnerKey" = "8:_91648430074A9DDB244D400AD8D79ECB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C550ACECB4D7744242521323B9CFD16F"
+        "OwnerKey" = "8:_DE09A272DAF0438CBA0B7736C01F7656"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C550ACECB4D7744242521323B9CFD16F"
+        "OwnerKey" = "8:_03A6DC9AE1D0458997959C04B6CD40E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -244,6 +256,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C550ACECB4D7744242521323B9CFD16F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_42771104AC2DEA084C58C9196C95E91F"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -292,13 +310,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D87DFC57035272F8D6E0BE9EB2DEFB8F"
+        "OwnerKey" = "8:_92234E0F93F22FA4F030C84D76CF7157"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9594598D087EDA1EA8D4C7716A0DCA72"
+        "OwnerKey" = "8:_D87DFC57035272F8D6E0BE9EB2DEFB8F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -310,7 +328,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0D1AF6805879796988C277D68A72488E"
+        "OwnerKey" = "8:_8C420742B0B7E3FFDBFB25C08CF55B77"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -474,37 +492,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0D1AF6805879796988C277D68A72488E"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:TRUE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.Web.Administration, Version=7.9.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_0D1AF6805879796988C277D68A72488E"
-                    {
-                    "Name" = "8:Microsoft.Web.Administration.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.Web.Administration.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_28B66C33AFDB62E86E50AAE700F1BF6B"
             {
             "AssemblyRegister" = "3:1"
@@ -720,6 +707,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8C420742B0B7E3FFDBFB25C08CF55B77"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AlphaFS, Version=1.5.0.0, Culture=neutral, PublicKeyToken=4b76c8c88cc75802, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_8C420742B0B7E3FFDBFB25C08CF55B77"
+                    {
+                    "Name" = "8:AlphaFS.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:AlphaFS.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8E8AFE6F1899A00278BE7F9E9F0E4E5F"
             {
             "AssemblyRegister" = "3:1"
@@ -782,20 +800,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_9594598D087EDA1EA8D4C7716A0DCA72"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_92234E0F93F22FA4F030C84D76CF7157"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_9594598D087EDA1EA8D4C7716A0DCA72"
+                    "_92234E0F93F22FA4F030C84D76CF7157"
                     {
-                    "Name" = "8:log4net.dll"
+                    "Name" = "8:NLog.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:log4net.dll"
+            "SourcePath" = "8:NLog.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
@@ -810,6 +828,37 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C550ACECB4D7744242521323B9CFD16F"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Microsoft.Web.Administration, Version=7.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_C550ACECB4D7744242521323B9CFD16F"
+                    {
+                    "Name" = "8:Microsoft.Web.Administration.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Microsoft.Web.Administration.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -1014,7 +1063,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Uhuru .NET Droplet Execution Agent"
         "ProductCode" = "8:{47E933EF-EED9-4A8A-ABDF-CE673C1180B3}"
-        "PackageCode" = "8:{CA20E276-3196-45BD-B462-1513CD80E014}"
+        "PackageCode" = "8:{EEC1D020-2432-4F68-BB65-88FC79F19CCB}"
         "UpgradeCode" = "8:{DFA37B02-D244-4B65-AF96-B3926D995F3C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1582,7 +1631,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_03A6DC9AE1D0458997959C04B6CD40E1"
             {
-            "SourcePath" = "8:..\\Uhuru.CloudFoundry.DEA.WindowsService\\obj\\Release\\DEA.exe"
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.DEA.WindowsService\\obj\\Debug\\DEA.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
@@ -1750,7 +1799,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DE09A272DAF0438CBA0B7736C01F7656"
             {
-            "SourcePath" = "8:..\\Uhuru.CloudFoundry.DEA.Plugins\\obj\\Release\\Uhuru.CloudFoundry.DEA.Plugins.dll"
+            "SourcePath" = "8:..\\Uhuru.CloudFoundry.DEA.Plugins\\obj\\Debug\\Uhuru.CloudFoundry.DEA.Plugins.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D1F4C95E6C1A4CDAB3E6F38EFAD0F7A2"
