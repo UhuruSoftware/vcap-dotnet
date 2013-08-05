@@ -111,52 +111,165 @@ namespace Uhuru.CloudFoundry.FileService
             }
 
             ProvisionedService.Initialize(options.LocalDB);
+            ProvisionedService[] provisionedServices = ProvisionedService.GetInstances();
+
+            var instances = new Dictionary<string, ProvisionedService>();
+            var bindings = new Dictionary<string, ServiceBinding>();
+
+            foreach (ProvisionedService instance in provisionedServices)
+            {
+                instances[instance.Name] = instance;
+                bindings[instance.User] = new ServiceBinding();
+
+                foreach (ServiceBinding binding in instance.Bindings)
+                {
+                    bindings[binding.User] = binding;
+                }
+            }
+
 
             HashSet<string> sharesCache = new HashSet<string>(WindowsShare.GetShares());
+            HashSet<string> ftpCache = new HashSet<string>(FtpUtilities.GetFtpSties());
+            HashSet<string> usersCache = new HashSet<string>(WindowsUsersAndGroups.GetUsers());
+            HashSet<string> groupsCache = new HashSet<string>(WindowsUsersAndGroups.GetGroups());
 
-            foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+
+            // Delete orphan shares
+            foreach (string shareName in sharesCache)
             {
-                this.capacity -= this.CapacityUnit();
-
-                // This check will make initialization faster.
-                if (!sharesCache.Contains(instance.Name))
+                if (shareName.StartsWith("D4Ta") && !instances.ContainsKey(shareName))
                 {
-                    // This will setup the instance with new config changes or if the OS is fresh.
-                    // Don't want to fail if an instance is inconsistent or has errors.
+                    // then this is orphan
+                    Logger.Info("Deleting share {0}", shareName);
+
+                    // Try delete windows share.
                     try
                     {
-                        this.InstanceSystemSetup(instance);
+                        WindowsShare ws = new WindowsShare(shareName);
+                        ws.DeleteShare();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Unable to delete Windows Share for instance {0}. Exception: {1}", shareName, ex.ToString());
+                    }
 
-                        foreach (ServiceBinding binding in instance.Bindings)
+                    // Try delete directory quota.
+                    try
+                    {
+                        string directory = this.GetInstanceDirectory(shareName);
+                        if (this.useFsrm)
                         {
-                            try
-                            {
-                                Bind(instance, binding);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error("Error binding instance {0} with {1}. Exception: {2}", instance.Name, binding.User, ex.ToString());
-                            }
+                            this.dirAccounting.RemoveDirectoryQuota(directory);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("Error setting up instance {0}. Exception: {1}", instance.Name, ex.ToString());
+                        Logger.Error("Unable to delete directory quota rule for instance {0}. Exception: {1}", shareName, ex.ToString());
                     }
                 }
             }
 
-            TimerHelper.RecurringCall(
-                StorageQuotaInterval,
-                delegate
+            // Delete orphan ftpsites
+            foreach (string ftpName in ftpCache)
+            {
+                if (ftpName.StartsWith("D4Ta") && !instances.ContainsKey(ftpName))
                 {
-                    this.EnforceStorageQuota();
-                });
+                    // then we have an orphan here
+                    Logger.Info("Deleting ftp site {0}", ftpName);
 
-            // initialize qps counter
-            this.provisionServed = 0;
-            this.bindingServed = 0;
-            base.Start(options);
+                    // Try delete ftp site.
+                    try
+                    {
+                        FtpUtilities.DeleteFtpSite(ftpName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Unable to delete FTP site for instance {0}. Exception: {1}", ftpName, ex.ToString());
+                    }
+                }
+            }
+
+            foreach (string user in usersCache)
+            {
+                if (
+                    (user.StartsWith("D4Ta") || user.StartsWith("US3r")) &&
+                    !instances.ContainsKey(user) &&
+                    !bindings.ContainsKey(user)
+                    )
+                {
+                    Logger.Info("Deleting instance user {0}", user);
+                    try
+                    {
+                        Uhuru.Utilities.WindowsUsersAndGroups.DeleteUser(user);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Fatal("Unable to delete user for instance {0}. Exception: {1}", user, ex.ToString());
+                    }
+                }
+            }
+
+            foreach (string group in groupsCache)
+            {
+                if (group.StartsWith("D4Ta") && !instances.ContainsKey(group))
+                {
+                    Logger.Info("Deleting instance group {0}", group);
+                    try
+                    {
+                        Uhuru.Utilities.WindowsUsersAndGroups.DeleteGroup(group);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Fatal("Unable to delete group for instance {0}. Exception: {1}", group, ex.ToString());
+                    }
+                }
+            }
+
+            //string directory = this.GetInstanceDirectory(name);
+
+            //foreach (ProvisionedService instance in ProvisionedService.GetInstances())
+            //{
+            //    this.capacity -= this.CapacityUnit();
+
+            //    // This check will make initialization faster.
+            //    if (!sharesCache.Contains(instance.Name))
+            //    {
+            //        // This will setup the instance with new config changes or if the OS is fresh.
+            //        // Don't want to fail if an instance is inconsistent or has errors.
+            //        try
+            //        {
+            //            this.InstanceSystemSetup(instance);
+
+            //            foreach (ServiceBinding binding in instance.Bindings)
+            //            {
+            //                try
+            //                {
+            //                    Bind(instance, binding);
+            //                }
+            //                catch (Exception ex)
+            //                {
+            //                    Logger.Error("Error binding instance {0} with {1}. Exception: {2}", instance.Name, binding.User, ex.ToString());
+            //                }
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Logger.Error("Error setting up instance {0}. Exception: {1}", instance.Name, ex.ToString());
+            //        }
+            //    }
+            //}
+
+            //TimerHelper.RecurringCall(
+            //    StorageQuotaInterval,
+            //    delegate
+            //    {
+            //        this.EnforceStorageQuota();
+            //    });
+
+            //// initialize qps counter
+            //this.provisionServed = 0;
+            //this.bindingServed = 0;
+            //base.Start(options);
         }
 
         /// <summary>
@@ -1145,7 +1258,7 @@ namespace Uhuru.CloudFoundry.FileService
         /// <returns>
         /// An object containing the status of the instance.
         /// </returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Warning(System.String,System.Object[])", Justification = "Easier to find logs."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Warning(System.String,System.Object[])", Justification = "Easier to find logs."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Don't crash the entire method."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic", Justification = "Method is not yet implemented")]
         private object GetVarz(ProvisionedService instance)
