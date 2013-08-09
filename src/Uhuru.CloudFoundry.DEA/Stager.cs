@@ -41,7 +41,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             // Setup the Zlib here to avoid errors when extracting for the first time under an impersonated user
             DEAUtilities.SetupZlib();
-            this.Runtimes = new Dictionary<string, DeaRuntime>();
+            this.Stacks = new HashSet<string>();
             if (!this.DisableDirCleanup)
             {
                 TimerHelper.RecurringCall(CleanCacheIntervalMilliseconds, delegate { this.CleanCacheDirectory(); });
@@ -52,7 +52,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the supported runtimes.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "It is used for JSON (de)serialization.")]
-        public Dictionary<string, DeaRuntime> Runtimes { get; set; }
+        public HashSet<string> Stacks { get; set; }
 
         /// <summary>
         /// Gets or sets the droplet directory. 
@@ -142,88 +142,16 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Checks weather the runtime is supported.
         /// </summary>
-        /// <param name="runtime">The runtime.</param>
-        /// <returns>True if the runtime is supported.</returns>
-        public bool RuntimeSupported(string runtime)
-        {
-            if (string.IsNullOrEmpty(runtime) || !this.Runtimes.ContainsKey(runtime))
-            {
-                Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, runtime);
-                return false;
-            }
-
-            if (!this.Runtimes[runtime].Enabled)
-            {
-                Logger.Debug(Strings.IgnoringRequestRuntimeNot, runtime);
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Checks weather the runtime is supported.
-        /// </summary>
-        /// <param name="runtime">The runtime.</param>
-        /// <param name="runtimeInfo">The runtime metadata.</param>
+        /// <param name="stack">The runtime.</param>
         /// <returns>True if the runtime is supported.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Clearer."), 
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Required for validation.")]
-        public bool RuntimeSupported(string runtime, RuntimeInfo runtimeInfo)
+        public bool StackSupported(string stack)
         {
-            if (string.IsNullOrEmpty(runtime) || !this.Runtimes.ContainsKey(runtime))
+            if (string.IsNullOrEmpty(stack) || !this.Stacks.Contains(stack))
             {
-                Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, runtime);
+                Logger.Debug(Strings.IgnoringRequestNoSuitableRuntimes, stack);
                 return false;
-            }
-
-            if (runtimeInfo == null)
-            {
-                throw new ArgumentNullException("runtimeInfo");
-            }
-
-            string versionExecutable = runtimeInfo.VersionExecutable;
-            if (string.IsNullOrEmpty(versionExecutable))
-            {
-                // Use the runtime executable if the version executable is not present.
-                versionExecutable = runtimeInfo.Executable;
-            }
-
-            if (!string.IsNullOrEmpty(versionExecutable))
-            {
-                string versionFlag = runtimeInfo.VersionParameters;
-                string currentVersion;
-
-                try
-                {
-                    currentVersion = DEAUtilities.RunCommandAndGetOutputAndErrors(versionExecutable, versionFlag).Trim();
-                }
-                catch (Exception e)
-                {
-                    Logger.Info("Validation failed for runtime '{0}'. Error: {1}", runtime, e.ToString());
-                    return false;
-                }
-
-                if (runtimeInfo.VersionOutput != null)
-                {
-                    var expectedOutput = new Regex(runtimeInfo.VersionOutput);
-                    if (!expectedOutput.IsMatch(currentVersion))
-                    {
-                        Logger.Info("Validation failed for runtime '{0}'. Version mismatch. Expected: '{1}', Actual: '{2}'.", runtime, runtimeInfo.VersionOutput, currentVersion);
-                        return false;
-                    }
-                }
-
-                // Additional checks should return true
-                if (runtimeInfo.AdditionalChecks != null)
-                {
-                    string additionalChecksOutput = DEAUtilities.RunCommandAndGetOutputAndErrors(versionExecutable, runtimeInfo.AdditionalChecks);
-                    if (!new Regex("true", RegexOptions.IgnoreCase).IsMatch(additionalChecksOutput))
-                    {
-                        Logger.Info("Additional validation checks failed for runtime '{0}'. Expected: 'true', Actual: '{1}'.", runtime, additionalChecksOutput);
-                        return false;
-                    }
-                }
             }
 
             return true;
@@ -235,69 +163,10 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public void SetupRuntimes()
         {
-            if (this.Runtimes == null || this.Runtimes.Count == 0)
+            if (this.Stacks == null || this.Stacks.Count == 0)
             {
                 Logger.Fatal(Strings.CannotDetermineApplicationRuntimes);
                 throw new InvalidOperationException(Strings.CannotDetermineApplicationRuntimes);
-            }
-
-            Logger.Info(Strings.Checkingruntimes);
-
-            foreach (KeyValuePair<string, DeaRuntime> kvp in this.Runtimes)
-            {
-                string name = kvp.Key;
-                DeaRuntime runtime = kvp.Value;
-
-                // Only enable when we succeed
-                runtime.Enabled = false;
-
-                // Check that we can get a version from the executable
-                string version_flag = string.IsNullOrEmpty(runtime.VersionArgument) ? "-v" : runtime.VersionArgument;
-
-                string expanded_exec = DEAUtilities.RunCommandAndGetOutputAndErrors("where", runtime.Executable).Trim();
-
-                expanded_exec = expanded_exec.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)[0];
-
-                if (!File.Exists(expanded_exec))
-                {
-                    Logger.Info(Strings.FailedExecutableNot, name, runtime.Executable, Directory.GetCurrentDirectory(), expanded_exec);
-                    continue;
-                }
-
-                // java prints to stderr, so munch them both..
-                string version_check = DEAUtilities.RunCommandAndGetOutputAndErrors(
-                    expanded_exec,
-                    string.Format(CultureInfo.InvariantCulture, "{0} {1}", expanded_exec, version_flag)).Trim();
-
-                runtime.Executable = expanded_exec;
-
-                if (string.IsNullOrEmpty(runtime.Version))
-                {
-                    continue;
-                }
-
-                // Check the version for a match
-                if (new Regex(runtime.Version).IsMatch(version_check))
-                {
-                    // Additional checks should return true
-                    if (!string.IsNullOrEmpty(runtime.AdditionalChecks))
-                    {
-                        string additional_check = DEAUtilities.RunCommandAndGetOutputAndErrors(
-                            runtime.Executable,
-                            string.Format(CultureInfo.InvariantCulture, "{0}", runtime.AdditionalChecks));
-                        if (!new Regex("true").IsMatch(additional_check))
-                        {
-                            Logger.Info(Strings.FailedAdditionalChecks, name);
-                        }
-                    }
-
-                    runtime.Enabled = true;
-                    Logger.Info(Strings.RuntimeOk, name);
-                }
-                else
-                {
-                    Logger.Info(Strings.FailedVersionMismatch, name, version_check);
-                }
             }
         }
 

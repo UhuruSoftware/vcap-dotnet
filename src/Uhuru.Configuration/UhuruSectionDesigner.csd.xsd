@@ -10,7 +10,7 @@
 <xs:schema xmlns:tns="urn:Uhuru.Configuration" elementFormDefault="qualified" targetNamespace="urn:Uhuru.Configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:element name="uhuru" type="tns:Uhuru.Configuration.UhuruSectionCT" />
 	<xs:complexType name="Uhuru.Configuration.UhuruSectionCT">
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element minOccurs="0" name="dea" type="tns:Uhuru.Configuration.DEAElementCT">
 				<xs:annotation>
 					<xs:documentation>The DEA.</xs:documentation>
@@ -21,13 +21,13 @@
 					<xs:documentation>The Service.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.DEAElementCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" name="runtimes" type="tns:Uhuru.Configuration.RuntimeCollectionCT">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element minOccurs="0" name="stacks" type="tns:Uhuru.Configuration.StackCollectionCT">
 				<xs:annotation>
-					<xs:documentation>The Runtimes.</xs:documentation>
+					<xs:documentation>The Stacks.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element minOccurs="0" name="directoryServer" type="tns:Uhuru.Configuration.DirectoryServerElementCT">
@@ -35,7 +35,7 @@
 					<xs:documentation>The DirectoryServer.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 		<xs:attribute name="baseDir" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The BaseDir.</xs:documentation>
@@ -106,11 +106,6 @@
 				<xs:documentation>The Index.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="onlyProductionApps" use="optional" type="xs:boolean">
-			<xs:annotation>
-				<xs:documentation>The OnlyProductionApps.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
 		<xs:attribute name="advertiseIntervalMs" use="optional" type="xs:int">
 			<xs:annotation>
 				<xs:documentation>The AdvertiseIntervalMs.</xs:documentation>
@@ -118,8 +113,6 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.MSSqlElementCT">
-		<xs:sequence>
-		</xs:sequence>
 		<xs:attribute name="host" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The Host.</xs:documentation>
@@ -196,18 +189,16 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.RuntimeCollectionCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="runtime" type="tns:Uhuru.Configuration.RuntimeElementCT">
+	<xs:complexType name="Uhuru.Configuration.StackCollectionCT">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="stack" type="tns:Uhuru.Configuration.StackElementCT">
 				<xs:annotation>
-					<xs:documentation>The RuntimeElement Configuration Element.</xs:documentation>
+					<xs:documentation>The StackElement Configuration Element.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.UhuruFSElementCT">
-		<xs:sequence>
-		</xs:sequence>
 		<xs:attribute name="maxStorageSize" use="optional" type="xs:long">
 			<xs:annotation>
 				<xs:documentation>The MaxStorageSize.</xs:documentation>
@@ -230,7 +221,7 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.ServiceElementCT">
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element minOccurs="0" name="mssql" type="tns:Uhuru.Configuration.MSSqlElementCT">
 				<xs:annotation>
 					<xs:documentation>The MSSql.</xs:documentation>
@@ -251,7 +242,7 @@
 					<xs:documentation>The Backup.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 		<xs:attribute name="nodeId" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The NodeId.</xs:documentation>
@@ -323,85 +314,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.EnvironmentCollectionCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="env" type="tns:Uhuru.Configuration.EnvironmentElementCT">
-				<xs:annotation>
-					<xs:documentation>The EnvironmentElement Configuration Element.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.DebugCollectionCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="debugConfiguration" type="tns:Uhuru.Configuration.DebugElementCT">
-				<xs:annotation>
-					<xs:documentation>The DebugElement Configuration Element.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.RuntimeElementCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" name="environment" type="tns:Uhuru.Configuration.EnvironmentCollectionCT">
-				<xs:annotation>
-					<xs:documentation>The Environment.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element minOccurs="0" name="debug" type="tns:Uhuru.Configuration.DebugCollectionCT">
-				<xs:annotation>
-					<xs:documentation>The Debug.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-		<xs:attribute name="name" use="required" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Name.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="executable" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Executable.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="version" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Version.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="versionFlag" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The VersionArgument.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="additionalChecks" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The AdditionalChecks.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.EnvironmentElementCT">
-		<xs:sequence>
-		</xs:sequence>
-		<xs:attribute name="name" use="required" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Name.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute name="value" use="optional" type="xs:string">
-			<xs:annotation>
-				<xs:documentation>The Value.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	<xs:complexType name="Uhuru.Configuration.DebugElementCT">
-		<xs:sequence>
-			<xs:element minOccurs="0" name="environment" type="tns:Uhuru.Configuration.EnvironmentCollectionCT">
-				<xs:annotation>
-					<xs:documentation>The Environment.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
+	<xs:complexType name="Uhuru.Configuration.StackElementCT">
 		<xs:attribute name="name" use="required" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The Name.</xs:documentation>
@@ -409,13 +322,13 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.SupportedVersionsCollectionCT">
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element minOccurs="0" maxOccurs="unbounded" name="supportedVersion" type="tns:Uhuru.Configuration.SupportedVersionElementCT">
 				<xs:annotation>
 					<xs:documentation>The SupportedVersionElement Configuration Element.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 		<xs:attribute name="defaultVersion" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The DefaultVersion.</xs:documentation>
@@ -423,8 +336,6 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.SupportedVersionElementCT">
-		<xs:sequence>
-		</xs:sequence>
 		<xs:attribute name="name" use="required" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The Name.</xs:documentation>
@@ -432,8 +343,6 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.BackupElementCT">
-		<xs:sequence>
-		</xs:sequence>
 		<xs:attribute name="backupBaseDir" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The BackupBaseDir.</xs:documentation>
@@ -451,8 +360,6 @@
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.DirectoryServerElementCT">
-		<xs:sequence>
-		</xs:sequence>
 		<xs:attribute name="fileApiPort" use="optional" type="xs:int">
 			<xs:annotation>
 				<xs:documentation>The FileApiPort.</xs:documentation>

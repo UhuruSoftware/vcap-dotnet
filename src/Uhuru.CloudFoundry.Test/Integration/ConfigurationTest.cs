@@ -22,11 +22,6 @@ namespace Uhuru.CloudFoundry.Test.Integration
             if (!File.Exists("uhuruTest.config"))
                 Assert.Fail();
             Assert.AreEqual("c:\\droplets", uhuruSection.DEA.BaseDir);
-            Assert.AreEqual("iis", uhuruSection.DEA.Runtimes["iis"].Name);
-            Assert.AreEqual("7.0", uhuruSection.DEA.Runtimes["iis"].Environment["iisVersion"].Value);
-            Assert.AreEqual("3.5;4.0", uhuruSection.DEA.Runtimes["iis"].Environment["supportedFrameworks"].Value);
-            Assert.AreEqual("true", uhuruSection.DEA.Runtimes["iis"].Debug["simple"].Environment["useCredentials"].Value);
-            Assert.AreEqual("60000", uhuruSection.DEA.Runtimes["iis"].Debug["simple"].Environment["connectionTimeout"].Value);
         }
 
         [TestMethod]

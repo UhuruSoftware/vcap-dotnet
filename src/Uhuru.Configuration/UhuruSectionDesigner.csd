@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<configurationSectionModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d" namespace="Uhuru.Configuration" xmlSchemaNamespace="urn:Uhuru.Configuration" assemblyName="Uhuru.Configuration" xmlns="http://schemas.microsoft.com/dsltools/ConfigurationSectionDesigner">
+<configurationSectionModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d" namespace="Uhuru.Configuration" xmlSchemaNamespace="urn:Uhuru.Configuration" xmlns="http://schemas.microsoft.com/dsltools/ConfigurationSectionDesigner">
   <typeDefinitions>
     <externalType name="String" namespace="System" />
     <externalType name="Boolean" namespace="System" />
@@ -97,11 +97,6 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
           </type>
         </attributeProperty>
-        <attributeProperty name="OnlyProductionApps" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="onlyProductionApps" isReadOnly="false" defaultValue="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
-          </type>
-        </attributeProperty>
         <attributeProperty name="AdvertiseIntervalMs" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="advertiseIntervalMs" isReadOnly="false" defaultValue="5000">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
@@ -109,9 +104,9 @@
         </attributeProperty>
       </attributeProperties>
       <elementProperties>
-        <elementProperty name="Runtimes" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="runtimes" isReadOnly="false">
+        <elementProperty name="Stacks" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="stacks" isReadOnly="false">
           <type>
-            <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/RuntimeCollection" />
+            <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/StackCollection" />
           </type>
         </elementProperty>
         <elementProperty name="DirectoryServer" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="directoryServer" isReadOnly="false">
@@ -200,9 +195,9 @@
         </attributeProperty>
       </attributeProperties>
     </configurationElement>
-    <configurationElementCollection name="RuntimeCollection" collectionType="BasicMap" xmlItemName="runtime" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
+    <configurationElementCollection name="StackCollection" collectionType="BasicMap" xmlItemName="stack" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
       <itemType>
-        <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/RuntimeElement" />
+        <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/StackElement" />
       </itemType>
     </configurationElementCollection>
     <configurationElement name="UhuruFSElement">
@@ -325,72 +320,7 @@
         </elementProperty>
       </elementProperties>
     </configurationElement>
-    <configurationElementCollection name="EnvironmentCollection" collectionType="BasicMap" xmlItemName="env" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
-      <itemType>
-        <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/EnvironmentElement" />
-      </itemType>
-    </configurationElementCollection>
-    <configurationElementCollection name="DebugCollection" collectionType="BasicMap" xmlItemName="debugConfiguration" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
-      <itemType>
-        <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/DebugElement" />
-      </itemType>
-    </configurationElementCollection>
-    <configurationElement name="RuntimeElement">
-      <attributeProperties>
-        <attributeProperty name="Name" isRequired="true" isKey="true" isDefaultCollection="false" xmlName="name" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-        <attributeProperty name="Executable" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="executable" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-        <attributeProperty name="Version" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="version" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-        <attributeProperty name="VersionArgument" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="versionFlag" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-        <attributeProperty name="AdditionalChecks" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="additionalChecks" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-      </attributeProperties>
-      <elementProperties>
-        <elementProperty name="Environment" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="environment" isReadOnly="false">
-          <type>
-            <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/EnvironmentCollection" />
-          </type>
-        </elementProperty>
-        <elementProperty name="Debug" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="debug" isReadOnly="false">
-          <type>
-            <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/DebugCollection" />
-          </type>
-        </elementProperty>
-      </elementProperties>
-    </configurationElement>
-    <configurationElement name="EnvironmentElement">
-      <attributeProperties>
-        <attributeProperty name="Name" isRequired="true" isKey="true" isDefaultCollection="false" xmlName="name" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-        <attributeProperty name="Value" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="value" isReadOnly="false">
-          <type>
-            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
-          </type>
-        </attributeProperty>
-      </attributeProperties>
-    </configurationElement>
-    <configurationElement name="DebugElement">
+    <configurationElement name="StackElement">
       <attributeProperties>
         <attributeProperty name="Name" isRequired="true" isKey="true" isDefaultCollection="false" xmlName="name" isReadOnly="false">
           <type>
@@ -398,13 +328,6 @@
           </type>
         </attributeProperty>
       </attributeProperties>
-      <elementProperties>
-        <elementProperty name="Environment" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="environment" isReadOnly="false">
-          <type>
-            <configurationElementCollectionMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/EnvironmentCollection" />
-          </type>
-        </elementProperty>
-      </elementProperties>
     </configurationElement>
     <configurationElementCollection name="SupportedVersionsCollection" collectionType="BasicMap" xmlItemName="supportedVersion" codeGenOptions="Indexer, AddMethod, RemoveMethod, GetItemMethods">
       <attributeProperties>

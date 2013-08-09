@@ -231,8 +231,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets the runtime the application is using.
         /// </summary>
-        [JsonName("runtime")]
-        public string Runtime
+        [JsonName("stack")]
+        public string Stack
         {
             get;
             set;

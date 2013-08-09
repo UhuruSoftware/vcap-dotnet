@@ -137,14 +137,6 @@ namespace Uhuru.CloudFoundry.DEA
         private bool useDiskQuota;
 
         /// <summary>
-        /// When a DEA has the "prod" flag set to true, only the apps that have
-        /// "prod" flag will be run on that DEA.  When the DEA's prod flag is
-        /// set to false (default value), the prod flag of the application is
-        /// ignored.
-        /// </summary>
-        private bool onlyProductionApps;
-
-        /// <summary>
         /// The DEA reactor. Is is the middleware to the message bus. 
         /// </summary>
         private DeaReactor deaReactor;
@@ -181,31 +173,9 @@ namespace Uhuru.CloudFoundry.DEA
         {
             UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
 
-            foreach (RuntimeElement deaConf in uhuruSection.DEA.Runtimes)
+            foreach (StackElement deaConf in uhuruSection.DEA.Stacks)
             {
-                DeaRuntime dea = new DeaRuntime();
-
-                dea.Executable = deaConf.Executable;
-                dea.Version = deaConf.Version;
-                dea.VersionArgument = deaConf.VersionArgument;
-                dea.AdditionalChecks = deaConf.AdditionalChecks;
-                dea.Enabled = true;
-
-                foreach (EnvironmentElement ienv in deaConf.Environment)
-                {
-                    dea.Environment.Add(ienv.Name, ienv.Value);
-                }
-
-                foreach (DebugElement debugEnv in deaConf.Debug)
-                {
-                    dea.DebugEnvironmentVariables.Add(debugEnv.Name, new Dictionary<string, string>());
-                    foreach (EnvironmentElement ienv in debugEnv.Environment)
-                    {
-                        dea.DebugEnvironmentVariables[debugEnv.Name].Add(ienv.Name, ienv.Value);
-                    }
-                }
-
-                this.stager.Runtimes.Add(deaConf.Name, dea);
+                this.stager.Stacks.Add(deaConf.Name);
             }
 
             string baseDir = uhuruSection.DEA.BaseDir;
@@ -221,7 +191,6 @@ namespace Uhuru.CloudFoundry.DEA
             this.fileViewer.Port = uhuruSection.DEA.FilerPort;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
-            this.onlyProductionApps = uhuruSection.DEA.OnlyProductionApps;
 
             this.maxConcurrentStarts = uhuruSection.DEA.MaxConcurrentStarts;
 
@@ -270,7 +239,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear"), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear"),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "It is needed to capture all exceptions.")]
         public override void Run()
         {
@@ -392,6 +361,14 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     this.SnapshotVarz();
                 });
+
+            // TODO: change this hack
+            TimerHelper.RecurringLongCall(
+            5000,
+            delegate
+            {
+                this.RegisterRoutes();
+            });
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
@@ -750,7 +727,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private void SendHeartbeat()
         {
-            string response = this.droplets.GenerateHeartbeatMessage(this.UUID, this.onlyProductionApps).SerializeToJson();
+            string response = this.droplets.GenerateHeartbeatMessage(this.UUID).SerializeToJson();
             this.deaReactor.SendDeaHeartbeat(response);
         }
 
@@ -766,9 +743,15 @@ namespace Uhuru.CloudFoundry.DEA
 
             DeaAdvertiseMessage response = new DeaAdvertiseMessage();
             response.Id = this.UUID;
-            response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            response.Prod = this.onlyProductionApps;
+            //response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
+
+            //TODO fix this
+            response.Stacks = new List<string> { "iis8", "windows2012" };
+
+            // TODO: implement this
+            response.AppIdCount = new Dictionary<string, int>();
+
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
         }
@@ -879,27 +862,9 @@ namespace Uhuru.CloudFoundry.DEA
             DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
             pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-            if (pmessage.RuntimeInfo == null)
+            if (!this.stager.StackSupported(pmessage.Stack))
             {
-                if (!this.stager.RuntimeSupported(pmessage.Runtime))
-                {
-                    Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
-                    return;
-                }
-            }
-            else
-            {
-                if (!this.stager.RuntimeSupported(pmessage.Runtime, pmessage.RuntimeInfo))
-                {
-                    Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Runtime);
-                    return;
-                }
-            }
-
-            // Ensure app's prod flag is set if DEA's prod flag is set
-            if (this.onlyProductionApps && !pmessage.Prod)
-            {
-                Logger.Debug("Ignoring request, app's prod flag isn't set to true, and DEA 'only Production Apps' is.");
+                Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Stack);
                 return;
             }
 
@@ -1255,29 +1220,12 @@ namespace Uhuru.CloudFoundry.DEA
                     return;
                 }
 
-                if (pmessage.RuntimeInfo == null)
-                {
-                    if (!this.stager.RuntimeSupported(pmessage.Runtime))
-                    {
-                        Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
-                        return;
-                    }
-                }
-                else
-                {
-                    if (!this.stager.RuntimeSupported(pmessage.Runtime, pmessage.RuntimeInfo))
-                    {
-                        Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
-                        return;
-                    }
-                }
-
-                // Ensure app's prod flag is set if DEA's prod flag is set
-                if (this.onlyProductionApps && !pmessage.Prod)
-                {
-                    Logger.Info("Ignoring request, app's prod flag isn't set to true, and DEA 'only Production Apps' is.");
-                    return;
-                }
+                // TODO: Enable this when cc sends the stack name in the message
+                //if (!this.stager.StackSupported(pmessage.Stack))
+                //{
+                //    Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                //    return;
+                //}
 
                 instance = this.droplets.CreateDropletInstance(pmessage);
                 instance.Properties.MemoryQuotaBytes = memoryMbytes * 1024 * 1024;
@@ -1307,7 +1255,7 @@ namespace Uhuru.CloudFoundry.DEA
                 this.droplets.Lock.ExitWriteLock();
             }
 
-            // toconsider: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
+            // TODO: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
                 this.StartDropletInstance(instance, pmessage.SHA1, pmessage.ExecutableFile, new Uri(pmessage.ExecutableUri));
@@ -1372,8 +1320,12 @@ namespace Uhuru.CloudFoundry.DEA
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
-                    instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
 
+                    //instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
+
+                    //Hack
+                    string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
+                    instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, startup);
                     foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
                     {
                         ApplicationVariable appVariable = new ApplicationVariable();
@@ -1498,23 +1450,6 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
 
-            if (instance.Properties.DebugPort != null && this.stager.Runtimes[instance.Properties.Runtime].DebugEnvironmentVariables != null)
-            {
-                if (this.stager.Runtimes[instance.Properties.Runtime].DebugEnvironmentVariables.ContainsKey(instance.Properties.DebugMode))
-                {
-                    foreach (KeyValuePair<string, string> debugEnv in this.stager.Runtimes[instance.Properties.Runtime].DebugEnvironmentVariables[instance.Properties.DebugMode])
-                    {
-                        env.Add(debugEnv.Key, debugEnv.Value);
-                    }
-                }
-            }
-
-            // Do the runtime environment settings
-            foreach (KeyValuePair<string, string> runtimeEnv in this.stager.Runtimes[instance.Properties.Runtime].Environment)
-            {
-                env.Add(runtimeEnv.Key, runtimeEnv.Value);
-            }
-
             // User's environment settings
             if (appVars != null)
             {
@@ -1575,6 +1510,17 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
 
+
+            this.RegisterRoutes();
+        }
+
+        /// <summary>
+        /// Register the routes for all instances.
+        /// </summary>
+        private void RegisterRoutes()
+        {
+            Logger.Debug("Registering routes");
+
             this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
@@ -1608,7 +1554,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 response.Tags = new RouterMessage.TagsObject();
                 response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Runtime;
+                response.Tags.Runtime = instance.Properties.Stack;
 
                 response.PrivateInstanceId = instance.Properties.PrivateInstanceId;
             }
@@ -1643,7 +1589,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 response.Tags = new RouterMessage.TagsObject();
                 response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Runtime;
+                response.Tags.Runtime = instance.Properties.Stack;
             }
             finally
             {
@@ -1732,7 +1678,7 @@ namespace Uhuru.CloudFoundry.DEA
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
                             // PrivateMemory is Virtual Private Memory usage and is more close to the enforced Job Object memory usage.
-                            long memBytes = instance.JobObject.PrivateMemory;                            
+                            long memBytes = instance.JobObject.PrivateMemory;
 
                             if (this.useDiskQuota)
                             {
@@ -1761,25 +1707,26 @@ namespace Uhuru.CloudFoundry.DEA
                                             { "used_cpu", 0 }
                                         };
 
-                                if (kvp.Key == "framework")
-                                {
-                                    if (!metrics.ContainsKey(instance.Properties.Framework))
-                                    {
-                                        kvp.Value[instance.Properties.Framework] = metric;
-                                    }
+                                // TODO: update this to stacks
+                                //if (kvp.Key == "framework")
+                                //{
+                                //    if (!metrics.ContainsKey(instance.Properties.Framework))
+                                //    {
+                                //        kvp.Value[instance.Properties.Framework] = metric;
+                                //    }
 
-                                    metric = kvp.Value[instance.Properties.Framework];
-                                }
+                                //    metric = kvp.Value[instance.Properties.Framework];
+                                //}
 
-                                if (kvp.Key == "runtime")
-                                {
-                                    if (!metrics.ContainsKey(instance.Properties.Runtime))
-                                    {
-                                        kvp.Value[instance.Properties.Runtime] = metric;
-                                    }
+                                //if (kvp.Key == "runtime")
+                                //{
+                                //    if (!metrics.ContainsKey(instance.Properties.Stack))
+                                //    {
+                                //        kvp.Value[instance.Properties.Stack] = metric;
+                                //    }
 
-                                    metric = kvp.Value[instance.Properties.Runtime];
-                                }
+                                //    metric = kvp.Value[instance.Properties.Stack];
+                                //}
 
                                 metric["used_memory"] += memBytes / 1024;
                                 metric["reserved_memory"] += instance.Properties.MemoryQuotaBytes / 1024;
@@ -1897,7 +1844,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Does all the cleaning that is needed for an instance if stopped gracefully or has crashed
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Manageable."), 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Manageable."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Warning(System.String,System.Object[])", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void TheReaper()
         {
@@ -1964,7 +1911,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                             try
                             {
-                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, string.Empty);
+                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, "");
                                 WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
                             }
                             catch (Exception ex)

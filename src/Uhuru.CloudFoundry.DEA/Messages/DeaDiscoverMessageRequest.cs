@@ -56,8 +56,8 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the runtime the droplet needs.
         /// </summary>
-        [JsonName("runtime")]
-        public string Runtime
+        [JsonName("stack")]
+        public string Stack
         {
             get;
             set;
@@ -78,16 +78,6 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// </summary>
         [JsonName("limits")]
         public DropletLimits Limits
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the app is for production DEA.
-        /// </summary>
-        [JsonName("prod")]
-        public bool Prod
         {
             get;
             set;

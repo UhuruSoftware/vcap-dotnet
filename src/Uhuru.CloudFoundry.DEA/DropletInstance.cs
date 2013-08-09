@@ -334,7 +334,10 @@ namespace Uhuru.CloudFoundry.DEA
         public void LoadPlugin()
         {
             // in startup, we have the class name and assembly to load as a plugin
-            string startup = File.ReadAllText(Path.Combine(this.Properties.Directory, "startup"));
+            //string startup = File.ReadAllText(Path.Combine(this.Properties.Directory, "startup"));
+
+            // Hack
+            string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
 
             VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
             pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(startup));

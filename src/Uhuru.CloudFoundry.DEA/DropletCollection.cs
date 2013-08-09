@@ -95,14 +95,12 @@ namespace Uhuru.CloudFoundry.DEA
         /// Generates the heartbeat message.
         /// </summary>
         /// <param name="deaId">The DEA UUID.</param>
-        /// <param name="prod">Only production apps flag.</param>
         /// <returns>Return the heartbeat message</returns>
-        public HeartbeatMessage GenerateHeartbeatMessage(string deaId, bool prod)
+        public HeartbeatMessage GenerateHeartbeatMessage(string deaId)
         {
             HeartbeatMessage response = new HeartbeatMessage();
 
             response.Dea = deaId;
-            response.Prod = prod;
 
             ForEach(delegate(DropletInstance instance)
             {
@@ -358,7 +356,7 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Users = message.Users;
             instance.Properties.Version = message.Version;
             instance.Properties.Framework = message.Framework;
-            instance.Properties.Runtime = message.Runtime;
+            instance.Properties.Stack = message.Stack;
             instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
             instance.Properties.Flapping = message.Flapping;
             instance.Properties.CloudControllerPartition = message.CloudControllerPartition;

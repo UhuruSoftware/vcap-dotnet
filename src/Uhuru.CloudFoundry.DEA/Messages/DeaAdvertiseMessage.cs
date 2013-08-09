@@ -30,8 +30,8 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1002:DoNotExposeGenericLists", Justification = "Convention."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Convention.")]
-        [JsonName("runtimes")]
-        public List<string> Runtimes
+        [JsonName("stacks")]
+        public List<string> Stacks
         {
             get;
             set;
@@ -48,10 +48,10 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether it accepts only production apps.
+        /// Gets or sets the number of instances running on the DEA per app.
         /// </summary>
-        [JsonName("prod")]
-        public bool Prod
+        [JsonName("app_id_to_count")]
+        public Dictionary<string, int> AppIdCount
         {
             get;
             set;

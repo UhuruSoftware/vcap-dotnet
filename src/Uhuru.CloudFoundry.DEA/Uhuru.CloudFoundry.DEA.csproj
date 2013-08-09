@@ -83,7 +83,6 @@
     <Compile Include="Agent.cs" />
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="DEAReactor.cs" />
-    <Compile Include="DeaRuntime.cs" />
     <Compile Include="Messages\DeaAdvertiseMessage.cs" />
     <Compile Include="Messages\DeaUpdateMessageRequest.cs" />
     <Compile Include="Messages\DeaStopMessageRequest.cs" />
