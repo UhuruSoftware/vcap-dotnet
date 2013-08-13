@@ -109,7 +109,7 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.locate", this.OnDeaLocate);
 
             NatsClient.Subscribe("dea.stop", this.OnDeaStop);
-            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.UUID), this.OnDeaStart);
+            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, "dea.{0}.start", this.UUID), this.OnDeaStart);
 
             NatsClient.Subscribe("router.start", this.OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", this.OnHealthManagerStart);
@@ -168,6 +168,15 @@ namespace Uhuru.CloudFoundry.DEA
         public void SendDeaAdvertise(string message)
         {
             NatsClient.Publish("dea.advertise", null, message);
+        }
+
+        /// <summary>
+        /// Sends greeting message to routers.
+        /// </summary>
+        /// <param name="callback">Callback on reponse.</param>
+        public void SendRouterGreetings(SubscribeCallback callback)
+        {
+            NatsClient.Request("router.greet", null, callback, "{}");
         }
     }
 }

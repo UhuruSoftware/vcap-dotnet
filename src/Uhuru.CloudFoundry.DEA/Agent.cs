@@ -162,6 +162,16 @@ namespace Uhuru.CloudFoundry.DEA
         private int maxConcurrentStarts;
 
         /// <summary>
+        /// The minimum register interval in seconds for routers. This is the minimum between all intervals announced on router.start.
+        /// </summary>
+        private int minRouterRegisterInterval = int.MaxValue;
+
+        /// <summary>
+        /// The timer for router register.
+        /// </summary>
+        private System.Timers.Timer routerRegisterTimer;
+
+        /// <summary>
         /// The windows disk quota manager.
         /// </summary>
         private DIDiskQuotaControl diskQuotaControl;
@@ -362,13 +372,7 @@ namespace Uhuru.CloudFoundry.DEA
                     this.SnapshotVarz();
                 });
 
-            // TODO: change this hack
-            TimerHelper.RecurringLongCall(
-            5000,
-            delegate
-            {
-                this.RegisterRoutes();
-            });
+            this.deaReactor.SendRouterGreetings(new SubscribeCallback(this.RouterStartHandler));
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
@@ -742,16 +746,25 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             DeaAdvertiseMessage response = new DeaAdvertiseMessage();
+
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            //response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
-
-            //TODO fix this
-            response.Stacks = new List<string> { "iis8", "windows2012" };
-
-            // TODO: implement this
+            response.Stacks = this.stager.Stacks.ToList();
+            
             response.AppIdCount = new Dictionary<string, int>();
 
+            this.droplets.ForEach(delegate(DropletInstance instance)
+            {
+                if (instance.Properties.State == DropletInstanceState.Running)
+                {
+                    if (!response.AppIdCount.ContainsKey(instance.Properties.DropletId))
+                    {
+                        response.AppIdCount[instance.Properties.DropletId] = 0;
+                    }
+
+                    response.AppIdCount[instance.Properties.DropletId] += 1;
+                }
+            });
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
         }
@@ -1427,8 +1440,32 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
 
-
             this.RegisterRoutes();
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                var pmessage = new RouterStartMessageRequest();
+                pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+                // Recreate the timer if the MinimumRegisterIntervalInSeconds is lower the a previews recorded one.
+                if (this.minRouterRegisterInterval > pmessage.MinimumRegisterIntervalInSeconds)
+                {
+                    this.minRouterRegisterInterval = pmessage.MinimumRegisterIntervalInSeconds;
+
+                    if (this.routerRegisterTimer != null)
+                    {
+                        this.routerRegisterTimer.Dispose();
+                    }
+
+                    this.routerRegisterTimer = TimerHelper.RecurringLongCall(
+                    this.minRouterRegisterInterval,
+                    delegate
+                    {
+                        this.RegisterRoutes();
+                    });
+                }
+
+            }
         }
 
         /// <summary>
@@ -1436,8 +1473,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private void RegisterRoutes()
         {
-            Logger.Debug("Registering routes");
-
             this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
