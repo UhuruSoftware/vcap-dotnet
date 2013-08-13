@@ -1458,7 +1458,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
 
                     this.routerRegisterTimer = TimerHelper.RecurringLongCall(
-                    this.minRouterRegisterInterval,
+                    this.minRouterRegisterInterval * 1000,
                     delegate
                     {
                         this.RegisterRoutes();
@@ -1505,8 +1505,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = new List<string>(instance.Properties.Uris).ToArray();
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Stack;
+                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
 
                 response.PrivateInstanceId = instance.Properties.PrivateInstanceId;
             }
@@ -1540,8 +1539,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = instance.Properties.Uris;
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Stack;
+                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
             }
             finally
             {

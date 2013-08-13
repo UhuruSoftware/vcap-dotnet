@@ -92,20 +92,10 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         public class TagsObject : JsonConvertibleObject
         {
             /// <summary>
-            /// Gets or sets the framework.
+            /// Gets or sets the component type and index.
             /// </summary>
-            [JsonName("framework")]
-            public string Framework
-            {
-                get;
-                set;
-            }
-
-            /// <summary>
-            /// Gets or sets the runtime.
-            /// </summary>
-            [JsonName("runtime")]
-            public string Runtime
+            [JsonName("component")]
+            public string Component
             {
                 get;
                 set;
