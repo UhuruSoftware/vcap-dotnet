@@ -92,7 +92,6 @@
     <Compile Include="DropletInstanceProperties.cs" />
     <Compile Include="DropletInstanceUsage.cs" />
     <Compile Include="FileViewer.cs" />
-    <Compile Include="Messages\DeaDiscoverMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageResponse.cs" />
     <Compile Include="Messages\DeaStartMessageRequest.cs" />

@@ -303,7 +303,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.OnDeaStatus += new SubscribeCallback(this.DeaStatusHandler);
             this.deaReactor.OnDropletStatus += new SubscribeCallback(this.DropletStatusHandler);
-            this.deaReactor.OnDeaDiscover += new SubscribeCallback(this.DeaDiscoverHandler);
+
             this.deaReactor.OnDeaFindDroplet += new SubscribeCallback(this.DeaFindDropletHandler);
             this.deaReactor.OnDeaUpdate += new SubscribeCallback(this.DeaUpdateHandler);
             this.deaReactor.OnDeaLocate += new SubscribeCallback(this.DeaLocateHandler);
@@ -841,89 +841,6 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitReadLock();
                 }
             });
-        }
-
-        /// <summary>
-        /// The handler for the dea.discover message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="reply">The reply.</param>
-        /// <param name="subject">The subject.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear.")]
-        private void DeaDiscoverHandler(string message, string reply, string subject)
-        {
-            Logger.Debug(Strings.DeaReceivedDiscoveryMessage, message);
-            if (this.shuttingDown || this.monitoring.Clients >= this.monitoring.MaxClients || this.monitoring.MemoryReservedMbytes > this.monitoring.MaxMemoryMbytes)
-            {
-                Logger.Debug(Strings.IgnoringRequest);
-                return;
-            }
-
-            DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
-            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-
-            if (!this.stager.StackSupported(pmessage.Stack))
-            {
-                Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Stack);
-                return;
-            }
-
-            if (this.monitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > this.monitoring.MaxMemoryMbytes)
-            {
-                Logger.Debug(Strings.IgnoringRequestNotEnoughMemory);
-                return;
-            }
-
-            int curStartingApps = 0;
-
-            this.droplets.ForEach(delegate(DropletInstance instance)
-            {
-                if (instance.Properties.State == DropletInstanceState.Starting)
-                {
-                    curStartingApps++;
-                }
-            });
-
-            if (curStartingApps >= this.maxConcurrentStarts)
-            {
-                Logger.Debug("More then {0} apps starting. Ignoring request", this.maxConcurrentStarts);
-                return;
-            }
-
-            double taintMs = 0;
-
-            try
-            {
-                this.droplets.Lock.EnterReadLock();
-
-                if (this.droplets.Droplets.ContainsKey(pmessage.DropletId))
-                {
-                    taintMs += this.droplets.Droplets[pmessage.DropletId].DropletInstances.Count * Monitoring.TaintPerAppMilliseconds;
-                }
-            }
-            finally
-            {
-                this.droplets.Lock.ExitReadLock();
-            }
-
-            try
-            {
-                this.monitoring.Lock.EnterReadLock();
-                taintMs += Monitoring.TaintForMemoryMilliseconds * (this.monitoring.MemoryReservedMbytes / this.monitoring.MaxMemoryMbytes);
-                taintMs = Math.Min(taintMs, Monitoring.TaintMaxMilliseconds);
-            }
-            finally
-            {
-                this.monitoring.Lock.ExitReadLock();
-            }
-
-            Logger.Debug(Strings.SendingDeaDiscoverResponse, taintMs);
-            TimerHelper.DelayedCall(
-                taintMs,
-                delegate
-                {
-                    this.deaReactor.SendReply(reply, this.helloMessage.SerializeToJson());
-                });
         }
 
         /// <summary>

@@ -65,13 +65,6 @@ namespace Uhuru.CloudFoundry.DEA
         public event SubscribeCallback OnDropletStatus;
 
         /// <summary>
-        /// Occurs when the dea.discover message is received on the message bus.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
-        public event SubscribeCallback OnDeaDiscover;
-
-        /// <summary>
         /// Occurs when dea.find.droplet message is received on the message bus.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
@@ -110,7 +103,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             NatsClient.Subscribe("dea.status", this.OnDeaStatus);
             NatsClient.Subscribe("droplet.status", this.OnDropletStatus);
-            NatsClient.Subscribe("dea.discover", this.OnDeaDiscover);
+            
             NatsClient.Subscribe("dea.find.droplet", this.OnDeaFindDroplet);
             NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
             NatsClient.Subscribe("dea.locate", this.OnDeaLocate);
