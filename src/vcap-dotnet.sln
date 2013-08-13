@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Utilities", "Uhuru.Utilities\Uhuru.Utilities.csproj", "{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA", "Uhuru.CloudFoundry.DEA\Uhuru.CloudFoundry.DEA.csproj", "{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}"
@@ -38,8 +38,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.FileService", "Uhuru.CloudFoundry.FileService\Uhuru.CloudFoundry.FileService.csproj", "{91B87C08-1B0D-46A7-8818-D1D55AFB90FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.FileService.WindowsService", "Uhuru.CloudFoundry.FileService.WindowsService\Uhuru.CloudFoundry.FileService.WindowsService.csproj", "{B8CBF45E-03CF-4185-A161-219FE6C45062}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Plugins.IIS", "Uhuru.CloudFoundry.DEA.Plugins.IIS\Uhuru.CloudFoundry.DEA.Plugins.IIS.csproj", "{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.MSSqlService.Backup", "Uhuru.CloudFoundry.MSSqlService.Backup\Uhuru.CloudFoundry.MSSqlService.Backup.csproj", "{8DA6AE6F-82FD-4824-BD18-1ED8970FB129}"
 EndProject
@@ -200,16 +198,6 @@ Global
 		{B8CBF45E-03CF-4185-A161-219FE6C45062}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B8CBF45E-03CF-4185-A161-219FE6C45062}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B8CBF45E-03CF-4185-A161-219FE6C45062}.Release|x86.ActiveCfg = Release|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2}.Release|x86.ActiveCfg = Release|Any CPU
 		{8DA6AE6F-82FD-4824-BD18-1ED8970FB129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8DA6AE6F-82FD-4824-BD18-1ED8970FB129}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DA6AE6F-82FD-4824-BD18-1ED8970FB129}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -254,7 +242,6 @@ Global
 		{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1} = {9AF8C03A-1681-442A-BAB8-AAC2AD2F9B78}
 		{E4F8E3CD-1F1E-4255-BF80-C62283BF0597} = {9AF8C03A-1681-442A-BAB8-AAC2AD2F9B78}
 		{EFBDC205-6578-47AA-A53C-DFFC5A39CA1F} = {9AF8C03A-1681-442A-BAB8-AAC2AD2F9B78}
-		{4A3EC5D9-1648-4E35-9C7B-20465EEDBCC2} = {9AF8C03A-1681-442A-BAB8-AAC2AD2F9B78}
 		{0C7A0FCA-20C9-45F5-9497-738258A3717A} = {9AF8C03A-1681-442A-BAB8-AAC2AD2F9B78}
 		{FC669600-C839-426A-B246-AC19D55F5C51} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{CD88A492-B83B-4CAE-B2D8-B1C7609F6E54} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
