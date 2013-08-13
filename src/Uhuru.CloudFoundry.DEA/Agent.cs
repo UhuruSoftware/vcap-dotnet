@@ -312,7 +312,6 @@ namespace Uhuru.CloudFoundry.DEA
             this.VCAPReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
 
             this.deaReactor.OnDeaStatus += new SubscribeCallback(this.DeaStatusHandler);
-            this.deaReactor.OnDropletStatus += new SubscribeCallback(this.DropletStatusHandler);
 
             this.deaReactor.OnDeaFindDroplet += new SubscribeCallback(this.DeaFindDropletHandler);
             this.deaReactor.OnDeaUpdate += new SubscribeCallback(this.DeaUpdateHandler);
@@ -820,40 +819,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             this.deaReactor.SendReply(reply, response.SerializeToJson());
-        }
-
-        /// <summary>
-        /// The handler for the droplet.status message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="reply">The reply.</param>
-        /// <param name="subject">The subject.</param>
-        private void DropletStatusHandler(string message, string reply, string subject)
-        {
-            if (this.shuttingDown)
-            {
-                return;
-            }
-
-            Logger.Debug(Strings.DeaReceivedRouterStart, message);
-
-            this.droplets.ForEach(delegate(DropletInstance instance)
-            {
-                try
-                {
-                    instance.Lock.EnterReadLock();
-                    if (instance.Properties.State == DropletInstanceState.Running || instance.Properties.State == DropletInstanceState.Starting)
-                    {
-                        DropletStatusMessageResponse response = instance.GenerateDropletStatusMessage();
-                        response.Host = Host;
-                        this.deaReactor.SendReply(reply, response.SerializeToJson());
-                    }
-                }
-                finally
-                {
-                    instance.Lock.ExitReadLock();
-                }
-            });
         }
 
         /// <summary>
