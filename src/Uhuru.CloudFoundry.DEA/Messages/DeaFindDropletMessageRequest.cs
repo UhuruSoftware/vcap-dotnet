@@ -112,5 +112,15 @@ namespace Uhuru.CloudFoundry.DEA.Messages
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to include some path information for the droplet instance.
+        /// </summary>
+        [JsonName("path")]
+        public string Path
+        {
+            get;
+            set;
+        }
     }
 }

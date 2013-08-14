@@ -106,6 +106,10 @@
     </CodeAnalysisDictionary>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.DirectoryServer\Uhuru.CloudFoundry.DEA.DirectoryServer.csproj">
+      <Project>{0C7A0FCA-20C9-45F5-9497-738258A3717A}</Project>
+      <Name>Uhuru.CloudFoundry.DEA.DirectoryServer</Name>
+    </ProjectReference>  
     <ProjectReference Include="..\Uhuru.CloudFoundry.DEA\Uhuru.CloudFoundry.DEA.csproj">
       <Project>{25C9BC3C-1897-4B00-858A-3CE7E4CB06F1}</Project>
       <Name>Uhuru.CloudFoundry.DEA</Name>

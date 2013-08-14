@@ -1010,7 +1010,8 @@ namespace Uhuru.Configuration
     /// <summary>
     /// A collection of StackElement instances.
     /// </summary>
-    [global::System.Configuration.ConfigurationCollectionAttribute(typeof(global::Uhuru.Configuration.StackElement), CollectionType=global::System.Configuration.ConfigurationElementCollectionType.BasicMap, AddItemName=global::Uhuru.Configuration.StackCollection.StackElementPropertyName)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "PoC Testing"), 
+    global::System.Configuration.ConfigurationCollectionAttribute(typeof(global::Uhuru.Configuration.StackElement), CollectionType = global::System.Configuration.ConfigurationElementCollectionType.BasicMap, AddItemName = global::Uhuru.Configuration.StackCollection.StackElementPropertyName)]
     public partial class StackCollection : global::System.Configuration.ConfigurationElementCollection
     {
         

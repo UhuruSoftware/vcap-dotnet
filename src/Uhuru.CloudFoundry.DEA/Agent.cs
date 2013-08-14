@@ -16,12 +16,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Linq;
     using System.Threading;
     using DiskQuotaTypeLibrary;
+    using Uhuru.CloudFoundry.DEA.DirectoryServer;    
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
+    using System.Collections.Specialized;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -34,7 +36,7 @@ namespace Uhuru.CloudFoundry.DEA
     /// or some external event happened.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Trying to keep similarity to Ruby version.")]
-    public sealed class Agent : VCAPComponent
+    public sealed class Agent : VCAPComponent, IDeaClient
     {
         /// <summary>
         /// The DEA version.
@@ -109,7 +111,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// The DEA's HTTP droplet file viewer. Helps receive the logs.
         /// </summary>
-        private FileViewer fileViewer = new FileViewer();
+        private Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer fileViewer = new Uhuru.CloudFoundry.DEA.DirectoryServer.DirectoryServer();
 
         /// <summary>
         /// The monitoring resource.
@@ -157,11 +159,6 @@ namespace Uhuru.CloudFoundry.DEA
         private int evacuationDelayMs = 30 * 1000;
 
         /// <summary>
-        /// Maximum number of droplets that can be in a starting state. After that dea.discover messages are ingored.
-        /// </summary>
-        private int maxConcurrentStarts;
-
-        /// <summary>
         /// The minimum register interval in seconds for routers. This is the minimum between all intervals announced on router.start.
         /// </summary>
         private int minRouterRegisterInterval = int.MaxValue;
@@ -176,6 +173,11 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private DIDiskQuotaControl diskQuotaControl;
 
+        /// <summary>
+        /// Directory Server V2 Port.
+        /// </summary>
+        private int directoryServerPort;        
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
@@ -198,11 +200,9 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.monitoring.MaxMemoryMbytes = uhuruSection.DEA.MaxMemoryMB;
 
-            this.fileViewer.Port = uhuruSection.DEA.FilerPort;
+            this.directoryServerPort = uhuruSection.DEA.DirectoryServer.V2Port;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
-
-            this.maxConcurrentStarts = uhuruSection.DEA.MaxConcurrentStarts;
 
             // Replace the ephemeral monitoring port with the configured one
             if (uhuruSection.DEA.StatusPort > 0)
@@ -241,10 +241,41 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.helloMessage.Id = this.UUID;
             this.helloMessage.Host = this.Host;
-            this.helloMessage.FileViewerPort = this.fileViewer.Port;
+            this.helloMessage.FileViewerPort = this.directoryServerPort;
             this.helloMessage.Version = Version;
         }
 
+        /// <summary>
+        /// Looks up the path in the DEA.
+        /// </summary>
+        /// <param name="path">The path to lookup.</param>
+        /// <returns>
+        /// A PathLookupResponse containing the response from the DEA.
+        /// </returns>
+        public PathLookupResponse LookupPath(Uri path)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException("path");
+            }
+
+            PathLookupResponse response = new PathLookupResponse();
+            response.Error = string.Empty;
+
+            NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(path.Query);
+            string actualPath = queryStrings["path"];
+
+            this.droplets.ForEach(delegate(DropletInstance droplet)
+            {
+                if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
+                {
+                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
+                }
+            });
+
+            return response;
+        }        
+        
         /// <summary>
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
@@ -307,7 +338,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info("Disk quota initialization complete for volume '{0}'.", rootPath);
             }
 
-            this.fileViewer.Start(this.stager.AppsDir);
+            this.fileViewer.Start(this.Host, DirectoryConfiguration.ReadConfig(), this);
 
             this.VCAPReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
 
@@ -807,7 +838,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = UUID;
             response.Host = Host;
-            response.FileViewerPort = this.fileViewer.Port;
+            response.FileViewerPort = this.directoryServerPort;
             response.Version = Version;
             response.MaxMemoryMbytes = this.monitoring.MaxMemoryMbytes;
             response.MemoryReservedMbytes = this.monitoring.MemoryReservedMbytes;
@@ -862,8 +893,24 @@ namespace Uhuru.CloudFoundry.DEA
                         response.Index = instance.Properties.InstanceIndex;
                         response.State = instance.Properties.State;
                         response.StateTimestamp = instance.Properties.StateTimestamp;
-                        response.FileUri = string.Format(CultureInfo.InvariantCulture, Strings.HttpDroplets, Host, this.fileViewer.Port);
-                        response.FileAuth = this.fileViewer.Credentials;
+                        response.FileUri = string.Format(CultureInfo.InvariantCulture, Strings.HttpDroplets, Host, this.directoryServerPort);
+
+                        if (pmessage.Path != null)
+                        {
+                            response.FileUriV2 = string.Format(
+                                CultureInfo.InvariantCulture,
+                                "http://{0}:{1}/instance_paths/{2}?hmac={5}&path={3}&timestamp={4}",
+                                Host,
+                                this.directoryServerPort,
+                                Uri.EscapeUriString(response.InstanceId),
+                                Uri.EscapeUriString(pmessage.Path),
+                                RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now),
+                                Guid.NewGuid().ToString("N"));
+                        }
+
+                        Logger.Debug(Strings.DebugFileUriV2Path, response.FileUri);
+
+                        response.FileAuth = new string[] { "una", "doua" };
                         response.Staged = instance.Properties.Staged;
                         response.DebugIP = instance.Properties.DebugIP;
                         response.DebugPort = instance.Properties.DebugPort;
@@ -1116,11 +1163,11 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 // TODO: Enable this when cc sends the stack name in the message
-                //if (!this.stager.StackSupported(pmessage.Stack))
-                //{
-                //    Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
-                //    return;
-                //}
+                //// if (!this.stager.StackSupported(pmessage.Stack))
+                //// {
+                ////     Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
+                ////     return;
+                //// }
 
                 instance = this.droplets.CreateDropletInstance(pmessage);
                 instance.Properties.MemoryQuotaBytes = memoryMbytes * 1024 * 1024;
@@ -1216,9 +1263,9 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
-                    //instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
+                    ////instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
 
-                    //Hack
+                    // Hack
                     string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
                     instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, startup);
                     foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
@@ -1612,43 +1659,6 @@ namespace Uhuru.CloudFoundry.DEA
 
                             memoryUsageKbytes += memBytes / 1024;
 
-                            foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, long>>> kvp in metrics)
-                            {
-                                Dictionary<string, long> metric = new Dictionary<string, long>() 
-                                        {
-                                            { "used_memory", 0 },
-                                            { "reserved_memory", 0 },
-                                            { "used_disk", 0 },
-                                            { "used_cpu", 0 }
-                                        };
-
-                                // TODO: update this to stacks
-                                //if (kvp.Key == "framework")
-                                //{
-                                //    if (!metrics.ContainsKey(instance.Properties.Framework))
-                                //    {
-                                //        kvp.Value[instance.Properties.Framework] = metric;
-                                //    }
-
-                                //    metric = kvp.Value[instance.Properties.Framework];
-                                //}
-
-                                //if (kvp.Key == "runtime")
-                                //{
-                                //    if (!metrics.ContainsKey(instance.Properties.Stack))
-                                //    {
-                                //        kvp.Value[instance.Properties.Stack] = metric;
-                                //    }
-
-                                //    metric = kvp.Value[instance.Properties.Stack];
-                                //}
-
-                                metric["used_memory"] += memBytes / 1024;
-                                metric["reserved_memory"] += instance.Properties.MemoryQuotaBytes / 1024;
-                                metric["used_disk"] += diskBytes;
-                                metric["used_cpu"] += (long)cpu;
-                            }
-
                             // Track running apps for varz tracking
                             runningApps.Add(instance.Properties.ToJsonIntermediateObject());
                         }
@@ -1826,7 +1836,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                             try
                             {
-                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, "");
+                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, string.Empty);
                                 WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
                             }
                             catch (Exception ex)

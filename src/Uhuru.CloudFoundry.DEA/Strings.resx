@@ -473,4 +473,10 @@
   <data name="InstanceProcessCoudNotBeAdded" xml:space="preserve">
     <value>The {0} instance process could not be added to the instance job object: {1}</value>
   </data>
+  <data name="RegisteringRoutes" xml:space="preserve">
+    <value>Registering routes</value>
+  </data>
+  <data name="DebugFileUriV2Path" xml:space="preserve">
+    <value>File URI for app is '{0}'</value>
+  </data>
 </root>
