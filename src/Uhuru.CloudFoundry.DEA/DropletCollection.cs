@@ -355,7 +355,6 @@ namespace Uhuru.CloudFoundry.DEA
             instance.Properties.Uris = message.Uris;
             instance.Properties.Users = message.Users;
             instance.Properties.Version = message.Version;
-            instance.Properties.Framework = message.Framework;
             instance.Properties.Stack = message.Stack;
             instance.Properties.LoggingId = string.Format(CultureInfo.InvariantCulture, Strings.NameAppIdInstance, message.Name, message.DropletId, instanceId, message.Index);
             instance.Properties.Flapping = message.Flapping;

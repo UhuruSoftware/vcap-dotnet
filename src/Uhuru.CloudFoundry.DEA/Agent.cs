@@ -8,7 +8,6 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Configuration;
     using System.Diagnostics;
@@ -17,13 +16,14 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Linq;
     using System.Threading;
     using DiskQuotaTypeLibrary;
-    using Uhuru.CloudFoundry.DEA.DirectoryServer;
+    using Uhuru.CloudFoundry.DEA.DirectoryServer;    
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Configuration;
     using Uhuru.NatsClient;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
+    using System.Collections.Specialized;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -159,9 +159,14 @@ namespace Uhuru.CloudFoundry.DEA
         private int evacuationDelayMs = 30 * 1000;
 
         /// <summary>
-        /// Maximum number of droplets that can be in a starting state. After that dea.discover messages are ingored.
+        /// The minimum register interval in seconds for routers. This is the minimum between all intervals announced on router.start.
         /// </summary>
-        private int maxConcurrentStarts;
+        private int minRouterRegisterInterval = int.MaxValue;
+
+        /// <summary>
+        /// The timer for router register.
+        /// </summary>
+        private System.Timers.Timer routerRegisterTimer;
 
         /// <summary>
         /// The windows disk quota manager.
@@ -171,8 +176,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Directory Server V2 Port.
         /// </summary>
-        private int directoryServerPort;
-
+        private int directoryServerPort;        
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
@@ -197,11 +202,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.directoryServerPort = uhuruSection.DEA.DirectoryServer.V2Port;
 
-            //// this.fileViewer.Port = uhuruSection.DEA.FilerPort;
-
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
-
-            this.maxConcurrentStarts = uhuruSection.DEA.MaxConcurrentStarts;
 
             // Replace the ephemeral monitoring port with the configured one
             if (uhuruSection.DEA.StatusPort > 0)
@@ -273,8 +274,8 @@ namespace Uhuru.CloudFoundry.DEA
             });
 
             return response;
-        }
-
+        }        
+        
         /// <summary>
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
@@ -342,8 +343,7 @@ namespace Uhuru.CloudFoundry.DEA
             this.VCAPReactor.OnNatsError += new EventHandler<ReactorErrorEventArgs>(this.NatsErrorHandler);
 
             this.deaReactor.OnDeaStatus += new SubscribeCallback(this.DeaStatusHandler);
-            this.deaReactor.OnDropletStatus += new SubscribeCallback(this.DropletStatusHandler);
-            this.deaReactor.OnDeaDiscover += new SubscribeCallback(this.DeaDiscoverHandler);
+
             this.deaReactor.OnDeaFindDroplet += new SubscribeCallback(this.DeaFindDropletHandler);
             this.deaReactor.OnDeaUpdate += new SubscribeCallback(this.DeaUpdateHandler);
             this.deaReactor.OnDeaLocate += new SubscribeCallback(this.DeaLocateHandler);
@@ -402,13 +402,7 @@ namespace Uhuru.CloudFoundry.DEA
                     this.SnapshotVarz();
                 });
 
-            // TODO: change this hack
-            TimerHelper.RecurringLongCall(
-            5000,
-            delegate
-            {
-                this.RegisterRoutes();
-            });
+            this.deaReactor.SendRouterGreetings(new SubscribeCallback(this.RouterStartHandler));
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
@@ -782,16 +776,25 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             DeaAdvertiseMessage response = new DeaAdvertiseMessage();
+
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-
-            // response.Runtimes = this.stager.Runtimes.Select((pair) => pair.Key).ToList();
-
-            // TODO fix this
-            response.Stacks = new List<string> { "iis8", "windows2012" };
-
-            // TODO: implement this
+            response.Stacks = this.stager.Stacks.ToList();
+            
             response.AppIdCount = new Dictionary<string, int>();
+
+            this.droplets.ForEach(delegate(DropletInstance instance)
+            {
+                if (instance.Properties.State == DropletInstanceState.Running)
+                {
+                    if (!response.AppIdCount.ContainsKey(instance.Properties.DropletId))
+                    {
+                        response.AppIdCount[instance.Properties.DropletId] = 0;
+                    }
+
+                    response.AppIdCount[instance.Properties.DropletId] += 1;
+                }
+            });
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
         }
@@ -847,123 +850,6 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             this.deaReactor.SendReply(reply, response.SerializeToJson());
-        }
-
-        /// <summary>
-        /// The handler for the droplet.status message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="reply">The reply.</param>
-        /// <param name="subject">The subject.</param>
-        private void DropletStatusHandler(string message, string reply, string subject)
-        {
-            if (this.shuttingDown)
-            {
-                return;
-            }
-
-            Logger.Debug(Strings.DeaReceivedRouterStart, message);
-
-            this.droplets.ForEach(delegate(DropletInstance instance)
-            {
-                try
-                {
-                    instance.Lock.EnterReadLock();
-                    if (instance.Properties.State == DropletInstanceState.Running || instance.Properties.State == DropletInstanceState.Starting)
-                    {
-                        DropletStatusMessageResponse response = instance.GenerateDropletStatusMessage();
-                        response.Host = Host;
-                        this.deaReactor.SendReply(reply, response.SerializeToJson());
-                    }
-                }
-                finally
-                {
-                    instance.Lock.ExitReadLock();
-                }
-            });
-        }
-
-        /// <summary>
-        /// The handler for the dea.discover message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="reply">The reply.</param>
-        /// <param name="subject">The subject.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "More clear.")]
-        private void DeaDiscoverHandler(string message, string reply, string subject)
-        {
-            Logger.Debug(Strings.DeaReceivedDiscoveryMessage, message);
-            if (this.shuttingDown || this.monitoring.Clients >= this.monitoring.MaxClients || this.monitoring.MemoryReservedMbytes > this.monitoring.MaxMemoryMbytes)
-            {
-                Logger.Debug(Strings.IgnoringRequest);
-                return;
-            }
-
-            DeaDiscoverMessageRequest pmessage = new DeaDiscoverMessageRequest();
-            pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-
-            if (!this.stager.StackSupported(pmessage.Stack))
-            {
-                Logger.Debug(Strings.IgnoringRequestRuntime, pmessage.Stack);
-                return;
-            }
-
-            if (this.monitoring.MemoryReservedMbytes + pmessage.Limits.MemoryMbytes > this.monitoring.MaxMemoryMbytes)
-            {
-                Logger.Debug(Strings.IgnoringRequestNotEnoughMemory);
-                return;
-            }
-
-            int curStartingApps = 0;
-
-            this.droplets.ForEach(delegate(DropletInstance instance)
-            {
-                if (instance.Properties.State == DropletInstanceState.Starting)
-                {
-                    curStartingApps++;
-                }
-            });
-
-            if (curStartingApps >= this.maxConcurrentStarts)
-            {
-                Logger.Debug("More then {0} apps starting. Ignoring request", this.maxConcurrentStarts);
-                return;
-            }
-
-            double taintMs = 0;
-
-            try
-            {
-                this.droplets.Lock.EnterReadLock();
-
-                if (this.droplets.Droplets.ContainsKey(pmessage.DropletId))
-                {
-                    taintMs += this.droplets.Droplets[pmessage.DropletId].DropletInstances.Count * Monitoring.TaintPerAppMilliseconds;
-                }
-            }
-            finally
-            {
-                this.droplets.Lock.ExitReadLock();
-            }
-
-            try
-            {
-                this.monitoring.Lock.EnterReadLock();
-                taintMs += Monitoring.TaintForMemoryMilliseconds * (this.monitoring.MemoryReservedMbytes / this.monitoring.MaxMemoryMbytes);
-                taintMs = Math.Min(taintMs, Monitoring.TaintMaxMilliseconds);
-            }
-            finally
-            {
-                this.monitoring.Lock.ExitReadLock();
-            }
-
-            Logger.Debug(Strings.SendingDeaDiscoverResponse, taintMs);
-            TimerHelper.DelayedCall(
-                taintMs,
-                delegate
-                {
-                    this.deaReactor.SendReply(reply, this.helloMessage.SerializeToJson());
-                });
         }
 
         /// <summary>
@@ -1276,7 +1162,7 @@ namespace Uhuru.CloudFoundry.DEA
                     return;
                 }
 
-                //// TODO: Enable this when cc sends the stack name in the message
+                // TODO: Enable this when cc sends the stack name in the message
                 //// if (!this.stager.StackSupported(pmessage.Stack))
                 //// {
                 ////     Logger.Warning(Strings.CloudNotStartRuntimeNot, message);
@@ -1377,7 +1263,7 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
-                    // instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
+                    ////instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
 
                     // Hack
                     string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
@@ -1567,6 +1453,31 @@ namespace Uhuru.CloudFoundry.DEA
             Logger.Debug(Strings.DeaReceivedRouterStart, message);
 
             this.RegisterRoutes();
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                var pmessage = new RouterStartMessageRequest();
+                pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+                // Recreate the timer if the MinimumRegisterIntervalInSeconds is lower the a previews recorded one.
+                if (this.minRouterRegisterInterval > pmessage.MinimumRegisterIntervalInSeconds)
+                {
+                    this.minRouterRegisterInterval = pmessage.MinimumRegisterIntervalInSeconds;
+
+                    if (this.routerRegisterTimer != null)
+                    {
+                        this.routerRegisterTimer.Dispose();
+                    }
+
+                    this.routerRegisterTimer = TimerHelper.RecurringLongCall(
+                    this.minRouterRegisterInterval * 1000,
+                    delegate
+                    {
+                        this.RegisterRoutes();
+                    });
+                }
+
+            }
         }
 
         /// <summary>
@@ -1574,8 +1485,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private void RegisterRoutes()
         {
-            Logger.Debug(Strings.RegisteringRoutes);
-
             this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
@@ -1608,8 +1517,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = new List<string>(instance.Properties.Uris).ToArray();
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Stack;
+                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
 
                 response.PrivateInstanceId = instance.Properties.PrivateInstanceId;
             }
@@ -1643,8 +1551,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = instance.Properties.Uris;
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Framework = instance.Properties.Framework;
-                response.Tags.Runtime = instance.Properties.Stack;
+                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
             }
             finally
             {
@@ -1677,8 +1584,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Stop an instance if it's usage is above its quota.
         /// Update the varz with resouce usage.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "kvp", Justification = "PoC testing."), 
-        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Trying to keep similarity to Ruby version."),
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Trying to keep similarity to Ruby version."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
         private void MonitorApps()
         {
@@ -1752,43 +1658,6 @@ namespace Uhuru.CloudFoundry.DEA
                             }
 
                             memoryUsageKbytes += memBytes / 1024;
-
-                            foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, long>>> kvp in metrics)
-                            {
-                                Dictionary<string, long> metric = new Dictionary<string, long>() 
-                                        {
-                                            { "used_memory", 0 },
-                                            { "reserved_memory", 0 },
-                                            { "used_disk", 0 },
-                                            { "used_cpu", 0 }
-                                        };
-
-                                // TODO: update this to stacks
-                                //// if (kvp.Key == "framework")
-                                //// {
-                                ////     if (!metrics.ContainsKey(instance.Properties.Framework))
-                                ////     {
-                                ////         kvp.Value[instance.Properties.Framework] = metric;
-                                ////     }
-
-                                ////     metric = kvp.Value[instance.Properties.Framework];
-                                //// }
-
-                                //// if (kvp.Key == "runtime")
-                                //// {
-                                ////     if (!metrics.ContainsKey(instance.Properties.Stack))
-                                ////     {
-                                ////         kvp.Value[instance.Properties.Stack] = metric;
-                                ////     }
-
-                                ////     metric = kvp.Value[instance.Properties.Stack];
-                                //// }
-
-                                metric["used_memory"] += memBytes / 1024;
-                                metric["reserved_memory"] += instance.Properties.MemoryQuotaBytes / 1024;
-                                metric["used_disk"] += diskBytes;
-                                metric["used_cpu"] += (long)cpu;
-                            }
 
                             // Track running apps for varz tracking
                             runningApps.Add(instance.Properties.ToJsonIntermediateObject());

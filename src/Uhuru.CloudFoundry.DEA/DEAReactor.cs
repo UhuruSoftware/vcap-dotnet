@@ -58,20 +58,6 @@ namespace Uhuru.CloudFoundry.DEA
         public event SubscribeCallback OnDeaStatus;
 
         /// <summary>
-        /// Occurs when the droplet.status message is received on the message bus.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
-        public event SubscribeCallback OnDropletStatus;
-
-        /// <summary>
-        /// Occurs when the dea.discover message is received on the message bus.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
-        public event SubscribeCallback OnDeaDiscover;
-
-        /// <summary>
         /// Occurs when dea.find.droplet message is received on the message bus.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
@@ -109,14 +95,13 @@ namespace Uhuru.CloudFoundry.DEA
             base.Start();
 
             NatsClient.Subscribe("dea.status", this.OnDeaStatus);
-            NatsClient.Subscribe("droplet.status", this.OnDropletStatus);
-            NatsClient.Subscribe("dea.discover", this.OnDeaDiscover);
+            
             NatsClient.Subscribe("dea.find.droplet", this.OnDeaFindDroplet);
             NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
             NatsClient.Subscribe("dea.locate", this.OnDeaLocate);
 
             NatsClient.Subscribe("dea.stop", this.OnDeaStop);
-            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, Strings.NatsMessageDeaStart, this.UUID), this.OnDeaStart);
+            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, "dea.{0}.start", this.UUID), this.OnDeaStart);
 
             NatsClient.Subscribe("router.start", this.OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", this.OnHealthManagerStart);
@@ -175,6 +160,15 @@ namespace Uhuru.CloudFoundry.DEA
         public void SendDeaAdvertise(string message)
         {
             NatsClient.Publish("dea.advertise", null, message);
+        }
+
+        /// <summary>
+        /// Sends greeting message to routers.
+        /// </summary>
+        /// <param name="callback">Callback on reponse.</param>
+        public void SendRouterGreetings(SubscribeCallback callback)
+        {
+            NatsClient.Request("router.greet", null, callback, "{}");
         }
     }
 }

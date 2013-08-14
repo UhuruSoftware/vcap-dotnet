@@ -92,7 +92,6 @@
     <Compile Include="DropletInstance.cs" />
     <Compile Include="DropletInstanceProperties.cs" />
     <Compile Include="DropletInstanceUsage.cs" />
-    <Compile Include="Messages\DeaDiscoverMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageResponse.cs" />
     <Compile Include="Messages\DeaStartMessageRequest.cs" />
@@ -103,7 +102,7 @@
     <Compile Include="Messages\HeartbeatMessage.cs" />
     <Compile Include="Messages\HelloMessage.cs" />
     <Compile Include="Messages\RouterMessage.cs" />
-    <Compile Include="Messages\RuntimeInfo.cs" />
+    <Compile Include="Messages\RouterStartMessageRequest.cs" />
     <Compile Include="Messages\StartRequestDropletLimits.cs" />
     <Compile Include="Monitoring.cs" />
     <Compile Include="PluginData.cs" />
