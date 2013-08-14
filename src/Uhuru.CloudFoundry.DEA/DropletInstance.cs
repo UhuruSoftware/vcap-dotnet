@@ -266,9 +266,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     response.CrashedTimestamp = this.Properties.StateTimestamp;
                 }
-
-                response.ExitStatus = -1;
-                response.ExitDescription = string.Empty;
             }
             finally
             {
@@ -374,7 +371,7 @@ namespace Uhuru.CloudFoundry.DEA
             DropletInstanceUsage curUsage = new DropletInstanceUsage();
             curUsage.Time = DateTime.Now;
             curUsage.Cpu = cpu;
-            curUsage.MemoryBytes = memoryBytes;
+            curUsage.MemoryKbytes = memoryBytes / 1024;
             curUsage.DiskBytes = diskBytes;
             curUsage.TotalProcessTicks = totalTicks;
 

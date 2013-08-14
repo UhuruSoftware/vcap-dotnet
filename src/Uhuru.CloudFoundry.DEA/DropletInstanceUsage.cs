@@ -28,7 +28,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the used memory kbytes.
         /// </summary>
         [JsonName("mem")]
-        public long MemoryBytes
+        public long MemoryKbytes
         {
             get;
             set;
