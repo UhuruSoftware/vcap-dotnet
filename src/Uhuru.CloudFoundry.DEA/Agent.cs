@@ -1470,7 +1470,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = new List<string>(instance.Properties.Uris).ToArray();
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
+                response.Tags.Component = "dea-" + this.Index.ToString();
 
                 response.PrivateInstanceId = instance.Properties.PrivateInstanceId;
             }
@@ -1504,7 +1504,7 @@ namespace Uhuru.CloudFoundry.DEA
                 response.Uris = instance.Properties.Uris;
 
                 response.Tags = new RouterMessage.TagsObject();
-                response.Tags.Component = String.Format(CultureInfo.InvariantCulture, "dea-", this.Index);
+                response.Tags.Component = "dea-" + this.Index.ToString();
             }
             finally
             {
@@ -1706,12 +1706,12 @@ namespace Uhuru.CloudFoundry.DEA
 
             // Check Memory
             // Memory usage also enforced by windows job object
-            if (curUsage.MemoryKbytes > (instance.Properties.MemoryQuotaBytes / 1024) * 1.05)
+            if (curUsage.MemoryBytes > (instance.Properties.MemoryQuotaBytes) * 1.05)
             {
                 instance.ErrorLog.Fatal(
                      "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance... :(",
                      instance.Properties.MemoryQuotaBytes / 1024 / 1024,
-                     curUsage.MemoryKbytes / 1024);
+                     curUsage.MemoryBytes / 1024 / 1024);
                 this.StopDroplet(instance);
             }
 

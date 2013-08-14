@@ -93,5 +93,25 @@ namespace Uhuru.CloudFoundry.DEA.Messages
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets or sets the exit status number of the insntance.
+        /// </summary>
+        [JsonName("exit_status")]
+        public int ExitStatus
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the extra description about the exit reason.
+        /// </summary>
+        [JsonName("exit_description")]
+        public string ExitDescription
+        {
+            get;
+            set;
+        }
     }
 }
