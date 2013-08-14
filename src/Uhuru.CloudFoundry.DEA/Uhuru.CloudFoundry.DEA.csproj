@@ -74,6 +74,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -91,7 +92,6 @@
     <Compile Include="DropletInstance.cs" />
     <Compile Include="DropletInstanceProperties.cs" />
     <Compile Include="DropletInstanceUsage.cs" />
-    <Compile Include="FileViewer.cs" />
     <Compile Include="Messages\DeaDiscoverMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageRequest.cs" />
     <Compile Include="Messages\DeaFindDropletMessageResponse.cs" />
@@ -131,6 +131,10 @@
     <None Include="key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.DirectoryServer\Uhuru.CloudFoundry.DEA.DirectoryServer.csproj">
+      <Project>{0C7A0FCA-20C9-45F5-9497-738258A3717A}</Project>
+      <Name>Uhuru.CloudFoundry.DEA.DirectoryServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.PluginBase\Uhuru.CloudFoundry.DEA.PluginBase.csproj">
       <Project>{2EFB2C3D-89A1-439E-B1CA-B75FA8217314}</Project>
       <Name>Uhuru.CloudFoundry.DEA.PluginBase</Name>

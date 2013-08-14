@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
 {
     using System;
     using System.Collections.Specialized;
+    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -60,7 +61,7 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
         /// <summary>
         /// Starts the directory server at the specified host, port. Validates HTTP
         /// requests with the DEA's HTTP server which serves requests on the same host and
-        /// specified DAE port.
+        /// specified DEA port.
         /// </summary>
         /// <param name="hostAddress">The host on which to listen.</param>
         /// <param name="config">The configuration of the DEA.</param>
@@ -68,6 +69,8 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "If anything bad happens, make sure the server stays online.")]
         public void Start(string hostAddress, DEAElement config, IDeaClient deaClientInstance)
         {
+            Logger.Info("Starting directory server on interface '{0}:{1}'.", hostAddress, config.DirectoryServer.V2Port);
+
             if (config == null)
             {
                 throw new ArgumentNullException("config");
@@ -86,7 +89,10 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
                     {
                         try
                         {
+                            Logger.Debug("Directory server waiting for a request ...");
                             HttpListenerContext request = this.listener.GetContext();
+
+                            Logger.Debug("Directory server got a request, '{0}'", request.Request.Url);
                             ThreadPool.QueueUserWorkItem(ServeHttp, request);
                         }
                         catch (Exception ex)
@@ -190,10 +196,11 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
         /// <param name="context">Http context to respond to.</param>
         private static void WriteServerError(string error, HttpListenerContext context)
         {
+            Logger.Error("There was an error in the Directory Server: {0}", error);
+
             try
             {
                 string response = string.Format(CultureInfo.InvariantCulture, Strings.CantServeRequest, error);
-
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = MediaTypeNames.Text.Plain;
 
@@ -271,7 +278,8 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
                 string mimeType = MimeTypeDetection.GetMimeFromFile(path);
 
                 context.Response.ContentType = mimeType;
-                context.Response.SendChunked = true;
+                
+                //// context.Response.SendChunked = true;
 
                 using (FileStream handle = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
@@ -331,24 +339,33 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
         /// <param name="listenerContext">Http context to respond to.</param>
         private void ServeHttp(object listenerContext)
         {
-            HttpListenerContext context = (HttpListenerContext)listenerContext;
-
-            Uri uri = context.Request.Url;
-
-            PathLookupResponse response = this.deaClient.LookupPath(uri);
-
-            if (!string.IsNullOrWhiteSpace(response.Error))
+            try
             {
-                Logger.Warning(Strings.ErrorInLookupPath, response.Error);
-                DirectoryServer.WriteServerError(Strings.WinDEADidNotRespondProperly, context);
+                HttpListenerContext context = (HttpListenerContext)listenerContext;
+
+                Uri uri = context.Request.Url;
+
+                PathLookupResponse response = this.deaClient.LookupPath(uri);
+
+                if (!string.IsNullOrWhiteSpace(response.Error))
+                {
+                    Logger.Warning(Strings.ErrorInLookupPath, response.Error);
+                    DirectoryServer.WriteServerError(Strings.WinDEADidNotRespondProperly, context);
+                }
+                else
+                {
+                    var queryString = string.Join(string.Empty, uri.PathAndQuery.Split('?').Skip(1));
+                    NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(queryString);
+                    bool tail = queryStrings.AllKeys.Select(key => queryStrings.GetValues(key).Contains("tail")).Any(v => v);
+
+                    Logger.Debug("Directory Server file request is: {0}; path is {1}", uri, queryStrings["path"]);
+
+                    this.ListPath(response.Path, tail, context);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var queryString = string.Join(string.Empty, uri.PathAndQuery.Split('?').Skip(1));
-                NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(queryString);
-                bool tail = queryStrings.AllKeys.Select(key => queryStrings.GetValues(key).Contains("tail")).Any(v => v);
-
-                this.ListPath(response.Path, tail, context);
+                Logger.Error("Directory Server - there was an error serving http: {0}", ex.ToString());
             }
         }
 
@@ -365,6 +382,7 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
             {
                 if (tail)
                 {
+                    Logger.Debug("Directory server tailing file '{0}'", path);
                     string mimeType = DetectContentType(path);
 
                     context.Response.StatusCode = (int)System.Net.HttpStatusCode.OK;

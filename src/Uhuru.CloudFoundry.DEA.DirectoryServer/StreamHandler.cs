@@ -114,8 +114,16 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
                             }
                             else if (result.ChangeType == WatcherChangeTypes.Changed || result.ChangeType == WatcherChangeTypes.Created)
                             {
-                                tailFile.CopyTo(this.context.Response.OutputStream);
-                                this.context.Response.OutputStream.Flush();
+                                try
+                                {
+                                    tailFile.CopyTo(this.context.Response.OutputStream);
+                                    this.context.Response.OutputStream.Flush();
+                                }
+                                catch (HttpListenerException)
+                                {
+                                    stop = true;
+                                    break;
+                                }
                             }
                         }
                     }

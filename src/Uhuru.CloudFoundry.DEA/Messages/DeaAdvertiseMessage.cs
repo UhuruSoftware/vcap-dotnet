@@ -50,7 +50,8 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         /// <summary>
         /// Gets or sets the number of instances running on the DEA per app.
         /// </summary>
-        [JsonName("app_id_to_count")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly", Justification = "Convention."),
+        JsonName("app_id_to_count")]
         public Dictionary<string, int> AppIdCount
         {
             get;

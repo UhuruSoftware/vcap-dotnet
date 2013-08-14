@@ -95,9 +95,20 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         }
 
         /// <summary>
-        /// Gets or sets the URI to the file server that can serve the droplet instance.
+        /// Gets or sets the URI to the file server NG that can serve the droplet instance.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for the current context"), 
+        JsonName("file_uri_v2")]
+        public string FileUriV2
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the URI to the file server that can serve the droplet instance.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1056:UriPropertiesShouldNotBeStrings", Justification = "Suitable for the current context"),
         JsonName("file_uri")]
         public string FileUri
         {
