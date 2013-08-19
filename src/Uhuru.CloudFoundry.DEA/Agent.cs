@@ -106,7 +106,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// The application stager.
         /// </summary>
-        private Stager stager = new Stager();
+        private ApplicationBits stager = new ApplicationBits();
 
         /// <summary>
         /// The DEA's HTTP droplet file viewer. Helps receive the logs.
@@ -1230,7 +1230,7 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 string tgzFile = Path.Combine(this.stager.StagedDir, sha1 + ".tgz");
-                this.stager.StageAppDirectory(executableFile, executableUri, sha1, tgzFile, instance);
+                this.stager.PrepareAppDirectory(executableFile, executableUri, sha1, tgzFile, instance);
                 Logger.Debug(Strings.Downloadcompleate);
 
                 string starting = string.Format(CultureInfo.InvariantCulture, Strings.StartingUpInstanceOnPort, instance.Properties.LoggingId, instance.Properties.Port);

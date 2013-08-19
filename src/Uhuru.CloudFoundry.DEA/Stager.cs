@@ -22,7 +22,7 @@ namespace Uhuru.CloudFoundry.DEA
     /// <summary>
     /// This class contains all the functionality required to download/unzip application bits and manages runtimes.
     /// </summary>
-    public class Stager
+    public class ApplicationBits
     {
         /// <summary>
         /// The timer to cleanup the application files cached.
@@ -35,9 +35,9 @@ namespace Uhuru.CloudFoundry.DEA
         private object stagerLock = new object();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Stager"/> class.
+        /// Initializes a new instance of the <see cref="ApplicationBits"/> class.
         /// </summary>
-        public Stager()
+        public ApplicationBits()
         {
             // Setup the Zlib here to avoid errors when extracting for the first time under an impersonated user
             DEAUtilities.SetupZlib();
@@ -158,27 +158,14 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Setups the runtimes.
-        /// TODO: Remove this. Deprecated.
-        /// </summary>
-        public void SetupRuntimes()
-        {
-            if (this.Stacks == null || this.Stacks.Count == 0)
-            {
-                Logger.Fatal(Strings.CannotDetermineApplicationRuntimes);
-                throw new InvalidOperationException(Strings.CannotDetermineApplicationRuntimes);
-            }
-        }
-
-        /// <summary>
-        /// Stages the app directory.
+        /// Prepares the app directory.
         /// </summary>
         /// <param name="bitsFile">The bits file.</param>
         /// <param name="bitsUri">The bits URI.</param>
         /// <param name="hash">The sha1.</param>
         /// <param name="tarZipFile">The TGZ file.</param>
         /// <param name="instance">The instance.</param>
-        public void StageAppDirectory(string bitsFile, Uri bitsUri, string hash, string tarZipFile, DropletInstance instance)
+        public void PrepareAppDirectory(string bitsFile, Uri bitsUri, string hash, string tarZipFile, DropletInstance instance)
         {
             if (instance == null)
             {
