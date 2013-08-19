@@ -286,8 +286,6 @@ namespace Uhuru.CloudFoundry.DEA
         {
             Logger.Info(Strings.StartingVcapDea, Version);
 
-            this.stager.SetupRuntimes();
-
             Logger.Info(Strings.UsingNetwork, this.Host);
             Logger.Info(Strings.MaxMemorySetTo, this.monitoring.MaxMemoryMbytes);
             Logger.Info(Strings.UtilizingCpuCores, DEAUtilities.NumberOfCores());
