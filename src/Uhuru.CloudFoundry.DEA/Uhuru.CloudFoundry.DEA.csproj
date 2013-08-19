@@ -84,7 +84,7 @@
     <Compile Include="Agent.cs" />
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="DEAReactor.cs" />
-    <Compile Include="Gurad.cs" />
+    <Compile Include="ProcessPrison.cs" />
     <Compile Include="Messages\DeaAdvertiseMessage.cs" />
     <Compile Include="Messages\DeaUpdateMessageRequest.cs" />
     <Compile Include="Messages\DeaStopMessageRequest.cs" />
@@ -108,6 +108,8 @@
     <Compile Include="Monitoring.cs" />
     <Compile Include="PluginData.cs" />
     <Compile Include="PluginHost.cs" />
+    <Compile Include="ProcessPrisonRunInfo.cs" />
+    <Compile Include="ProcessPrisonStartInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBits.cs" />
     <Compile Include="Strings.Designer.cs">
