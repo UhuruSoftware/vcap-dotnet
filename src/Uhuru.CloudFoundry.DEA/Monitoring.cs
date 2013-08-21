@@ -102,24 +102,6 @@ namespace Uhuru.CloudFoundry.DEA
             get;
             set;
         }
-     
-        /// <summary>
-        /// Gets or sets where to dump the applications disk usage.
-        /// </summary>
-        public string AppsDumpDirectory 
-        {
-            get; 
-            set; 
-        }
-        
-        /// <summary>
-        /// Gets or sets when was the last dump made.
-        /// </summary>
-        public DateTime LastAppDump
-        {
-            get;
-            set;
-        }
 
         /// <summary>
         /// Gets or sets the total memory allocated to instances
@@ -224,22 +206,6 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Lock.ExitWriteLock();
                 this.Lock.ExitWriteLock();
             }
-        }
-
-        /// <summary>
-        /// Logs out the directory structure of the apps dir. This produces both a summary
-        /// (top level view) of the directory, as well as a detailed view.
-        /// </summary>
-        /// <param name="appsDirectory">The directory to be analyzed.</param>
-        public void DumpAppsDirDiskUsage(string appsDirectory)
-        {
-            string tsig = DateTime.Now.ToString("yyyyMMdd_hhmm", CultureInfo.InvariantCulture);
-            string summary_file = Path.Combine(this.AppsDumpDirectory, string.Format(CultureInfo.InvariantCulture, Strings.AppsDuSummary, tsig));
-            string details_file = Path.Combine(this.AppsDumpDirectory, string.Format(CultureInfo.InvariantCulture, Strings.AppsDuDetails, tsig));
-
-            // todo: vladi: removed max depth level (6) from call
-            DiskUsage.WriteDiskUsageToFile(summary_file, appsDirectory, true);
-            DiskUsage.WriteDiskUsageToFile(details_file, appsDirectory, false);
         }
 
         /// <summary>

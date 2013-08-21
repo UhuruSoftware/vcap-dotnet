@@ -16,7 +16,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Linq;
     using System.Threading;
     using DiskQuotaTypeLibrary;
-    using Uhuru.CloudFoundry.DEA.DirectoryServer;    
+    using Uhuru.CloudFoundry.DEA.DirectoryServer;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Configuration;
@@ -79,11 +79,6 @@ namespace Uhuru.CloudFoundry.DEA
         /// Vcap Debug Port.
         /// </summary>
         private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
-
-        /// <summary>
-        /// Vcap Plugin Stating Info.
-        /// </summary>
-        private const string VcapPluginStagingInfoVariable = "VCAP_PLUGIN_STAGING_INFO";
 
         /// <summary>
         /// Vcap Windows User.
@@ -183,7 +178,7 @@ namespace Uhuru.CloudFoundry.DEA
         private bool enableStaging;
         private Staging staging;
         private StagingTaskRegistry stagingTaskRegistry;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
         /// </summary>
@@ -228,9 +223,6 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 this.UUID = string.Format(CultureInfo.InvariantCulture, "{0}-{1}", this.Index, this.UUID);
             }
-
-            // apps_dump_dir = ConfigurationManager.AppSettings["logFile"] ?? Path.GetTempPath();
-            this.monitoring.AppsDumpDirectory = Path.GetTempPath();
 
             this.monitoring.MonitorIntervalMilliseconds = uhuruSection.DEA.HeartbeatIntervalMs;
             this.monitoring.AdvertiseIntervalMilliseconds = uhuruSection.DEA.AdvertiseIntervalMs;
@@ -279,13 +271,13 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
                 {
-                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);                    
+                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
                 }
             });
 
             return response;
-        }        
-        
+        }
+
         /// <summary>
         /// Runs the DEA.
         /// It prepares the NATS subscriptions, stats the NATS client, and the required timers.
@@ -375,7 +367,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.RecoverExistingDroplets();
 
-            this.DeleteUntrackedInstanceDirs();      
+            this.DeleteUntrackedInstanceDirs();
 
             TimerHelper.RecurringLongCall(
                 Monitoring.HeartbeatIntervalMilliseconds,
@@ -396,13 +388,6 @@ namespace Uhuru.CloudFoundry.DEA
                 delegate
                 {
                     this.MonitorApps();
-                });
-
-            TimerHelper.RecurringLongCall(
-                500,
-                delegate
-                {
-                    this.InstanceProcessMonitor();
                 });
 
             TimerHelper.RecurringLongCall(
@@ -836,7 +821,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            response.Stacks = this.stager.Stacks.ToList();            
+            response.Stacks = this.stager.Stacks.ToList();
 
             this.deaReactor.SendStagingAdvertise(response.SerializeToJson());
         }
@@ -1054,7 +1039,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedStopMessage, message);
 
-            
+
 
             this.droplets.ForEach(
                 true,
@@ -1253,7 +1238,7 @@ namespace Uhuru.CloudFoundry.DEA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."),
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void StagingStartHandler(string message, string reply, string subject)
-        {            
+        {
             StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
             stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
@@ -1272,7 +1257,7 @@ namespace Uhuru.CloudFoundry.DEA
             Logger.Debug(subject + message);
         }
 
-                /// <summary>
+        /// <summary>
         /// The handler for the dea.stop message.
         /// </summary>
         /// <param name="message">The message.</param>
@@ -1340,11 +1325,6 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
-                    ////instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, File.ReadAllText(Path.Combine(instance.Properties.Directory, "startup")));
-
-                    // Hack
-                    string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
-                    instance.Properties.EnvironmentVariables.Add(VcapPluginStagingInfoVariable, startup);
                     foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
                     {
                         ApplicationVariable appVariable = new ApplicationVariable();
@@ -1366,7 +1346,6 @@ namespace Uhuru.CloudFoundry.DEA
                                     {
                                         envRegKey.SetValue(env.Key, env.Value, RegistryValueKind.String);
                                     }
-                                    // Environment.SetEnvironmentVariable(env.Key, env.Value, EnvironmentVariableTarget.User);
                                 }
                             }
                         }
@@ -1379,11 +1358,6 @@ namespace Uhuru.CloudFoundry.DEA
                 }
 
                 DateTime start = DateTime.Now;
-
-                // instance.LoadPlugin();
-                // instance.Plugin.ConfigureApplication(appVariables.ToArray());
-                // instance.Plugin.StartApplication();
-                // int pid = instance.Plugin.GetApplicationProcessId();
 
                 string startSciprtPath = this.CreateStartScript(instance);
 
@@ -1922,32 +1896,9 @@ namespace Uhuru.CloudFoundry.DEA
                     if (isCrashed || isOldCrash || isStopped || isDeleted)
                     {
                         this.monitoring.RemoveInstanceResources(instance);
-                        if (instance.Plugin != null)
+                        if (!instance.ProcessPrison.Created)
                         {
                             Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-
-                            try
-                            {
-                                instance.Plugin.CleanupApplication(instance.Properties.Directory);
-                                PluginHost.RemoveInstance(instance.Plugin);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
-                            }
-
-                            try
-                            {
-                                PluginHost.RemoveInstance(instance.Plugin);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Warning("Unable to cleanup application {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
-                            }
-                            finally
-                            {
-                                instance.Plugin = null;
-                            }
 
                             try
                             {
@@ -1969,7 +1920,7 @@ namespace Uhuru.CloudFoundry.DEA
                             instance.Properties.Directory = null;
                         }
 
-                        if (instance.Properties.Directory != null && instance.Plugin == null)
+                        if (instance.Properties.Directory != null && !instance.ProcessPrison.Created)
                         {
                             try
                             {
@@ -1989,7 +1940,7 @@ namespace Uhuru.CloudFoundry.DEA
                             }
                         }
 
-                        if (instance.Plugin == null && instance.Properties.Directory == null)
+                        if (!instance.ProcessPrison.Created && instance.Properties.Directory == null)
                         {
                             removeDroplet = true;
                         }
@@ -2004,96 +1955,5 @@ namespace Uhuru.CloudFoundry.DEA
                 });
         }
 
-        /// <summary>
-        /// Monitors the instance process and adds it to the instance JobObject.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Error(System.String,System.Object[])", Justification = "More clear."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.FileLogger.Error(System.String,System.Object[])", Justification = "More clear."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
-        private void InstanceProcessMonitor()
-        {
-            Dictionary<string, List<Process>> userMappedProcesses = new Dictionary<string, List<Process>>();
-            Process[] pss = Process.GetProcesses();
-            foreach (Process p in pss)
-            {
-                try
-                {
-                    string processUser = ProcessUser.GetProcessUser(p);
-                    if (!userMappedProcesses.ContainsKey(processUser))
-                    {
-                        userMappedProcesses[processUser] = new List<Process>();
-                    }
-
-                    userMappedProcesses[processUser].Add(p);
-                }
-                catch
-                {
-                }
-            }
-
-            this.droplets.ForEach(
-                true,
-                delegate(DropletInstance instance)
-                {
-                    if (instance.Properties.State != DropletInstanceState.Running || !instance.Lock.TryEnterWriteLock(10))
-                    {
-                        return;
-                    }
-
-                    try
-                    {
-                        if (!userMappedProcesses.ContainsKey(instance.Properties.WindowsUserName))
-                        {
-                            return;
-                        }
-
-                        List<Process> usersProcesses = userMappedProcesses[instance.Properties.WindowsUserName];
-
-                        foreach (Process instanceProcess in usersProcesses)
-                        {
-                            //instance.Properties.ProcessId = instanceProcess.Id;
-                            //if (!instance.JobObject.HasProcess(instanceProcess))
-                            //{
-                            //    try
-                            //    {
-                            //        if (!instanceProcess.HasExited)
-                            //        {
-                            //            // instance.JobObject.AddProcess(instanceProcess);
-                            //        }
-                            //    }
-                            //    catch (Win32Exception e)
-                            //    {
-                            //        Logger.Warning(Strings.InstanceProcessCoudNotBeAdded, instanceProcess.Id, e.ToString());
-                            //        instanceProcess.Kill();
-                            //        if (instance.ErrorLog != null)
-                            //        {
-                            //            instance.ErrorLog.Error("Killed process {0}. Reason: Unable to sandbox the process.", instanceProcess.Id);
-                            //        }
-                            //    }
-                            //}
-
-                            //if (instance.TotalTerminatedProcessesTracked < instance.JobObject.TotalTerminatedProcesses)
-                            //{
-                            //    if (instance.ErrorLog != null)
-                            //    {
-                            //        instance.ErrorLog.Error("{0} process(es) killed by the sandbox.", instance.JobObject.TotalTerminatedProcesses - instance.TotalTerminatedProcessesTracked);
-                            //    }
-
-                            //    instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
-                            //}
-                            //else if (instance.TotalTerminatedProcessesTracked > instance.JobObject.TotalTerminatedProcesses)
-                            //{
-                            //    instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
-                            //}
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Unable to add process to the job object for app: {0}. Exception: {1}", instance.Properties.Name, ex.ToString());
-                    }
-                    finally
-                    {
-                        instance.Lock.ExitWriteLock();
-                    }
-                });
-        }
     }
 }

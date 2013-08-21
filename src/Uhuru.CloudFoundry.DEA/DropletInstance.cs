@@ -58,16 +58,6 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// Gets or sets the plugin associated with the instance.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
-        public IAgentPlugin Plugin
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets or sets disk usage tracking for the instance user.
         /// </summary>
         [CLSCompliant(false)]
@@ -323,37 +313,6 @@ namespace Uhuru.CloudFoundry.DEA
             appInfo.WindowsPassword = this.Properties.WindowsPassword;
             appInfo.WindowsUserName = this.Properties.WindowsUserName;
             return appInfo;
-        }
-
-        /// <summary>
-        /// Loads the plugin associated with this droplet.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Plugin", Justification = "Word is in dictionary, but warning is still generated.")]
-        public void LoadPlugin()
-        {
-            // in startup, we have the class name and assembly to load as a plugin
-            // string startup = File.ReadAllText(Path.Combine(this.Properties.Directory, "startup"));
-
-            // Hack
-            string startup = "{\"assembly\":\"Uhuru.CloudFoundry.DEA.Plugins.dll\",\"class_name\":\"Uhuru.CloudFoundry.DEA.Plugins.IISPlugin\",\"logs\":{\"app_error\":\"logs/stderr.log\",\"dea_error\":\"logs/err.log\",\"startup\":\"logs/startup.log\",\"app\":\"logs/stdout.log\"},\"auto_wire_templates\":{\"mssql-2008\":\"Data Source={host},{port};Initial Catalog={name};UserId={user};Password={password};MultipleActiveResultSets=true\",\"mysql-5.1\":\"server={host};port={port};Database={name};Uid={user};Pwd={password};\"}}";
-
-            VcapPluginStagingInfo pluginInfo = new VcapPluginStagingInfo();
-            pluginInfo.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(startup));
-
-            this.ErrorLog = new Utilities.FileLogger(Path.Combine(this.properties.Directory, pluginInfo.Logs.DeaErrorLog));
-
-            // check to see if the plugin is in the instance directory
-            if (File.Exists(Path.Combine(this.Properties.Directory, pluginInfo.Assembly)))
-            {
-                Guid pluginId = PluginHost.LoadPlugin(Path.Combine(this.Properties.Directory, pluginInfo.Assembly), pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId);
-            }
-            else
-            {
-                // if not load the plugin from the dea
-                Guid pluginId = PluginHost.LoadPlugin(pluginInfo.Assembly, pluginInfo.ClassName);
-                this.Plugin = PluginHost.CreateInstance(pluginId);
-            }
         }
 
         /// <summary>
