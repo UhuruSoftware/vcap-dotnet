@@ -589,6 +589,32 @@ namespace Uhuru.Configuration
             }
         }
         #endregion
+        
+        #region Staging Property
+        /// <summary>
+        /// The XML name of the <see cref="Staging"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string StagingPropertyName = "staging";
+        
+        /// <summary>
+        /// Gets or sets the Staging.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The Staging.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.DEAElement.StagingPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual global::Uhuru.Configuration.StagingElement Staging
+        {
+            get
+            {
+                return ((global::Uhuru.Configuration.StagingElement)(base[global::Uhuru.Configuration.DEAElement.StagingPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.DEAElement.StagingPropertyName] = value;
+            }
+        }
+        #endregion
     }
 }
 namespace Uhuru.Configuration
@@ -1010,8 +1036,7 @@ namespace Uhuru.Configuration
     /// <summary>
     /// A collection of StackElement instances.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1010:CollectionsShouldImplementGenericInterface", Justification = "PoC Testing"), 
-    global::System.Configuration.ConfigurationCollectionAttribute(typeof(global::Uhuru.Configuration.StackElement), CollectionType = global::System.Configuration.ConfigurationElementCollectionType.BasicMap, AddItemName = global::Uhuru.Configuration.StackCollection.StackElementPropertyName)]
+    [global::System.Configuration.ConfigurationCollectionAttribute(typeof(global::Uhuru.Configuration.StackElement), CollectionType=global::System.Configuration.ConfigurationElementCollectionType.BasicMap, AddItemName=global::Uhuru.Configuration.StackCollection.StackElementPropertyName)]
     public partial class StackCollection : global::System.Configuration.ConfigurationElementCollection
     {
         
@@ -2329,6 +2354,80 @@ namespace Uhuru.Configuration
             set
             {
                 base[global::Uhuru.Configuration.DirectoryServerElement.LoggerPropertyName] = value;
+            }
+        }
+        #endregion
+    }
+}
+namespace Uhuru.Configuration
+{
+    
+    
+    /// <summary>
+    /// The StagingElement Configuration Element.
+    /// </summary>
+    public partial class StagingElement : global::System.Configuration.ConfigurationElement
+    {
+        
+        #region IsReadOnly override
+        /// <summary>
+        /// Gets a value indicating whether the element is read-only.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
+        #endregion
+        
+        #region Enabled Property
+        /// <summary>
+        /// The XML name of the <see cref="Enabled"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string EnabledPropertyName = "enabled";
+        
+        /// <summary>
+        /// Gets or sets the Enabled.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The Enabled.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.StagingElement.EnabledPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual bool Enabled
+        {
+            get
+            {
+                return ((bool)(base[global::Uhuru.Configuration.StagingElement.EnabledPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.StagingElement.EnabledPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region BuildpacksDirectory Property
+        /// <summary>
+        /// The XML name of the <see cref="BuildpacksDirectory"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string BuildpacksDirectoryPropertyName = "buildpacksDirectory";
+        
+        /// <summary>
+        /// Gets or sets the BuildpacksDirectory.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The BuildpacksDirectory.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.StagingElement.BuildpacksDirectoryPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string BuildpacksDirectory
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.StagingElement.BuildpacksDirectoryPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.StagingElement.BuildpacksDirectoryPropertyName] = value;
             }
         }
         #endregion

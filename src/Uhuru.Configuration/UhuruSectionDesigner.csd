@@ -114,6 +114,11 @@
             <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/DirectoryServerElement" />
           </type>
         </elementProperty>
+        <elementProperty name="Staging" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="staging" isReadOnly="false">
+          <type>
+            <configurationElementMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/StagingElement" />
+          </type>
+        </elementProperty>
       </elementProperties>
     </configurationElement>
     <configurationElement name="MSSqlElement">
@@ -392,6 +397,20 @@
           </type>
         </attributeProperty>
         <attributeProperty name="Logger" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="logger" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
+      </attributeProperties>
+    </configurationElement>
+    <configurationElement name="StagingElement">
+      <attributeProperties>
+        <attributeProperty name="Enabled" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="enabled" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Boolean" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="BuildpacksDirectory" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="buildpacksDirectory" isReadOnly="false">
           <type>
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
           </type>

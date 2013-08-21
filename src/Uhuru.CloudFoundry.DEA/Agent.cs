@@ -176,7 +176,11 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Directory Server V2 Port.
         /// </summary>
-        private int directoryServerPort;        
+        private int directoryServerPort;
+
+        private bool enableStaging;
+        private Staging staging;
+        private StagingTaskRegistry stagingTaskRegistry;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
@@ -203,6 +207,8 @@ namespace Uhuru.CloudFoundry.DEA
             this.directoryServerPort = uhuruSection.DEA.DirectoryServer.V2Port;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
+
+            this.enableStaging = uhuruSection.DEA.Staging.Enabled;
 
             // Replace the ephemeral monitoring port with the configured one
             if (uhuruSection.DEA.StatusPort > 0)
@@ -243,6 +249,10 @@ namespace Uhuru.CloudFoundry.DEA
             this.helloMessage.Host = this.Host;
             this.helloMessage.FileViewerPort = this.directoryServerPort;
             this.helloMessage.Version = Version;
+
+            this.stagingTaskRegistry = new StagingTaskRegistry();
+
+            this.staging = new Staging(this.UUID, this.stagingTaskRegistry, uhuruSection.DEA.BaseDir, this.deaReactor, uhuruSection.DEA.Staging.BuildpacksDirectory);
         }
 
         /// <summary>
@@ -269,7 +279,7 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
                 {
-                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
+                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);                    
                 }
             });
 
@@ -346,6 +356,10 @@ namespace Uhuru.CloudFoundry.DEA
             this.deaReactor.OnDeaUpdate += new SubscribeCallback(this.DeaUpdateHandler);
             this.deaReactor.OnDeaLocate += new SubscribeCallback(this.DeaLocateHandler);
 
+            this.deaReactor.OnStagingLocate += new SubscribeCallback(this.StagingLocateHandler);
+            this.deaReactor.OnStagingStart += new SubscribeCallback(this.StagingStartHandler);
+            this.deaReactor.OnStagingStop += new SubscribeCallback(this.StagingStopHandler);
+
             this.deaReactor.OnDeaStop += new SubscribeCallback(this.DeaStopHandler);
             this.deaReactor.OnDeaStart += new SubscribeCallback(this.DeaStartHandler);
 
@@ -354,9 +368,14 @@ namespace Uhuru.CloudFoundry.DEA
 
             base.Run();  // Start the nats client
 
+            if (this.enableStaging)
+            {
+                this.deaReactor.SubscribeToStaging();
+            }
+
             this.RecoverExistingDroplets();
 
-            this.DeleteUntrackedInstanceDirs();
+            this.DeleteUntrackedInstanceDirs();      
 
             TimerHelper.RecurringLongCall(
                 Monitoring.HeartbeatIntervalMilliseconds,
@@ -404,6 +423,15 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
+
+            this.SendStagingAdvertise();
+            TimerHelper.RecurringLongCall(
+                this.monitoring.AdvertiseIntervalMilliseconds,
+                delegate
+                {
+                    this.SendStagingAdvertise();
+                });
+
         }
 
         /// <summary>
@@ -778,7 +806,7 @@ namespace Uhuru.CloudFoundry.DEA
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
             response.Stacks = this.stager.Stacks.ToList();
-            
+
             response.AppIdCount = new Dictionary<string, int>();
 
             this.droplets.ForEach(delegate(DropletInstance instance)
@@ -795,6 +823,22 @@ namespace Uhuru.CloudFoundry.DEA
             });
 
             this.deaReactor.SendDeaAdvertise(response.SerializeToJson());
+        }
+
+        private void SendStagingAdvertise()
+        {
+            if (this.shuttingDown || this.monitoring.Clients >= this.monitoring.MaxClients || this.monitoring.MemoryReservedMbytes >= this.monitoring.MaxMemoryMbytes)
+            {
+                return;
+            }
+
+            StagingAdvertiseMessage response = new StagingAdvertiseMessage();
+
+            response.Id = this.UUID;
+            response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
+            response.Stacks = this.stager.Stacks.ToList();            
+
+            this.deaReactor.SendStagingAdvertise(response.SerializeToJson());
         }
 
         /// <summary>
@@ -1010,6 +1054,8 @@ namespace Uhuru.CloudFoundry.DEA
 
             Logger.Debug(Strings.DeaReceivedStopMessage, message);
 
+            
+
             this.droplets.ForEach(
                 true,
                 delegate(DropletInstance instance)
@@ -1200,6 +1246,42 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 this.StartDropletInstance(instance, pmessage.SHA1, pmessage.ExecutableFile, new Uri(pmessage.ExecutableUri));
             });
+        }
+
+        /// <summary>
+        /// Handler for the staging.{guid}.start message.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
+        private void StagingStartHandler(string message, string reply, string subject)
+        {            
+            StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
+            stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+
+            Logger.Debug(subject + message);
+
+            this.staging.HandleMessage(stagingStartRequest, reply);
+        }
+
+        /// <summary>
+        /// Handler for the staging.locate message.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Readable message."),
+        System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
+        private void StagingLocateHandler(string message, string reply, string subject)
+        {
+            Logger.Debug(subject + message);
+        }
+
+                /// <summary>
+        /// The handler for the dea.stop message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="reply">The reply.</param>
+        /// <param name="subject">The subject.</param>
+        private void StagingStopHandler(string message, string reply, string subject)
+        {
+            Logger.Debug(subject + message);
         }
 
         /// <summary>

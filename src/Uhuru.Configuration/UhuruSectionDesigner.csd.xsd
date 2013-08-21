@@ -35,6 +35,11 @@
 					<xs:documentation>The DirectoryServer.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element minOccurs="0" name="staging" type="tns:Uhuru.Configuration.StagingElementCT">
+				<xs:annotation>
+					<xs:documentation>The Staging.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:choice>
 		<xs:attribute name="baseDir" use="optional" type="xs:string">
 			<xs:annotation>
@@ -383,6 +388,18 @@
 		<xs:attribute name="logger" use="optional" type="xs:string">
 			<xs:annotation>
 				<xs:documentation>The Logger.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Uhuru.Configuration.StagingElementCT">
+		<xs:attribute name="enabled" use="optional" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>The Enabled.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="buildpacksDirectory" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The BuildpacksDirectory.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>

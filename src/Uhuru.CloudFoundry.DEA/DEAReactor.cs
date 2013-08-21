@@ -79,6 +79,27 @@ namespace Uhuru.CloudFoundry.DEA
         public event SubscribeCallback OnDeaLocate;
 
         /// <summary>
+        /// Occurs when staging.locate message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
+        public event SubscribeCallback OnStagingLocate;
+
+        /// <summary>
+        /// Occurs when staging.{vcapguid}.start message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
+        public event SubscribeCallback OnStagingStart;
+
+        /// <summary>
+        /// Occurs when staging.stop message is received on the message bus.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "Suitable for this context.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1009:DeclareEventHandlersCorrectly", Justification = "Suitable for this context.")]
+        public event SubscribeCallback OnStagingStop;
+
+        /// <summary>
         /// Gets or sets the UUID of the vcap component.
         /// </summary>
         public string UUID
@@ -100,11 +121,19 @@ namespace Uhuru.CloudFoundry.DEA
             NatsClient.Subscribe("dea.update", this.OnDeaUpdate);
             NatsClient.Subscribe("dea.locate", this.OnDeaLocate);
 
+            NatsClient.Subscribe("staging.locate", this.OnStagingLocate);
+            
             NatsClient.Subscribe("dea.stop", this.OnDeaStop);
             NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, "dea.{0}.start", this.UUID), this.OnDeaStart);
 
             NatsClient.Subscribe("router.start", this.OnRouterStart);
             NatsClient.Subscribe("healthmanager.start", this.OnHealthManagerStart);
+        }
+
+        public void SubscribeToStaging()
+        {
+            NatsClient.Subscribe(string.Format(CultureInfo.InvariantCulture, "staging.{0}.start", this.UUID), this.OnStagingStart);
+            NatsClient.Subscribe("staging.stop", this.OnStagingStop);
         }
 
         /// <summary>
@@ -160,6 +189,15 @@ namespace Uhuru.CloudFoundry.DEA
         public void SendDeaAdvertise(string message)
         {
             NatsClient.Publish("dea.advertise", null, message);
+        }
+
+        /// <summary>
+        /// Sends the Staging advertise message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public void SendStagingAdvertise(string message)
+        {
+            NatsClient.Publish("staging.advertise", null, message);
         }
 
         /// <summary>
