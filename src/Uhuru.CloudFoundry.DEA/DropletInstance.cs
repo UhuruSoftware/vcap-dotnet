@@ -47,16 +47,14 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// The Windows Job Object for the application instance. Used for security/resource sandboxing.
         /// </summary>
-        private JobObject jobObject = new JobObject();
+        private ProcessPrison processPrison = new ProcessPrison();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DropletInstance"/> class.
         /// </summary>
         public DropletInstance()
         {
-            this.jobObject.DieOnUnhandledException = true;
-            this.jobObject.ActiveProcessesLimit = 10;
-            this.TotalTerminatedProcessesTracked = 0;
+            this.TotalTerminatedProcessesTracked = 0;        
         }
 
         /// <summary>
@@ -79,14 +77,11 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        /// <summary>
-        /// Gets the Windows Job Object for the application instance. Used for security/resource sandboxing.
-        /// </summary>
-        public JobObject JobObject
+        public ProcessPrison ProcessPrison
         {
             get
             {
-                return this.jobObject;
+                return this.processPrison;
             }
         }
 
@@ -408,11 +403,6 @@ namespace Uhuru.CloudFoundry.DEA
                 if (this.readerWriterLock != null)
                 {
                     this.readerWriterLock.Dispose();
-                }
-
-                if (this.jobObject != null)
-                {
-                    this.jobObject.Dispose();
                 }
             }
         }

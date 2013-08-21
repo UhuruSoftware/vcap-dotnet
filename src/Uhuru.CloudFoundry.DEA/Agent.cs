@@ -24,6 +24,8 @@ namespace Uhuru.CloudFoundry.DEA
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
     using System.Collections.Specialized;
+    using Microsoft.Win32;
+    using System.Text;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -215,8 +217,6 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 this.Port = uhuruSection.DEA.StatusPort;
             }
-
-            this.stager.ForceHttpFileSharing = false;
 
             this.ComponentType = "DEA";
             if (uhuruSection.DEA.Index >= 0)
@@ -455,47 +455,47 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    instance = new DropletInstance();
-                    instance.Properties.FromJsonIntermediateObject(obj);
-                    instance.Properties.Orphaned = true;
-                    instance.Properties.ResourcesTracked = false;
-                    this.monitoring.AddInstanceResources(instance);
-                    instance.Properties.StopProcessed = false;
-                    instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    //instance = new DropletInstance();
+                    //instance.Properties.FromJsonIntermediateObject(obj);
+                    //instance.Properties.Orphaned = true;
+                    //instance.Properties.ResourcesTracked = false;
+                    //this.monitoring.AddInstanceResources(instance);
+                    //instance.Properties.StopProcessed = false;
+                    //// instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
 
-                    if (this.useDiskQuota)
-                    {
-                        instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
-                    }
+                    //if (this.useDiskQuota)
+                    //{
+                    //    instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
+                    //}
 
-                    try
-                    {
-                        instance.LoadPlugin();
+                    //try
+                    //{
+                    //    instance.LoadPlugin();
 
-                        instance.Properties.EnvironmentVariables[VcapAppPidVariable] = instance.Properties.ProcessId.ToString(CultureInfo.InvariantCulture);
-                        List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
-                        foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
-                        {
-                            ApplicationVariable appVariable = new ApplicationVariable();
-                            appVariable.Name = appEnv.Key;
-                            appVariable.Value = appEnv.Value;
-                            appVariables.Add(appVariable);
-                        }
+                    //    instance.Properties.EnvironmentVariables[VcapAppPidVariable] = instance.Properties.ProcessId.ToString(CultureInfo.InvariantCulture);
+                    //    List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
+                    //    foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
+                    //    {
+                    //        ApplicationVariable appVariable = new ApplicationVariable();
+                    //        appVariable.Name = appEnv.Key;
+                    //        appVariable.Value = appEnv.Value;
+                    //        appVariables.Add(appVariable);
+                    //    }
 
-                        instance.Plugin.RecoverApplication(appVariables.ToArray());
-                    }
-                    catch (Exception ex)
-                    {
-                        instance.ErrorLog.Error(ex.ToString());
-                    }
+                    //    instance.Plugin.RecoverApplication(appVariables.ToArray());
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    instance.ErrorLog.Error(ex.ToString());
+                    //}
 
-                    if (instance.Properties.State == DropletInstanceState.Starting)
-                    {
-                        this.DetectAppReady(instance);
-                    }
+                    //if (instance.Properties.State == DropletInstanceState.Starting)
+                    //{
+                    //    this.DetectAppReady(instance);
+                    //}
 
-                    this.droplets.AddDropletInstance(instance);
-                    instance = null;
+                    //this.droplets.AddDropletInstance(instance);
+                    //instance = null;
                 }
                 catch (Exception ex)
                 {
@@ -1137,7 +1137,6 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Properties.State = DropletInstanceState.Stopped;
                     instance.Properties.StateTimestamp = DateTime.Now;
-                    //// this.ScheduleTheReaper
                 }
 
                 // this.monitoring.RemoveInstanceResources(instance);
@@ -1192,7 +1191,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 long memoryMbytes = pmessage.Limits != null && pmessage.Limits.MemoryMbytes != null ? pmessage.Limits.MemoryMbytes.Value : Monitoring.DefaultAppMemoryMbytes;
                 long diskMbytes = pmessage.Limits != null && pmessage.Limits.DiskMbytes != null ? pmessage.Limits.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
-                long fds = pmessage.Limits != null && pmessage.Limits.FileDescriptors != null ? pmessage.Limits.FileDescriptors.Value : Monitoring.DefaultAppFDS;
+                long fds = pmessage.Limits != null && pmessage.Limits.FileDescriptors != null ? pmessage.Limits.FileDescriptors.Value : Monitoring.DefaultAppFds;
 
                 if (this.monitoring.MemoryReservedMbytes + memoryMbytes > this.monitoring.MaxMemoryMbytes || this.monitoring.Clients >= this.monitoring.MaxClients)
                 {
@@ -1231,7 +1230,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 if (this.enforceUlimit)
                 {
-                    instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    // instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
                 }
 
                 this.monitoring.AddInstanceResources(instance);
@@ -1303,6 +1302,11 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
                     instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
                     Logger.Info("Created Windows Local User: {0}", instance.Properties.WindowsUserName);
+
+                    var prisonInfo = new ProcessPrisonCreateInfo();
+                    prisonInfo.WindowsUsername = instance.Properties.WindowsUserName;
+                    prisonInfo.WindowsUsernamePassword = instance.Properties.WindowsPassword;
+                    instance.ProcessPrison.Create(prisonInfo);
                 }
                 finally
                 {
@@ -1315,14 +1319,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 string starting = string.Format(CultureInfo.InvariantCulture, Strings.StartingUpInstanceOnPort, instance.Properties.LoggingId, instance.Properties.Port);
 
-                if (!string.IsNullOrEmpty(instance.Properties.DebugMode))
-                {
-                    Logger.Info(starting + Strings.WithDebuggerPort, instance.Properties.DebugPort);
-                }
-                else
-                {
-                    Logger.Info(starting);
-                }
+                Logger.Info(starting);
 
                 Logger.Debug(Strings.Clients, this.monitoring.Clients);
                 Logger.Debug(Strings.ReservedMemoryUsageMb, this.monitoring.MemoryReservedMbytes, this.monitoring.MaxMemoryMbytes);
@@ -1355,6 +1352,26 @@ namespace Uhuru.CloudFoundry.DEA
                         appVariable.Value = appEnv.Value;
                         appVariables.Add(appVariable);
                     }
+
+                    using (var impersonator = new UserImpersonator(instance.Properties.WindowsUserName, ".", instance.Properties.WindowsPassword, true))
+                    {
+                        using (var registryHandle = impersonator.GetRegistryHandle())
+                        {
+                            using (var registry = RegistryKey.FromHandle(registryHandle))
+                            {
+                                var envRegKey = registry.OpenSubKey("Environment", true);
+                                foreach (var env in instance.Properties.EnvironmentVariables)
+                                {
+                                    if (!string.IsNullOrEmpty(env.Key) && env.Value != null)
+                                    {
+                                        envRegKey.SetValue(env.Key, env.Value, RegistryValueKind.String);
+                                    }
+                                    // Environment.SetEnvironmentVariable(env.Key, env.Value, EnvironmentVariableTarget.User);
+                                }
+                            }
+                        }
+                    }
+
                 }
                 finally
                 {
@@ -1363,11 +1380,18 @@ namespace Uhuru.CloudFoundry.DEA
 
                 DateTime start = DateTime.Now;
 
-                instance.LoadPlugin();
-                instance.Plugin.ConfigureApplication(appVariables.ToArray());
-                instance.Plugin.StartApplication();
+                // instance.LoadPlugin();
+                // instance.Plugin.ConfigureApplication(appVariables.ToArray());
+                // instance.Plugin.StartApplication();
+                // int pid = instance.Plugin.GetApplicationProcessId();
 
-                int pid = instance.Plugin.GetApplicationProcessId();
+                string startSciprtPath = this.CreateStartScript(instance);
+
+                var runInfo = new ProcessPrisonRunInfo();
+                runInfo.WorkingDirectory = Path.Combine(instance.Properties.Directory, "app");
+                runInfo.FileName = startSciprtPath;
+
+                instance.ProcessPrison.RunProcess(runInfo);
 
                 Logger.Debug(Strings.TookXTimeToLoadConfigureAndStartDebugMessage, (DateTime.Now - start).TotalSeconds);
 
@@ -1377,8 +1401,6 @@ namespace Uhuru.CloudFoundry.DEA
 
                     if (!instance.Properties.StopProcessed)
                     {
-                        Logger.Info(Strings.PidAssignedToDroplet, pid, instance.Properties.LoggingId);
-                        instance.Properties.ProcessId = pid;
                         this.droplets.ScheduleSnapshotAppState();
                     }
                 }
@@ -1407,6 +1429,25 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitWriteLock();
                 }
             }
+        }
+
+        private string CreateStartScript(DropletInstance instance)
+        {
+            string startCommand = StagingInfo.getStartCommand(Path.Combine(instance.Properties.Directory, "staging_info.yml"));
+
+            var startScriptTemplate =
+            @"
+                set > {0}\logs\env.log
+                cd {0}\app
+                {1} > {0}\logs\stdout.log 2> {0}\logs\stderr.log
+            ";
+
+            string startScript = String.Format(startScriptTemplate, instance.Properties.Directory, startCommand);
+
+            string scriptPath = Path.Combine(instance.Properties.Directory, "start.cmd");
+            File.WriteAllText(scriptPath, startScript, Encoding.ASCII);
+
+            return scriptPath;
         }
 
         /// <summary>
@@ -1468,6 +1509,7 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapServicesVariable, CreateServicesApplicationVariable(services));
             env.Add(VcapAppHostVariable, Host);
             env.Add(VcapAppPortVariable, instance.Properties.Port.ToString(CultureInfo.InvariantCulture));
+            env.Add("PORT", instance.Properties.Port.ToString(CultureInfo.InvariantCulture));
 
             env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
             env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
@@ -1700,7 +1742,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         if (isPortReady)
                         {
-                            long currentTicks = instance.JobObject.TotalProcessorTime.Ticks;
+                            long currentTicks = 0; // instance.JobObject.TotalProcessorTime.Ticks;
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
@@ -1720,7 +1762,7 @@ namespace Uhuru.CloudFoundry.DEA
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
                             // PrivateMemory is Virtual Private Memory usage and is more close to the enforced Job Object memory usage.
-                            long memBytes = instance.JobObject.PrivateMemory;
+                            long memBytes = 0; // instance.JobObject.PrivateMemory;
 
                             if (this.useDiskQuota)
                             {
@@ -1765,8 +1807,6 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 VarzLock.EnterWriteLock();
                 Varz["running_apps"] = runningApps;
-                Varz["frameworks"] = metrics["framework"];
-                Varz["runtimes"] = metrics["runtime"];
             }
             finally
             {
@@ -1836,14 +1876,9 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
                     Logger.Info(Strings.LoweringPriorityOnCpuBound, instance.Properties.Name, priority);
 
-                    // Process.GetProcessById(instance.Properties.ProcessId).PriorityClass = priority;
-                    instance.JobObject.PriorityClass = priority;
+                    // instance.JobObject.PriorityClass = priority;
                 }
             }
-
-            // TODO, Check for an attack, or what looks like one, and look at history?
-            // pegged_cpus = @num_cores * 100
-            // also check for opened handles
         }
 
         /// <summary>
@@ -1857,7 +1892,6 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(DropletInstance instance)
                 {
-                    // TODO: watch for race conditions
                     bool removeDroplet = false;
 
                     bool isCrashed = instance.Properties.State == DropletInstanceState.Crashed;
@@ -1870,11 +1904,12 @@ namespace Uhuru.CloudFoundry.DEA
                     if (isStopped)
                     {
                         this.monitoring.RemoveInstanceResources(instance);
-                        if (instance.Plugin != null)
+
+                        if (instance.ProcessPrison.Created)
                         {
                             try
                             {
-                                instance.Plugin.StopApplication();
+                                instance.ProcessPrison.Destroy();
                             }
                             catch (Exception ex)
                             {
@@ -2014,40 +2049,40 @@ namespace Uhuru.CloudFoundry.DEA
 
                         foreach (Process instanceProcess in usersProcesses)
                         {
-                            instance.Properties.ProcessId = instanceProcess.Id;
-                            if (!instance.JobObject.HasProcess(instanceProcess))
-                            {
-                                try
-                                {
-                                    if (!instanceProcess.HasExited)
-                                    {
-                                        instance.JobObject.AddProcess(instanceProcess);
-                                    }
-                                }
-                                catch (Win32Exception e)
-                                {
-                                    Logger.Warning(Strings.InstanceProcessCoudNotBeAdded, instanceProcess.Id, e.ToString());
-                                    instanceProcess.Kill();
-                                    if (instance.ErrorLog != null)
-                                    {
-                                        instance.ErrorLog.Error("Killed process {0}. Reason: Unable to sandbox the process.", instanceProcess.Id);
-                                    }
-                                }
-                            }
+                            //instance.Properties.ProcessId = instanceProcess.Id;
+                            //if (!instance.JobObject.HasProcess(instanceProcess))
+                            //{
+                            //    try
+                            //    {
+                            //        if (!instanceProcess.HasExited)
+                            //        {
+                            //            // instance.JobObject.AddProcess(instanceProcess);
+                            //        }
+                            //    }
+                            //    catch (Win32Exception e)
+                            //    {
+                            //        Logger.Warning(Strings.InstanceProcessCoudNotBeAdded, instanceProcess.Id, e.ToString());
+                            //        instanceProcess.Kill();
+                            //        if (instance.ErrorLog != null)
+                            //        {
+                            //            instance.ErrorLog.Error("Killed process {0}. Reason: Unable to sandbox the process.", instanceProcess.Id);
+                            //        }
+                            //    }
+                            //}
 
-                            if (instance.TotalTerminatedProcessesTracked < instance.JobObject.TotalTerminatedProcesses)
-                            {
-                                if (instance.ErrorLog != null)
-                                {
-                                    instance.ErrorLog.Error("{0} process(es) killed by the sandbox.", instance.JobObject.TotalTerminatedProcesses - instance.TotalTerminatedProcessesTracked);
-                                }
+                            //if (instance.TotalTerminatedProcessesTracked < instance.JobObject.TotalTerminatedProcesses)
+                            //{
+                            //    if (instance.ErrorLog != null)
+                            //    {
+                            //        instance.ErrorLog.Error("{0} process(es) killed by the sandbox.", instance.JobObject.TotalTerminatedProcesses - instance.TotalTerminatedProcessesTracked);
+                            //    }
 
-                                instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
-                            }
-                            else if (instance.TotalTerminatedProcessesTracked > instance.JobObject.TotalTerminatedProcesses)
-                            {
-                                instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
-                            }
+                            //    instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
+                            //}
+                            //else if (instance.TotalTerminatedProcessesTracked > instance.JobObject.TotalTerminatedProcesses)
+                            //{
+                            //    instance.TotalTerminatedProcessesTracked = instance.JobObject.TotalTerminatedProcesses;
+                            //}
                         }
                     }
                     catch (Exception ex)

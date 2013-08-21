@@ -18,22 +18,6 @@ namespace Uhuru.CloudFoundry.DEA
     public class Monitoring : IDisposable
     {
         /// <summary>
-        /// milliseconds of delay added to dea.disover response per instance of a droplet
-        /// todo: configuration: consider putting this constants into configuration file
-        /// </summary>
-        public const int TaintPerAppMilliseconds = 10;
-
-        /// <summary>
-        /// milliseconds of delay added to dea.disover if the whole memory would be full
-        /// </summary>
-        public const int TaintForMemoryMilliseconds = 100;
-
-        /// <summary>
-        /// maximum ms of taint
-        /// </summary>
-        public const int TaintMaxMilliseconds = 250;
-
-        /// <summary>
         /// The default application RAM, if it is not specified in the start message.
         /// </summary>
         public const int DefaultAppMemoryMbytes = 512;
@@ -41,22 +25,17 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// The default disk memory. Used when not specified in the start message.
         /// </summary>
-        public const int DefaultAppDiskMbytes = 256;
+        public const int DefaultAppDiskMbytes = 1024;
 
         /// <summary>
         /// Default number of file descriptors.
         /// </summary>
-        public const int DefaultAppFDS = 1024;
+        public const int DefaultAppFds = 1024;
 
         /// <summary>
         /// Default number of maximum number o instances a DEA could host.
         /// </summary>
         public const int DefaultMaxClients = 1024;
-
-        /// <summary>
-        /// How long to wait in between logging the structure of the apps directory in the event that a du takes excessively long
-        /// </summary>
-        public const int AppsDumpIntervalMilliseconds = 30 * 60000;
 
         /// <summary>
         /// The interval the DEA is sending heartbeat messages.

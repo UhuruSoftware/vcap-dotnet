@@ -79,6 +79,12 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet.Core">
+      <HintPath>..\packages\YamlDotNet.Core.2.1.1\lib\net35\YamlDotNet.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="YamlDotNet.RepresentationModel">
+      <HintPath>..\packages\YamlDotNet.RepresentationModel.2.1.1\lib\net35\YamlDotNet.RepresentationModel.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agent.cs" />
@@ -114,13 +120,14 @@
     <Compile Include="PluginData.cs" />
     <Compile Include="PluginHost.cs" />
     <Compile Include="ProcessPrisonRunInfo.cs" />
-    <Compile Include="ProcessPrisonStartInfo.cs" />
+    <Compile Include="ProcessPrisonCreateInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBits.cs" />
     <Compile Include="Staging.cs" />
     <Compile Include="StagingTask.cs" />
     <Compile Include="StagingTaskRegistry.cs" />
     <Compile Include="StagingWorkspace.cs" />
+    <Compile Include="StagingInfo.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -140,6 +147,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="key.snk" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Uhuru.CloudFoundry.DEA.DirectoryServer\Uhuru.CloudFoundry.DEA.DirectoryServer.csproj">
