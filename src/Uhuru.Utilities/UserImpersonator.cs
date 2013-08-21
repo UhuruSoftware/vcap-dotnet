@@ -13,6 +13,7 @@ namespace Uhuru.Utilities
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Security.Principal;
+    using Microsoft.Win32.SafeHandles;
 
     /// <summary>
     /// Impersonation of a user. Allows to execute code under another
@@ -57,6 +58,7 @@ namespace Uhuru.Utilities
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources", Justification = "Keep it simple.")]
         private IntPtr userToken;
+        private SafeHandle SafeRegistryHandle;
 
         /// <summary>
         /// Initializes a new instance of the UserImpersonator class.
@@ -104,6 +106,15 @@ namespace Uhuru.Utilities
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Gets the registry handle.
+        /// </summary>
+        /// <returns>The impersonated registry handle.</returns>
+        public SafeRegistryHandle GetRegistryHandle()
+        {
+            return new SafeRegistryHandle(profileHandle, false);
         }
 
         /// <summary>

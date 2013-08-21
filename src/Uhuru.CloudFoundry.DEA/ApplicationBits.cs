@@ -75,11 +75,6 @@ namespace Uhuru.CloudFoundry.DEA
         public string DBDir { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether only http should be used to get the application file.
-        /// </summary>
-        public bool ForceHttpFileSharing { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether not to clean up the directory cleanup.
         /// </summary>
         public bool DisableDirCleanup
@@ -194,7 +189,7 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     // If we have a shared volume from the CloudController we can see the bits directly, just link into our staged version.
                     DateTime start = DateTime.Now;
-                    if (!this.ForceHttpFileSharing && File.Exists(bitsFile))
+                    if (File.Exists(bitsFile))
                     {
                         Logger.Debug(Strings.SharingCloudControllerStagingDirectory);
                         File.Copy(bitsFile, tarZipFile);
