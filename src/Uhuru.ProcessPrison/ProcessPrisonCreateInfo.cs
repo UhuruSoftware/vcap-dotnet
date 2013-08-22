@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.Isolation
 {
     public class ProcessPrisonCreateInfo
     {

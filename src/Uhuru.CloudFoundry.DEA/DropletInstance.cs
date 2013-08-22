@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
+    using Uhuru.Isolation;
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
     using Uhuru.Utilities.ProcessPerformance;
@@ -67,7 +68,7 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
-        public ProcessPrison ProcessPrison
+        public ProcessPrison Prison
         {
             get
             {

@@ -95,7 +95,6 @@
     <Compile Include="Messages\StagingStartMessageRequest.cs" />
     <Compile Include="Messages\StagingStartMessageResponse.cs" />
     <Compile Include="Messages\StagingStartRequestProperties.cs" />
-    <Compile Include="ProcessPrison.cs" />
     <Compile Include="Messages\DeaAdvertiseMessage.cs" />
     <Compile Include="Messages\DeaUpdateMessageRequest.cs" />
     <Compile Include="Messages\DeaStopMessageRequest.cs" />
@@ -119,8 +118,6 @@
     <Compile Include="Monitoring.cs" />
     <Compile Include="PluginData.cs" />
     <Compile Include="PluginHost.cs" />
-    <Compile Include="ProcessPrisonRunInfo.cs" />
-    <Compile Include="ProcessPrisonCreateInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBits.cs" />
     <Compile Include="Staging.cs" />
@@ -134,6 +131,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="DEAUtilities.cs" />
+    <Compile Include="UrlsAcl.cs" />
     <Compile Include="VcapComponent.cs" />
     <Compile Include="VcapReactor.cs" />
   </ItemGroup>
@@ -165,6 +163,10 @@
     <ProjectReference Include="..\Uhuru.NatsClient\Uhuru.NatsClient.csproj">
       <Project>{BF174398-E394-4730-A6E0-B07A27C6CEF4}</Project>
       <Name>Uhuru.NatsClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Uhuru.ProcessPrison\Uhuru.Isolation.csproj">
+      <Project>{af9d3a52-3380-4df3-81e2-3302ff2349a4}</Project>
+      <Name>Uhuru.Isolation</Name>
     </ProjectReference>
     <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
       <Project>{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}</Project>

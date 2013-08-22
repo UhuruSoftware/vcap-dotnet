@@ -1,12 +1,15 @@
-﻿namespace Uhuru.CloudFoundry.DEA
+﻿namespace Uhuru.Isolation
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
+    using Microsoft.Win32;
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
 
@@ -149,6 +152,12 @@
             private set;
         }
 
+        public string WindowsDomain
+        {
+            get;
+            private set;
+        }
+
         public string WindowsUsernamePassword
         {
             get;
@@ -175,6 +184,7 @@
 
             this.jobObject.KillProcessesOnJobClose = this.createInfo.TerminateContainerOnDispose;
 
+            this.WindowsDomain = ".";
             this.WindowsUsername = this.createInfo.WindowsUsername;
             this.WindowsUsernamePassword = this.createInfo.WindowsUsernamePassword;
 
@@ -218,26 +228,30 @@
 
             startupInfo.cb = Marshal.SizeOf(startupInfo.GetType());
             // startupInfo.dwFlags = 0x00000100;
+            // startupInfo.lpDesktop = this.Id + "\\" + "default";
+            // TODO: isolate the Windows Station and Destop
 
             string env = BuildEnvironmentVariable(runInfo.EnvironmentVariables);
 
             var creationFlags = ProcessCreationFlags.ZERO_FLAG;
 
-            creationFlags &= ~ProcessCreationFlags.CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
-
-            // Default creation flags for the CreateProcessWithLogonW API call
-            creationFlags |=
-                ProcessCreationFlags.CREATE_DEFAULT_ERROR_MODE | 
-                // ProcessCreationFlags.CREATE_NEW_CONSOLE | 
-                ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP;
-
-            // Just to be sure nothing is shared with other processes
-            creationFlags |= ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM;
+            creationFlags &= 
+                ~ProcessCreationFlags.CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
 
             creationFlags |=
+                ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM|
+
+                ProcessCreationFlags.CREATE_DEFAULT_ERROR_MODE |
+                ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP|
+
                 ProcessCreationFlags.CREATE_SUSPENDED |
                 ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT |
                 ProcessCreationFlags.CREATE_NO_WINDOW;
+
+            if (runInfo.CreateWindow)
+            {
+                creationFlags |= ProcessCreationFlags.CREATE_NEW_CONSOLE; 
+            }
 
             if (string.IsNullOrEmpty(this.WindowsUsername))
             {
@@ -265,7 +279,7 @@
                 // before it executes.
                 bool ret = CreateProcessWithLogon(
                     this.WindowsUsername,
-                    ".",
+                    this.WindowsDomain,
                     this.WindowsUsernamePassword,
                     LogonFlags.LOGON_WITH_PROFILE,
                     runInfo.FileName,
@@ -297,6 +311,76 @@
             CloseHandle(processInfo.hThread);
 
             return process;
+        }
+
+        /// <summary>
+        /// Sets an environment variable for the user.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void SetUsersEnvironmentVariable(string name, string value)
+        {
+            if (!this.Created)
+            {
+                throw new InvalidOperationException("ProcessPrison has to be created first.");
+            }
+
+            if (!string.IsNullOrEmpty(name) || name.Contains('='))
+            {
+                throw new ArgumentException("Invalid name", "name");
+            }
+
+            if (value != null)
+            {
+                throw new ArgumentException("Value is null", "value");
+            }
+
+
+            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsUsernamePassword, true))
+            {
+                using (var registryHandle = impersonator.GetRegistryHandle())
+                {
+                    using (var registry = RegistryKey.FromHandle(registryHandle))
+                    {
+                        var envRegKey = registry.OpenSubKey("Environment", true);
+
+                        envRegKey.SetValue(name, value, RegistryValueKind.String);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the environment variables for the user.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public IDictionary<string, string> GetUsersEnvironmentVariables()
+        {
+            if (!this.Created)
+            {
+                throw new InvalidOperationException("ProcessPrison has to be created first.");
+            }
+
+            var ret = new Dictionary<string, string>();
+ 
+            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsUsernamePassword, true))
+            {
+                using (var registryHandle = impersonator.GetRegistryHandle())
+                {
+                    using (var registry = RegistryKey.FromHandle(registryHandle))
+                    {
+                        var envRegKey = registry.OpenSubKey("Environment", true);
+
+                        foreach (var key in envRegKey.GetValueNames())
+                        {
+                            ret[key] = (string) envRegKey.GetValue(key);
+                        }
+                    }
+                }
+            }
+
+            return ret;
         }
 
         public Process[] GetRunningProcesses()

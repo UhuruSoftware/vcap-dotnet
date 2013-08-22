@@ -26,6 +26,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Specialized;
     using Microsoft.Win32;
     using System.Text;
+    using Uhuru.Isolation;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -1291,7 +1292,7 @@ namespace Uhuru.CloudFoundry.DEA
                     var prisonInfo = new ProcessPrisonCreateInfo();
                     prisonInfo.WindowsUsername = instance.Properties.WindowsUserName;
                     prisonInfo.WindowsUsernamePassword = instance.Properties.WindowsPassword;
-                    instance.ProcessPrison.Create(prisonInfo);
+                    instance.Prison.Create(prisonInfo);
                 }
                 finally
                 {
@@ -1321,6 +1322,8 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.UserDiskQuota.QuotaLimit = instance.Properties.DiskQuotaBytes;
                         instance.UserDiskQuota.QuotaThreshold = instance.Properties.DiskQuotaBytes;
                     }
+
+                    UrlsAcl.AddPortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -1365,7 +1368,7 @@ namespace Uhuru.CloudFoundry.DEA
                 runInfo.WorkingDirectory = Path.Combine(instance.Properties.Directory, "app");
                 runInfo.FileName = startSciprtPath;
 
-                instance.ProcessPrison.RunProcess(runInfo);
+                instance.Prison.RunProcess(runInfo);
 
                 Logger.Debug(Strings.TookXTimeToLoadConfigureAndStartDebugMessage, (DateTime.Now - start).TotalSeconds);
 
@@ -1879,11 +1882,11 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         this.monitoring.RemoveInstanceResources(instance);
 
-                        if (instance.ProcessPrison.Created)
+                        if (instance.Prison.Created)
                         {
                             try
                             {
-                                instance.ProcessPrison.Destroy();
+                                instance.Prison.Destroy();
                             }
                             catch (Exception ex)
                             {
@@ -1896,7 +1899,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (isCrashed || isOldCrash || isStopped || isDeleted)
                     {
                         this.monitoring.RemoveInstanceResources(instance);
-                        if (!instance.ProcessPrison.Created)
+                        if (!instance.Prison.Created)
                         {
                             Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
 
@@ -1920,7 +1923,7 @@ namespace Uhuru.CloudFoundry.DEA
                             instance.Properties.Directory = null;
                         }
 
-                        if (instance.Properties.Directory != null && !instance.ProcessPrison.Created)
+                        if (instance.Properties.Directory != null && !instance.Prison.Created)
                         {
                             try
                             {
@@ -1940,7 +1943,7 @@ namespace Uhuru.CloudFoundry.DEA
                             }
                         }
 
-                        if (!instance.ProcessPrison.Created && instance.Properties.Directory == null)
+                        if (!instance.Prison.Created && instance.Properties.Directory == null)
                         {
                             removeDroplet = true;
                         }

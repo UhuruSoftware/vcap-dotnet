@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Uhuru.CloudFoundry.DEA
+namespace Uhuru.Isolation
 {
     public class ProcessPrisonRunInfo
     {
@@ -26,6 +26,12 @@ namespace Uhuru.CloudFoundry.DEA
             set;
         }
 
+        public bool CreateWindow
+        {
+            get;
+            set;
+        }
+
         public Dictionary<string, string> EnvironmentVariables
         {
             get;
@@ -34,9 +40,12 @@ namespace Uhuru.CloudFoundry.DEA
 
         public ProcessPrisonRunInfo()
         {
+            this.CreateWindow = false;
             this.FileName = null;
             this.EnvironmentVariables = new Dictionary<string, string>();
             this.WorkingDirectory = null;
         }
+
+        
     }
 }
