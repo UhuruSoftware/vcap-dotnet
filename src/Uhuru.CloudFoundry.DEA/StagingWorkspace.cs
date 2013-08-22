@@ -14,10 +14,10 @@ namespace Uhuru.CloudFoundry.DEA
 
     class StagingWorkspace
     {
-        private const string DropletFile = "droplet.tgz";
-        private const string BuildpackCacheFile = "buildpack_cache.tgz";
-        private const string StagingLog = "staging_task.log";
-        private const string StagingInfo = "staging_info";
+        public const string DropletFile = "droplet.tgz";
+        public const string BuildpackCacheFile = "buildpack_cache.tgz";
+        public const string StagingLog = "staging_task.log";
+        public const string StagingInfo = "staging_info.yml";
 
         public string WorkspaceDir
         {
@@ -49,12 +49,15 @@ namespace Uhuru.CloudFoundry.DEA
         public string StagingLogPath { get { return Path.Combine(this.TempDir, "logs", StagingLog); } }
         public string StagedDroplet { get { return Path.Combine(this.TempDir, DropletFile); } }
         public string StagedDropletDir { get { return Path.Combine(this.WorkspaceDir, "staged"); } }
+        public string StagedDropletPath { get { return Path.Combine(this.StagedDropletDir, DropletFile); } }
+        public string StagedBuildpackCachePath { get { return Path.Combine(this.StagedDropletDir, BuildpackCacheFile); } }
+        public string StagedBuildpackCache { get { return Path.Combine(this.TempDir, BuildpackCacheFile); } }
 
         private string baseDir;
 
-        public StagingWorkspace(string baseDir)
+        public StagingWorkspace(string baseDir, string id)
         {
-            this.baseDir = baseDir;
+            this.baseDir = Path.Combine(baseDir, id);
         }
 
 

@@ -63,5 +63,8 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     {
         [JsonName("console")]
         public bool Console { get; set; }
+
+        [JsonName("command")]
+        public string Command { get; set; }
     }
 }

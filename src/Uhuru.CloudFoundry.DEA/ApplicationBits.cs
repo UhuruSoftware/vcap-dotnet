@@ -235,14 +235,12 @@ namespace Uhuru.CloudFoundry.DEA
                     deploymentDirInfo.SetAccessControl(deploymentDirSecurity);
                 }
 
-                string tarFileName = Path.GetFileName(tarZipFile);
-                tarFileName = Path.ChangeExtension(tarFileName, ".tar");
-
                 // Impersonate user to cascade the owernship to every file
                 // Neccessary for windows disk quota
                 using (new UserImpersonator(instance.Properties.WindowsUserName, ".", instance.Properties.WindowsPassword, true))
                 {
                     DEAUtilities.UnzipFile(instanceDir, tarZipFile); // Unzip
+                    string tarFileName = Directory.GetFiles(instanceDir, "*.tar")[0];
                     DEAUtilities.UnzipFile(instanceDir, Path.Combine(instanceDir, tarFileName)); // Untar
                     File.Delete(Path.Combine(instanceDir, tarFileName));
                 }

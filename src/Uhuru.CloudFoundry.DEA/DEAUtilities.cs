@@ -13,6 +13,8 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Reflection;
     using System.Threading;
     using SevenZip;
+    using System.Text;
+    using System.Net;
 
     /// <summary>
     /// Callback for the process stream.
@@ -74,7 +76,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.ArchiveFormat = OutArchiveFormat.GZip;
-            compressor.CompressDirectory(sourceFile, fileName);
+            compressor.CompressFiles(fileName, sourceFile);
         }
 
         /// <summary>
@@ -362,5 +364,61 @@ namespace Uhuru.CloudFoundry.DEA
                 }
             }
         }
+
+        public static string HttpUploadFile(string url, FileInfo file, string paramName, string contentType, string authorization)
+        {
+            string boundary = Guid.NewGuid().ToString("N");
+            byte[] boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+
+            request.ContentType = "multipart/form-data; boundary=" + boundary;
+            request.Method = "POST";
+            request.Headers[HttpRequestHeader.Authorization] = authorization;
+
+            // diable this to allow streaming big files, without beeing out of memory.
+            request.AllowWriteStreamBuffering = false;
+
+            string headerTemplate = "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n";
+            string header = string.Format(headerTemplate, paramName, file, contentType);
+            byte[] headerBytes = Encoding.UTF8.GetBytes(header);
+            byte[] trailerBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+
+            request.ContentLength = boundaryBytes.Length + headerBytes.Length + trailerBytes.Length + file.Length;
+
+            using (Stream requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+                requestStream.Write(headerBytes, 0, headerBytes.Length);
+
+                FileStream fileStream = file.OpenRead();
+
+                // fileStream.CopyTo(requestStream, 1024 * 1024);
+
+                int bufferSize = 1024 * 1024;
+
+                byte[] buffer = new byte[bufferSize];
+                int bytesRead = 0;
+                while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    requestStream.Write(buffer, 0, bytesRead);
+                    requestStream.Flush();
+                }
+                fileStream.Close();
+
+
+                requestStream.Write(trailerBytes, 0, trailerBytes.Length);
+                requestStream.Close();
+
+            }
+
+            using (var respnse = request.GetResponse())
+            {
+                Stream responseStream = respnse.GetResponseStream();
+                StreamReader responseReader = new StreamReader(responseStream);
+                return responseReader.ReadToEnd();
+            }
+        }
+
     }
 }

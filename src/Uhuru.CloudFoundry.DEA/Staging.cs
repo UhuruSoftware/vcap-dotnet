@@ -61,7 +61,7 @@ namespace Uhuru.CloudFoundry.DEA
        
         private void NotifyUpload(StagingStartMessageRequest message, string replyTo, StagingTask task) 
         {
-            task.AfterStop += delegate(Exception error)
+            task.AfterUpload += delegate(Exception error)
             {
                 StagingStartMessageResponse response = new StagingStartMessageResponse();
                 response.TaskId = task.TaskId;

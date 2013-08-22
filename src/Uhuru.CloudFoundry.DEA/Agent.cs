@@ -1240,12 +1240,16 @@ namespace Uhuru.CloudFoundry.DEA
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void StagingStartHandler(string message, string reply, string subject)
         {
-            StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
-            stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-
-            Logger.Debug(subject + message);
-
-            this.staging.HandleMessage(stagingStartRequest, reply);
+            try
+            {
+                StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
+                stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+                this.staging.HandleMessage(stagingStartRequest, reply);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString());
+            }
         }
 
         /// <summary>
