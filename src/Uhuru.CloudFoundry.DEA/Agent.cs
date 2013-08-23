@@ -15,7 +15,6 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.DirectoryServer;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
@@ -167,11 +166,6 @@ namespace Uhuru.CloudFoundry.DEA
         private System.Timers.Timer routerRegisterTimer;
 
         /// <summary>
-        /// The windows disk quota manager.
-        /// </summary>
-        private DIDiskQuotaControl diskQuotaControl;
-
-        /// <summary>
         /// Directory Server V2 Port.
         /// </summary>
         private int directoryServerPort;
@@ -313,30 +307,17 @@ namespace Uhuru.CloudFoundry.DEA
             if (this.useDiskQuota)
             {
                 // Initialize disk quota
-                // TODO: stefi: add a disk quota control for every drive that an app can use
-                string rootPath = DEAUtilities.GetVolumeFromPath(this.stager.AppsDir);
+                Logger.Info("Initializing disk quota.");
 
-                Logger.Info("Initializing disk quota for '{0}'.", rootPath);
-                this.diskQuotaControl = new DiskQuotaControlClass();
-                this.diskQuotaControl.Initialize(rootPath, true);
-                this.diskQuotaControl.QuotaState = QuotaStateConstants.dqStateEnforce;
-
-                // Set to ResolveNone to prevent blocking when using account names.
-                this.diskQuotaControl.UserNameResolution = UserNameResolutionConstants.dqResolveNone;
-                this.diskQuotaControl.LogQuotaThreshold = true;
-                this.diskQuotaControl.LogQuotaLimit = true;
-
-                // Disable default quota limit and threshold
-                this.diskQuotaControl.DefaultQuotaThreshold = -1;
-                this.diskQuotaControl.DefaultQuotaLimit = -1;
+                DiskQuotaManager.StartQuotaInitialization();
 
                 // Wait until the volume diskquota is initialized
-                while (this.diskQuotaControl.QuotaFileIncomplete || this.diskQuotaControl.QuotaFileRebuilding)
+                while (!DiskQuotaManager.IsQuotaInitialized())
                 {
                     Thread.Sleep(200);
                 }
 
-                Logger.Info("Disk quota initialization complete for volume '{0}'.", rootPath);
+                Logger.Info("Disk quota initialization complete");
             }
 
             this.fileViewer.Start(this.Host, DirectoryConfiguration.ReadConfig(), this);
@@ -1289,14 +1270,25 @@ namespace Uhuru.CloudFoundry.DEA
                 {
                     instance.Lock.EnterWriteLock();
 
-                    instance.Properties.WindowsPassword = "P4s$" + Credentials.GenerateCredential();
-                    instance.Properties.WindowsUserName = WindowsVCAPUsers.CreateDecoratedUser(instance.Properties.InstanceId, instance.Properties.WindowsPassword);
-                    Logger.Info("Created Windows Local User: {0}", instance.Properties.WindowsUserName);
-
                     var prisonInfo = new ProcessPrisonCreateInfo();
-                    prisonInfo.WindowsUsername = instance.Properties.WindowsUserName;
-                    prisonInfo.WindowsUsernamePassword = instance.Properties.WindowsPassword;
+
+                    prisonInfo.Id = instance.Properties.InstanceId;
+                    prisonInfo.TotalPrivateMemoryLimit = instance.Properties.MemoryQuotaBytes;
+
+                    if (this.useDiskQuota)
+                    {
+                        prisonInfo.DiskQuotaBytes = instance.Properties.DiskQuotaBytes;
+                        prisonInfo.DiskQuotaPath = instance.Properties.Directory;
+                    }
+
+                    Logger.Info("Creating Process Prisson: {0}", prisonInfo.Id);
+
                     instance.Prison.Create(prisonInfo);
+
+                    instance.Properties.WindowsPassword = instance.Prison.WindowsPassword;
+
+                    // TODO: Get rid of WindowsUserName from Instance
+                    instance.Properties.WindowsUserName = instance.Prison.WindowsUsername;
                 }
                 finally
                 {
@@ -1314,49 +1306,16 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Debug(Strings.Clients, this.monitoring.Clients);
                 Logger.Debug(Strings.ReservedMemoryUsageMb, this.monitoring.MemoryReservedMbytes, this.monitoring.MaxMemoryMbytes);
 
-                List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
                 try
                 {
                     instance.Lock.EnterWriteLock();
-
-                    if (this.useDiskQuota)
-                    {
-                        // Set the quoata limits for the windows user of the app instance
-                        instance.UserDiskQuota = this.diskQuotaControl.AddUser(instance.Properties.WindowsUserName);
-                        instance.UserDiskQuota.QuotaLimit = instance.Properties.DiskQuotaBytes;
-                        instance.UserDiskQuota.QuotaThreshold = instance.Properties.DiskQuotaBytes;
-                    }
 
                     UrlsAcl.AddPortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
-                    foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
-                    {
-                        ApplicationVariable appVariable = new ApplicationVariable();
-                        appVariable.Name = appEnv.Key;
-                        appVariable.Value = appEnv.Value;
-                        appVariables.Add(appVariable);
-                    }
-
-                    using (var impersonator = new UserImpersonator(instance.Properties.WindowsUserName, ".", instance.Properties.WindowsPassword, true))
-                    {
-                        using (var registryHandle = impersonator.GetRegistryHandle())
-                        {
-                            using (var registry = RegistryKey.FromHandle(registryHandle))
-                            {
-                                var envRegKey = registry.OpenSubKey("Environment", true);
-                                foreach (var env in instance.Properties.EnvironmentVariables)
-                                {
-                                    if (!string.IsNullOrEmpty(env.Key) && env.Value != null)
-                                    {
-                                        envRegKey.SetValue(env.Key, env.Value, RegistryValueKind.String);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    instance.Prison.SetUsersEnvironmentVariables(instance.Properties.EnvironmentVariables);
 
                 }
                 finally
@@ -1743,15 +1702,10 @@ namespace Uhuru.CloudFoundry.DEA
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
                             // PrivateMemory is Virtual Private Memory usage and is more close to the enforced Job Object memory usage.
-                            long memBytes = 0; // instance.JobObject.PrivateMemory;
+                            long memBytes = instance.Prison.PrivateMemoryUsageBytes;
 
-                            if (this.useDiskQuota)
-                            {
-                                // Invalidate will update quota used
-                                instance.UserDiskQuota.Invalidate();
-                            }
-
-                            long diskBytes = instance.UserDiskQuota != null ? (long)instance.UserDiskQuota.QuotaUsed : 0;
+                            // Return -1 is disk quota is not enforced.
+                            long diskBytes = instance.Prison.DiskUsageBytes;
 
                             instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
 

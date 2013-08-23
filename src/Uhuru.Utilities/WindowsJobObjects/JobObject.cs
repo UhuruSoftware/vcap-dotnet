@@ -663,6 +663,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
 
         /// <summary>
         /// Gets the private memory in bytes.
+        /// Coresponds to Private Bytes in Process Hacker, Commit Size in Task Manager.
         /// </summary>
         public long PrivateMemory
         {

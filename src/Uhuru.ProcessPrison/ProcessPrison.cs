@@ -8,7 +8,9 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using System.Security.Cryptography;
     using System.Text;
+    using DiskQuotaTypeLibrary;
     using Microsoft.Win32;
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
@@ -132,7 +134,14 @@
 
         private ProcessPrisonCreateInfo createInfo;
 
-        private JobObject jobObject;
+        [CLSCompliant(false)]
+        private DIDiskQuotaUser userQuota;
+
+        public JobObject jobObject
+        {
+            get;
+            private set;
+        }
 
         public string Id
         {
@@ -158,10 +167,36 @@
             private set;
         }
 
-        public string WindowsUsernamePassword
+        public string WindowsPassword
         {
             get;
             private set;
+        }
+
+
+        public long DiskUsageBytes
+        {
+            get
+            {
+                if (userQuota == null) return -1;
+
+                // Invalidate will update quota use
+                this.userQuota.Invalidate();
+                return (long)this.userQuota.QuotaUsed;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets the private memory in bytes. It also counts the swapped memory.
+        /// Coresponds to Private Bytes in Process Hacker, Commit Size in Task Manager.
+        /// </summary>
+        public long PrivateMemoryUsageBytes
+        {
+            get
+            {
+                return this.jobObject.PrivateMemory;
+            }
         }
 
         public ProcessPrison()
@@ -176,17 +211,31 @@
 
         public void Create(ProcessPrisonCreateInfo createInfo)
         {
+            if (createInfo.Id == null)
+                this.Id = GenerateSecureGuid().ToString();
+            else
+                this.Id = createInfo.Id;
+
+
             this.createInfo = createInfo;
             this.jobObject = new JobObject(this.Id);
 
             this.jobObject.ActiveProcessesLimit = this.createInfo.RunningProcessesLimit;
-            this.jobObject.JobMemoryLimit = this.createInfo.TotalMemoryLimit;
+            this.jobObject.JobMemoryLimit = this.createInfo.TotalPrivateMemoryLimit;
 
             this.jobObject.KillProcessesOnJobClose = this.createInfo.TerminateContainerOnDispose;
 
+
+            if (this.createInfo.WindowsPassword == null)
+                this.WindowsPassword = GenerateSecurePassword(40);
+            else
+                this.WindowsPassword = this.createInfo.WindowsPassword;
+
             this.WindowsDomain = ".";
-            this.WindowsUsername = this.createInfo.WindowsUsername;
-            this.WindowsUsernamePassword = this.createInfo.WindowsUsernamePassword;
+            this.WindowsUsername = CreateDecoratedUser(this.Id, this.WindowsPassword);
+
+            userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+            userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
 
             this.Created = true;
         }
@@ -228,6 +277,7 @@
 
             startupInfo.cb = Marshal.SizeOf(startupInfo.GetType());
             // startupInfo.dwFlags = 0x00000100;
+            // http://support.microsoft.com/kb/165194
             // startupInfo.lpDesktop = this.Id + "\\" + "default";
             // TODO: isolate the Windows Station and Destop
 
@@ -235,14 +285,14 @@
 
             var creationFlags = ProcessCreationFlags.ZERO_FLAG;
 
-            creationFlags &= 
+            creationFlags &=
                 ~ProcessCreationFlags.CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
 
             creationFlags |=
-                ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM|
+                ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM |
 
                 ProcessCreationFlags.CREATE_DEFAULT_ERROR_MODE |
-                ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP|
+                ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP |
 
                 ProcessCreationFlags.CREATE_SUSPENDED |
                 ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT |
@@ -250,7 +300,7 @@
 
             if (runInfo.CreateWindow)
             {
-                creationFlags |= ProcessCreationFlags.CREATE_NEW_CONSOLE; 
+                creationFlags |= ProcessCreationFlags.CREATE_NEW_CONSOLE;
             }
 
             if (string.IsNullOrEmpty(this.WindowsUsername))
@@ -280,7 +330,7 @@
                 bool ret = CreateProcessWithLogon(
                     this.WindowsUsername,
                     this.WindowsDomain,
-                    this.WindowsUsernamePassword,
+                    this.WindowsPassword,
                     LogonFlags.LOGON_WITH_PROFILE,
                     runInfo.FileName,
                     runInfo.Arguments,
@@ -336,7 +386,7 @@
             }
 
 
-            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsUsernamePassword, true))
+            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsPassword, true))
             {
                 using (var registryHandle = impersonator.GetRegistryHandle())
                 {
@@ -345,6 +395,52 @@
                         var envRegKey = registry.OpenSubKey("Environment", true);
 
                         envRegKey.SetValue(name, value, RegistryValueKind.String);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets an environment variable for the user.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void SetUsersEnvironmentVariables(Dictionary<string, string> envVariables)
+        {
+            if (!this.Created)
+            {
+                throw new InvalidOperationException("ProcessPrison has to be created first.");
+            }
+
+            if (envVariables.Keys.Any(x => x.Contains('=')))
+            {
+                throw new ArgumentException("A name of an environment variable contains the invalid '=' characther", "envVariables");
+            }
+
+            if (envVariables.Keys.Any(x => string.IsNullOrEmpty(x)))
+            {
+                throw new ArgumentException("A name of an environment variable is null or empty", "envVariables");
+            }
+
+            //if (envVariables.Values.Any(x => x == null))
+            //{
+            //    throw new ArgumentException("A value of an environment variable is null", "envVariables");
+            //}
+
+            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsPassword, true))
+            {
+                using (var registryHandle = impersonator.GetRegistryHandle())
+                {
+                    using (var registry = RegistryKey.FromHandle(registryHandle))
+                    {
+                        var envRegKey = registry.OpenSubKey("Environment", true);
+
+                        foreach (var env in envVariables)
+                        {
+                            var value = env.Value == null ? string.Empty : env.Value;
+
+                            envRegKey.SetValue(env.Key, value, RegistryValueKind.String);
+                        }
                     }
                 }
             }
@@ -363,8 +459,8 @@
             }
 
             var ret = new Dictionary<string, string>();
- 
-            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsUsernamePassword, true))
+
+            using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsPassword, true))
             {
                 using (var registryHandle = impersonator.GetRegistryHandle())
                 {
@@ -374,7 +470,7 @@
 
                         foreach (var key in envRegKey.GetValueNames())
                         {
-                            ret[key] = (string) envRegKey.GetValue(key);
+                            ret[key] = (string)envRegKey.GetValue(key);
                         }
                     }
                 }
@@ -389,7 +485,12 @@
         }
 
 
-
+        /// <summary>
+        /// Formats a string with the env variables for CreateProcess Win API function.
+        /// See env format here: http://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
+        /// </summary>
+        /// <param name="EvnironmantVariables"></param>
+        /// <returns></returns>
         private static string BuildEnvironmentVariable(Dictionary<string, string> EvnironmantVariables)
         {
             string ret = null;
@@ -405,10 +506,54 @@
                     ret += EnvironmentVariable.Key + "=" + EnvironmentVariable.Value + '\0';
                 }
 
-                // See env format here: http://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx
+
                 ret += "\0\0";
             }
             return ret;
+        }
+
+
+        public static string GenerateSecurePassword(int base64Length)
+        {
+            int bytesLength = (base64Length * 3) / 4 + 1;
+            var rnd = new byte[bytesLength];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(rnd);
+            }
+
+            return System.Convert.ToBase64String(rnd).Substring(0, base64Length);
+        }
+
+        /// <summary>
+        /// Generated a GUID with a cryptographically secure random number generator.
+        /// </summary>
+        /// <returns>Secure GUID.</returns>
+        public static Guid GenerateSecureGuid()
+        {
+            var secureGuid = new byte[16];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(secureGuid);
+            }
+
+            return new Guid(secureGuid);
+        }
+
+        public static string CreateDecoratedUser(string id, string password)
+        {
+            string decoration = "prison-";
+
+            var windowsUsername = decoration + id;
+
+            // Max local windows username is 20 chars.
+            windowsUsername = windowsUsername.Substring(0, Math.Min(20, windowsUsername.Length));
+
+            WindowsUsersAndGroups.CreateUser(windowsUsername, password, "Uhuru Process Prison " + id);
+
+            return windowsUsername;
         }
 
     }

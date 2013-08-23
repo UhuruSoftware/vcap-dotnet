@@ -28,9 +28,8 @@ namespace Uhuru.ProcessPrisonRepl
                 {
                     case ConsoleKey.C:
                         var ppci = new ProcessPrisonCreateInfo();
-                        ppci.WindowsUsername = "test";
-                        ppci.WindowsUsernamePassword = "password1234!";
-                        ppci.TotalMemoryLimit = 128 * 1024 * 1024;
+                        // ppci.WindowsPassword = "password1234!";
+                        ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
 
                         var pp = new ProcessPrison();
                         pp.Create(ppci);
@@ -58,8 +57,7 @@ namespace Uhuru.ProcessPrisonRepl
             }
 
             var createInfo = new ProcessPrisonCreateInfo();
-            createInfo.WindowsUsername = "test";
-            createInfo.WindowsUsernamePassword = "password1234!";
+            // createInfo.WindowsPassword = "password1234!";
 
             var p = new ProcessPrison();
 
