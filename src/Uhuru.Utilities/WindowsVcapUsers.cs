@@ -87,7 +87,9 @@ namespace Uhuru.Utilities
                 throw new ArgumentException("id paramater cannot be null or empty", "id");
             }
 
-            return UserDecoration + id.Substring(0, Math.Min(10, id.Length));
+            var windowsUsername = UserDecoration + id;
+
+            return windowsUsername.Substring(0, Math.Min(20, windowsUsername.Length));
         }
     }
 }

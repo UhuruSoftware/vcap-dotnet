@@ -7,13 +7,19 @@ namespace Uhuru.Isolation
 {
     public class ProcessPrisonCreateInfo
     {
+        public string Id
+        {
+            get;
+            set;    
+        }
+
         public bool TerminateContainerOnDispose
         {
             get;
             set;
         }
 
-        public long TotalMemoryLimit
+        public long TotalPrivateMemoryLimit
         {
             get;
             set;
@@ -25,13 +31,28 @@ namespace Uhuru.Isolation
             set;
         }
 
-        public string WindowsUsername
+        public string WindowsPassword
         {
             get;
             set;
         }
 
-        public string WindowsUsernamePassword
+        /// <summary>
+        /// The space usage quota for VolumeRootPath.
+        /// Use -1 to disable disk quota.
+        /// </summary>
+        public long DiskQuotaBytes
+        {
+            get;
+            set;
+        }
+
+
+        /// <summary>
+        /// The path in the disk volume to apply quota on.
+        /// Ex. "C:\dir" for volume "C:\"
+        /// </summary>
+        public string DiskQuotaPath
         {
             get;
             set;
@@ -40,9 +61,9 @@ namespace Uhuru.Isolation
         public ProcessPrisonCreateInfo()
         {
             this.TerminateContainerOnDispose = false;
-            this.TotalMemoryLimit = 0;
+            this.TotalPrivateMemoryLimit = 0;
             this.RunningProcessesLimit = 0;
-
+            this.DiskQuotaBytes = -1;
         }
     }
 }

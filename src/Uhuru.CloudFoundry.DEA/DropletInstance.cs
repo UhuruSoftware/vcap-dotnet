@@ -11,7 +11,6 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Net.Sockets;
     using System.Threading;
-    using DiskQuotaTypeLibrary;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.CloudFoundry.DEA.PluginBase;
     using Uhuru.Isolation;
@@ -56,16 +55,6 @@ namespace Uhuru.CloudFoundry.DEA
         public DropletInstance()
         {
             this.TotalTerminatedProcessesTracked = 0;        
-        }
-
-        /// <summary>
-        /// Gets or sets disk usage tracking for the instance user.
-        /// </summary>
-        [CLSCompliant(false)]
-        public DIDiskQuotaUser UserDiskQuota
-        {
-            get;
-            set;
         }
 
         public ProcessPrison Prison

@@ -69,6 +69,7 @@ namespace Uhuru.Utilities
         public static Guid GenerateSecureGuid()
         {
             var secureGuid = new byte[16];
+
             using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(secureGuid);
