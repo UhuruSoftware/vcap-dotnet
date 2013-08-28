@@ -123,6 +123,25 @@ namespace Uhuru.Isolation
         }
 
         /// <summary>
+        /// Gets a objects that manages the quota for a specific user on all the system's volumes.
+        /// </summary>
+        /// <param name="rootPath"></param>
+        /// <param name="WindowsUsername"></param>
+        public static DIDiskQuotaUser[] GetDisksQuotaUser(string WindowsUsername)
+        {
+            lock (locker)
+            {
+                var res = new List<DIDiskQuotaUser>();
+                foreach (var qcontrol in quotaControls.Values)
+                {
+                    res.Add(qcontrol.AddUser(WindowsUsername));
+                }
+
+                return res.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Get the volume root mount of the path. 
         /// </summary>
         /// <param name="path">The path for which the volume should be returned.</param>

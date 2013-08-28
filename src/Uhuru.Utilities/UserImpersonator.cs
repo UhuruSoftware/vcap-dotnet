@@ -93,9 +93,32 @@ namespace Uhuru.Utilities
             NTAccount ntaccount = new NTAccount(domainName, userName);
             string userSid = ntaccount.Translate(typeof(SecurityIdentifier)).Value;
 
-            if (!DeleteProfile(userSid, null, null))
+            bool retry = true;
+            int retries = 2;
+            while (retry && retries > 0)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                retry = false;
+
+                if (!DeleteProfile(userSid, null, null))
+                {
+                    int errorCode = Marshal.GetLastWin32Error();
+
+                    // Error Code 2: The user profile was not created or was already deleted
+                    if (errorCode == 2)
+                    {
+                        return;
+                    }
+                    // Error Code 87: The user profile is still loaded.
+                    else if (errorCode == 87)
+                    {
+                        retry = true;
+                        retries--;
+                    }
+                    else
+                    {
+                        throw new Win32Exception(errorCode);
+                    }
+                }
             }
         }
 

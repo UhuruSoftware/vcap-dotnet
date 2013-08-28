@@ -103,7 +103,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// The application stager.
         /// </summary>
-        private ApplicationBits stager = new ApplicationBits();
+        private ApplicationBits fileResources = new ApplicationBits();
 
         /// <summary>
         /// The DEA's HTTP droplet file viewer. Helps receive the logs.
@@ -183,13 +183,13 @@ namespace Uhuru.CloudFoundry.DEA
 
             foreach (StackElement deaConf in uhuruSection.DEA.Stacks)
             {
-                this.stager.Stacks.Add(deaConf.Name);
+                this.fileResources.Stacks.Add(deaConf.Name);
             }
 
             string baseDir = uhuruSection.DEA.BaseDir;
-            this.stager.DropletDir = new DirectoryInfo(baseDir).FullName;
+            this.fileResources.DropletDir = new DirectoryInfo(baseDir).FullName;
 
-            this.stager.DisableDirCleanup = uhuruSection.DEA.DisableDirCleanup;
+            this.fileResources.DisableDirCleanup = uhuruSection.DEA.DisableDirCleanup;
             this.multiTenant = uhuruSection.DEA.Multitenant;
             this.secure = uhuruSection.DEA.Secure;
             this.enforceUlimit = uhuruSection.DEA.EnforceUsageLimit;
@@ -224,11 +224,11 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.monitoring.MaxClients = this.multiTenant ? Monitoring.DefaultMaxClients : 1;
 
-            this.stager.StagedDir = Path.Combine(this.stager.DropletDir, "staged");
-            this.stager.AppsDir = Path.Combine(this.stager.DropletDir, "apps");
-            this.stager.DBDir = Path.Combine(this.stager.DropletDir, "db");
+            this.fileResources.StagedDir = Path.Combine(this.fileResources.DropletDir, "staged");
+            this.fileResources.AppsDir = Path.Combine(this.fileResources.DropletDir, "apps");
+            this.fileResources.DBDir = Path.Combine(this.fileResources.DropletDir, "db");
 
-            this.droplets.AppStateFile = Path.Combine(this.stager.DropletDir, "applications.json");
+            this.droplets.AppStateFile = Path.Combine(this.fileResources.DropletDir, "applications.json");
 
             this.deaReactor.UUID = this.UUID;
 
@@ -296,13 +296,13 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info(Strings.RestrictingToSingleTenant);
             }
 
-            Logger.Info(Strings.UsingDirectory, this.stager.DropletDir);
+            Logger.Info(Strings.UsingDirectory, this.fileResources.DropletDir);
 
-            this.stager.CreateDirectories();
-            this.droplets.AppStateFile = Path.Combine(this.stager.DBDir, "applications.json");
+            this.fileResources.CreateDirectories();
+            this.droplets.AppStateFile = Path.Combine(this.fileResources.DBDir, "applications.json");
 
             // Clean everything in the staged directory
-            this.stager.CleanCacheDirectory();
+            this.fileResources.CleanCacheDirectory();
 
             if (this.useDiskQuota)
             {
@@ -422,47 +422,37 @@ namespace Uhuru.CloudFoundry.DEA
 
                 try
                 {
-                    //instance = new DropletInstance();
-                    //instance.Properties.FromJsonIntermediateObject(obj);
-                    //instance.Properties.Orphaned = true;
-                    //instance.Properties.ResourcesTracked = false;
-                    //this.monitoring.AddInstanceResources(instance);
-                    //instance.Properties.StopProcessed = false;
-                    //// instance.JobObject.JobMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    instance = new DropletInstance();
+                    instance.Properties.FromJsonIntermediateObject(obj);
+                    instance.Properties.Orphaned = true;
+                    instance.Properties.ResourcesTracked = false;
+                    this.monitoring.AddInstanceResources(instance);
+                    instance.Properties.StopProcessed = false;
 
-                    //if (this.useDiskQuota)
-                    //{
-                    //    instance.UserDiskQuota = this.diskQuotaControl.FindUser(instance.Properties.WindowsUserName);
-                    //}
+                    var prisonInfo = new ProcessPrisonCreateInfo();
 
-                    //try
-                    //{
-                    //    instance.LoadPlugin();
+                    prisonInfo.Id = instance.Properties.InstanceId;
+                    prisonInfo.TotalPrivateMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    prisonInfo.WindowsPassword = instance.Properties.WindowsPassword;
+                    
 
-                    //    instance.Properties.EnvironmentVariables[VcapAppPidVariable] = instance.Properties.ProcessId.ToString(CultureInfo.InvariantCulture);
-                    //    List<ApplicationVariable> appVariables = new List<ApplicationVariable>();
-                    //    foreach (KeyValuePair<string, string> appEnv in instance.Properties.EnvironmentVariables)
-                    //    {
-                    //        ApplicationVariable appVariable = new ApplicationVariable();
-                    //        appVariable.Name = appEnv.Key;
-                    //        appVariable.Value = appEnv.Value;
-                    //        appVariables.Add(appVariable);
-                    //    }
+                    if (this.useDiskQuota)
+                    {
+                        prisonInfo.DiskQuotaBytes = instance.Properties.DiskQuotaBytes;
+                        prisonInfo.DiskQuotaPath = instance.Properties.Directory;
+                    }
 
-                    //    instance.Plugin.RecoverApplication(appVariables.ToArray());
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    instance.ErrorLog.Error(ex.ToString());
-                    //}
+                    Logger.Info("Recovering Process Prisson: {0}", prisonInfo.Id);
 
-                    //if (instance.Properties.State == DropletInstanceState.Starting)
-                    //{
-                    //    this.DetectAppReady(instance);
-                    //}
+                    instance.Prison.Attach(prisonInfo);
 
-                    //this.droplets.AddDropletInstance(instance);
-                    //instance = null;
+                    if (instance.Properties.State == DropletInstanceState.Starting)
+                    {
+                        this.DetectAppReady(instance);
+                    }
+
+                    this.droplets.AddDropletInstance(instance);
+                    instance = null;
                 }
                 catch (Exception ex)
                 {
@@ -706,7 +696,7 @@ namespace Uhuru.CloudFoundry.DEA
                 trackedInstanceDirs.Add(instance.Properties.Directory);
             });
 
-            List<string> allInstanceDirs = Directory.GetDirectories(this.stager.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
+            List<string> allInstanceDirs = Directory.GetDirectories(this.fileResources.AppsDir, "*", SearchOption.TopDirectoryOnly).ToList();
 
             List<string> to_remove = (from dir in allInstanceDirs
                                       where !trackedInstanceDirs.Contains(dir)
@@ -772,7 +762,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            response.Stacks = this.stager.Stacks.ToList();
+            response.Stacks = this.fileResources.Stacks.ToList();
 
             response.AppIdCount = new Dictionary<string, int>();
 
@@ -803,7 +793,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             response.Id = this.UUID;
             response.AvailableMemory = this.monitoring.MaxMemoryMbytes - this.monitoring.MemoryReservedMbytes;
-            response.Stacks = this.stager.Stacks.ToList();
+            response.Stacks = this.fileResources.Stacks.ToList();
 
             this.deaReactor.SendStagingAdvertise(response.SerializeToJson());
         }
@@ -1184,7 +1174,7 @@ namespace Uhuru.CloudFoundry.DEA
                 instance.Properties.DiskQuotaBytes = diskMbytes * 1024 * 1024;
                 instance.Properties.FDSQuota = fds;
                 instance.Properties.Staged = instance.Properties.Name + "-" + instance.Properties.InstanceIndex + "-" + instance.Properties.InstanceId;
-                instance.Properties.Directory = Path.Combine(this.stager.AppsDir, instance.Properties.Staged);
+                instance.Properties.Directory = Path.Combine(this.fileResources.AppsDir, instance.Properties.Staged);
 
                 if (!string.IsNullOrEmpty(instance.Properties.DebugMode))
                 {
@@ -1295,8 +1285,8 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Lock.ExitWriteLock();
                 }
 
-                string tgzFile = Path.Combine(this.stager.StagedDir, sha1 + ".tgz");
-                this.stager.PrepareAppDirectory(executableFile, executableUri, sha1, tgzFile, instance);
+                string tgzFile = Path.Combine(this.fileResources.StagedDir, sha1 + ".tgz");
+                this.fileResources.PrepareAppDirectory(executableFile, executableUri, sha1, tgzFile, instance);
                 Logger.Debug(Strings.Downloadcompleate);
 
                 string starting = string.Format(CultureInfo.InvariantCulture, Strings.StartingUpInstanceOnPort, instance.Properties.LoggingId, instance.Properties.Port);
@@ -1876,7 +1866,7 @@ namespace Uhuru.CloudFoundry.DEA
                     // Remove the instance directory, including the logs
                     if ((isCrashed && isFlapping) || isOldCrash || isStopped || isDeleted)
                     {
-                        if (this.stager.DisableDirCleanup)
+                        if (this.fileResources.DisableDirCleanup)
                         {
                             instance.Properties.Directory = null;
                         }

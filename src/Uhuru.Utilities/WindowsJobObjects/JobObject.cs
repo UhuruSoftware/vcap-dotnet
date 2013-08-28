@@ -24,6 +24,11 @@ namespace Uhuru.Utilities.WindowsJobObjects
     public class JobObject : IDisposable
     {
         /// <summary>
+        /// Name of the Job Object
+        /// </summary>
+        private string name;
+
+        /// <summary>
         /// The Windows Handle
         /// </summary>
         private JobObjectHandle jobHandle;
@@ -164,6 +169,37 @@ namespace Uhuru.Utilities.WindowsJobObjects
         private Process[] jobProcesses;
 
         /// <summary>
+        /// Attach to a named Job Object.
+        /// </summary>
+        /// <returns></returns>
+        public static JobObject Attach(string jobObjectName)
+        {
+            if (string.IsNullOrEmpty(jobObjectName))
+            {
+                throw new ArgumentNullException("jobObjectName");
+            }
+
+            // JOB_OBJECT_ALL_ACCESS = 0x1F001F
+            var jobHandle = NativeMethods.OpenJobObject(0x1F001F, false, jobObjectName);
+            if (jobHandle.IsInvalid)
+            {
+                int error = Marshal.GetLastWin32Error();
+                throw new Win32Exception(error, "OpenJobObject failed.");
+            }
+
+            return new JobObject(jobHandle, jobObjectName);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JobObject"/> class. No Windows Job Object is created.
+        /// </summary>
+        private JobObject(JobObjectHandle jobObject, string jobObjectName)
+        {
+            this.jobHandle = jobObject;
+            this.name = jobObjectName;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="JobObject"/> class. The Windows Job Object is unnamed.
         /// </summary>
         public JobObject()
@@ -183,6 +219,8 @@ namespace Uhuru.Utilities.WindowsJobObjects
             {
                 jobObjectName = null;
             }
+
+            this.name = jobObjectName;
 
             this.jobHandle = NativeMethods.CreateJobObject(IntPtr.Zero, jobObjectName);
             if (this.jobHandle.IsInvalid)

@@ -10,6 +10,7 @@
     using System.Runtime.InteropServices;
     using System.Security.Cryptography;
     using System.Text;
+    using System.Threading;
     using DiskQuotaTypeLibrary;
     using Microsoft.Win32;
     using Uhuru.Utilities;
@@ -201,7 +202,7 @@
 
         public ProcessPrison()
         {
-            this.Id = Guid.NewGuid().ToString();
+            this.WindowsDomain = ".";
         }
 
         public void Create()
@@ -218,12 +219,12 @@
 
 
             this.createInfo = createInfo;
-            this.jobObject = new JobObject(this.Id);
+            this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
 
             this.jobObject.ActiveProcessesLimit = this.createInfo.RunningProcessesLimit;
             this.jobObject.JobMemoryLimit = this.createInfo.TotalPrivateMemoryLimit;
 
-            this.jobObject.KillProcessesOnJobClose = this.createInfo.TerminateContainerOnDispose;
+            this.jobObject.KillProcessesOnJobClose = this.createInfo.KillProcessesrOnPrisonClose;
 
 
             if (this.createInfo.WindowsPassword == null)
@@ -231,11 +232,70 @@
             else
                 this.WindowsPassword = this.createInfo.WindowsPassword;
 
-            this.WindowsDomain = ".";
+
             this.WindowsUsername = CreateDecoratedUser(this.Id, this.WindowsPassword);
 
-            userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
-            userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
+
+            if (this.createInfo.DiskQuotaBytes > -1)
+            {
+                if (string.IsNullOrEmpty(this.createInfo.DiskQuotaPath))
+                {
+                    // set this.createInfo.DiskQuotaPath to the output of GetUserProfileDirectory  
+                    throw new NotImplementedException();
+                }
+
+                // Set the disk quota to 0 for all disks, exept disk quota path
+                var volumesQuotas = DiskQuotaManager.GetDisksQuotaUser(this.WindowsUsername);
+                foreach (var volumeQuota in volumesQuotas)
+                {
+                    volumeQuota.QuotaLimit = 0;
+                }
+
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+                userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
+            }
+
+            this.Created = true;
+        }
+
+        public void Attach(ProcessPrisonCreateInfo createInfo)
+        {
+            if (createInfo.Id == null)
+            {
+                throw new ArgumentException("Id from createInfo is null", "createInfo");
+            }
+
+            if (createInfo.WindowsPassword == null)
+            {
+                throw new ArgumentException("WindowsPassword from createInfo is null", "createInfo");
+            }
+
+            this.Id = createInfo.Id;
+
+            this.createInfo = createInfo;
+
+            // The Job Object will disapear after a reboot or if all job's processes exit.
+            // It is fine if it is created again with the same name id if the Job doesn't exist.
+
+            try
+            {
+                // try only to attach and fail if it doesn't exist
+                this.jobObject = JobObject.Attach(JobObjectNamespace() + this.Id);
+            }
+            catch (Win32Exception)
+            {
+                // try to create the job Id;
+                this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
+            }
+
+
+            this.WindowsPassword = this.createInfo.WindowsPassword;
+            this.WindowsUsername = GenerateDecoratedUsername(this.Id);
+
+            if (this.createInfo.DiskQuotaBytes > -1)
+            {
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+            }
 
             this.Created = true;
         }
@@ -245,7 +305,13 @@
             if (this.jobObject != null)
             {
                 jobObject.TerminateProcesses(1);
+            }
 
+            UserImpersonator.DeleteUserProfile(this.WindowsUsername, "");
+            WindowsUsersAndGroups.DeleteUser(this.WindowsUsername);
+
+            if (this.jobObject != null)
+            {
                 jobObject.Dispose();
                 jobObject = null;
             }
@@ -276,10 +342,7 @@
             var processInfo = new PROCESS_INFORMATION();
 
             startupInfo.cb = Marshal.SizeOf(startupInfo.GetType());
-            // startupInfo.dwFlags = 0x00000100;
-            // http://support.microsoft.com/kb/165194
-            // startupInfo.lpDesktop = this.Id + "\\" + "default";
-            // TODO: isolate the Windows Station and Destop
+            // startupInfo.dwFlags = 0x00000100;            
 
             string env = BuildEnvironmentVariable(runInfo.EnvironmentVariables);
 
@@ -295,12 +358,20 @@
                 ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP |
 
                 ProcessCreationFlags.CREATE_SUSPENDED |
-                ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT |
-                ProcessCreationFlags.CREATE_NO_WINDOW;
+                ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT;
 
-            if (runInfo.CreateWindow)
+            if (runInfo.Interactive)
             {
                 creationFlags |= ProcessCreationFlags.CREATE_NEW_CONSOLE;
+                // startupInfo.lpDesktop = @"winsta0\default"; // set additional ACLs for the user to have access to winsta0/default
+            }
+            else
+            {
+                creationFlags |= ProcessCreationFlags.CREATE_NO_WINDOW;
+
+                // http://support.microsoft.com/kb/165194
+                // startupInfo.lpDesktop = this.Id + "\\" + "default";
+                // TODO: isolate the Windows Station and Destop
             }
 
             if (string.IsNullOrEmpty(this.WindowsUsername))
@@ -375,12 +446,12 @@
                 throw new InvalidOperationException("ProcessPrison has to be created first.");
             }
 
-            if (!string.IsNullOrEmpty(name) || name.Contains('='))
+            if (string.IsNullOrEmpty(name) || name.Contains('='))
             {
                 throw new ArgumentException("Invalid name", "name");
             }
 
-            if (value != null)
+            if (value == null)
             {
                 throw new ArgumentException("Value is null", "value");
             }
@@ -542,18 +613,42 @@
             return new Guid(secureGuid);
         }
 
-        public static string CreateDecoratedUser(string id, string password)
+        public static string GenerateDecoratedUsername(string id)
         {
             string decoration = "prison-";
-
             var windowsUsername = decoration + id;
 
             // Max local windows username is 20 chars.
             windowsUsername = windowsUsername.Substring(0, Math.Min(20, windowsUsername.Length));
+            return windowsUsername;
+        }
 
-            WindowsUsersAndGroups.CreateUser(windowsUsername, password, "Uhuru Process Prison " + id);
+        public static string CreateDecoratedUser(string id, string password)
+        {
+            var windowsUsername = GenerateDecoratedUsername(id);
+
+            WindowsUsersAndGroups.CreateUser(windowsUsername, password, GenrateUserDescription(id));
 
             return windowsUsername;
+        }
+
+        public static string GenrateUserDescription(string id)
+        {
+            return "Uhuru Process Prison " + id;
+        }
+
+        public static string GetIdFromUserDescription(string description)
+        {
+            if (!description.Contains("Uhuru Process Prison "))
+            {
+                throw new ArgumentException("description not valid", "description");
+            }
+            return description.Substring("Uhuru Process Prison ".Length);
+        }
+
+        private static string JobObjectNamespace()
+        {
+            return "Global\\";
         }
 
     }

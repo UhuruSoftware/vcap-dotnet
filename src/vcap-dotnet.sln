@@ -48,6 +48,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Isolation", "Uhuru.ProcessPrison\Uhuru.Isolation.csproj", "{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.ProcessPrisonRepl", "Uhuru.ProcessPrisonRepl\Uhuru.ProcessPrisonRepl.csproj", "{505E39C3-A5D0-455C-993B-4B04B219494F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CD3B15D7-8C7D-4302-A621-02BFD96FE6E3} = {CD3B15D7-8C7D-4302-A621-02BFD96FE6E3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

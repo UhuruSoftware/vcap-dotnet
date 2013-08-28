@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Uhuru.Isolation;
+using Uhuru.Utilities;
 
 namespace Uhuru.ProcessPrisonRepl
 {
@@ -13,11 +15,44 @@ namespace Uhuru.ProcessPrisonRepl
         {
             Console.WriteLine("--- PrisonProcess REPL ---\n");
             Console.WriteLine("Use the following keys:");
-            Console.WriteLine("\tc: Create a new prison");
+            Console.WriteLine("\tc: Create a new cmd prison");
+            Console.WriteLine("\tn: Create a new notepad prison");
             Console.WriteLine("\td: Destroy all prissons");
             Console.WriteLine("\tq: Quit");
 
             List<ProcessPrison> prisonss = new List<ProcessPrison>();
+
+            DiskQuotaManager.StartQuotaInitialization();
+            while (!DiskQuotaManager.IsQuotaInitialized())
+            {
+                Thread.Sleep(100);
+            }
+
+            
+            var usersDesc = WindowsUsersAndGroups.GetUsersDescription();
+            foreach (var desc in usersDesc.Values)
+            {
+                try
+                {
+                    var id = ProcessPrison.GetIdFromUserDescription(desc);
+
+                    var ppci = new ProcessPrisonCreateInfo();
+                    ppci.Id = id;
+                    ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                    ppci.DiskQuotaBytes = 128 * 1024 * 1024;
+                    ppci.DiskQuotaPath = @"C:\Users\Public";
+                    // Cannot impersonate the user to create new processes or access the user's env.
+                    ppci.WindowsPassword = "DontHaveIt"; 
+
+                    var pp = new ProcessPrison();
+                    pp.Attach(ppci);
+
+                    prisonss.Add(pp);
+                }
+                catch(ArgumentException)
+                {
+                }
+            }
 
             while (true)
             {
@@ -27,28 +62,52 @@ namespace Uhuru.ProcessPrisonRepl
                 switch (key.Key)
                 {
                     case ConsoleKey.C:
-                        var ppci = new ProcessPrisonCreateInfo();
-                        // ppci.WindowsPassword = "password1234!";
-                        ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                        {
+                            var ppci = new ProcessPrisonCreateInfo();
+                            ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                            ppci.DiskQuotaBytes = 128 * 1024 * 1024;
+                            ppci.DiskQuotaPath = @"C:\Users\Public";
 
-                        var pp = new ProcessPrison();
-                        pp.Create(ppci);
+                            var pp = new ProcessPrison();
+                            pp.Create(ppci);
+                            pp.SetUsersEnvironmentVariable("prison", pp.Id);
 
-                        var ri = new ProcessPrisonRunInfo();
-                        ri.FileName = @"C:\Windows\System32\cmd.exe";
-                        ri.Arguments = String.Format(" /k echo Wedcome to prisson {0}", pp.Id);
+                            var ri = new ProcessPrisonRunInfo();
+                            ri.Interactive = true;
+                            ri.FileName = @"C:\Windows\System32\cmd.exe";
+                            ri.Arguments = String.Format(" /k echo Wedcome to prisson {0}", pp.Id);
 
-                        pp.RunProcess(ri);
+                            pp.RunProcess(ri);
 
-                        prisonss.Add(pp);
+                            prisonss.Add(pp);
+                        }
+                        break;
+                    case ConsoleKey.N:
+                        {
+                            var ppci = new ProcessPrisonCreateInfo();
+                            ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                            ppci.DiskQuotaBytes = 128 * 1024 * 1024;
+                            ppci.DiskQuotaPath = @"C:\Users\Public";
 
+                            var pp = new ProcessPrison();
+                            pp.Create(ppci);
+                            pp.SetUsersEnvironmentVariable("prison", pp.Id);
+
+                            var ri = new ProcessPrisonRunInfo();
+                            ri.Interactive = true;
+                            ri.FileName = @"C:\Windows\System32\notepad.exe";
+
+                            pp.RunProcess(ri);
+
+                            prisonss.Add(pp);
+                        }
                         break;
                     case ConsoleKey.D:
                         foreach (var prison in prisonss)
                         {
                             prison.Destroy();
                         }
-
+                        prisonss.Clear();
                         break;
                     case ConsoleKey.Q:
                         return;
@@ -57,7 +116,6 @@ namespace Uhuru.ProcessPrisonRepl
             }
 
             var createInfo = new ProcessPrisonCreateInfo();
-            // createInfo.WindowsPassword = "password1234!";
 
             var p = new ProcessPrison();
 
@@ -65,7 +123,7 @@ namespace Uhuru.ProcessPrisonRepl
             var envs = p.GetUsersEnvironmentVariables();
 
             var runInfo = new ProcessPrisonRunInfo();
-            runInfo.CreateWindow = false;
+            runInfo.Interactive = false;
             runInfo.FileName = @"C:\Windows\System32\cmd.exe";
             runInfo.FileName = @"C:\Windows\System32\PING.EXE";
             // runInfo.Arguments = @"/c echo %PATH% & ping 10.0.0.10" ;

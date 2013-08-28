@@ -10,10 +10,15 @@ namespace Uhuru.Isolation
         public string Id
         {
             get;
-            set;    
+            set;
         }
 
-        public bool TerminateContainerOnDispose
+        /// <summary>
+        /// Setting this flag will create a job object with the KillProcessesOnJobClose flag set.
+        /// If set to true the Job Object will be terminated (including all its processes) when all handles to the Job are released.
+        /// Disabling this flag could create orphan Job Objects that cannot be opend or attached to.
+        /// </summary>
+        public bool KillProcessesrOnPrisonClose
         {
             get;
             set;
@@ -60,7 +65,7 @@ namespace Uhuru.Isolation
 
         public ProcessPrisonCreateInfo()
         {
-            this.TerminateContainerOnDispose = false;
+            this.KillProcessesrOnPrisonClose = true;
             this.TotalPrivateMemoryLimit = 0;
             this.RunningProcessesLimit = 0;
             this.DiskQuotaBytes = -1;

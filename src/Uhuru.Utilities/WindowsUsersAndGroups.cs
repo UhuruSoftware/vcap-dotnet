@@ -43,6 +43,29 @@ namespace Uhuru.Utilities
         }
 
         /// <summary>
+        /// Gets all the existing windows users with descriptions.
+        /// </summary>
+        /// <returns>Local users account names with descriptions.</returns>
+        public static Dictionary<string, string> GetUsersDescription()
+        {
+            Dictionary<string, string> users = new Dictionary<string, string>();
+
+            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            {
+                DirectoryEntries localChildren = localEntry.Children;
+                foreach (DirectoryEntry i in localChildren)
+                {
+                    if (i.SchemaClassName == "User")
+                    {
+                        users.Add(i.Name, i.Properties["Description"].Value.ToString());
+                    }
+                }
+            }
+
+            return users;
+        }
+
+        /// <summary>
         /// Creates a Windows user.
         /// </summary>
         /// <param name="userName">Name of the user.</param>

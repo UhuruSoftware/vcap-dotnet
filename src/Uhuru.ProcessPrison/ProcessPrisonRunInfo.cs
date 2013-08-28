@@ -26,7 +26,7 @@ namespace Uhuru.Isolation
             set;
         }
 
-        public bool CreateWindow
+        public bool Interactive
         {
             get;
             set;
@@ -40,7 +40,7 @@ namespace Uhuru.Isolation
 
         public ProcessPrisonRunInfo()
         {
-            this.CreateWindow = false;
+            this.Interactive = false;
             this.FileName = null;
             this.EnvironmentVariables = new Dictionary<string, string>();
             this.WorkingDirectory = null;
