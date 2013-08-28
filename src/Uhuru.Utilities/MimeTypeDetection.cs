@@ -29,7 +29,7 @@ namespace Uhuru.Utilities
             }
 
             byte[] buffer = new byte[256];
-            using (FileStream fs = new FileStream(fileName, FileMode.Open))
+            using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 if (fs.Length >= 256)
                 {
