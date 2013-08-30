@@ -538,6 +538,32 @@ namespace Uhuru.Configuration
         }
         #endregion
         
+        #region Domain Property
+        /// <summary>
+        /// The XML name of the <see cref="Domain"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string DomainPropertyName = "domain";
+        
+        /// <summary>
+        /// Gets or sets the Domain.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The Domain.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.DEAElement.DomainPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string Domain
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.DEAElement.DomainPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.DEAElement.DomainPropertyName] = value;
+            }
+        }
+        #endregion
+        
         #region Stacks Property
         /// <summary>
         /// The XML name of the <see cref="Stacks"/> property.

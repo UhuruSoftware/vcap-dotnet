@@ -26,6 +26,7 @@ namespace Uhuru.CloudFoundry.DEA
     using Microsoft.Win32;
     using System.Text;
     using Uhuru.Isolation;
+    using System.Web;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -171,8 +172,11 @@ namespace Uhuru.CloudFoundry.DEA
         private int directoryServerPort;
 
         private bool enableStaging;
-        private Staging staging;
         private StagingTaskRegistry stagingTaskRegistry;
+        private string key;
+        public string ExternalHost { get; set; }
+        private string stagingBaseDir;
+        private string buildpacksDir;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
@@ -239,7 +243,11 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.stagingTaskRegistry = new StagingTaskRegistry();
 
-            this.staging = new Staging(this.UUID, this.stagingTaskRegistry, uhuruSection.DEA.BaseDir, this.deaReactor, uhuruSection.DEA.Staging.BuildpacksDirectory);
+            this.stagingBaseDir = Path.Combine(uhuruSection.DEA.BaseDir, "staging");
+            this.buildpacksDir = uhuruSection.DEA.Staging.BuildpacksDirectory;            
+
+            this.key = Guid.NewGuid().ToString("N");
+            this.ExternalHost = string.Format("{0}.{1}", Guid.NewGuid().ToString("N"), uhuruSection.DEA.Domain);
         }
 
         /// <summary>
@@ -260,15 +268,44 @@ namespace Uhuru.CloudFoundry.DEA
             response.Error = string.Empty;
 
             NameValueCollection queryStrings = System.Web.HttpUtility.ParseQueryString(path.Query);
-            string actualPath = queryStrings["path"];
+            string actualPath = HttpUtility.UrlDecode(queryStrings["path"]);
 
-            this.droplets.ForEach(delegate(DropletInstance droplet)
+            switch (path.Segments[1].Replace("/", string.Empty))
             {
-                if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
-                {
-                    response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
-                }
-            });
+                case "instance_paths":
+                    {
+                        this.droplets.ForEach(delegate(DropletInstance droplet)
+                        {
+                            if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
+                            {
+                                response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
+                            }
+                        });
+                        break;
+                    }
+                case "staging_tasks":
+                    {
+                        foreach (StagingTask task in this.stagingTaskRegistry.Tasks)
+                        {
+                            if (task.TaskId == path.Segments[2].Replace("/", string.Empty))
+                            {
+                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.key, new string[] { "path", "timestamp" }))
+                                {
+                                    response.Path = Path.Combine(task.workspace.WorkspaceDir, actualPath);
+                                }
+                                else
+                                {
+                                    response.Error = "Invalid HMAC";                                    
+                                }
+                            }
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }            
 
             return response;
         }
@@ -390,6 +427,8 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
+
+            this.RegisterDirectoryServer(this.Host, this.directoryServerPort, this.ExternalHost);
 
             this.SendStagingAdvertise();
             TimerHelper.RecurringLongCall(
@@ -529,6 +568,8 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         public void Shutdown()
         {
+            this.UnregisterDirectoryServer(this.Host, this.directoryServerPort, this.ExternalHost);
+
             this.shuttingDown = true;
             Logger.Info(Strings.ShuttingDownMessage);
 
@@ -1215,7 +1256,60 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
                 stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-                this.staging.HandleMessage(stagingStartRequest, reply);
+
+                StagingTask task = new StagingTask(stagingStartRequest, this.stagingBaseDir, this.buildpacksDir);
+                this.stagingTaskRegistry.Register(task);
+
+                UriBuilder streamingLog = new UriBuilder();
+                streamingLog.Host = this.ExternalHost;
+                streamingLog.Scheme = "http";
+                streamingLog.Path = string.Format("/staging_tasks/{0}/file_path", task.TaskId);
+                streamingLog.Query = string.Format("path={0}&timestamp={1}", task.workspace.StagingLogSuffix, DateTime.Now.Ticks);
+
+                task.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.key, new string[] { "path", "timestamp" }).ToString();
+
+                task.AfterSetup += delegate(Exception error)
+                {
+                    StagingStartMessageResponse response = new StagingStartMessageResponse();
+                    response.TaskId = task.TaskId;
+                    response.TaskStreamingLogURL = task.StreamingLogUrl;
+                    if (error != null)
+                    {
+                        response.Error = error.ToString();
+                    }
+                    this.deaReactor.SendReply(reply, response.SerializeToJson());
+                };
+
+                task.AfterUpload += delegate(Exception error)
+                {
+                    StagingStartMessageResponse response = new StagingStartMessageResponse();
+                    response.TaskId = task.TaskId;
+                    response.TaskLog = task.TaskLog;
+                    if (error != null)
+                    {
+                        response.Error = error.ToString();
+                    }
+                    response.DetectedBuildpack = task.DetectedBuildpack;
+                    response.DropletSHA = task.DropletSHA;
+
+                    this.deaReactor.SendReply(reply, response.SerializeToJson());
+                    stagingTaskRegistry.Unregister(task);
+                };
+
+                task.AfterStop += delegate(Exception error)
+                {
+                    StagingStartMessageResponse response = new StagingStartMessageResponse();
+                    response.TaskId = task.TaskId;
+                    if (error != null)
+                    {
+                        response.Error = error.ToString();
+                    }
+                    this.deaReactor.SendReply(reply, response.SerializeToJson());
+                    stagingTaskRegistry.Unregister(task);
+                };
+
+                task.Start();
+
             }
             catch (Exception ex)
             {
@@ -1234,14 +1328,22 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
-        /// The handler for the dea.stop message.
+        /// The handler for the staging.stop message.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="reply">The reply.</param>
         /// <param name="subject">The subject.</param>
         private void StagingStopHandler(string message, string reply, string subject)
         {
-            Logger.Debug(subject + message);
+            StagingStopMessageRequest request = new StagingStopMessageRequest();
+            request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+            foreach (StagingTask task in this.stagingTaskRegistry.Tasks)
+            {
+                if (task.Message.AppID == request.AppID)
+                {
+                    task.Stop();
+                }
+            }
         }
 
         /// <summary>
@@ -1612,6 +1714,29 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.SendRouterUnregister(response.SerializeToJson());
         }
+
+        private void RegisterDirectoryServer(string host, int port, string uri)
+        {
+            DirectoryServerRequest request = new DirectoryServerRequest();
+            request.Port = port;
+            request.Host = host;
+            request.Uris = new string[] { uri };
+            request.Tags = new Dictionary<string, string>();
+
+            this.deaReactor.SendRouterRegister(request.SerializeToJson());
+        }
+
+        private void UnregisterDirectoryServer(string host, int port, string uri)
+        {
+            DirectoryServerRequest request = new DirectoryServerRequest();
+            request.Port = port;
+            request.Host = host;
+            request.Uris = new string[] { uri };
+            request.Tags = new Dictionary<string, string>();
+
+            this.deaReactor.SendRouterUnregister(request.SerializeToJson());
+        }
+
 
         /// <summary>
         /// The handler for healthmanager.start Nats message.

@@ -42,4 +42,10 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         [JsonName("start_message")]
         public DeaStartMessageRequest StartMessage { get; set; }
     }
+
+    class StagingStopMessageRequest : JsonConvertibleObject
+    {
+        [JsonName("app_id")]
+        public string AppID { get; set; }
+    }
 }

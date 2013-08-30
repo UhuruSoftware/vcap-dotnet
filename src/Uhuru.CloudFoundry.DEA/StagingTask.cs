@@ -31,14 +31,14 @@ namespace Uhuru.CloudFoundry.DEA
         public string DetectedBuildpack { get { return StagingInfo.GetDetectedBuildpack(Path.Combine(this.workspace.StagedDir, StagingWorkspace.StagingInfo)); } }
         public string DropletSHA { get; set; }
 
-        private StagingStartMessageRequest message;
-        private StagingWorkspace workspace;
+        public StagingStartMessageRequest Message { get; set; }
+        public StagingWorkspace workspace { get; set; }
         private string buildpacksDir;
 
         public StagingTask(StagingStartMessageRequest message, string dropletDir, string buildpacksDirectory)
         {
             this.TaskId = message.TaskID;
-            this.message = message;
+            this.Message = message;
             this.workspace = new StagingWorkspace(dropletDir, message.TaskID);
             this.buildpacksDir = buildpacksDirectory;
         }
@@ -60,8 +60,14 @@ namespace Uhuru.CloudFoundry.DEA
             }
             finally
             {                
-                Directory.Delete(this.workspace.WorkspaceDir, true);
+                Directory.Delete(this.workspace.BaseDir, true);
             }
+        }
+
+        public void Stop()
+        {
+            // TODO stop task
+            AfterStop(null);
         }
 
         private void StagingSetup()
@@ -69,7 +75,7 @@ namespace Uhuru.CloudFoundry.DEA
             try
             {
                 DownloadApp();
-                if (message.BuildpackCacheDownloadURI != null)
+                if (Message.BuildpackCacheDownloadURI != null)
                 {
                     DownloadBuildpackCache();
                 }
@@ -110,7 +116,7 @@ namespace Uhuru.CloudFoundry.DEA
             try
             {
                 string tempFile = Path.Combine(this.workspace.WorkspaceDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, "droplet"));
-                Uri uri = new Uri(this.message.DownloadURI);
+                Uri uri = new Uri(this.Message.DownloadURI);
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format(uri.UserInfo)));
                 client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
                 client.DownloadFile(uri.ToString(), tempFile);
@@ -128,7 +134,7 @@ namespace Uhuru.CloudFoundry.DEA
             try
             {
                 string tempFile = Path.Combine(this.workspace.WorkspaceDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, "droplet"));
-                Uri uri = new Uri(this.message.BuildpackCacheDownloadURI);
+                Uri uri = new Uri(this.Message.BuildpackCacheDownloadURI);
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format(uri.UserInfo)));
                 client.Headers[HttpRequestHeader.Authorization] = "Basic " + credentials;
                 client.DownloadFile(uri.ToString(), tempFile);
@@ -149,6 +155,7 @@ namespace Uhuru.CloudFoundry.DEA
             Directory.CreateDirectory(this.workspace.UnstagedDir);
             DEAUtilities.UnzipFile(this.workspace.UnstagedDir, this.workspace.DownloadDropletPath);
         }
+
         private void UnpackBuildpackCache() 
         {
             Directory.CreateDirectory(this.workspace.Cache);
@@ -160,6 +167,7 @@ namespace Uhuru.CloudFoundry.DEA
                 File.Delete(Path.Combine(this.workspace.Cache, tarFileName));
             }
         }
+
         private void Stage() 
         { 
             string appDir = Path.Combine(this.workspace.StagedDir, "app");
@@ -170,23 +178,23 @@ namespace Uhuru.CloudFoundry.DEA
             Directory.CreateDirectory(tmpDir);
             DEAUtilities.DirectoryCopy(this.workspace.UnstagedDir, appDir, true);
             Buildpack buildpack = null;
-            if (this.message.Properties.Buildpack != null)
+            if (this.Message.Properties.Buildpack != null)
             {
                 Directory.CreateDirectory(Path.Combine(this.workspace.TempDir, "buildpacks"));
-                string buildpackPath = Path.Combine(this.workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(this.message.Properties.Buildpack).LocalPath));
-                string command = string.Format("\"E:\\Program Files (x86)\\Git\\bin\\git.exe\" clone --recursive {0} {1}", this.message.Properties.Buildpack, buildpackPath);
+                string buildpackPath = Path.Combine(this.workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(this.Message.Properties.Buildpack).LocalPath));
+                string command = string.Format("\"E:\\Program Files (x86)\\Git\\bin\\git.exe\" clone --recursive {0} {1}", this.Message.Properties.Buildpack, buildpackPath);
                 int success = DEAUtilities.ExecuteCommand(command);
                 if (success != 0)
                 {
                     throw new Exception("Failed to git clone buildpack");
                 }
-                buildpack = new Buildpack(buildpackPath, appDir, this.workspace.Cache);
+                buildpack = new Buildpack(buildpackPath, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
             }
             else
             {
                 foreach (string dir in Directory.EnumerateDirectories(this.buildpacksDir))
                 {
-                    Buildpack bp = new Buildpack(dir, appDir, this.workspace.Cache);
+                    Buildpack bp = new Buildpack(dir, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
                     bool success = bp.Detect();
                     if (success)
                     {
@@ -215,11 +223,11 @@ namespace Uhuru.CloudFoundry.DEA
 
         private string GetStartCommand(Buildpack buildpack)
         {
-            if (this.message.Properties.Meta != null)
+            if (this.Message.Properties.Meta != null)
             {
-                if (this.message.Properties.Meta.Command != null)
+                if (this.Message.Properties.Meta.Command != null)
                 {
-                    return this.message.Properties.Meta.Command;
+                    return this.Message.Properties.Meta.Command;
                 }
             }
             ReleaseInfo info = buildpack.GetReleaseInfo();
@@ -235,8 +243,8 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void UploadDroplet() 
         {
-            Uri uri = new Uri(this.message.UploadURI);
-            DEAUtilities.HttpUploadFile(this.message.UploadURI, new FileInfo(this.workspace.StagedDropletPath), "upload[droplet]", "application/octet-stream", uri.UserInfo);
+            Uri uri = new Uri(this.Message.UploadURI);
+            DEAUtilities.HttpUploadFile(this.Message.UploadURI, new FileInfo(this.workspace.StagedDropletPath), "upload[droplet]", "application/octet-stream", uri.UserInfo);
         }
 
         private void SaveBuildpackCache()
@@ -250,8 +258,8 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
             }
             File.Copy(this.workspace.StagedBuildpackCache, this.workspace.StagedBuildpackCachePath);
-            Uri uri = new Uri(this.message.BuildpackCacheUploadURI);
-            DEAUtilities.HttpUploadFile(this.message.BuildpackCacheUploadURI, new FileInfo(this.workspace.StagedBuildpackCachePath), "upload[droplet]", "application/octet-stream", uri.UserInfo); 
+            Uri uri = new Uri(this.Message.BuildpackCacheUploadURI);
+            DEAUtilities.HttpUploadFile(this.Message.BuildpackCacheUploadURI, new FileInfo(this.workspace.StagedBuildpackCachePath), "upload[droplet]", "application/octet-stream", uri.UserInfo); 
         }
 
         private void PackBuildpackCache()

@@ -91,6 +91,7 @@
     <Compile Include="AssemblyFileInfo.cs" />
     <Compile Include="Buildpack.cs" />
     <Compile Include="DEAReactor.cs" />
+    <Compile Include="Messages\DirectoryServerRequest.cs" />
     <Compile Include="Messages\StagingAdvertiseMessage.cs" />
     <Compile Include="Messages\StagingStartMessageRequest.cs" />
     <Compile Include="Messages\StagingStartMessageResponse.cs" />
@@ -120,7 +121,6 @@
     <Compile Include="PluginHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBits.cs" />
-    <Compile Include="Staging.cs" />
     <Compile Include="StagingTask.cs" />
     <Compile Include="StagingTaskRegistry.cs" />
     <Compile Include="StagingWorkspace.cs" />

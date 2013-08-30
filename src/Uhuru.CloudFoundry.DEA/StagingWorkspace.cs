@@ -19,11 +19,13 @@ namespace Uhuru.CloudFoundry.DEA
         public const string StagingLog = "staging_task.log";
         public const string StagingInfo = "staging_info.yml";
 
+        public string BaseDir { get; set; }
+
         public string WorkspaceDir
         {
             get
             {
-                string stagingDir = Path.Combine(this.baseDir, "staging");
+                string stagingDir = Path.Combine(this.BaseDir, "staging");
                 if (!Directory.Exists(stagingDir))
                     Directory.CreateDirectory(stagingDir);
                 return stagingDir;
@@ -41,23 +43,22 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        public string StagingLogSuffix { get { return Path.Combine("tmp", "logs", StagingLog); } }
         public string DownloadDropletPath { get { return Path.Combine(this.WorkspaceDir, "app.zip"); } }
         public string DownloadBuildpackCachePath { get { return Path.Combine(this.WorkspaceDir, BuildpackCacheFile); } }
         public string UnstagedDir { get { return Path.Combine(this.TempDir, "unstaged"); } }
         public string StagedDir { get { return Path.Combine(this.TempDir, "staged"); } }
         public string Cache { get { return Path.Combine(this.TempDir, "cache"); } }
-        public string StagingLogPath { get { return Path.Combine(this.TempDir, "logs", StagingLog); } }
+        public string StagingLogPath { get { return Path.Combine(this.WorkspaceDir, StagingLogSuffix); } }
         public string StagedDroplet { get { return Path.Combine(this.TempDir, DropletFile); } }
         public string StagedDropletDir { get { return Path.Combine(this.WorkspaceDir, "staged"); } }
         public string StagedDropletPath { get { return Path.Combine(this.StagedDropletDir, DropletFile); } }
         public string StagedBuildpackCachePath { get { return Path.Combine(this.StagedDropletDir, BuildpackCacheFile); } }
-        public string StagedBuildpackCache { get { return Path.Combine(this.TempDir, BuildpackCacheFile); } }
-
-        private string baseDir;
+        public string StagedBuildpackCache { get { return Path.Combine(this.TempDir, BuildpackCacheFile); } }        
 
         public StagingWorkspace(string baseDir, string id)
         {
-            this.baseDir = Path.Combine(baseDir, id);
+            this.BaseDir = Path.Combine(baseDir, id);
         }
 
 

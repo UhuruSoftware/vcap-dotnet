@@ -8,11 +8,12 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text;
     using YamlDotNet.RepresentationModel;
-using YamlDotNet.RepresentationModel.Serialization;
+    using YamlDotNet.RepresentationModel.Serialization;
 
     class Buildpack
     {
@@ -28,31 +29,54 @@ using YamlDotNet.RepresentationModel.Serialization;
         private string path;
         private string appDir;
         private string cacheDir;
+        private string logFile;
 
-        public Buildpack(string path, string appDir, string cacheDir)
+        public Buildpack(string path, string appDir, string cacheDir, string logFile)
         {
             this.path = path;
             this.appDir = appDir;
             this.cacheDir = cacheDir;
+            this.logFile = logFile;
         }
 
         public bool Detect()
         {
-            detectOutput = "dotNet";
-            return true;
+            string script = GetExecutable(Path.Combine(path, "bin"), "detect");
+
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = script;
+            start.Arguments = this.appDir;
+            start.UseShellExecute = false;
+            start.CreateNoWindow = true;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            using (Process process = Process.Start(start))
+            {
+                process.WaitForExit(3000);
+                detectOutput = process.StandardOutput.ReadToEnd();
+                if (process.ExitCode == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         public void Compile() 
         {
             string script = GetExecutable(Path.Combine(path, "bin"), "compile");
-            string args = string.Format("{0} {1}", this.appDir, this.cacheDir);
+            string args = string.Format("{0} {1} >> {2}", this.appDir, this.cacheDir, this.logFile);
             string output = DEAUtilities.RunCommandAndGetOutput(script, args);
         }
 
         public ReleaseInfo GetReleaseInfo() 
         {
             string script = GetExecutable(Path.Combine(path, "bin"), "release");
-            string output = DEAUtilities.RunCommandAndGetOutput(script, this.appDir);
+            string args = string.Format("{0}", this.appDir);
+            string output = DEAUtilities.RunCommandAndGetOutput(script, args);
             using (var reader = new StringReader(output))
             {
                 Deserializer deserializer = new Deserializer();

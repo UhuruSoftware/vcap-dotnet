@@ -15,6 +15,10 @@ namespace Uhuru.CloudFoundry.DEA
     using SevenZip;
     using System.Text;
     using System.Net;
+    using System.Security.Cryptography;
+    using System.Web;
+    using System.Collections.Specialized;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Callback for the process stream.
@@ -400,5 +404,54 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        public static Uri GetHmacedUri(string uri, string key, string[] paramsToVerify)
+        {
+            UriBuilder result = new UriBuilder(uri);
+            NameValueCollection param = HttpUtility.ParseQueryString(result.Query);
+            NameValueCollection verifiedParams = HttpUtility.ParseQueryString(string.Empty);
+            foreach (string str in paramsToVerify)
+            {
+                verifiedParams[str] = HttpUtility.UrlEncode(param[str]);
+            }
+
+            string pathAndQuery = result.Path + "?" + verifiedParams.ToString();
+            
+            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+            byte[] keyByte = encoding.GetBytes(key);                        
+            HMACSHA512 hmacsha512 = new HMACSHA512(keyByte);
+            byte[] computeHash = hmacsha512.ComputeHash(encoding.GetBytes(pathAndQuery));
+            string hash = BitConverter.ToString(computeHash).Replace("-", string.Empty).ToLower();
+            verifiedParams["hmac"] = hash;
+            result.Query = verifiedParams.ToString();
+            return result.Uri;
+        }
+
+        public static bool VerifyHmacedUri(string uri, string key, string[] paramsToVerify)
+        {
+            UriBuilder result = new UriBuilder(uri);
+            NameValueCollection param = HttpUtility.ParseQueryString(result.Query);
+            NameValueCollection verifiedParams = HttpUtility.ParseQueryString(string.Empty);
+            foreach (string str in paramsToVerify)
+            {
+                verifiedParams[str] = param[str];
+            }
+
+            string pathAndQuery = result.Path + "?" + verifiedParams.ToString();
+
+            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+            byte[] keyByte = encoding.GetBytes(key);
+            HMACSHA512 hmacsha512 = new HMACSHA512(keyByte);
+            byte[] computeHash = hmacsha512.ComputeHash(encoding.GetBytes(pathAndQuery));
+            string hash = BitConverter.ToString(computeHash).Replace("-", string.Empty).ToLower();
+            StringComparer comparer = StringComparer.InvariantCultureIgnoreCase;
+            if (comparer.Compare(hash, param["hmac"]) == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
