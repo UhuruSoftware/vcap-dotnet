@@ -302,10 +302,7 @@
 
         public void Destroy()
         {
-            if (this.jobObject != null)
-            {
-                jobObject.TerminateProcesses(1);
-            }
+            this.TerminateProcesses();
 
             UserImpersonator.DeleteUserProfile(this.WindowsUsername, "");
             WindowsUsersAndGroups.DeleteUser(this.WindowsUsername);
@@ -317,6 +314,14 @@
             }
 
             this.Created = false;
+        }
+
+        public void TerminateProcesses()
+        {
+            if (this.jobObject != null)
+            {
+                jobObject.TerminateProcesses(1);
+            }
         }
 
         /// <summary>

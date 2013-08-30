@@ -1797,7 +1797,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         if (isPortReady)
                         {
-                            long currentTicks = 0; // instance.JobObject.TotalProcessorTime.Ticks;
+                            long currentTicks = instance.Prison.jobObject.TotalProcessorTime.Ticks;
                             DateTime currentTicksTimestamp = DateTime.Now;
 
                             long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
@@ -1953,13 +1953,12 @@ namespace Uhuru.CloudFoundry.DEA
                     // Stop the instance gracefully before cleaning up.
                     if (isStopped)
                     {
-                        this.monitoring.RemoveInstanceResources(instance);
-
                         if (instance.Prison.Created)
                         {
                             try
                             {
-                                instance.Prison.Destroy();
+                                instance.Prison.TerminateProcesses();
+                                UrlsAcl.RemovePortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
                             }
                             catch (Exception ex)
                             {
@@ -1972,14 +1971,13 @@ namespace Uhuru.CloudFoundry.DEA
                     if (isCrashed || isOldCrash || isStopped || isDeleted)
                     {
                         this.monitoring.RemoveInstanceResources(instance);
+
                         if (!instance.Prison.Created)
                         {
-                            Logger.Debug(Strings.CrashesReaperDeleted, instance.Properties.InstanceId);
-
                             try
                             {
-                                UserImpersonator.DeleteUserProfile(instance.Properties.WindowsUserName, string.Empty);
-                                WindowsVCAPUsers.DeleteDecoratedBasedUser(instance.Properties.InstanceId);
+                                instance.Prison.Destroy();
+                                UrlsAcl.RemovePortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
                             }
                             catch (Exception ex)
                             {
@@ -1988,7 +1986,7 @@ namespace Uhuru.CloudFoundry.DEA
                         }
                     }
 
-                    // Remove the instance directory, including the logs
+                    // Remove the instance directory, including the app's logs
                     if ((isCrashed && isFlapping) || isOldCrash || isStopped || isDeleted)
                     {
                         if (this.fileResources.DisableDirCleanup)

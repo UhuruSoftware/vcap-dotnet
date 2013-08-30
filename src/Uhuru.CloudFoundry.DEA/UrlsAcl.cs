@@ -22,5 +22,19 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
+        public static void RemovePortAccess(int port, string Username)
+        {
+            string command = String.Format("netsh http delete urlacl url=http://*:{0}/", port.ToString());
+
+            Logger.Debug("Removing url acl with the following command: {0}", command);
+
+            int ret = DEAUtilities.ExecuteCommand(command);
+
+            if (ret != 0)
+            {
+                throw new Exception("netsh http delete urlacl command failed.");
+            }
+        }
+
     }
 }
