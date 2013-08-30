@@ -1953,12 +1953,11 @@ namespace Uhuru.CloudFoundry.DEA
                     // Stop the instance gracefully before cleaning up.
                     if (isStopped)
                     {
-                        if (instance.Prison.Created)
+                        if (instance.Prison.Created && instance.Prison.jobObject.ActiveProcesses > 0)
                         {
                             try
                             {
                                 instance.Prison.TerminateProcesses();
-                                UrlsAcl.RemovePortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
                             }
                             catch (Exception ex)
                             {
