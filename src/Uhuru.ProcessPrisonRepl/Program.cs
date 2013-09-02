@@ -64,7 +64,7 @@ namespace Uhuru.ProcessPrisonRepl
                     case ConsoleKey.C:
                         {
                             var ppci = new ProcessPrisonCreateInfo();
-                            ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                            ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
                             ppci.DiskQuotaPath = @"C:\Users\Public";
 
@@ -75,7 +75,8 @@ namespace Uhuru.ProcessPrisonRepl
                             var ri = new ProcessPrisonRunInfo();
                             ri.Interactive = true;
                             ri.FileName = @"C:\Windows\System32\cmd.exe";
-                            ri.Arguments = String.Format(" /k echo Wedcome to prisson {0}", pp.Id);
+                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
+                            ri.Arguments += " & echo. & echo Cmd bomb: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
 
                             pp.RunProcess(ri);
 

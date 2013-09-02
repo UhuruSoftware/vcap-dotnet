@@ -1817,7 +1817,7 @@ namespace Uhuru.CloudFoundry.DEA
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
                             // PrivateMemory is Virtual Private Memory usage and is more close to the enforced Job Object memory usage.
-                            long memBytes = instance.Prison.PrivateMemoryUsageBytes;
+                            long memBytes = instance.Prison.PrivateVirtualMemoryUsageBytes;
 
                             // Return -1 is disk quota is not enforced.
                             long diskBytes = instance.Prison.DiskUsageBytes;
@@ -1976,7 +1976,7 @@ namespace Uhuru.CloudFoundry.DEA
                             try
                             {
                                 instance.Prison.Destroy();
-                                UrlsAcl.RemovePortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
+                                UrlsAcl.RemovePortAccess(instance.Properties.Port);
                             }
                             catch (Exception ex)
                             {
