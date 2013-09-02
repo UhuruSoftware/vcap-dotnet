@@ -12,6 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.IO;
     using System.Linq;
     using System.Text;
+    using Uhuru.Utilities;
     using YamlDotNet.RepresentationModel;
     using YamlDotNet.RepresentationModel.Serialization;
 
@@ -69,14 +70,14 @@ namespace Uhuru.CloudFoundry.DEA
         {
             string script = GetExecutable(Path.Combine(path, "bin"), "compile");
             string args = string.Format("{0} {1} >> {2}", this.appDir, this.cacheDir, this.logFile);
-            string output = DEAUtilities.RunCommandAndGetOutput(script, args);
+            string output = Command.RunCommandAndGetOutput(script, args);
         }
 
         public ReleaseInfo GetReleaseInfo() 
         {
             string script = GetExecutable(Path.Combine(path, "bin"), "release");
             string args = string.Format("{0}", this.appDir);
-            string output = DEAUtilities.RunCommandAndGetOutput(script, args);
+            string output = Command.RunCommandAndGetOutput(script, args);
             using (var reader = new StringReader(output))
             {
                 Deserializer deserializer = new Deserializer();

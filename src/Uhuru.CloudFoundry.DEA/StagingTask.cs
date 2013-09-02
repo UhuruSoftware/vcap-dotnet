@@ -183,7 +183,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Directory.CreateDirectory(Path.Combine(this.workspace.TempDir, "buildpacks"));
                 string buildpackPath = Path.Combine(this.workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(this.Message.Properties.Buildpack).LocalPath));
                 string command = string.Format("\"E:\\Program Files (x86)\\Git\\bin\\git.exe\" clone --recursive {0} {1}", this.Message.Properties.Buildpack, buildpackPath);
-                int success = DEAUtilities.ExecuteCommand(command);
+                int success = Command.ExecuteCommand(command);
                 if (success != 0)
                 {
                     throw new Exception("Failed to git clone buildpack");

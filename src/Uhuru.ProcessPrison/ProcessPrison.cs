@@ -162,10 +162,10 @@
             private set;
         }
 
-        public string WindowsDomain
+        private string WindowsDomain
         {
             get;
-            private set;
+            set;
         }
 
         public string WindowsPassword
@@ -189,10 +189,11 @@
 
 
         /// <summary>
-        /// Gets the private memory in bytes. It also counts the swapped memory.
-        /// Coresponds to Private Bytes in Process Hacker, Commit Size in Task Manager.
+        /// Gets the private memory in bytes. It also counts the swapped memory. 
+        /// This is the the type of memory enforced by the Job Object memory limit.
+        /// Coresponds to Private Bytes in Process Hacker and Process Explorer, Commit Size in Task Manager, .
         /// </summary>
-        public long PrivateMemoryUsageBytes
+        public long PrivateVirtualMemoryUsageBytes
         {
             get
             {
@@ -653,7 +654,7 @@
 
         private static string JobObjectNamespace()
         {
-            return "Global\\";
+            return "";
         }
 
     }

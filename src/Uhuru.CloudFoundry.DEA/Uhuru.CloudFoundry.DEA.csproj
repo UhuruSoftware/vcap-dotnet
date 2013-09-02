@@ -131,7 +131,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="DEAUtilities.cs" />
-    <Compile Include="UrlsAcl.cs" />
     <Compile Include="VcapComponent.cs" />
     <Compile Include="VcapReactor.cs" />
   </ItemGroup>

@@ -8,6 +8,7 @@ namespace Uhuru.Utilities
 {
     using System;
     using System.Globalization;
+    using System.Security.Principal;
     using NetFwTypeLib;
 
     /// <summary>
@@ -67,6 +68,57 @@ namespace Uhuru.Utilities
 
             INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
             firewallPolicy.Rules.Add(rule);
+        }
+
+
+        public static void BlockAllOutbound(string ruleName, string windowsUsername)
+        {
+
+            INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+
+            // This type is only avaible in Windows Server 2012
+            INetFwRule3 rule = ((INetFwRule3)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwRule")));
+
+            rule.Name = ruleName;
+            rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
+            rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_OUT;
+            rule.Enabled = true;
+
+            string userSid = GetLocalUserSid(windowsUsername);
+            rule.LocalUserAuthorizedList = String.Format("D:(A;;CC;;;{0})", userSid);
+
+            firewallPolicy.Rules.Add(rule);
+        }
+
+        public static void BlockAllOutbound(string ruleName, string windowsUsername)
+        {
+
+            INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+
+            // This type is only avaible in Windows Server 2012
+            INetFwRule3 rule = ((INetFwRule3)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwRule")));
+
+            rule.Name = ruleName;
+            rule.Action = NET_FW_ACTION_.NET_FW_ACTION_BLOCK;
+            rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
+            rule.Enabled = true;
+
+            string userSid = GetLocalUserSid(windowsUsername);
+            rule.LocalUserAuthorizedList = String.Format("D:(A;;CC;;;{0})", userSid);
+
+            firewallPolicy.Rules.Add(rule);
+        }
+
+        public static void DeleteRule(string ruleName)
+        {
+            INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+            firewallPolicy.Rules.Remove(ruleName);
+        }
+
+        private static string GetLocalUserSid(string windowsUsername)
+        {
+            NTAccount ntaccount = new NTAccount("", windowsUsername);
+            return ntaccount.Translate(typeof(SecurityIdentifier)).Value;
         }
     }
 }
