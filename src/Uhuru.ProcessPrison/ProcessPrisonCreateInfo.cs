@@ -63,12 +63,24 @@ namespace Uhuru.Isolation
             set;
         }
 
+        /// <summary>
+        /// The limit for network data upload rate in bits per second.
+        /// Policy not enforced for local traffic.
+        /// Use -1 to disable network throtteling. NetworkOutboundRateLimitBitsPerSecond
+        /// </summary>
+        public long NetworkOutboundRateLimitBitsPerSecond
+        {
+            get;
+            set;
+        }
+
         public ProcessPrisonCreateInfo()
         {
             this.KillProcessesrOnPrisonClose = true;
             this.TotalPrivateMemoryLimit = 0;
             this.RunningProcessesLimit = 0;
             this.DiskQuotaBytes = -1;
+            this.NetworkOutboundRateLimitBitsPerSecond = -1;
         }
     }
 }

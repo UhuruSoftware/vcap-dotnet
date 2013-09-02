@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DiskQuotaManager.cs" />
+    <Compile Include="NetworkQos.cs" />
     <Compile Include="ProcessPrison.cs" />
     <Compile Include="ProcessPrisonCreateInfo.cs" />
     <Compile Include="ProcessPrisonRunInfo.cs" />

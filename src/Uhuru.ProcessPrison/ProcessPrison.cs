@@ -256,6 +256,11 @@
                 userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
             }
 
+            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > -1)
+            {
+                NetworkQos.CreateOutboundThrottlePolicy(this.WindowsUsername, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
+            }
+
             this.Created = true;
         }
 
@@ -304,6 +309,11 @@
         public void Destroy()
         {
             this.TerminateProcesses();
+
+            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > -1)
+            {
+                NetworkQos.RemoveOutboundThrottlePolicy(this.WindowsUsername);
+            }
 
             UserImpersonator.DeleteUserProfile(this.WindowsUsername, "");
             WindowsUsersAndGroups.DeleteUser(this.WindowsUsername);

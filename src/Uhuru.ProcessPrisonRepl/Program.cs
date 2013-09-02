@@ -67,6 +67,7 @@ namespace Uhuru.ProcessPrisonRepl
                             ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
                             ppci.DiskQuotaPath = @"C:\Users\Public";
+                            ppci.NetworkOutboundRateLimitBitsPerSecond = 80 * 1000;
 
                             var pp = new ProcessPrison();
                             pp.Create(ppci);
@@ -76,7 +77,8 @@ namespace Uhuru.ProcessPrisonRepl
                             ri.Interactive = true;
                             ri.FileName = @"C:\Windows\System32\cmd.exe";
                             ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
-                            ri.Arguments += " & echo. & echo Cmd bomb: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
+                            ri.Arguments += " & echo. & echo Cmd bomb for memory test: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
+                            ri.Arguments += " & echo. & echo Ruby file server for network test: & echo 'rackup -b 'run Rack::Directory.new(\"\")''";
 
                             pp.RunProcess(ri);
 

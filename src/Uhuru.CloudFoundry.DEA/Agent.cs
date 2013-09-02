@@ -1975,6 +1975,8 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             try
                             {
+                                Logger.Info("Destroying proson for instance {0}", instance.Properties.Name);
+
                                 instance.Prison.Destroy();
                                 UrlsAcl.RemovePortAccess(instance.Properties.Port);
                             }
@@ -1999,6 +2001,8 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 try
                                 {
+                                    Logger.Info("Cleaning up directory for instance {0}", instance.Properties.Name);
+
                                     Directory.Delete(instance.Properties.Directory, true);
                                 }
                                 catch (IOException)
