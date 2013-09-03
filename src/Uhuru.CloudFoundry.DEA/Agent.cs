@@ -606,6 +606,7 @@ namespace Uhuru.CloudFoundry.DEA
             Thread.Sleep(500);
 
             this.fileViewer.Stop();
+
             this.deaReactor.NatsClient.Close();
             this.TheReaper();
 
@@ -1817,32 +1818,33 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         if (isPortReady)
                         {
-                            long currentTicks = instance.Prison.jobObject.TotalProcessorTime.Ticks;
-                            DateTime currentTicksTimestamp = DateTime.Now;
+                            DateTime currentWorldTicks = DateTime.Now;
+                            long usedTicks = instance.Prison.jobObject.TotalProcessorTime.Ticks;
 
-                            long lastTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
+                            long lastUsedTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].TotalProcessTicks : 0;
+                            long sampleUsedTicks = usedTicks - lastUsedTicks;
+                            
+                            DateTime lastWorldTicks = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentWorldTicks;
+                            long sampleActiveTicks = (currentWorldTicks - lastWorldTicks).Ticks;
 
-                            long ticksDelta = currentTicks - lastTicks;
-
-                            // this is the case when the cpu utilization is reported between the last sample timestamp and now
-                            // DateTime lastTickTimestamp = instance.Usage.Count >= 1 ? instance.Usage[instance.Usage.Count - 1].Time : currentTicksTimestamp;
-                            // long tickTimespan = (currentTicksTimestamp - lastTickTimestamp).Ticks;
+                            long activeTicks = (currentWorldTicks - instance.Properties.Start).Ticks;
 
                             // this is the case when the cpu utilization is reported as the total life of the app
-                            long tickTimespan = (currentTicksTimestamp - instance.Properties.Start).Ticks;
+                            //float cpu = activeTicks > 0 ? ((float)usedTicks / activeTicks) * 100 : 0;
 
-                            float cpu = tickTimespan != 0 ? ((float)ticksDelta / tickTimespan) * 100 : 0;
+                            // this is the case when the cpu utilization is reported between the last sample timestamp and now
+                            float cpu = sampleActiveTicks > 0 ? ((float)sampleUsedTicks / sampleActiveTicks) * 100 : 0;
 
                             // trim it to one decimal precision
                             cpu = float.Parse(cpu.ToString("F1", CultureInfo.CurrentCulture), CultureInfo.CurrentCulture);
 
-                            // PrivateMemory is Virtual Private Memory usage and is more close to the enforced Job Object memory usage.
+                            // PrivateMemory is Virtual Private Memory usage and is the enforced Job Object memory usage.
                             long memBytes = instance.Prison.PrivateVirtualMemoryUsageBytes;
 
                             // Return -1 is disk quota is not enforced.
                             long diskBytes = instance.Prison.DiskUsageBytes;
 
-                            instance.AddUsage(memBytes, cpu, diskBytes, currentTicks);
+                            instance.AddUsage(memBytes, cpu, diskBytes, usedTicks);
 
                             if (this.secure)
                             {
@@ -1943,10 +1945,11 @@ namespace Uhuru.CloudFoundry.DEA
                         nice == 1 ? ProcessPriorityClass.BelowNormal :
                                     ProcessPriorityClass.Idle;
 
-                    instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
+                    // TODO: instantiate ErrorLog
+                    // instance.ErrorLog.Warning(Strings.LoggerLoweringPriority, priority.ToString());
                     Logger.Info(Strings.LoweringPriorityOnCpuBound, instance.Properties.Name, priority);
 
-                    // instance.JobObject.PriorityClass = priority;
+                    instance.Prison.jobObject.PriorityClass = priority;
                 }
             }
         }
@@ -1991,7 +1994,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         this.monitoring.RemoveInstanceResources(instance);
 
-                        if (!instance.Prison.Created)
+                        if (instance.Prison.Created)
                         {
                             try
                             {
