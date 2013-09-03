@@ -1411,6 +1411,10 @@ namespace Uhuru.CloudFoundry.DEA
 
                     instance.Prison.Create(prisonInfo);
 
+                    Logger.Info("Opening firewall port {0} for instance {1}", instance.Properties.Port, instance.Properties.LoggingId);
+
+                    FirewallTools.OpenPort(instance.Properties.Port, instance.Properties.InstanceId);
+
                     instance.Properties.WindowsPassword = instance.Prison.WindowsPassword;
                     instance.Properties.WindowsUserName = instance.Prison.WindowsUsername;
                 }
@@ -2005,8 +2009,9 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             try
                             {
-                                Logger.Info("Destroying proson for instance {0}", instance.Properties.Name);
+                                Logger.Info("Destroying proson for instance {0} and closing firewall port", instance.Properties.Name);
 
+                                FirewallTools.ClosePort(instance.Properties.Port);
                                 instance.Prison.Destroy();
                             }
                             catch (Exception ex)
