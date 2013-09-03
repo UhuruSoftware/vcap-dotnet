@@ -1917,27 +1917,27 @@ namespace Uhuru.CloudFoundry.DEA
                 return;
             }
 
-            // Check Memory
-            // Memory usage also enforced by windows job object
-            if (curUsage.MemoryBytes > (instance.Properties.MemoryQuotaBytes))
-            {
-                instance.ErrorLog.Fatal(
-                     "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance.",
-                     instance.Properties.MemoryQuotaBytes / 1024 / 1024,
-                     curUsage.MemoryBytes / 1024 / 1024);
-                this.StopDroplet(instance);
-            }
+            //// Check Memory
+            //// Memory usage also enforced by windows job object
+            //if (curUsage.MemoryBytes > (instance.Properties.MemoryQuotaBytes))
+            //{
+            //    instance.ErrorLog.Fatal(
+            //         "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance.",
+            //         instance.Properties.MemoryQuotaBytes / 1024 / 1024,
+            //         curUsage.MemoryBytes / 1024 / 1024);
+            //    this.StopDroplet(instance);
+            //}
 
-            // Check Disk
-            // Disk usage also enforced by windows disk quota
-            if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes * 1.05)
-            {
-                instance.ErrorLog.Fatal(
-                    "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance.",
-                    instance.Properties.DiskQuotaBytes / 1024 / 1024,
-                    curUsage.DiskBytes / 1024 / 1024);
-                this.StopDroplet(instance);
-            }
+            //// Check Disk
+            //// Disk usage also enforced by windows disk quota
+            //if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes * 1.05)
+            //{
+            //    instance.ErrorLog.Fatal(
+            //        "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance.",
+            //        instance.Properties.DiskQuotaBytes / 1024 / 1024,
+            //        curUsage.DiskBytes / 1024 / 1024);
+            //    this.StopDroplet(instance);
+            //}
 
             // Check CPU
             if (instance.Usage.Count == 0)
