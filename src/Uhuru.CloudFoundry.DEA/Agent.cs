@@ -278,7 +278,15 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }))
                                 {
-                                    response.Path = Path.Combine(droplet.Properties.Directory, ".\\" + actualPath);
+                                    string physicalPath = Path.GetFullPath((new Uri(Path.Combine(droplet.Properties.Directory, ".\\" + actualPath))).LocalPath); ;
+                                    if (physicalPath.StartsWith(droplet.Properties.Directory + Path.DirectorySeparatorChar))
+                                    {
+                                        response.Path = physicalPath;
+                                    }
+                                    else
+                                    {
+                                        response.Error = "Cannot access path";
+                                    }
                                 }
                                 else
                                 {
@@ -432,8 +440,6 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.deaReactor.SendDeaStart(this.helloMessage.SerializeToJson());
             this.SendAdvertise();
-
-            this.RegisterDirectoryServer(this.Host, this.directoryServerPort, this.ExternalHost);
 
             if (enableStaging)
             {
@@ -1660,6 +1666,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// </summary>
         private void RegisterRoutes()
         {
+            this.RegisterDirectoryServer(this.Host, this.directoryServerPort, this.ExternalHost);
             this.droplets.ForEach(delegate(DropletInstance instance)
             {
                 if (instance.Properties.State == DropletInstanceState.Running)
