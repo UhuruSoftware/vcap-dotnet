@@ -564,6 +564,33 @@ namespace Uhuru.Configuration
         }
         #endregion
         
+        #region UploadThrottleBitsps Property
+        /// <summary>
+        /// The XML name of the <see cref="UploadThrottleBitsps"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string UploadThrottleBitspsPropertyName = "uploadThrottleBitsps";
+        
+        /// <summary>
+        /// Gets or sets the network outbound throttle limit to be enforced for the running apps. Units are in Bits Per Second.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The network outbound throttle limit to be enforced for the running apps. Units ar" +
+            "e in Bits Per Second.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.DEAElement.UploadThrottleBitspsPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual long UploadThrottleBitsps
+        {
+            get
+            {
+                return ((long)(base[global::Uhuru.Configuration.DEAElement.UploadThrottleBitspsPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.DEAElement.UploadThrottleBitspsPropertyName] = value;
+            }
+        }
+        #endregion
+        
         #region Stacks Property
         /// <summary>
         /// The XML name of the <see cref="Stacks"/> property.

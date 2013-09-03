@@ -72,16 +72,6 @@ namespace Uhuru.CloudFoundry.DEA
         private const string VcapAppPortVariable = "VCAP_APP_PORT";
 
         /// <summary>
-        /// Vcap Debug Ip.
-        /// </summary>
-        private const string VcapAppDebugIpVariable = "VCAP_DEBUG_IP";
-
-        /// <summary>
-        /// Vcap Debug Port.
-        /// </summary>
-        private const string VcapAppDebugPortVariable = "VCAP_DEBUG_PORT";
-
-        /// <summary>
         /// Vcap Windows User.
         /// </summary>
         private const string VcapWindowsUserVariable = "VCAP_WINDOWS_USER";
@@ -137,6 +127,12 @@ namespace Uhuru.CloudFoundry.DEA
         private bool useDiskQuota;
 
         /// <summary>
+        /// The network outbound throttle limit to be enforced for the running apps. This rule is enforced per droplet.
+        /// Units are in Bits Per Second.
+        /// </summary>
+        private long uploadThrottleBitsps;
+
+        /// <summary>
         /// The DEA reactor. Is is the middleware to the message bus. 
         /// </summary>
         private DeaReactor deaReactor;
@@ -173,7 +169,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         private bool enableStaging;
         private StagingTaskRegistry stagingTaskRegistry;
-        private string key;
+        private string directoryServerHmacKey;
         public string ExternalHost { get; set; }
         private string stagingBaseDir;
         private string buildpacksDir;
@@ -203,6 +199,8 @@ namespace Uhuru.CloudFoundry.DEA
             this.directoryServerPort = uhuruSection.DEA.DirectoryServer.V2Port;
 
             this.useDiskQuota = uhuruSection.DEA.UseDiskQuota;
+
+            this.uploadThrottleBitsps = uhuruSection.DEA.UploadThrottleBitsps;
 
             this.enableStaging = uhuruSection.DEA.Staging.Enabled;
 
@@ -244,9 +242,9 @@ namespace Uhuru.CloudFoundry.DEA
             this.stagingTaskRegistry = new StagingTaskRegistry();
 
             this.stagingBaseDir = Path.Combine(uhuruSection.DEA.BaseDir, "staging");
-            this.buildpacksDir = uhuruSection.DEA.Staging.BuildpacksDirectory;            
+            this.buildpacksDir = uhuruSection.DEA.Staging.BuildpacksDirectory;
 
-            this.key = Guid.NewGuid().ToString("N");
+            this.directoryServerHmacKey = Credentials.GenerateSecureGuid().ToString("N");
             this.ExternalHost = string.Format("{0}.{1}", Guid.NewGuid().ToString("N"), uhuruSection.DEA.Domain);
         }
 
@@ -289,13 +287,13 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             if (task.TaskId == path.Segments[2].Replace("/", string.Empty))
                             {
-                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.key, new string[] { "path", "timestamp" }))
+                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }))
                                 {
                                     response.Path = Path.Combine(task.workspace.WorkspaceDir, actualPath);
                                 }
                                 else
                                 {
-                                    response.Error = "Invalid HMAC";                                    
+                                    response.Error = "Invalid HMAC";
                                 }
                             }
                         }
@@ -305,7 +303,7 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         break;
                     }
-            }            
+            }
 
             return response;
         }
@@ -430,13 +428,17 @@ namespace Uhuru.CloudFoundry.DEA
 
             this.RegisterDirectoryServer(this.Host, this.directoryServerPort, this.ExternalHost);
 
-            this.SendStagingAdvertise();
-            TimerHelper.RecurringLongCall(
-                this.monitoring.AdvertiseIntervalMilliseconds,
-                delegate
-                {
-                    this.SendStagingAdvertise();
-                });
+            if (enableStaging)
+            {
+                TimerHelper.RecurringLongCall(
+                    this.monitoring.AdvertiseIntervalMilliseconds,
+                    delegate
+                    {
+                        this.SendStagingAdvertise();
+                    });
+
+                this.SendStagingAdvertise();
+            }
 
         }
 
@@ -473,7 +475,7 @@ namespace Uhuru.CloudFoundry.DEA
                     prisonInfo.Id = instance.Properties.InstanceId;
                     prisonInfo.TotalPrivateMemoryLimit = instance.Properties.MemoryQuotaBytes;
                     prisonInfo.WindowsPassword = instance.Properties.WindowsPassword;
-                    
+
 
                     if (this.useDiskQuota)
                     {
@@ -1266,7 +1268,7 @@ namespace Uhuru.CloudFoundry.DEA
                 streamingLog.Path = string.Format("/staging_tasks/{0}/file_path", task.TaskId);
                 streamingLog.Query = string.Format("path={0}&timestamp={1}", task.workspace.StagingLogSuffix, DateTime.Now.Ticks);
 
-                task.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.key, new string[] { "path", "timestamp" }).ToString();
+                task.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }).ToString();
 
                 task.AfterSetup += delegate(Exception error)
                 {
@@ -1373,13 +1375,16 @@ namespace Uhuru.CloudFoundry.DEA
                         prisonInfo.DiskQuotaPath = instance.Properties.Directory;
                     }
 
+                    if (this.uploadThrottleBitsps > 0)
+                    {
+                        prisonInfo.NetworkOutboundRateLimitBitsPerSecond = this.uploadThrottleBitsps;
+                    }
+
                     Logger.Info("Creating Process Prisson: {0}", prisonInfo.Id);
 
                     instance.Prison.Create(prisonInfo);
 
                     instance.Properties.WindowsPassword = instance.Prison.WindowsPassword;
-
-                    // TODO: Get rid of WindowsUserName from Instance
                     instance.Properties.WindowsUserName = instance.Prison.WindowsUsername;
                 }
                 finally
@@ -1542,9 +1547,6 @@ namespace Uhuru.CloudFoundry.DEA
             env.Add(VcapAppHostVariable, Host);
             env.Add(VcapAppPortVariable, instance.Properties.Port.ToString(CultureInfo.InvariantCulture));
             env.Add("PORT", instance.Properties.Port.ToString(CultureInfo.InvariantCulture));
-
-            env.Add(VcapAppDebugIpVariable, instance.Properties.DebugIP);
-            env.Add(VcapAppDebugPortVariable, instance.Properties.DebugPort != null ? instance.Properties.DebugPort.ToString() : null);
 
             // User's environment settings
             if (appVars != null)
@@ -1886,10 +1888,10 @@ namespace Uhuru.CloudFoundry.DEA
 
             // Check Memory
             // Memory usage also enforced by windows job object
-            if (curUsage.MemoryBytes > (instance.Properties.MemoryQuotaBytes) * 1.05)
+            if (curUsage.MemoryBytes > (instance.Properties.MemoryQuotaBytes))
             {
                 instance.ErrorLog.Fatal(
-                     "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance... :(",
+                     "Memory size usage exceeded the limit of {0} MiB. Memory size used: {1} MiB. Stopping the app instance.",
                      instance.Properties.MemoryQuotaBytes / 1024 / 1024,
                      curUsage.MemoryBytes / 1024 / 1024);
                 this.StopDroplet(instance);
@@ -1900,7 +1902,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (curUsage.DiskBytes > instance.Properties.DiskQuotaBytes * 1.05)
             {
                 instance.ErrorLog.Fatal(
-                    "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance... :(",
+                    "Disk size usage exceeded the limit of {0} MiB. Disk size used: {1} MiB. Stopping the app instance.",
                     instance.Properties.DiskQuotaBytes / 1024 / 1024,
                     curUsage.DiskBytes / 1024 / 1024);
                 this.StopDroplet(instance);

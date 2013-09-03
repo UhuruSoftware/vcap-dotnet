@@ -28,13 +28,15 @@ namespace Uhuru.Isolation
                     newInstance["Name"] = windowsUsername;
                     newInstance["UserMatchCondition"] = windowsUsername;
 
-                    // ThrottleRateAction is in bytesPerSecond according to the docs.
+                    // ThrottleRateAction is in bytesPerSecond according to the WMI docs.
+                    // Acctualy the units are bits per second, as documented in the PowerShell cmdlet counterpart.
                     newInstance["ThrottleRateAction"] = bitsPerSecond;
 
                     newInstance.Put();
                 }
             }
-            return;
+
+            //return;
 
             //string command = String.Format("powershell  -ExecutionPolicy bypass  -Command  New-NetQosPolicy -name {0} -UserMatchCondition {0} -ThrottleRateActionBitsPerSecond {1}", windowsUsername, bitsPerSecond);
             //var ret = Command.ExecuteCommand(command);
