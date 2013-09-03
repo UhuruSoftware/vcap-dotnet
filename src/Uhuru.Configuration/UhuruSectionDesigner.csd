@@ -107,6 +107,11 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
           </type>
         </attributeProperty>
+        <attributeProperty name="UploadThrottleBitsps" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="uploadThrottleBitsps" isReadOnly="false" documentation="The network outbound throttle limit to be enforced for the running apps. Units are in Bits Per Second.">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int64" />
+          </type>
+        </attributeProperty>
       </attributeProperties>
       <elementProperties>
         <elementProperty name="Stacks" isRequired="false" isKey="false" isDefaultCollection="true" xmlName="stacks" isReadOnly="false">
