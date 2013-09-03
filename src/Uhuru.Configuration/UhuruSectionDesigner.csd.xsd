@@ -121,6 +121,11 @@
 				<xs:documentation>The Domain.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="uploadThrottleBitsps" use="optional" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>The network outbound throttle limit to be enforced for the running apps. Units are in Bits Per Second.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Uhuru.Configuration.MSSqlElementCT">
 		<xs:attribute name="host" use="optional" type="xs:string">

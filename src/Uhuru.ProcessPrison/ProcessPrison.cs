@@ -256,7 +256,7 @@
                 userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
             }
 
-            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > -1)
+            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > 0)
             {
                 NetworkQos.CreateOutboundThrottlePolicy(this.WindowsUsername, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
             }
