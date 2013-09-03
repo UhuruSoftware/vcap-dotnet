@@ -2009,7 +2009,7 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             try
                             {
-                                Logger.Info("Destroying proson for instance {0} and closing firewall port", instance.Properties.Name);
+                                Logger.Info("Destroying prison for instance {0} and closing firewall port", instance.Properties.Name);
 
                                 FirewallTools.ClosePort(instance.Properties.Port);
                                 instance.Prison.Destroy();
