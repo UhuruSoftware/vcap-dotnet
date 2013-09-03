@@ -278,7 +278,14 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
                             {
-                                response.Path = Path.Combine(droplet.Properties.Directory, actualPath);
+                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.key, new string[] { "path", "timestamp" }))
+                                {
+                                    response.Path = Path.Combine(droplet.Properties.Directory, ".\\" + actualPath);
+                                }
+                                else
+                                {
+                                    response.Error = "Invalid HMAC";
+                                }
                             }
                         });
                         break;
@@ -291,7 +298,7 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.key, new string[] { "path", "timestamp" }))
                                 {
-                                    response.Path = Path.Combine(task.workspace.WorkspaceDir, actualPath);
+                                    response.Path = Path.Combine(task.workspace.WorkspaceDir, ".\\" + actualPath);
                                 }
                                 else
                                 {
@@ -937,15 +944,26 @@ namespace Uhuru.CloudFoundry.DEA
 
                         if (pmessage.Path != null)
                         {
-                            response.FileUriV2 = string.Format(
+                            string uri = string.Format(
                                 CultureInfo.InvariantCulture,
-                                "http://{0}:{1}/instance_paths/{2}?hmac={5}&path={3}&timestamp={4}",
-                                Host,
-                                this.directoryServerPort,
+                                "http://{0}/instance_paths/{1}?path={2}&timestamp={3}",
+                                this.ExternalHost,
                                 Uri.EscapeUriString(response.InstanceId),
                                 Uri.EscapeUriString(pmessage.Path),
-                                RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now),
-                                Guid.NewGuid().ToString("N"));
+                                RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
+
+                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.key, new string[] { "path", "timestamp" }).ToString();
+                        }
+                        else
+                        {
+                            string uri = string.Format(
+                                CultureInfo.InvariantCulture,
+                                "http://{0}/instance_paths/{1}?path&timestamp={2}",
+                                this.ExternalHost,
+                                Uri.EscapeUriString(response.InstanceId),
+                                RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
+
+                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.key, new string[] { "path", "timestamp" }).ToString();
                         }
 
                         Logger.Debug(Strings.DebugFileUriV2Path, response.FileUri);
@@ -1264,7 +1282,7 @@ namespace Uhuru.CloudFoundry.DEA
                 streamingLog.Host = this.ExternalHost;
                 streamingLog.Scheme = "http";
                 streamingLog.Path = string.Format("/staging_tasks/{0}/file_path", task.TaskId);
-                streamingLog.Query = string.Format("path={0}&timestamp={1}", task.workspace.StagingLogSuffix, DateTime.Now.Ticks);
+                streamingLog.Query = string.Format("path={0}&timestamp={1}", task.workspace.StagingLogSuffix, RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
 
                 task.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.key, new string[] { "path", "timestamp" }).ToString();
 
