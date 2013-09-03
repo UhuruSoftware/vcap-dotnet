@@ -13,9 +13,7 @@ namespace Uhuru.Isolation
         /// Sets the limit for the upload network data rate. This limit is applied for the specified user.
         /// This method is not reentrant. Remove the policy first after creating it again.
         /// </summary>
-        /// <param name="windowsUsername"></param>
-        /// <param name="bitsPerSecond"></param>
-        public static void CreateOutboundThrottlePolicy(string windowsUsername, long bitsPerSecond)
+        public static void CreateOutboundThrottlePolicy(string ruleName, string windowsUsername, long bitsPerSecond)
         {
             var StandardCimv2 = new ManagementScope(@"root\StandardCimv2");
 
@@ -25,7 +23,7 @@ namespace Uhuru.Isolation
 
                 using (ManagementObject newInstance = netqos.CreateInstance())
                 {
-                    newInstance["Name"] = windowsUsername;
+                    newInstance["Name"] = ruleName;
                     newInstance["UserMatchCondition"] = windowsUsername;
 
                     // ThrottleRateAction is in bytesPerSecond according to the WMI docs.
@@ -35,21 +33,39 @@ namespace Uhuru.Isolation
                     newInstance.Put();
                 }
             }
-
-            //return;
-
-            //string command = String.Format("powershell  -ExecutionPolicy bypass  -Command  New-NetQosPolicy -name {0} -UserMatchCondition {0} -ThrottleRateActionBitsPerSecond {1}", windowsUsername, bitsPerSecond);
-            //var ret = Command.ExecuteCommand(command);
-
-            //if (ret != 0)
-            //{
-            //    throw new Exception("New-NetQosPolicy command failed.");
-            //}
         }
 
-        public static void RemoveOutboundThrottlePolicy(string windowsUsername)
+        /// <summary>
+        /// Sets the limit for the upload network data rate. This limit is applied for a specific server URL passing through HTTP.sys.
+        /// This rules are applicable to IIS, IIS WHC and IIS Express. This goes hand in hand with URL Acls.
+        /// This method is not reentrant. Remove the policy first after creating it again.
+        /// </summary>
+        public static void CreateOutboundThrottlePolicy(string ruleName, int urlPort, long bitsPerSecond)
         {
-            var wql = string.Format("SELECT * FROM MSFT_NetQosPolicySettingData WHERE Name = \"{0}\"", windowsUsername);
+            var StandardCimv2 = new ManagementScope(@"root\StandardCimv2");
+
+            using (ManagementClass netqos = new ManagementClass("MSFT_NetQosPolicySettingData"))
+            {
+                netqos.Scope = StandardCimv2;
+
+                using (ManagementObject newInstance = netqos.CreateInstance())
+                {
+                    newInstance["Name"] = ruleName;
+                    newInstance["URIMatchCondition"] = String.Format("http://*:{0}/", urlPort);
+                    newInstance["URIRecursiveMatchCondition"] = true;
+                    
+                    // ThrottleRateAction is in bytesPerSecond according to the WMI docs.
+                    // Acctualy the units are bits per second, as documented in the PowerShell cmdlet counterpart.
+                    newInstance["ThrottleRateAction"] = bitsPerSecond;
+
+                    newInstance.Put();
+                }
+            }
+        }
+
+        public static void RemoveOutboundThrottlePolicy(string ruleName)
+        {
+            var wql = string.Format("SELECT * FROM MSFT_NetQosPolicySettingData WHERE Name = \"{0}\"", ruleName);
             using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\StandardCimv2", wql))
             {
                 // should only iterate once
@@ -59,16 +75,6 @@ namespace Uhuru.Isolation
                     queryObj.Dispose();
                 }
             }
-
-            return;
-
-            //string command = String.Format("powershell  -ExecutionPolicy bypass  -Command  Remove-NetQosPolicy -Name {0} -Confirm:$false", windowsUsername);
-            //var ret = Command.ExecuteCommand(command);
-
-            //if (ret != 0)
-            //{
-            //    throw new Exception("Remove-NetQosPolicy command failed.");
-            //}
         }
     }
 }

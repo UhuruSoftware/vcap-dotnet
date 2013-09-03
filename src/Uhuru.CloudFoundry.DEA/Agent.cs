@@ -1398,6 +1398,8 @@ namespace Uhuru.CloudFoundry.DEA
                         prisonInfo.NetworkOutboundRateLimitBitsPerSecond = this.uploadThrottleBitsps;
                     }
 
+                    prisonInfo.UrlPortAccess = instance.Properties.Port;
+
                     Logger.Info("Creating Process Prisson: {0}", prisonInfo.Id);
 
                     instance.Prison.Create(prisonInfo);
@@ -1424,8 +1426,6 @@ namespace Uhuru.CloudFoundry.DEA
                 try
                 {
                     instance.Lock.EnterWriteLock();
-
-                    UrlsAcl.AddPortAccess(instance.Properties.Port, instance.Properties.WindowsUserName);
 
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserVariable, instance.Properties.WindowsUserName);
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
@@ -1998,7 +1998,6 @@ namespace Uhuru.CloudFoundry.DEA
                                 Logger.Info("Destroying proson for instance {0}", instance.Properties.Name);
 
                                 instance.Prison.Destroy();
-                                UrlsAcl.RemovePortAccess(instance.Properties.Port);
                             }
                             catch (Exception ex)
                             {

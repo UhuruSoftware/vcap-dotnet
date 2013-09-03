@@ -256,9 +256,19 @@
                 userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
             }
 
+            if (this.createInfo.UrlPortAccess > 0)
+            {
+                UrlsAcl.AddPortAccess(this.createInfo.UrlPortAccess, this.WindowsUsername);
+            }
+
             if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > 0)
             {
-                NetworkQos.CreateOutboundThrottlePolicy(this.WindowsUsername, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
+                NetworkQos.CreateOutboundThrottlePolicy(this.WindowsUsername, this.WindowsUsername, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
+
+                if (this.createInfo.UrlPortAccess > 0)
+                {
+                    NetworkQos.CreateOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString(), this.createInfo.UrlPortAccess, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
+                }
             }
 
             this.Created = true;
@@ -310,9 +320,19 @@
         {
             this.TerminateProcesses();
 
-            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > -1)
+            if (this.createInfo.NetworkOutboundRateLimitBitsPerSecond > 0)
             {
                 NetworkQos.RemoveOutboundThrottlePolicy(this.WindowsUsername);
+
+                if (this.createInfo.UrlPortAccess > 0)
+                {
+                    NetworkQos.RemoveOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString());
+                }
+            }
+            
+            if (this.createInfo.UrlPortAccess > 0)
+            {
+                UrlsAcl.RemovePortAccess(this.createInfo.UrlPortAccess);
             }
 
             UserImpersonator.DeleteUserProfile(this.WindowsUsername, "");

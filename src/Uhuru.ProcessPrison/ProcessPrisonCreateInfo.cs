@@ -74,6 +74,17 @@ namespace Uhuru.Isolation
             set;
         }
 
+        /// <summary>
+        /// Allows the prisson's user to bind to URLs with the specified port.
+        /// URL bindings are needed for HTTP.sys access, e.g. IIS, IIS HWC, IIS Express.
+        /// Use 0 to disable HTTP.sys port access.
+        /// </summary>
+        public int UrlPortAccess
+        {
+            get;
+            set;
+        }
+
         public ProcessPrisonCreateInfo()
         {
             this.KillProcessesrOnPrisonClose = true;
