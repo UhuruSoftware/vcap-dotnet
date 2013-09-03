@@ -276,7 +276,7 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             if (droplet.Properties.InstanceId == path.Segments[2].Replace("/", string.Empty))
                             {
-                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.key, new string[] { "path", "timestamp" }))
+                                if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }))
                                 {
                                     response.Path = Path.Combine(droplet.Properties.Directory, ".\\" + actualPath);
                                 }
@@ -954,7 +954,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 Uri.EscapeUriString(pmessage.Path),
                                 RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
 
-                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.key, new string[] { "path", "timestamp" }).ToString();
+                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.directoryServerHmacKey, new string[] { "path", "timestamp" }).ToString();
                         }
                         else
                         {
@@ -965,7 +965,7 @@ namespace Uhuru.CloudFoundry.DEA
                                 Uri.EscapeUriString(response.InstanceId),
                                 RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
 
-                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.key, new string[] { "path", "timestamp" }).ToString();
+                            response.FileUriV2 = DEAUtilities.GetHmacedUri(uri, this.directoryServerHmacKey, new string[] { "path", "timestamp" }).ToString();
                         }
 
                         Logger.Debug(Strings.DebugFileUriV2Path, response.FileUri);
