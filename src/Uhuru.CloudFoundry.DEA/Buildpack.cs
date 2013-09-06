@@ -66,11 +66,20 @@ namespace Uhuru.CloudFoundry.DEA
             }
         }
 
-        public void Compile() 
-        {
+        public void Compile(int timeout) 
+        {            
             string script = GetExecutable(Path.Combine(path, "bin"), "compile");
-            string args = string.Format("{0} {1} >> {2}", this.appDir, this.cacheDir, this.logFile);
-            string output = Command.RunCommandAndGetOutput(script, args);
+            Logger.Debug("Running compile script {0}", script);
+            string args = string.Format("{0} {1} >> {2} 2>&1", this.appDir, this.cacheDir, this.logFile);
+            int result = Command.ExecuteCommand(string.Format("\"{0}\" {1}", script, args), timeout);
+            if (result != 0)
+            {
+                Logger.Error("Compilation failed");
+            }
+            else
+            {
+                Logger.Debug("Finished running compilation script: {0}", script);
+            }
         }
 
         public ReleaseInfo GetReleaseInfo() 

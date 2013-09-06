@@ -19,6 +19,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Web;
     using System.Collections.Specialized;
     using System.Collections.Generic;
+    using Uhuru.Utilities;
 
     /// <summary>
     /// A class containing a set of file- and process-related methods. 
@@ -330,6 +331,17 @@ namespace Uhuru.CloudFoundry.DEA
             {
                 return false;
             }
+        }
+
+        public static bool CheckUrlAge(string url)
+        {
+            Uri uri = new Uri(url);
+            int urlAge = int.Parse(HttpUtility.ParseQueryString(uri.Query)["timestamp"]) - RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now);
+            if (urlAge > 60 * 60)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

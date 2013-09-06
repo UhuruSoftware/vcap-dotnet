@@ -74,60 +74,68 @@ namespace Uhuru.CloudFoundry.DEA.DirectoryServer
                 string dir = Path.GetDirectoryName(this.filePath);
                 string file = Path.GetFileName(this.filePath);
 
-                using (FileStream tailFile = new FileStream(this.filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                FileInfo fileInfo = new FileInfo(filePath);
+                fileInfo.Refresh();
+                long fileLength = fileInfo.Length;
+
+                using (FileSystemWatcher watcher = new FileSystemWatcher(dir, file))
                 {
-                    tailFile.Seek(0, SeekOrigin.End);
+                    watcher.EnableRaisingEvents = false;
+                    bool stop = false;
 
-                    using (FileSystemWatcher watcher = new FileSystemWatcher(dir, file))
+                    this.context.Response.SendChunked = true;
+                    this.context.Response.OutputStream.Flush();
+
+                    while (!stop)
                     {
-                        watcher.EnableRaisingEvents = false;
-
-                        if (this.flushInterval <= TimeSpan.FromMilliseconds(0))
+                        WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.All, (int)this.idleTimeout.TotalMilliseconds);
+                        if (result.TimedOut)
                         {
-                            return;
+                            stop = true;
+                            break;
                         }
 
-                        if (this.idleTimeout.TotalMilliseconds == 0)
+                        if (result.ChangeType == WatcherChangeTypes.Renamed || result.ChangeType == WatcherChangeTypes.Deleted)
                         {
-                            this.idleTimeout = new TimeSpan(0, 1, 0);
+                            stop = true;
+                            break;
                         }
-
-                        bool stop = false;
-
-                        this.context.Response.SendChunked = true;
-                        this.context.Response.OutputStream.Flush();
-
-                        while (!stop)
+                        else if (result.ChangeType == WatcherChangeTypes.Changed || result.ChangeType == WatcherChangeTypes.Created)
                         {
-                            WaitForChangedResult result = watcher.WaitForChanged(WatcherChangeTypes.All, (int)this.idleTimeout.TotalMilliseconds);
-
-                            if (result.TimedOut)
+                            try
+                            {
+                                long newFileLength = new FileInfo(filePath).Length;
+                                if (newFileLength != 0)
+                                {
+                                    int bytesToRead = (int)(newFileLength - fileLength);
+                                    if (bytesToRead > 0)
+                                    {
+                                        using (FileStream tailFile = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                                        {
+                                            tailFile.Seek(bytesToRead * -1, SeekOrigin.End);
+                                            try
+                                            {
+                                                tailFile.CopyTo(this.context.Response.OutputStream);
+                                                this.context.Response.OutputStream.Flush();
+                                            }
+                                            catch (HttpListenerException)
+                                            {
+                                                stop = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    fileLength = newFileLength;
+                                }
+                            }
+                            catch
                             {
                                 stop = true;
                                 break;
-                            }
-
-                            if (result.ChangeType == WatcherChangeTypes.Renamed || result.ChangeType == WatcherChangeTypes.Deleted)
-                            {
-                                stop = true;
-                                break;
-                            }
-                            else if (result.ChangeType == WatcherChangeTypes.Changed || result.ChangeType == WatcherChangeTypes.Created)
-                            {
-                                try
-                                {
-                                    tailFile.CopyTo(this.context.Response.OutputStream);
-                                    this.context.Response.OutputStream.Flush();
-                                }
-                                catch (HttpListenerException)
-                                {
-                                    stop = true;
-                                    break;
-                                }
                             }
                         }
                     }
-                }
+                }                
             }
             catch (Exception ex)
             {

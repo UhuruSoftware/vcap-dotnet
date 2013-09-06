@@ -10,6 +10,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Uhuru.Utilities;
 
     class StagingTaskRegistry
     {
@@ -31,11 +32,20 @@ namespace Uhuru.CloudFoundry.DEA
         public void Register(StagingTask task) 
         {
             tasks[task.TaskId] = task;
+            Logger.Debug("Registered staging task {0}", task.TaskId);
         }
 
         public void Unregister(StagingTask task)
-        {
-            tasks.Remove(task.TaskId);
+        {            
+            if (tasks.Keys.Contains(task.TaskId))
+            {
+                tasks.Remove(task.TaskId);
+                Logger.Debug("Unregistered staging task {0}", task.TaskId);
+            }
+            else
+            {
+                Logger.Error("Could not unregister task {0}. It does not exist.", task.TaskId);
+            }
         }
     }
 }

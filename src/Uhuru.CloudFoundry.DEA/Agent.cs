@@ -281,7 +281,7 @@ namespace Uhuru.CloudFoundry.DEA
                                     string physicalPath = Path.GetFullPath((new Uri(Path.Combine(droplet.Properties.Directory, ".\\" + actualPath))).LocalPath); ;
                                     if (physicalPath.StartsWith(droplet.Properties.Directory + Path.DirectorySeparatorChar))
                                     {
-                                        response.Path = physicalPath;
+                                        response.Path = Path.GetFullPath(physicalPath);
                                     }
                                     else
                                     {
@@ -291,6 +291,10 @@ namespace Uhuru.CloudFoundry.DEA
                                 else
                                 {
                                     response.Error = "Invalid HMAC";
+                                }
+                                if (!DEAUtilities.CheckUrlAge(path.ToString()))
+                                {
+                                    response.Error = "URL expired";
                                 }
                             }
                         });
@@ -304,11 +308,15 @@ namespace Uhuru.CloudFoundry.DEA
                             {
                                 if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }))
                                 {
-                                    response.Path = Path.Combine(task.workspace.WorkspaceDir, ".\\" + actualPath);
+                                    response.Path = Path.GetFullPath(Path.Combine(task.workspace.WorkspaceDir, ".\\" + actualPath));
                                 }
                                 else
                                 {
                                     response.Error = "Invalid HMAC";
+                                }
+                                if (!DEAUtilities.CheckUrlAge(path.ToString()))
+                                {
+                                    response.Error = "URL expired";
                                 }
                             }
                         }
@@ -318,6 +326,11 @@ namespace Uhuru.CloudFoundry.DEA
                     {
                         break;
                     }
+            }
+
+            if (response.Path == null && string.IsNullOrEmpty(response.Error))
+            {
+                response.Error = "Staging task not found";
             }
 
             return response;
@@ -1281,6 +1294,8 @@ namespace Uhuru.CloudFoundry.DEA
         {
             try
             {
+                Logger.Debug("DEA Received staging message: {0}", message);
+
                 StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
                 stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
@@ -1305,6 +1320,7 @@ namespace Uhuru.CloudFoundry.DEA
                         response.Error = error.ToString();
                     }
                     this.deaReactor.SendReply(reply, response.SerializeToJson());
+                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
                 };
 
                 task.AfterUpload += delegate(Exception error)
@@ -1320,6 +1336,7 @@ namespace Uhuru.CloudFoundry.DEA
                     response.DropletSHA = task.DropletSHA;
 
                     this.deaReactor.SendReply(reply, response.SerializeToJson());
+                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
                     stagingTaskRegistry.Unregister(task);
                 };
 
@@ -1332,10 +1349,14 @@ namespace Uhuru.CloudFoundry.DEA
                         response.Error = error.ToString();
                     }
                     this.deaReactor.SendReply(reply, response.SerializeToJson());
+                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
                     stagingTaskRegistry.Unregister(task);
                 };
 
-                task.Start();
+                ThreadPool.QueueUserWorkItem(delegate(object data)
+                {
+                    task.Start();
+                });
 
             }
             catch (Exception ex)
@@ -1351,7 +1372,8 @@ namespace Uhuru.CloudFoundry.DEA
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void StagingLocateHandler(string message, string reply, string subject)
         {
-            Logger.Debug(subject + message);
+            Logger.Info("DEA received staging locate message : {0}", message);
+            this.SendStagingAdvertise();
         }
 
         /// <summary>
@@ -1362,6 +1384,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="subject">The subject.</param>
         private void StagingStopHandler(string message, string reply, string subject)
         {
+            Logger.Info("DEA received staging stop message : {0}", message);
             StagingStopMessageRequest request = new StagingStopMessageRequest();
             request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
             foreach (StagingTask task in this.stagingTaskRegistry.Tasks)

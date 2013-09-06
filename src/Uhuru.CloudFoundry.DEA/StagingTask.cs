@@ -14,6 +14,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Net;
     using System.Security.Cryptography;
     using System.Text;
+    using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
     using Uhuru.Utilities;
 
@@ -27,7 +28,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         public string TaskId { get; set; }
         public string StreamingLogUrl { get; set; }
-        public string TaskLog { get; set; }
+        public string TaskLog { get { return File.ReadAllText(this.workspace.StagingLogPath); } }
         public string DetectedBuildpack { get { return StagingInfo.GetDetectedBuildpack(Path.Combine(this.workspace.StagedDir, StagingWorkspace.StagingInfo)); } }
         public string DropletSHA { get; set; }
 
@@ -40,13 +41,14 @@ namespace Uhuru.CloudFoundry.DEA
             this.TaskId = message.TaskID;
             this.Message = message;
             this.workspace = new StagingWorkspace(dropletDir, message.TaskID);
-            this.buildpacksDir = buildpacksDirectory;
+            this.buildpacksDir = Path.GetFullPath(buildpacksDirectory);
         }
 
         public void Start() 
         {
             try
             {
+                Logger.Info("Started staging task {0}", this.TaskId);
                 StagingSetup();
                 Staging();
                 UploadDroplet();
@@ -55,18 +57,22 @@ namespace Uhuru.CloudFoundry.DEA
             }
             catch(Exception ex)
             {
+                Logger.Error(ex.ToString());
                 AfterUpload(ex);
                 throw ex;
             }
             finally
-            {                
-                Directory.Delete(this.workspace.BaseDir, true);
+            {
+                Logger.Info("Finished staging task {0}", this.TaskId);
+                Logger.Debug("Cleaning up directory {0}", this.workspace.BaseDir);
+                Directory.Delete(this.workspace.BaseDir, true);                
             }
-        }
+        }        
 
         public void Stop()
         {
             // TODO stop task
+            Logger.Info("Stopping staging task {0}", this.TaskId);
             AfterStop(null);
         }
 
@@ -80,12 +86,16 @@ namespace Uhuru.CloudFoundry.DEA
                     DownloadBuildpackCache();
                 }
                 Directory.CreateDirectory(new FileInfo(this.workspace.StagingLogPath).DirectoryName);
-                if(!File.Exists(this.workspace.StagingLogPath))
-                    File.Create(this.workspace.StagingLogPath);
+                if (!File.Exists(this.workspace.StagingLogPath))
+                {
+                    Logger.Info("Preparing staging log file {0}", this.workspace.StagingLogPath);
+                    using (File.Create(this.workspace.StagingLogPath)) ;                    
+                }
                 AfterSetup(null);
             }
             catch (Exception ex)
             {
+                Logger.Error("Error setting up staging environment: ", ex.ToString());                   
                 AfterSetup(ex);
                 throw ex;
             }            
@@ -115,6 +125,7 @@ namespace Uhuru.CloudFoundry.DEA
             WebClient client = new WebClient();
             try
             {
+                Logger.Debug("Staging task {0}: Downloading app bits from {1}", this.TaskId, this.Message.DownloadURI);
                 string tempFile = Path.Combine(this.workspace.WorkspaceDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, "droplet"));
                 Uri uri = new Uri(this.Message.DownloadURI);
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format(uri.UserInfo)));
@@ -133,6 +144,7 @@ namespace Uhuru.CloudFoundry.DEA
             WebClient client = new WebClient();
             try
             {
+                Logger.Debug("Staging task {0}: Downloading buildpack cache", this.TaskId);
                 string tempFile = Path.Combine(this.workspace.WorkspaceDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, "droplet"));
                 Uri uri = new Uri(this.Message.BuildpackCacheDownloadURI);
                 string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format(uri.UserInfo)));
@@ -142,7 +154,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
             catch
             {
-                Logger.Error("Failed to download buildpack");
+                Logger.Error("Staging task {0}: Failed downloading buildpack cache", this.TaskId);
             }
             finally
             {
@@ -152,6 +164,7 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void UnpackApp() 
         {
+
             Directory.CreateDirectory(this.workspace.UnstagedDir);
             DEAUtilities.UnzipFile(this.workspace.UnstagedDir, this.workspace.DownloadDropletPath);
         }
@@ -161,6 +174,7 @@ namespace Uhuru.CloudFoundry.DEA
             Directory.CreateDirectory(this.workspace.Cache);
             if (File.Exists(this.workspace.DownloadBuildpackCachePath))
             {
+                Logger.Debug("Staging task {0}: Unpacking buildpack cache {1}", this.TaskId, this.workspace.DownloadBuildpackCachePath);
                 DEAUtilities.UnzipFile(this.workspace.Cache, this.workspace.DownloadBuildpackCachePath); // Unzip
                 string tarFileName = Directory.GetFiles(this.workspace.DownloadBuildpackCachePath, "*.tar")[0];
                 DEAUtilities.UnzipFile(this.workspace.Cache, Path.Combine(this.workspace.Cache, tarFileName)); // Untar
@@ -180,6 +194,7 @@ namespace Uhuru.CloudFoundry.DEA
             Buildpack buildpack = null;
             if (this.Message.Properties.Buildpack != null)
             {
+                Logger.Info("Staging task {0}: Downloading buildpack from {1}", this.TaskId, this.Message.Properties.Buildpack);
                 Directory.CreateDirectory(Path.Combine(this.workspace.TempDir, "buildpacks"));
                 string buildpackPath = Path.Combine(this.workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(this.Message.Properties.Buildpack).LocalPath));
                 string command = string.Format("\"E:\\Program Files (x86)\\Git\\bin\\git.exe\" clone --recursive {0} {1}", this.Message.Properties.Buildpack, buildpackPath);
@@ -192,6 +207,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
             else
             {
+                Logger.Info("Staging task {0}: Detecting buildpack", this.TaskId);
                 foreach (string dir in Directory.EnumerateDirectories(this.buildpacksDir))
                 {
                     Buildpack bp = new Buildpack(dir, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
@@ -202,19 +218,26 @@ namespace Uhuru.CloudFoundry.DEA
                         break;
                     }
                 }
+
                 if (buildpack == null)
                 {
                     throw new Exception("Unable to detect a supported application type");
                 }
-            }
-            buildpack.Compile(); // TODO need to add timeout
+                Logger.Info("Staging task {0}: Detected buildpack {1}", this.TaskId, buildpack.Name);
 
+            }
+
+            Logger.Info("Staging task {0}: Running compilation script", this.TaskId);
+            buildpack.Compile(900); // TODO need to add timeout
+
+            Logger.Info("Staging task {0}: Saving buildpackInfo", this.TaskId);
             StagingInfo.SaveBuildpackInfo(Path.Combine(this.workspace.StagedDir, StagingWorkspace.StagingInfo), buildpack.Name, GetStartCommand(buildpack));
 
         }
 
         private void PackApp() 
         {
+            Logger.Debug("Staging task {0}: Packing droplet {1}", this.TaskId, this.workspace.StagedDroplet);
             string tempFile = Path.ChangeExtension(this.workspace.StagedDroplet, "tar");
             DEAUtilities.TarDirectory(this.workspace.StagedDir, tempFile);
             DEAUtilities.GzipFile(tempFile, this.workspace.StagedDroplet);
@@ -244,6 +267,7 @@ namespace Uhuru.CloudFoundry.DEA
         private void UploadDroplet() 
         {
             Uri uri = new Uri(this.Message.UploadURI);
+            Logger.Debug("Staging task {0}: Uploading droplet {1} to {2}", this.TaskId, this.workspace.StagedDroplet, this.Message.UploadURI);
             DEAUtilities.HttpUploadFile(this.Message.UploadURI, new FileInfo(this.workspace.StagedDropletPath), "upload[droplet]", "application/octet-stream", uri.UserInfo);
         }
 
@@ -255,10 +279,12 @@ namespace Uhuru.CloudFoundry.DEA
             }
             catch
             {
+                Logger.Debug("Staging task {0}: Cannot pack buildpack cache", this.TaskId);
                 return;
             }
             File.Copy(this.workspace.StagedBuildpackCache, this.workspace.StagedBuildpackCachePath);
             Uri uri = new Uri(this.Message.BuildpackCacheUploadURI);
+            Logger.Debug("Staging task {0}: Uploading buildpack cache {1} to {2}", this.TaskId, this.workspace.StagedBuildpackCachePath, this.Message.BuildpackCacheUploadURI);
             DEAUtilities.HttpUploadFile(this.Message.BuildpackCacheUploadURI, new FileInfo(this.workspace.StagedBuildpackCachePath), "upload[droplet]", "application/octet-stream", uri.UserInfo); 
         }
 
