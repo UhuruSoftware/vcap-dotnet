@@ -6,6 +6,7 @@ $script:exitCode = 0
 
 function DetectBitness()
 {
+    Write-Host("Detecting application bitness...");
 	$assemblies = Get-ChildItem -Path $script:appPath -Filter "*.dll" -Recurse	
 	foreach ($assembly in $assemblies)
 	{
@@ -16,8 +17,9 @@ function DetectBitness()
             $a = [Reflection.Assembly]::ReflectionOnlyLoadFrom($assembly.Fullname)
             $a.ManifestModule.GetPEKind([ref]$kind, [ref]$machine)
         }
-        catch [System.BadImageFormatException]
+        catch
         {
+            Write-Error("Could not detect bitness for assembly $($assembly.Name)");
             $kind = [System.Reflection.PortableExecutableKinds]"NotAPortableExecutableImage"
         }
 		
@@ -25,21 +27,25 @@ function DetectBitness()
 		{
 			[System.Reflection.PortableExecutableKinds]::Required32Bit
 			{
-				return $true;
+                Write-Host("Application requires a 32bit enabled application pool");
+				return ,$true;                
 			}			
 			([System.Reflection.PortableExecutableKinds]([System.Reflection.PortableExecutableKinds]::Required32Bit -bor [System.Reflection.PortableExecutableKinds]::ILOnly))
 			{
-				return $true;
+                Write-Host("Application requires a 32bit enabled application pool");
+				return ,$true;
 			}
 			default { }
 		}			  		
 	}
 	
+    Write-Host("Application does not require a 32bit enabled application pool");
 	return $false
 }
 
 function GetFrameworkFromConfig()
 {
+    Write-Host("Detecting required asp.net version...");
 	$webConfigPath = Join-Path $script:appPath 'web.config'
 	$webConfig = New-Object System.Xml.XmlDocument
 	$webConfig.Load($webConfigPath)
@@ -47,16 +53,19 @@ function GetFrameworkFromConfig()
 	$node = $webConfig.SelectSingleNode("/configuration/system.web/compilation/@targetFramework")
 	if ($node)
 	{
+        Write-Host("Application requires asp.net v4.0");
 		return "v4.0"
 	}
 	else
 	{
+        Write-Host("Application requires asp.net v2.0");
 		return "v2.0"
 	}
 }
 
 function AddApplicationPool([ref]$applicationHost)
 {
+    Write-Output("Creating application pool in applicationHost.config")
 	$enable32bit = DetectBitness
 	if ($enable32bit -eq $true)
 	{
@@ -67,38 +76,41 @@ function AddApplicationPool([ref]$applicationHost)
 	$element.SetAttribute('enable32BitAppOnWin64', $enable32bit)
 	$framework = GetFrameworkFromConfig
 	$element.SetAttribute('managedRuntimeVersion', $framework)
-	$applicationHost.Value.configuration."system.applicationHost".applicationPools.AppendChild($element)
+	$null = $applicationHost.Value.configuration."system.applicationHost".applicationPools.AppendChild($element)
 }
 
 function AddSite([ref]$applicationHost, $appName)
 {
+    Write-Output("Creating site in applicationHost.config")
 	$appName = [Guid]::NewGuid().ToString()
 	$element = $applicationHost.Value.CreateElement("site")
 	$element.SetAttribute('name', $appName)
 	$element.SetAttribute('id', 1)
-	$applicationHost.Value.configuration."system.applicationHost".sites.AppendChild($element)
+	$null = $applicationHost.Value.configuration."system.applicationHost".sites.AppendChild($element)
 }
 
 function AddBinding([ref]$applicationHost)
 {
+    Write-Output("Adding http bindings for application")
 	$bindings = $applicationHost.Value.CreateElement("bindings")	
 	$element = $applicationHost.Value.CreateElement("binding")
 	$element.SetAttribute('protocol', "http")
 	$element.SetAttribute("bindingInformation", [String]::Format("*:{0}:", $script:appPort ))	
-	$bindings.AppendChild($element)
-	$applicationHost.Value.configuration."system.applicationHost".sites.site.AppendChild($bindings)	
+	$null = $bindings.AppendChild($element)
+	$null = $applicationHost.Value.configuration."system.applicationHost".sites.site.AppendChild($bindings)	
 }
 
 function AddApplication([ref]$applicationHost)
 {
+    Write-Output("Adding application and virtual directory to site")
 	$application = $applicationHost.Value.CreateElement("application")
 	$application.SetAttribute('path', '/')
 	$application.SetAttribute('applicationPool', $script:appPoolName)
 	$virtualDirectory = $applicationHost.Value.CreateElement("virtualDirectory")
 	$virtualDirectory.SetAttribute('path', '/')
 	$virtualDirectory.SetAttribute('physicalPath', $script:appPath)
-	$application.AppendChild($virtualDirectory)
-	$applicationHost.Value.configuration."system.applicationHost".sites.site.AppendChild($application)	
+	$null = $application.AppendChild($virtualDirectory)
+	$null = $applicationHost.Value.configuration."system.applicationHost".sites.site.AppendChild($application)	
 }
 
 $applicationHostTemplatePath = Join-Path $script:scriptPath 'applicationHostTemplate.config'
@@ -115,4 +127,21 @@ AddApplication ([ref]$applicationHost)
 
 $applicationHost.Save($applicationHostPath)
 
+Write-Output("Autowiring service connection strings if necessary")
+$vcap_services = $Env:VCAP_SERVICES | ConvertFrom-Json
+$configFiles=get-childitem $script:appPath *.config -rec
+foreach ($file in $configFiles)
+{
+    foreach ($serviceName in $vcap_services | Get-Member -MemberType NoteProperty) {
+        foreach($service in $vcap_services."$($serviceName.Name)") {
+            foreach($property in $service.credentials | Get-Member -MemberType NoteProperty) {
+                $content = Get-Content($file.PSPath)                
+                $content | Foreach-Object {$_ -replace "{$($service.name)#$($property.Name)}", $service.credentials."$($property.Name)"} | 
+                Set-Content $file.PSPath
+            }
+        }
+    }        
+}
+
+Write-Output("Starting IIS Process")
 exit $script:exitCode
