@@ -688,7 +688,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <returns>The services application variable</returns>
         private static string CreateServicesApplicationVariable(Dictionary<string, object>[] services = null)
         {
-            List<string> whitelist = new List<string>() { "name", "label", "plan", "tags", "plan_option", "credentials" };
+            List<string> whitelist = new List<string>() { "name", "label", "plan", "tags", "options", "credentials" };
             Dictionary<string, List<Dictionary<string, object>>> svcs_hash = new Dictionary<string, List<Dictionary<string, object>>>();
 
             foreach (Dictionary<string, object> service in services)

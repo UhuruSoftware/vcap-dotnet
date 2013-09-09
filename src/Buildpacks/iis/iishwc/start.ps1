@@ -115,4 +115,19 @@ AddApplication ([ref]$applicationHost)
 
 $applicationHost.Save($applicationHostPath)
 
+$vcap_services = $Env:VCAP_SERVICES | ConvertFrom-Json
+$configFiles=get-childitem $script:appPath *.config -rec
+foreach ($file in $configFiles)
+{
+    foreach ($serviceName in $vcap_services | Get-Member -MemberType NoteProperty) {
+        foreach($service in $vcap_services."$($serviceName.Name)") {
+            foreach($property in $service.credentials | Get-Member -MemberType NoteProperty) {
+                $content = Get-Content($file.PSPath)                
+                $content | Foreach-Object {$_ -replace "{$($service.name)#$($property.Name)}", $service.credentials."$($property.Name)"} | 
+                Set-Content $file.PSPath
+            }
+        }
+    }        
+}
+
 exit $script:exitCode
