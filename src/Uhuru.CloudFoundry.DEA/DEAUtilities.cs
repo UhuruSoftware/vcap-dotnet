@@ -343,5 +343,15 @@ namespace Uhuru.CloudFoundry.DEA
             }
             return true;
         }
+
+        public static void RemoveReadOnlyAttribute(string dir)
+        {
+            string[] files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                FileAttributes attribute = File.GetAttributes(file);
+                File.SetAttributes(file, attribute & ~FileAttributes.ReadOnly);
+            }
+        }
     }
 }

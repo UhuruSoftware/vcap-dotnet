@@ -63,9 +63,8 @@ namespace Uhuru.CloudFoundry.DEA
             }
             finally
             {
-                Logger.Info("Finished staging task {0}", this.TaskId);
-                Logger.Debug("Cleaning up directory {0}", this.workspace.BaseDir);
-                Directory.Delete(this.workspace.BaseDir, true);                
+                Logger.Info("Finished staging task {0}", this.TaskId);                
+                Cleanup();
             }
         }        
 
@@ -74,6 +73,13 @@ namespace Uhuru.CloudFoundry.DEA
             // TODO stop task
             Logger.Info("Stopping staging task {0}", this.TaskId);
             AfterStop(null);
+        }
+
+        private void Cleanup()
+        {
+            Logger.Debug("Cleaning up directory {0}", this.workspace.BaseDir);
+            DEAUtilities.RemoveReadOnlyAttribute(this.workspace.BaseDir);
+            Directory.Delete(this.workspace.BaseDir, true);  
         }
 
         private void StagingSetup()
@@ -204,6 +210,11 @@ namespace Uhuru.CloudFoundry.DEA
                     throw new Exception("Failed to git clone buildpack");
                 }
                 buildpack = new Buildpack(buildpackPath, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
+                bool detected = buildpack.Detect();
+                if (!detected)
+                {
+                    throw new Exception("Buildpack does not support this application");
+                }
             }
             else
             {
