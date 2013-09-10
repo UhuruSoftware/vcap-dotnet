@@ -425,6 +425,16 @@
             <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
           </type>
         </attributeProperty>
+        <attributeProperty name="StagingTimeoutMs" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="stagingTimeoutMs" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/Int32" />
+          </type>
+        </attributeProperty>
+        <attributeProperty name="GitExecutable" isRequired="false" isKey="false" isDefaultCollection="false" xmlName="gitExecutable" isReadOnly="false">
+          <type>
+            <externalTypeMoniker name="/fe3fc0b9-36cd-404c-8c6b-49c6d0ea824d/String" />
+          </type>
+        </attributeProperty>
       </attributeProperties>
     </configurationElement>
   </configurationElements>

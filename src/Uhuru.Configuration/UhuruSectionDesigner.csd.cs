@@ -2484,5 +2484,57 @@ namespace Uhuru.Configuration
             }
         }
         #endregion
+        
+        #region StagingTimeoutMs Property
+        /// <summary>
+        /// The XML name of the <see cref="StagingTimeoutMs"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string StagingTimeoutMsPropertyName = "stagingTimeoutMs";
+        
+        /// <summary>
+        /// Gets or sets the StagingTimeoutMs.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The StagingTimeoutMs.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.StagingElement.StagingTimeoutMsPropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual int StagingTimeoutMs
+        {
+            get
+            {
+                return ((int)(base[global::Uhuru.Configuration.StagingElement.StagingTimeoutMsPropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.StagingElement.StagingTimeoutMsPropertyName] = value;
+            }
+        }
+        #endregion
+        
+        #region GitExecutable Property
+        /// <summary>
+        /// The XML name of the <see cref="GitExecutable"/> property.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        internal const string GitExecutablePropertyName = "gitExecutable";
+        
+        /// <summary>
+        /// Gets or sets the GitExecutable.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("ConfigurationSectionDesigner.CsdFileGenerator", "2.0.1.0")]
+        [global::System.ComponentModel.DescriptionAttribute("The GitExecutable.")]
+        [global::System.Configuration.ConfigurationPropertyAttribute(global::Uhuru.Configuration.StagingElement.GitExecutablePropertyName, IsRequired=false, IsKey=false, IsDefaultCollection=false)]
+        public virtual string GitExecutable
+        {
+            get
+            {
+                return ((string)(base[global::Uhuru.Configuration.StagingElement.GitExecutablePropertyName]));
+            }
+            set
+            {
+                base[global::Uhuru.Configuration.StagingElement.GitExecutablePropertyName] = value;
+            }
+        }
+        #endregion
     }
 }

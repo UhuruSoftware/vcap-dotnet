@@ -8,6 +8,7 @@ namespace Uhuru.CloudFoundry.DEA
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -16,6 +17,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Text;
     using System.Threading;
     using Uhuru.CloudFoundry.DEA.Messages;
+    using Uhuru.Configuration;
     using Uhuru.Utilities;
 
     class StagingTask
@@ -35,13 +37,19 @@ namespace Uhuru.CloudFoundry.DEA
         public StagingStartMessageRequest Message { get; set; }
         public StagingWorkspace workspace { get; set; }
         private string buildpacksDir;
+        private int stagingTimeout;
+        private string gitExe;
 
-        public StagingTask(StagingStartMessageRequest message, string dropletDir, string buildpacksDirectory)
+        public StagingTask(StagingStartMessageRequest message)
         {
+            UhuruSection uhuruSection = (UhuruSection)ConfigurationManager.GetSection("uhuru");
+
             this.TaskId = message.TaskID;
             this.Message = message;
-            this.workspace = new StagingWorkspace(dropletDir, message.TaskID);
-            this.buildpacksDir = Path.GetFullPath(buildpacksDirectory);
+            this.workspace = new StagingWorkspace(Path.Combine(uhuruSection.DEA.BaseDir, "staging"), message.TaskID);
+            this.buildpacksDir = Path.GetFullPath(uhuruSection.DEA.Staging.BuildpacksDirectory);
+            this.stagingTimeout = uhuruSection.DEA.Staging.StagingTimeoutMs;
+            this.gitExe = Path.GetFullPath(uhuruSection.DEA.Staging.GitExecutable);
         }
 
         public void Start() 
@@ -203,7 +211,7 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Info("Staging task {0}: Downloading buildpack from {1}", this.TaskId, this.Message.Properties.Buildpack);
                 Directory.CreateDirectory(Path.Combine(this.workspace.TempDir, "buildpacks"));
                 string buildpackPath = Path.Combine(this.workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(this.Message.Properties.Buildpack).LocalPath));
-                string command = string.Format("\"E:\\Program Files (x86)\\Git\\bin\\git.exe\" clone --recursive {0} {1}", this.Message.Properties.Buildpack, buildpackPath);
+                string command = string.Format("\"{0}\" clone --recursive {1} {2}", this.gitExe, this.Message.Properties.Buildpack, buildpackPath);
                 int success = Command.ExecuteCommand(command);
                 if (success != 0)
                 {

@@ -171,8 +171,6 @@ namespace Uhuru.CloudFoundry.DEA
         private StagingTaskRegistry stagingTaskRegistry;
         private string directoryServerHmacKey;
         public string ExternalHost { get; set; }
-        private string stagingBaseDir;
-        private string buildpacksDir;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. Loads the configuration and initializes the members.
@@ -240,9 +238,6 @@ namespace Uhuru.CloudFoundry.DEA
             this.helloMessage.Version = Version;
 
             this.stagingTaskRegistry = new StagingTaskRegistry();
-
-            this.stagingBaseDir = Path.Combine(uhuruSection.DEA.BaseDir, "staging");
-            this.buildpacksDir = uhuruSection.DEA.Staging.BuildpacksDirectory;
 
             this.directoryServerHmacKey = Credentials.GenerateSecureGuid().ToString("N");
             this.ExternalHost = string.Format("{0}.{1}", Guid.NewGuid().ToString("N"), uhuruSection.DEA.Domain);
@@ -1299,7 +1294,7 @@ namespace Uhuru.CloudFoundry.DEA
                 StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
                 stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
 
-                StagingTask task = new StagingTask(stagingStartRequest, this.stagingBaseDir, this.buildpacksDir);
+                StagingTask task = new StagingTask(stagingStartRequest);
                 this.stagingTaskRegistry.Register(task);
 
                 UriBuilder streamingLog = new UriBuilder();

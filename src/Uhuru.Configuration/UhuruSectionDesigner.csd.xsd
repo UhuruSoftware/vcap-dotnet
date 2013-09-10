@@ -412,5 +412,15 @@
 				<xs:documentation>The BuildpacksDirectory.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="stagingTimeoutMs" use="optional" type="xs:int">
+			<xs:annotation>
+				<xs:documentation>The StagingTimeoutMs.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="gitExecutable" use="optional" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The GitExecutable.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 </xs:schema>
