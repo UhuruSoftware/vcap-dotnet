@@ -434,6 +434,9 @@
             {
                 // Create the process in suspended mode to fence it with a Windows Job Object 
                 // before it executes.
+                // TODO: Use CreateProcessWithToken to prevent Windows for creating an unamed job object for the
+                // second created process.
+                // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
                 bool ret = CreateProcessWithLogon(
                     this.WindowsUsername,
                     this.WindowsDomain,
