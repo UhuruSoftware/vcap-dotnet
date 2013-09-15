@@ -216,25 +216,6 @@ namespace Uhuru.CloudFoundry.DEA
                 // Explode the app into its directory and optionally bind its local runtime.
                 Directory.CreateDirectory(instance.Properties.Directory);
 
-                DirectoryInfo deploymentDirInfo = new DirectoryInfo(instance.Properties.Directory);
-                DirectorySecurity deploymentDirSecurity = deploymentDirInfo.GetAccessControl();
-
-                // Owner is important to account for disk quota 
-                deploymentDirSecurity.SetOwner(new NTAccount(instance.Properties.WindowsUserName));
-                deploymentDirSecurity.SetAccessRule(
-                    new FileSystemAccessRule(
-                        instance.Properties.WindowsUserName,
-                        FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.FullControl,
-                        InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                        PropagationFlags.None | PropagationFlags.InheritOnly,
-                        AccessControlType.Allow));
-
-                // Taking ownership of a file has to be executed with restore privilege elevated privilages
-                using (new ProcessPrivileges.PrivilegeEnabler(Process.GetCurrentProcess(), ProcessPrivileges.Privilege.Restore))
-                {
-                    deploymentDirInfo.SetAccessControl(deploymentDirSecurity);
-                }
-
                 // Impersonate user to cascade the owernship to every file
                 // Neccessary for windows disk quota
                 using (new UserImpersonator(instance.Properties.WindowsUserName, ".", instance.Properties.WindowsPassword, true))

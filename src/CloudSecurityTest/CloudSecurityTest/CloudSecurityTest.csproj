@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{E5303D45-B548-4633-8E24-555BEC2C8A42}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Uhuru.Isolation</RootNamespace>
-    <AssemblyName>Uhuru.ProcessPrison</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>CloudSecurityTest</RootNamespace>
+    <AssemblyName>CloudSecurityTest</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -20,8 +21,10 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -29,19 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AlphaFS">
-      <HintPath>..\Uhuru.CloudFoundry.DEA\lib\AlphaFS.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,37 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryAcl.cs" />
-    <Compile Include="DiskQuotaManager.cs" />
-    <Compile Include="NetworkQos.cs" />
-    <Compile Include="ProcessPrison.cs" />
-    <Compile Include="ProcessPrisonCreateInfo.cs" />
-    <Compile Include="ProcessPrisonRunInfo.cs" />
+    <Compile Include="HTTPPortListenTest.cs" />
+    <Compile Include="TempDiskQuotaTest.cs" />
+    <Compile Include="TCPConnectionsCountTest.cs" />
+    <Compile Include="DiskQuotaTest.cs" />
+    <Compile Include="ForkBombTest.cs" />
+    <Compile Include="GDIObjectsTest.cs" />
+    <Compile Include="NetworkOutboundBandwidthTest.cs" />
+    <Compile Include="TCPPortListenTest.cs" />
+    <Compile Include="FilesystemTest.cs" />
+    <Compile Include="CPUTest.cs" />
+    <Compile Include="ISecurityText.cs" />
+    <Compile Include="MemoryTest.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UrlsAcl.cs" />
+    <Compile Include="SecurityTestResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Uhuru.Utilities\Uhuru.Utilities.csproj">
-      <Project>{cd3b15d7-8c7d-4302-a621-02bfd96fe6e3}</Project>
-      <Name>Uhuru.Utilities</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="key.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="DiskQuotaTypeLibrary">
-      <Guid>{7988B57C-EC89-11CF-9C00-00AA00A14F56}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="README.txt" />
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

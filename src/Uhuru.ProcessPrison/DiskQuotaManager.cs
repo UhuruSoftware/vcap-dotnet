@@ -148,7 +148,7 @@ namespace Uhuru.Isolation
         /// <returns>The root volume path.</returns>
         public static string GetVolumeRootFromPath(string path)
         {
-            string currentPath = path + @"\";
+            string currentPath = path.EndsWith(@"\") ? path : path + @"\";
             bool isVolume = Alphaleonis.Win32.Filesystem.Volume.IsVolume(currentPath);
 
             if (isVolume)

@@ -20,6 +20,7 @@ namespace Uhuru.ProcessPrisonRepl
             Console.WriteLine("\td: Destroy all prissons");
             Console.WriteLine("\tq: Quit");
 
+
             List<ProcessPrison> prisonss = new List<ProcessPrison>();
 
             DiskQuotaManager.StartQuotaInitialization();
@@ -28,7 +29,9 @@ namespace Uhuru.ProcessPrisonRepl
                 Thread.Sleep(100);
             }
 
-            
+            // Initialize a list of open directories, that have to be closed up with ACLs
+            DirectoryAcl.InitOpenDirectoriesList();
+
             var usersDesc = WindowsUsersAndGroups.GetUsersDescription();
             foreach (var desc in usersDesc.Values)
             {
@@ -40,7 +43,7 @@ namespace Uhuru.ProcessPrisonRepl
                     ppci.Id = id;
                     ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
                     ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                    ppci.DiskQuotaPath = @"C:\Users\Public";
+                    ppci.PrisonHomePath = @"C:\PrisonHome";
                     // Cannot impersonate the user to create new processes or access the user's env.
                     ppci.WindowsPassword = "DontHaveIt"; 
 
@@ -66,9 +69,9 @@ namespace Uhuru.ProcessPrisonRepl
                             var ppci = new ProcessPrisonCreateInfo();
                             ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                            ppci.DiskQuotaPath = @"C:\Users\Public";
-                            ppci.NetworkOutboundRateLimitBitsPerSecond = 80 * 1000;
-
+                            ppci.PrisonHomePath = @"C:\Users\Public";
+                            ppci.NetworkOutboundRateLimitBitsPerSecond = 100 * 8 * 1024;
+                            ppci.UrlPortAccess = 8811;
                             var pp = new ProcessPrison();
                             pp.Create(ppci);
                             pp.SetUsersEnvironmentVariable("prison", pp.Id);
@@ -76,7 +79,7 @@ namespace Uhuru.ProcessPrisonRepl
                             var ri = new ProcessPrisonRunInfo();
                             ri.Interactive = true;
                             ri.FileName = @"C:\Windows\System32\cmd.exe";
-                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
+                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prison {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
                             ri.Arguments += " & echo. & echo Cmd bomb for memory test: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
                             ri.Arguments += " & echo. & echo Ruby file server for network test: & echo 'rackup -b 'run Rack::Directory.new(\"\")''";
 
@@ -90,7 +93,7 @@ namespace Uhuru.ProcessPrisonRepl
                             var ppci = new ProcessPrisonCreateInfo();
                             ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                            ppci.DiskQuotaPath = @"C:\Users\Public";
+                            ppci.PrisonHomePath = @"C:\Users\Public";
 
                             var pp = new ProcessPrison();
                             pp.Create(ppci);

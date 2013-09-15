@@ -7,6 +7,7 @@
 namespace Uhuru.Utilities
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.DirectoryServices;
     using System.Globalization;
@@ -49,15 +50,19 @@ namespace Uhuru.Utilities
         public static Dictionary<string, string> GetUsersDescription()
         {
             Dictionary<string, string> users = new Dictionary<string, string>();
-
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            using (DirectoryEntry localEntries = new DirectoryEntry("WinNT://.,Computer"))
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                foreach (DirectoryEntry i in localChildren)
+
+                using (DirectoryEntry usersList = localEntries.Children.Find("users", "group"))
                 {
-                    if (i.SchemaClassName == "User")
+                    DirectoryEntries localChildren = usersList.Children;
+
+                    foreach (DirectoryEntry i in localChildren)
                     {
-                        users.Add(i.Name, i.Properties["Description"].Value.ToString());
+                        if (i.SchemaClassName == "User")
+                        {
+                            users.Add(i.Name, i.Properties["Description"].Value.ToString());
+                        }
                     }
                 }
             }

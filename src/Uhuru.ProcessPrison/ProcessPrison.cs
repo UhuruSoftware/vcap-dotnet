@@ -15,6 +15,9 @@
     using Microsoft.Win32;
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
+    using System.IO;
+    using System.Security.AccessControl;
+    using System.Security.Principal;
 
     public class ProcessPrison
     {
@@ -174,7 +177,6 @@
             private set;
         }
 
-
         public long DiskUsageBytes
         {
             get
@@ -218,7 +220,6 @@
             else
                 this.Id = createInfo.Id;
 
-
             this.createInfo = createInfo;
             this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
 
@@ -236,28 +237,30 @@
 
             this.WindowsUsername = CreateDecoratedUser(this.Id, this.WindowsPassword);
 
+            this.SetUserFilesystemACLs();
 
             if (this.createInfo.DiskQuotaBytes > -1)
             {
-                if (string.IsNullOrEmpty(this.createInfo.DiskQuotaPath))
+                if (string.IsNullOrEmpty(this.createInfo.PrisonHomePath))
                 {
-                    // set this.createInfo.DiskQuotaPath to the output of GetUserProfileDirectory  
+                    //TODO: vladi: set this.createInfo.DiskQuotaPath to the output of GetUserProfileDirectory  
                     throw new NotImplementedException();
                 }
 
-                // Set the disk quota to 0 for all disks, exept disk quota path
+                // Set the disk quota to 0 for all disks, except disk quota path
                 var volumesQuotas = DiskQuotaManager.GetDisksQuotaUser(this.WindowsUsername);
                 foreach (var volumeQuota in volumesQuotas)
                 {
                     volumeQuota.QuotaLimit = 0;
                 }
 
-                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.PrisonHomePath), this.WindowsUsername);
                 userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
             }
 
             if (this.createInfo.UrlPortAccess > 0)
             {
+                UrlsAcl.RemovePortAccess(this.createInfo.UrlPortAccess, true);
                 UrlsAcl.AddPortAccess(this.createInfo.UrlPortAccess, this.WindowsUsername);
             }
 
@@ -267,11 +270,82 @@
 
                 if (this.createInfo.UrlPortAccess > 0)
                 {
+                    NetworkQos.RemoveOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString());
                     NetworkQos.CreateOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString(), this.createInfo.UrlPortAccess, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
                 }
             }
 
             this.Created = true;
+        }
+
+        private void SetUserFilesystemACLs()
+        {
+            // Remove access to c:\
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\");
+
+            // Remove directory create access to c:\Users\Public
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\Users\Public", true);
+
+            // Remove file write access to c:\Users\Public
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, @"c:\Users\Public", true);
+
+            // Remove access to every non-common folder in c:\
+            string[] commonDirectories = new string[] { @"c:\windows", @"c:\users"};
+
+            foreach (string directory in Directory.GetDirectories(@"c:\", "*", SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    if (!commonDirectories.Contains(directory.ToLower()))
+                    {
+                        // Remove directory create access
+                        DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, directory);
+
+                        // Remove file write access
+                        DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, directory);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine(directory);
+                }
+            }
+
+            // Remove access to other open directories
+            foreach (string directory in DirectoryAcl.OpenDirs)
+            {
+                try
+                {
+                    if (!commonDirectories.Contains(directory.ToLower()))
+                    {
+                        // Remove directory create access
+                        DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, directory);
+
+                        // Remove file write access
+                        DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, directory);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine(directory);
+                }
+            }
+
+
+            Directory.CreateDirectory(this.createInfo.PrisonHomePath);
+
+            DirectoryInfo deploymentDirInfo = new DirectoryInfo(this.createInfo.PrisonHomePath);
+            DirectorySecurity deploymentDirSecurity = deploymentDirInfo.GetAccessControl();
+
+            // Owner is important to account for disk quota 
+            deploymentDirSecurity.SetOwner(new NTAccount(this.WindowsUsername));
+            deploymentDirSecurity.SetAccessRule(
+                new FileSystemAccessRule(
+                    this.WindowsUsername,
+                    FileSystemRights.Write | FileSystemRights.Read | FileSystemRights.Delete | FileSystemRights.Modify | FileSystemRights.FullControl,
+                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                    PropagationFlags.None | PropagationFlags.InheritOnly,
+                    AccessControlType.Allow));
         }
 
         public void Attach(ProcessPrisonCreateInfo createInfo)
@@ -310,7 +384,7 @@
 
             if (this.createInfo.DiskQuotaBytes > -1)
             {
-                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.PrisonHomePath), this.WindowsUsername);
             }
 
             this.Created = true;

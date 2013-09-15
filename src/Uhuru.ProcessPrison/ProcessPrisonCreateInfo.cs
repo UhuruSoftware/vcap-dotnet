@@ -57,7 +57,7 @@ namespace Uhuru.Isolation
         /// The path in the disk volume to apply quota on.
         /// Ex. "C:\dir" for volume "C:\"
         /// </summary>
-        public string DiskQuotaPath
+        public string PrisonHomePath
         {
             get;
             set;
