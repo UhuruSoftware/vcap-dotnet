@@ -15,6 +15,9 @@
     using Microsoft.Win32;
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
+    using System.IO;
+    using System.Security.AccessControl;
+    using System.Security.Principal;
 
     public class ProcessPrison
     {
@@ -174,7 +177,6 @@
             private set;
         }
 
-
         public long DiskUsageBytes
         {
             get
@@ -218,12 +220,11 @@
             else
                 this.Id = createInfo.Id;
 
-
             this.createInfo = createInfo;
             this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
 
             this.jobObject.ActiveProcessesLimit = this.createInfo.RunningProcessesLimit;
-            this.jobObject.JobMemoryLimit = this.createInfo.TotalPrivateMemoryLimit;
+            this.jobObject.JobMemoryLimitBytes = this.createInfo.TotalPrivateMemoryLimit;
 
             this.jobObject.KillProcessesOnJobClose = this.createInfo.KillProcessesrOnPrisonClose;
 
@@ -236,28 +237,30 @@
 
             this.WindowsUsername = CreateDecoratedUser(this.Id, this.WindowsPassword);
 
-
             if (this.createInfo.DiskQuotaBytes > -1)
             {
-                if (string.IsNullOrEmpty(this.createInfo.DiskQuotaPath))
+                if (string.IsNullOrEmpty(this.createInfo.PrisonHomePath))
                 {
-                    // set this.createInfo.DiskQuotaPath to the output of GetUserProfileDirectory  
+                    //TODO: vladi: set this.createInfo.DiskQuotaPath to the output of GetUserProfileDirectory  
                     throw new NotImplementedException();
                 }
 
-                // Set the disk quota to 0 for all disks, exept disk quota path
+                // Set the disk quota to 0 for all disks, except disk quota path
                 var volumesQuotas = DiskQuotaManager.GetDisksQuotaUser(this.WindowsUsername);
                 foreach (var volumeQuota in volumesQuotas)
                 {
                     volumeQuota.QuotaLimit = 0;
                 }
 
-                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.PrisonHomePath), this.WindowsUsername);
                 userQuota.QuotaLimit = this.createInfo.DiskQuotaBytes;
             }
 
+            this.SetUserFilesystemACLs();
+
             if (this.createInfo.UrlPortAccess > 0)
             {
+                UrlsAcl.RemovePortAccess(this.createInfo.UrlPortAccess, true);
                 UrlsAcl.AddPortAccess(this.createInfo.UrlPortAccess, this.WindowsUsername);
             }
 
@@ -267,11 +270,113 @@
 
                 if (this.createInfo.UrlPortAccess > 0)
                 {
+                    NetworkQos.RemoveOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString());
                     NetworkQos.CreateOutboundThrottlePolicy(this.createInfo.UrlPortAccess.ToString(), this.createInfo.UrlPortAccess, this.createInfo.NetworkOutboundRateLimitBitsPerSecond);
                 }
             }
 
             this.Created = true;
+        }
+
+        private void SetUserFilesystemACLs()
+        {
+            //// Remove access to c:\
+            //DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\");
+
+            // Take ownership of c:\Windows\System32\spool\drivers\color folder
+            DirectoryAcl.TakeOwnership(Environment.UserName, @"c:\Windows\System32\spool\drivers\color");
+
+            // Take ownership of c:\windows\tracing folder
+            DirectoryAcl.TakeOwnership(Environment.UserName, @"c:\windows\tracing");
+
+            // Remove access to c:\Windows\tracing
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\windows\tracing");
+            // Remove file write access to c:\Users\Public
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, @"c:\windows\tracing", true);
+
+            // Remove access to c:\ProgramData
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\ProgramData");
+            // Remove file write access to c:\Users\Public
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, @"c:\ProgramData", true);
+
+
+            // Remove directory create access to c:\Users\All Users
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\Users\All Users", true);
+            // Remove file write access to c:\Users\Public\All Users
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, @"c:\Users\All Users", true);
+
+
+            // Remove directory create access to c:\Users\Public
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, @"c:\Users\Public", true);
+            // Remove file write access to c:\Users\Public\Public
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, @"c:\Users\Public", true);
+
+            // Remove access to other open directories
+            foreach (string directory in DirectoryAcl.OpenDirs)
+            {
+                try
+                {
+                    if (!directory.ToLower().StartsWith(this.createInfo.PrisonHomePath))
+                    {
+                        // Remove directory create access
+                        DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, directory);
+
+                        // Remove file write access
+                        DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, directory);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            if (Directory.Exists(this.createInfo.PrisonHomePath))
+            {
+                Directory.Delete(this.createInfo.PrisonHomePath, true);
+            }
+
+            Directory.CreateDirectory(this.createInfo.PrisonHomePath);
+
+            DirectoryInfo deploymentDirInfo = new DirectoryInfo(this.createInfo.PrisonHomePath);
+            DirectorySecurity deploymentDirSecurity = deploymentDirInfo.GetAccessControl();
+
+            // Owner is important to account for disk quota 		
+            deploymentDirSecurity.SetOwner(new NTAccount(this.WindowsUsername));
+            deploymentDirSecurity.SetAccessRule(
+                new FileSystemAccessRule(
+                    this.WindowsUsername,
+                    FileSystemRights.AppendData |
+                    FileSystemRights.ChangePermissions |
+                    FileSystemRights.CreateDirectories |
+                    FileSystemRights.CreateFiles |
+                    FileSystemRights.Delete |
+                    FileSystemRights.DeleteSubdirectoriesAndFiles |
+                    FileSystemRights.ExecuteFile |
+                    FileSystemRights.FullControl |
+                    FileSystemRights.ListDirectory |
+                    FileSystemRights.Modify |
+                    FileSystemRights.Read |
+                    FileSystemRights.ReadAndExecute |
+                    FileSystemRights.ReadAttributes |
+                    FileSystemRights.ReadData |
+                    FileSystemRights.ReadExtendedAttributes |
+                    FileSystemRights.ReadPermissions |
+                    FileSystemRights.Synchronize |
+                    FileSystemRights.TakeOwnership |
+                    FileSystemRights.Traverse |
+                    FileSystemRights.Write |
+                    FileSystemRights.WriteAttributes |
+                    FileSystemRights.WriteData |
+                    FileSystemRights.WriteExtendedAttributes,
+                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                    PropagationFlags.None | PropagationFlags.InheritOnly,
+                    AccessControlType.Allow));
+
+            // Taking ownership of a file has to be executed with0-031233332xpw0odooeoooooooooooooooooooooooooooooooooooooooooooooooooooooooooo restore privilege elevated privilages		
+            using (new ProcessPrivileges.PrivilegeEnabler(Process.GetCurrentProcess(), ProcessPrivileges.Privilege.Restore))
+            {
+                deploymentDirInfo.SetAccessControl(deploymentDirSecurity);
+            }
         }
 
         public void Attach(ProcessPrisonCreateInfo createInfo)
@@ -310,7 +415,7 @@
 
             if (this.createInfo.DiskQuotaBytes > -1)
             {
-                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
+                userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.PrisonHomePath), this.WindowsUsername);
             }
 
             this.Created = true;
@@ -455,6 +560,13 @@
             }
 
             var process = Process.GetProcessById(processInfo.dwProcessId);
+
+
+            // Remove directory create & file create access to profile dir
+            DirectoryAcl.AddCreateSubdirDenyRule(this.WindowsUsername, Path.Combine(@"c:\Users", this.WindowsUsername) , true);
+
+            DirectoryAcl.AddCreateFileDenyRule(this.WindowsUsername, Path.Combine(@"c:\Users", this.WindowsUsername), true);
+
 
             this.jobObject.AddProcess(process);
 

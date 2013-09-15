@@ -501,7 +501,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (this.useDiskQuota)
                     {
                         prisonInfo.DiskQuotaBytes = instance.Properties.DiskQuotaBytes;
-                        prisonInfo.DiskQuotaPath = instance.Properties.Directory;
+                        prisonInfo.PrisonHomePath = instance.Properties.Directory;
                     }
 
                     Logger.Info("Recovering Process Prisson: {0}", prisonInfo.Id);
@@ -1415,7 +1415,7 @@ namespace Uhuru.CloudFoundry.DEA
                     if (this.useDiskQuota)
                     {
                         prisonInfo.DiskQuotaBytes = instance.Properties.DiskQuotaBytes;
-                        prisonInfo.DiskQuotaPath = instance.Properties.Directory;
+                        prisonInfo.PrisonHomePath = instance.Properties.Directory;
                     }
 
                     if (this.uploadThrottleBitsps > 0)

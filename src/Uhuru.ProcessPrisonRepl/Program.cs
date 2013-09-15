@@ -18,7 +18,13 @@ namespace Uhuru.ProcessPrisonRepl
             Console.WriteLine("\tc: Create a new cmd prison");
             Console.WriteLine("\tn: Create a new notepad prison");
             Console.WriteLine("\td: Destroy all prissons");
+            Console.WriteLine("\tk: Run cloud security test");
             Console.WriteLine("\tq: Quit");
+
+
+            Console.WriteLine("Setting up stuff...");
+
+            Stopwatch initTimer = Stopwatch.StartNew();
 
             List<ProcessPrison> prisonss = new List<ProcessPrison>();
 
@@ -28,7 +34,14 @@ namespace Uhuru.ProcessPrisonRepl
                 Thread.Sleep(100);
             }
 
-            
+            // Initialize a list of open directories, that have to be closed up with ACLs
+            DirectoryAcl.InitOpenDirectoriesList();
+
+            foreach (string dir in DirectoryAcl.OpenDirs)
+            {
+                Console.WriteLine("--------{0}", dir);
+            }
+
             var usersDesc = WindowsUsersAndGroups.GetUsersDescription();
             foreach (var desc in usersDesc.Values)
             {
@@ -40,7 +53,7 @@ namespace Uhuru.ProcessPrisonRepl
                     ppci.Id = id;
                     ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
                     ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                    ppci.DiskQuotaPath = @"C:\Users\Public";
+                    ppci.PrisonHomePath = @"C:\Workspace\dea_security\PrisonHome";
                     // Cannot impersonate the user to create new processes or access the user's env.
                     ppci.WindowsPassword = "DontHaveIt"; 
 
@@ -54,6 +67,10 @@ namespace Uhuru.ProcessPrisonRepl
                 }
             }
 
+            initTimer.Stop();
+
+            Console.WriteLine("Ready after {0} seconds!", initTimer.Elapsed.TotalSeconds);
+
             while (true)
             {
                 var key = Console.ReadKey();
@@ -66,9 +83,9 @@ namespace Uhuru.ProcessPrisonRepl
                             var ppci = new ProcessPrisonCreateInfo();
                             ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                            ppci.DiskQuotaPath = @"C:\Users\Public";
-                            ppci.NetworkOutboundRateLimitBitsPerSecond = 80 * 1000;
-
+                            ppci.PrisonHomePath = @"C:\Workspace\dea_security\PrisonHome";
+                            ppci.NetworkOutboundRateLimitBitsPerSecond = 100 * 8 * 1024;
+                            ppci.UrlPortAccess = 8811;
                             var pp = new ProcessPrison();
                             pp.Create(ppci);
                             pp.SetUsersEnvironmentVariable("prison", pp.Id);
@@ -76,10 +93,32 @@ namespace Uhuru.ProcessPrisonRepl
                             var ri = new ProcessPrisonRunInfo();
                             ri.Interactive = true;
                             ri.FileName = @"C:\Windows\System32\cmd.exe";
-                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
+                            ri.WorkingDirectory = @"C:\Workspace\dea_security\PrisonHome";
+                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prison {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
                             ri.Arguments += " & echo. & echo Cmd bomb for memory test: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
                             ri.Arguments += " & echo. & echo Ruby file server for network test: & echo 'rackup -b 'run Rack::Directory.new(\"\")''";
 
+                            pp.RunProcess(ri);
+
+                            prisonss.Add(pp);
+                        }
+                        break;
+                    case ConsoleKey.K:
+                        {
+                            var ppci = new ProcessPrisonCreateInfo();
+                            ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
+                            ppci.DiskQuotaBytes = 128 * 1024 * 1024;
+                            ppci.PrisonHomePath = @"C:\Workspace\dea_security\PrisonHome";
+                            ppci.NetworkOutboundRateLimitBitsPerSecond = 100 * 8 * 1024;
+                            ppci.UrlPortAccess = 8811;
+                            var pp = new ProcessPrison();
+                            pp.Create(ppci);
+                            pp.SetUsersEnvironmentVariable("prison", pp.Id);
+
+                            var ri = new ProcessPrisonRunInfo();
+                            ri.Interactive = true;
+                            ri.FileName = @"..\..\..\CloudSecurityTest\bin\Debug\cloudsecuritytest.exe";
+                            
                             pp.RunProcess(ri);
 
                             prisonss.Add(pp);
@@ -90,7 +129,7 @@ namespace Uhuru.ProcessPrisonRepl
                             var ppci = new ProcessPrisonCreateInfo();
                             ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
-                            ppci.DiskQuotaPath = @"C:\Users\Public";
+                            ppci.PrisonHomePath = @"C:\Workspace\dea_security\PrisonHome";
 
                             var pp = new ProcessPrison();
                             pp.Create(ppci);

@@ -39,6 +39,9 @@
     <Reference Include="AlphaFS">
       <HintPath>..\Uhuru.CloudFoundry.DEA\lib\AlphaFS.dll</HintPath>
     </Reference>
+    <Reference Include="ProcessPrivileges">
+      <HintPath>lib\ProcessPrivileges.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
@@ -49,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectoryAcl.cs" />
     <Compile Include="DiskQuotaManager.cs" />
     <Compile Include="NetworkQos.cs" />
     <Compile Include="ProcessPrison.cs" />
@@ -79,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

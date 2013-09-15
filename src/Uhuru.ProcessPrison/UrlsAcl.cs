@@ -33,7 +33,7 @@ namespace Uhuru.Isolation
         /// Remove access for the specified port.
         /// </summary>
         /// <param name="port">Http port number.</param>
-        public static void RemovePortAccess(int port)
+        public static void RemovePortAccess(int port, bool ignoreFailure = false)
         {
             string command = String.Format("netsh http delete urlacl url=http://*:{0}/", port.ToString());
 
@@ -41,7 +41,7 @@ namespace Uhuru.Isolation
 
             int ret = Command.ExecuteCommand(command);
 
-            if (ret != 0)
+            if (ret != 0 && !ignoreFailure)
             {
                 throw new Exception("netsh http delete urlacl command failed.");
             }
