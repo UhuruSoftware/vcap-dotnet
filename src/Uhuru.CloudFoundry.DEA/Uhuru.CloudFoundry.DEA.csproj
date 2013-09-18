@@ -121,8 +121,9 @@
     <Compile Include="PluginHost.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationBits.cs" />
-    <Compile Include="StagingTask.cs" />
-    <Compile Include="StagingTaskRegistry.cs" />
+    <Compile Include="StagingInstance.cs" />
+    <Compile Include="StagingInstanceProperties.cs" />
+    <Compile Include="StagingRegistry.cs" />
     <Compile Include="StagingWorkspace.cs" />
     <Compile Include="StagingInfo.cs" />
     <Compile Include="Strings.Designer.cs">

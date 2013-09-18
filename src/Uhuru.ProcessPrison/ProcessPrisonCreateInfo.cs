@@ -24,7 +24,7 @@ namespace Uhuru.Isolation
             set;
         }
 
-        public long TotalPrivateMemoryLimit
+        public long TotalPrivateMemoryLimitBytes
         {
             get;
             set;
@@ -88,7 +88,7 @@ namespace Uhuru.Isolation
         public ProcessPrisonCreateInfo()
         {
             this.KillProcessesrOnPrisonClose = true;
-            this.TotalPrivateMemoryLimit = 0;
+            this.TotalPrivateMemoryLimitBytes = 0;
             this.RunningProcessesLimit = 0;
             this.DiskQuotaBytes = -1;
             this.NetworkOutboundRateLimitBitsPerSecond = -1;

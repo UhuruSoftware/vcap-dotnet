@@ -12,7 +12,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Linq;
     using System.Text;
 
-    class StagingWorkspace
+    public class StagingWorkspace
     {
         public const string DropletFile = "droplet.tgz";
         public const string BuildpackCacheFile = "buildpack_cache.tgz";
@@ -50,15 +50,13 @@ namespace Uhuru.CloudFoundry.DEA
         public string StagedDir { get { return Path.Combine(this.TempDir, "staged"); } }
         public string Cache { get { return Path.Combine(this.TempDir, "cache"); } }
         public string StagingLogPath { get { return Path.Combine(this.WorkspaceDir, StagingLogSuffix); } }
-        public string StagedDroplet { get { return Path.Combine(this.TempDir, DropletFile); } }
         public string StagedDropletDir { get { return Path.Combine(this.WorkspaceDir, "staged"); } }
         public string StagedDropletPath { get { return Path.Combine(this.StagedDropletDir, DropletFile); } }
         public string StagedBuildpackCachePath { get { return Path.Combine(this.StagedDropletDir, BuildpackCacheFile); } }
-        public string StagedBuildpackCache { get { return Path.Combine(this.TempDir, BuildpackCacheFile); } }        
 
-        public StagingWorkspace(string baseDir, string id)
+        public StagingWorkspace(string baseDir)
         {
-            this.BaseDir = Path.Combine(baseDir, id);
+            this.BaseDir = baseDir;
         }
 
 

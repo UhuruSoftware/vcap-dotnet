@@ -13,7 +13,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
 
-    class StagingStartRequestProperties : JsonConvertibleObject
+    public class StagingStartRequestProperties : JsonConvertibleObject
     {
         public StagingStartRequestProperties()
         {
@@ -38,7 +38,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
 
     }
 
-    class StagingStartRequestResources : JsonConvertibleObject
+    public class StagingStartRequestResources : JsonConvertibleObject
     {
         /// <summary>
         /// Gets or sets the maximum memory limit in megabytes.
@@ -59,7 +59,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
         public long? FileDescriptors { get; set; }
     }
 
-    class StagingStartRequestMeta : JsonConvertibleObject
+    public class StagingStartRequestMeta : JsonConvertibleObject
     {
         [JsonName("console")]
         public bool Console { get; set; }
