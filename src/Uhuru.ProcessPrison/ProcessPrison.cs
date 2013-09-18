@@ -223,7 +223,7 @@
             this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
 
             this.jobObject.ActiveProcessesLimit = this.createInfo.RunningProcessesLimit;
-            this.jobObject.JobMemoryLimit = this.createInfo.TotalPrivateMemoryLimit;
+            this.jobObject.JobMemoryLimitBytes = this.createInfo.TotalPrivateMemoryLimitBytes;
 
             this.jobObject.KillProcessesOnJobClose = this.createInfo.KillProcessesrOnPrisonClose;
 

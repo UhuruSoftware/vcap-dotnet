@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DeaStartMessageRequest.cs" company="Uhuru Software, Inc.">
+// <copyright file="StagingStartMessageRequest.cs" company="Uhuru Software, Inc.">
 // Copyright (c) 2013 Uhuru Software, Inc., All Rights Reserved
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,7 +10,7 @@ namespace Uhuru.CloudFoundry.DEA.Messages
     using Uhuru.Utilities;
     using Uhuru.Utilities.Json;
    
-    class StagingStartMessageRequest : JsonConvertibleObject
+    public class StagingStartMessageRequest : JsonConvertibleObject
     {
         public StagingStartMessageRequest()
         {

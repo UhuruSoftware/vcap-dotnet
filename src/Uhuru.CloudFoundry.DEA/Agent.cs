@@ -27,6 +27,7 @@ namespace Uhuru.CloudFoundry.DEA
     using System.Text;
     using Uhuru.Isolation;
     using System.Web;
+    using System.Security.Cryptography;
 
     /// <summary>
     /// Callback with a Boolean parameter.
@@ -168,8 +169,11 @@ namespace Uhuru.CloudFoundry.DEA
         private int directoryServerPort;
 
         private bool enableStaging;
-        private StagingTaskRegistry stagingTaskRegistry;
+        private StagingRegistry stagingTaskRegistry;
         private string directoryServerHmacKey;
+        private string gitPath;
+        private string buildpacksDir;
+        private int stagingTimeoutMs;
         public string ExternalHost { get; set; }
 
         /// <summary>
@@ -227,8 +231,9 @@ namespace Uhuru.CloudFoundry.DEA
             this.fileResources.StagedDir = Path.Combine(this.fileResources.DropletDir, "staged");
             this.fileResources.AppsDir = Path.Combine(this.fileResources.DropletDir, "apps");
             this.fileResources.DBDir = Path.Combine(this.fileResources.DropletDir, "db");
+            this.fileResources.StagingDir = Path.Combine(this.fileResources.DropletDir, "staging");
 
-            this.droplets.AppStateFile = Path.Combine(this.fileResources.DropletDir, "applications.json");
+            this.droplets.AppStateFile = Path.Combine(this.fileResources.DropletDir, "applications.json");            
 
             this.deaReactor.UUID = this.UUID;
 
@@ -237,10 +242,15 @@ namespace Uhuru.CloudFoundry.DEA
             this.helloMessage.FileViewerPort = this.directoryServerPort;
             this.helloMessage.Version = Version;
 
-            this.stagingTaskRegistry = new StagingTaskRegistry();
+            this.stagingTaskRegistry = new StagingRegistry();
+            this.stagingTaskRegistry.StagingStateFile = Path.Combine(this.fileResources.DBDir, "staging.json");
 
             this.directoryServerHmacKey = Credentials.GenerateSecureGuid().ToString("N");
             this.ExternalHost = string.Format("{0}.{1}", Guid.NewGuid().ToString("N"), uhuruSection.DEA.Domain);
+
+            this.gitPath = uhuruSection.DEA.Staging.GitExecutable;
+            this.buildpacksDir = uhuruSection.DEA.Staging.BuildpacksDirectory;
+            this.stagingTimeoutMs = uhuruSection.DEA.Staging.StagingTimeoutMs;
         }
 
         /// <summary>
@@ -297,13 +307,13 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                 case "staging_tasks":
                     {
-                        foreach (StagingTask task in this.stagingTaskRegistry.Tasks)
-                        {
-                            if (task.TaskId == path.Segments[2].Replace("/", string.Empty))
+                        this.stagingTaskRegistry.ForEach(delegate(StagingInstance instance)
+                        {                        
+                            if (instance.Properties.TaskId == path.Segments[2].Replace("/", string.Empty))
                             {
                                 if (DEAUtilities.VerifyHmacedUri(path.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }))
                                 {
-                                    response.Path = Path.GetFullPath(Path.Combine(task.workspace.WorkspaceDir, ".\\" + actualPath));
+                                    response.Path = instance.Properties.TaskLog;
                                 }
                                 else
                                 {
@@ -314,7 +324,7 @@ namespace Uhuru.CloudFoundry.DEA
                                     response.Error = "URL expired";
                                 }
                             }
-                        }
+                        });
                         break;
                     }
                 default:
@@ -406,6 +416,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             this.RecoverExistingDroplets();
+            this.CleanupStagingInstances();
 
             this.DeleteUntrackedInstanceDirs();
 
@@ -494,7 +505,7 @@ namespace Uhuru.CloudFoundry.DEA
                     var prisonInfo = new ProcessPrisonCreateInfo();
 
                     prisonInfo.Id = instance.Properties.InstanceId;
-                    prisonInfo.TotalPrivateMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    prisonInfo.TotalPrivateMemoryLimitBytes = instance.Properties.MemoryQuotaBytes;
                     prisonInfo.WindowsPassword = instance.Properties.WindowsPassword;
 
 
@@ -1276,7 +1287,7 @@ namespace Uhuru.CloudFoundry.DEA
             // TODO: the pre-starting stage should be able to gracefuly stop when the shutdown flag is set
             ThreadPool.QueueUserWorkItem(delegate(object data)
             {
-                this.StartDropletInstance(instance, pmessage.SHA1, pmessage.ExecutableFile, new Uri(pmessage.ExecutableUri));
+                this.StartDropletInstance(instance, pmessage.SHA1, pmessage.ExecutableFile, pmessage.ExecutableUri);
             });
         }
 
@@ -1287,78 +1298,306 @@ namespace Uhuru.CloudFoundry.DEA
         System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "No specific type known.")]
         private void StagingStartHandler(string message, string reply, string subject)
         {
+            StagingStartMessageRequest pmessage;
+            StagingInstance instance;
+
             try
             {
+                this.stagingTaskRegistry.Lock.EnterWriteLock();
+                if (this.shuttingDown)
+                {
+                    return;
+                }
                 Logger.Debug("DEA Received staging message: {0}", message);
-
-                StagingStartMessageRequest stagingStartRequest = new StagingStartMessageRequest();
-                stagingStartRequest.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-
-                StagingTask task = new StagingTask(stagingStartRequest);
-                this.stagingTaskRegistry.Register(task);
-
-                UriBuilder streamingLog = new UriBuilder();
-                streamingLog.Host = this.ExternalHost;
-                streamingLog.Scheme = "http";
-                streamingLog.Path = string.Format("/staging_tasks/{0}/file_path", task.TaskId);
-                streamingLog.Query = string.Format("path={0}&timestamp={1}", task.workspace.StagingLogSuffix, RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
-
-                task.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }).ToString();
-
-                task.AfterSetup += delegate(Exception error)
+                pmessage = new StagingStartMessageRequest();
+                try
                 {
-                    StagingStartMessageResponse response = new StagingStartMessageResponse();
-                    response.TaskId = task.TaskId;
-                    response.TaskStreamingLogURL = task.StreamingLogUrl;
-                    if (error != null)
+                    pmessage.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Ignoring staging.start request. Unable to parse message. Exception: {0}", e.ToString());
+                    return;
+                }
+                long memoryMbytes = pmessage.Properties != null && pmessage.Properties.Resources != null && pmessage.Properties.Resources.MemoryMbytes != null ? pmessage.Properties.Resources.MemoryMbytes.Value : Monitoring.DefaultAppMemoryMbytes;
+                long diskMbytes = pmessage.Properties != null && pmessage.Properties.Resources != null && pmessage.Properties.Resources.DiskMbytes != null ? pmessage.Properties.Resources.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
+                long fds = pmessage.Properties != null && pmessage.Properties.Resources != null && pmessage.Properties.Resources.FileDescriptors != null ? pmessage.Properties.Resources.FileDescriptors.Value : Monitoring.DefaultAppFds;
+                if (this.monitoring.MemoryReservedMbytes + memoryMbytes > this.monitoring.MaxMemoryMbytes || this.monitoring.Clients >= this.monitoring.MaxClients)
+                {
+                    Logger.Info(Strings.Donothaveroomforthisclient);
+                    return;
+                }
+                instance = this.stagingTaskRegistry.CreateStagingInstance(pmessage);
+                instance.Properties.MemoryQuotaBytes = memoryMbytes * 1024 * 1024;
+                instance.Properties.DiskQuotaBytes = diskMbytes * 1024 * 1024;
+                instance.Properties.FDSQuota = fds;
+                instance.Properties.Directory = Path.Combine(this.fileResources.StagingDir, pmessage.TaskID);
+                instance.Properties.TaskId = pmessage.TaskID;
+                instance.Properties.Reply = reply;
+                this.monitoring.AddInstanceResources(instance);
+            }
+            finally
+            {
+                this.stagingTaskRegistry.Lock.ExitWriteLock();
+            }
+
+            ThreadPool.QueueUserWorkItem(delegate(object data)
+            {
+                this.StartStagingInstance(instance, pmessage);
+            });                
+        }
+
+        private void StartStagingInstance(StagingInstance instance, StagingStartMessageRequest pmessage)
+        {
+            StagingWorkspace workspace = new StagingWorkspace(instance.Properties.Directory);
+            try
+            {
+                try
+                {
+                    instance.Lock.EnterWriteLock();
+
+                    instance.Properties.UseDiskQuota = this.useDiskQuota;
+                    instance.Properties.UploadThrottleBitsps = this.uploadThrottleBitsps;
+                                        
+                    UriBuilder streamingLog = new UriBuilder();
+                    streamingLog.Host = this.ExternalHost;
+                    streamingLog.Scheme = "http";
+                    streamingLog.Path = string.Format("/staging_tasks/{0}/file_path", pmessage.TaskID);
+                    streamingLog.Query = string.Format("path={0}&timestamp={1}", workspace.StagingLogSuffix, RubyCompatibility.DateTimeToEpochSeconds(DateTime.Now));
+
+                    instance.Properties.StreamingLogUrl = DEAUtilities.GetHmacedUri(streamingLog.Uri.ToString(), this.directoryServerHmacKey, new string[] { "path", "timestamp" }).ToString();                    
+                    instance.Workspace = workspace;
+                    instance.Properties.TaskLog = workspace.StagingLogPath;
+                }
+                finally
+                {
+                    instance.Lock.ExitWriteLock();
+                }
+
+                instance.AfterSetup += new StagingInstance.StagingTaskEventHandler(this.AfterStagingSetup);
+
+                Logger.Info("Started staging task {0}", instance.Properties.TaskId);
+                try
+                {
+                    instance.SetupStagingEnvironment();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("Error setting up staging environment: ", ex.ToString());
+                    throw ex;
+                }
+
+                try
+                {
+                    instance.UnpackDroplet();
+                    instance.PrepareStagingDirs();
+
+                    instance.GetBuildpack(pmessage, this.gitPath, this.buildpacksDir);
+                    this.stagingTaskRegistry.ScheduleSnapshotStagingState();                    
+
+                    try
                     {
-                        response.Error = error.ToString();
-                    }
-                    this.deaReactor.SendReply(reply, response.SerializeToJson());
-                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
-                };
+                        Logger.Info("Staging task {0}: Running compilation script", pmessage.TaskID);
 
-                task.AfterUpload += delegate(Exception error)
-                {
-                    StagingStartMessageResponse response = new StagingStartMessageResponse();
-                    response.TaskId = task.TaskId;
-                    response.TaskLog = task.TaskLog;
-                    if (error != null)
+                        instance.CreatePrison();
+                        this.stagingTaskRegistry.ScheduleSnapshotStagingState();
+                        instance.CompileProcess = instance.Buildpack.StartCompile(instance.Prison);
+
+                        instance.Lock.EnterWriteLock();
+                        instance.Properties.Start = DateTime.Now;
+                    }                    
+                    finally
                     {
-                        response.Error = error.ToString();
-                    }
-                    response.DetectedBuildpack = task.DetectedBuildpack;
-                    response.DropletSHA = task.DropletSHA;
-
-                    this.deaReactor.SendReply(reply, response.SerializeToJson());
-                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
-                    stagingTaskRegistry.Unregister(task);
-                };
-
-                task.AfterStop += delegate(Exception error)
+                        if(instance.Lock.IsWriteLockHeld)
+                        {
+                            instance.Lock.ExitWriteLock();
+                        }
+                    }                    
+                }
+                catch (Exception exception)
                 {
-                    StagingStartMessageResponse response = new StagingStartMessageResponse();
-                    response.TaskId = task.TaskId;
-                    if (error != null)
-                    {
-                        response.Error = error.ToString();
-                    }
-                    this.deaReactor.SendReply(reply, response.SerializeToJson());
-                    Logger.Debug("Staging task {0}: sent reply {1}", task.TaskId, response.SerializeToJson());
-                    stagingTaskRegistry.Unregister(task);
-                };
-
-                ThreadPool.QueueUserWorkItem(delegate(object data)
-                {
-                    task.Start();
-                });
-
+                    Logger.Error(exception.ToString());                    
+                }
             }
             catch (Exception ex)
             {
                 Logger.Error(ex.ToString());
+            }           
+        }
+
+        private void AfterStagingSetup(StagingInstance instance, Exception exception)
+        {
+            StagingStartMessageResponse response = new StagingStartMessageResponse();
+            response.TaskId = instance.Properties.TaskId;
+            response.TaskStreamingLogURL = instance.Properties.StreamingLogUrl;
+            if (exception != null)
+            {
+                response.Error = exception.ToString();
+            }
+            this.deaReactor.SendReply(instance.Properties.Reply, response.SerializeToJson());
+            Logger.Debug("Staging task {0}: sent reply {1}", instance.Properties.TaskId, response.SerializeToJson());
+        }
+
+        private void StopStaging(StagingInstance instance, string reply_to)
+        {
+            try
+            {
+                if (instance.Properties.StopProcessed)
+                {
+                    return;
+                }                
+                instance.Lock.EnterWriteLock();
+                instance.Properties.StopProcessed = true;
+                StagingStartMessageResponse response = new StagingStartMessageResponse();
+                response.TaskId = instance.Properties.TaskId;
+                this.deaReactor.SendReply(reply_to, response.SerializeToJson());
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Could not stop staging task {0}: {1}", instance.Properties.TaskId, ex.ToString());
+            }
+            finally
+            {
+                instance.Lock.ExitWriteLock();
             }
         }
+
+        private void StartStagedDropletInstance(StagingInstance stagingInstance, string dropletSha)
+        {
+            DropletInstance instance;
+
+            try
+            {
+                this.droplets.Lock.EnterWriteLock();
+
+                if (this.shuttingDown)
+                {
+                    return;
+                }
+
+                string tgzFile = Path.Combine(this.fileResources.StagedDir, dropletSha + ".tgz");
+                Logger.Info("Copying droplet to {0}", tgzFile);
+                File.Copy(stagingInstance.Workspace.StagedDropletPath, tgzFile);
+
+                long memoryMbytes = stagingInstance.StartMessage.Limits != null && stagingInstance.StartMessage.Limits.MemoryMbytes != null ? stagingInstance.StartMessage.Limits.MemoryMbytes.Value : Monitoring.DefaultAppMemoryMbytes;
+                long diskMbytes = stagingInstance.StartMessage.Limits != null && stagingInstance.StartMessage.Limits.DiskMbytes != null ? stagingInstance.StartMessage.Limits.DiskMbytes.Value : Monitoring.DefaultAppDiskMbytes;
+                long fds = stagingInstance.StartMessage.Limits != null && stagingInstance.StartMessage.Limits.FileDescriptors != null ? stagingInstance.StartMessage.Limits.FileDescriptors.Value : Monitoring.DefaultAppFds;
+
+                if (this.monitoring.MemoryReservedMbytes + memoryMbytes > this.monitoring.MaxMemoryMbytes || this.monitoring.Clients >= this.monitoring.MaxClients)
+                {
+                    Logger.Info(Strings.Donothaveroomforthisclient);
+                    return;
+                }
+
+                instance = this.droplets.CreateDropletInstance(stagingInstance.StartMessage);
+                instance.Properties.MemoryQuotaBytes = memoryMbytes * 1024 * 1024;
+                instance.Properties.DiskQuotaBytes = diskMbytes * 1024 * 1024;
+                instance.Properties.FDSQuota = fds;
+
+                instance.Properties.Staged = instance.Properties.Name + "-" + instance.Properties.InstanceIndex + "-" + instance.Properties.InstanceId;
+                instance.Properties.Directory = Path.Combine(this.fileResources.AppsDir, instance.Properties.Staged);
+
+                if (!string.IsNullOrEmpty(instance.Properties.DebugMode))
+                {
+                    instance.Properties.DebugPort = NetworkInterface.GrabEphemeralPort();
+                    instance.Properties.DebugIP = Host;
+                }
+
+                instance.Properties.Port = NetworkInterface.GrabEphemeralPort();
+                instance.Properties.EnvironmentVariables = this.SetupInstanceEnv(instance, stagingInstance.StartMessage.Environment, stagingInstance.StartMessage.Services);
+
+                this.monitoring.AddInstanceResources(instance);
+            }
+            finally
+            {
+                this.droplets.Lock.ExitWriteLock();
+            }
+
+            ThreadPool.QueueUserWorkItem(delegate(object data)
+            {
+                this.StartDropletInstance(instance, dropletSha, stagingInstance.StartMessage.ExecutableFile, stagingInstance.StartMessage.ExecutableUri);
+            });
+        }
+
+        private void AfterStagingFinished(Exception exception, StagingInstance instance)
+        {
+            Exception error = exception;
+            StagingStartMessageResponse response = new StagingStartMessageResponse();
+            try
+            {
+                if (error == null)
+                {
+                    try
+                    {
+                        Logger.Info("Staging task {0}: Saving buildpackInfo", instance.Properties.TaskId);
+                        StagingInfo.SaveBuildpackInfo(Path.Combine(instance.Workspace.StagedDir, StagingWorkspace.StagingInfo), instance.Buildpack.Name, instance.GetStartCommand());
+                        this.stagingTaskRegistry.ScheduleSnapshotStagingState();
+
+                        Logger.Debug("Staging task {0}: Packing droplet {1}", instance.Properties.TaskId, instance.Workspace.StagedDropletPath);
+                        Directory.CreateDirectory(instance.Workspace.StagedDropletDir);
+                        string tempFile = Path.ChangeExtension(instance.Workspace.StagedDropletPath, "tar");
+                        DEAUtilities.TarDirectory(instance.Workspace.StagedDir, tempFile);
+                        DEAUtilities.GzipFile(tempFile, instance.Workspace.StagedDropletPath);
+                        File.Delete(tempFile);
+
+                        if (File.Exists(instance.Workspace.StagedDropletPath))
+                        {
+                            using (Stream stream = File.OpenRead(instance.Workspace.StagedDropletPath))
+                            {
+                                using (SHA1 sha = SHA1.Create())
+                                {
+                                    response.DropletSHA = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", string.Empty);
+                                }
+                            }
+                        }
+                        
+                        this.StartStagedDropletInstance(instance, response.DropletSHA);
+
+                        Uri uri = new Uri(instance.Properties.UploadURI);
+                        Logger.Debug("Staging task {0}: Uploading droplet {1} to {2}", instance.Properties.TaskId, instance.Workspace.StagedDropletPath, instance.Properties.UploadURI);
+                        DEAUtilities.HttpUploadFile(instance.Properties.UploadURI, new FileInfo(instance.Workspace.StagedDropletPath), "upload[droplet]", "application/octet-stream", uri.UserInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ex;
+                    }
+                    try
+                    {
+                        Directory.CreateDirectory(instance.Workspace.Cache);
+                        string tempFile = Path.ChangeExtension(instance.Workspace.StagedBuildpackCachePath, "tar");
+                        DEAUtilities.TarDirectory(instance.Workspace.Cache, tempFile);
+                        DEAUtilities.GzipFile(tempFile, instance.Workspace.StagedBuildpackCachePath);
+                        Uri uri = new Uri(instance.Properties.BuildpackCacheUploadURI);
+                        Logger.Debug("Staging task {0}: Uploading buildpack cache {1} to {2}", instance.Properties.TaskId, instance.Workspace.StagedBuildpackCachePath, instance.Properties.BuildpackCacheUploadURI);
+                        DEAUtilities.HttpUploadFile(instance.Properties.BuildpackCacheUploadURI, new FileInfo(instance.Workspace.StagedBuildpackCachePath), "upload[droplet]", "application/octet-stream", uri.UserInfo);
+                    }
+                    catch
+                    {
+                        Logger.Debug("Staging task {0}: Cannot pack buildpack cache", instance.Properties.TaskId);
+                    }
+                }
+                
+                response.TaskId = instance.Properties.TaskId;
+                response.TaskLog = File.ReadAllText(instance.Properties.TaskLog);
+                if (error != null)
+                {
+                    response.Error = error.ToString();
+                }
+                if (instance.Properties.DetectedBuildpack != null)
+                {
+                    response.DetectedBuildpack = instance.Properties.DetectedBuildpack;
+                }
+                
+                this.deaReactor.SendReply(instance.Properties.Reply, response.SerializeToJson());
+                Logger.Debug("Staging task {0}: sent reply {1}", instance.Properties.TaskId, response.SerializeToJson());
+            }            
+            finally
+            {
+                Logger.Debug("Cleaning up directory {0}", instance.Workspace.BaseDir);
+                instance.Cleanup();                
+            }
+        }
+    
 
         /// <summary>
         /// Handler for the staging.locate message.
@@ -1382,13 +1621,23 @@ namespace Uhuru.CloudFoundry.DEA
             Logger.Info("DEA received staging stop message : {0}", message);
             StagingStopMessageRequest request = new StagingStopMessageRequest();
             request.FromJsonIntermediateObject(JsonConvertibleObject.DeserializeFromJson(message));
-            foreach (StagingTask task in this.stagingTaskRegistry.Tasks)
-            {
-                if (task.Message.AppID == request.AppID)
+            this.stagingTaskRegistry.ForEach(
+                true,
+                delegate(StagingInstance instance)
                 {
-                    task.Stop();
-                }
-            }
+                    try
+                    {
+                        instance.Lock.EnterWriteLock();
+                        if (instance.Properties.AppId == request.AppID)
+                        {
+                            instance.Properties.StopProcessed = true;
+                        }
+                    }
+                    finally
+                    {
+                        instance.Lock.ExitWriteLock();
+                    }
+                });
         }
 
         /// <summary>
@@ -1399,7 +1648,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="executableFile">The path to the droplet file.</param>
         /// <param name="executableUri">The URI to the droplet file.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Uhuru.Utilities.Logger.Info(System.String,System.Object[])", Justification = "More clear"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling", Justification = "Major rewrites have to be done."), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Exception is logged, and error must not bubble up.")]
-        private void StartDropletInstance(DropletInstance instance, string sha1, string executableFile, Uri executableUri)
+        private void StartDropletInstance(DropletInstance instance, string sha1, string executableFile, string executableUri)
         {
             try
             {
@@ -1410,7 +1659,7 @@ namespace Uhuru.CloudFoundry.DEA
                     var prisonInfo = new ProcessPrisonCreateInfo();
 
                     prisonInfo.Id = instance.Properties.InstanceId;
-                    prisonInfo.TotalPrivateMemoryLimit = instance.Properties.MemoryQuotaBytes;
+                    prisonInfo.TotalPrivateMemoryLimitBytes = instance.Properties.MemoryQuotaBytes;
 
                     if (this.useDiskQuota)
                     {
@@ -2082,7 +2331,120 @@ namespace Uhuru.CloudFoundry.DEA
                         this.droplets.RemoveDropletInstance(instance);
                     }
                 });
+
+            this.stagingTaskRegistry.ForEach(
+                true,
+                delegate(StagingInstance instance)
+                {
+                    bool removeInstance = false;
+                    Exception error = null;
+
+                    if (instance.CompileProcess != null)
+                    {                        
+                        if (instance.CompileProcess.HasExited)
+                        {
+                            if (instance.CompileProcess.ExitCode != 0)
+                            {
+                                error = new Exception("Compilation failed");
+                            }
+                            Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
+                            instance.Properties.StopProcessed = true;
+                            instance.Prison.Destroy();
+                            removeInstance = true;
+                        }
+                        else
+                        {
+                            if (instance.Properties.StopProcessed)
+                            {
+                                instance.CompileProcess.Kill();
+                                Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
+                                instance.Prison.Destroy();
+                                removeInstance = true;
+                            }
+
+                            if (DateTime.Now.Subtract(instance.Properties.Start) > TimeSpan.FromMilliseconds(this.stagingTimeoutMs))
+                            {
+                                instance.CompileProcess.Kill();
+                                Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
+                                instance.Prison.Destroy();
+                                error = new Exception("Compilation timed out");
+                                removeInstance = true;
+                            }
+                        }
+                    }
+
+                    if (instance.Properties.StopProcessed)
+                    {
+                        this.AfterStagingFinished(error, instance);
+                    }                    
+
+                    if (removeInstance)
+                    {
+                        this.monitoring.RemoveInstanceResources(instance);
+                        this.stagingTaskRegistry.RemoveStagingInstance(instance);
+                    }
+                });
         }
 
+        private void CleanupStagingInstances()
+        {
+            if (!File.Exists(this.stagingTaskRegistry.StagingStateFile))
+            {                
+                return;
+            }
+
+            object[] instances = JsonConvertibleObject.DeserializeFromJsonArray(File.ReadAllText(this.stagingTaskRegistry.StagingStateFile));
+
+            foreach (object obj in instances)
+            {
+                StagingInstance instance = null;
+                try
+                {
+                    instance = new StagingInstance();
+                    instance.Properties.FromJsonIntermediateObject(obj);
+
+                    var prisonInfo = new ProcessPrisonCreateInfo();
+                    prisonInfo.Id = instance.Properties.InstanceId;
+
+                    prisonInfo.TotalPrivateMemoryLimitBytes = instance.Properties.MemoryQuotaBytes;
+                    prisonInfo.WindowsPassword = instance.Properties.WindowsPassword;
+
+                    if (this.useDiskQuota)
+                    {
+                        prisonInfo.DiskQuotaBytes = instance.Properties.DiskQuotaBytes;
+                        prisonInfo.DiskQuotaPath = instance.Properties.Directory;
+                    }
+
+                    Logger.Info("Recovering Process Prisson: {0}", prisonInfo.Id);
+
+                    instance.Prison.Attach(prisonInfo);
+                    foreach (Process p in instance.Prison.jobObject.GetJobProcesses())
+                    {
+                        if (!p.HasExited)
+                        {
+                            p.Kill();
+                        }
+                    }
+                    if (instance.Prison.Created)
+                    {
+                        instance.Prison.Destroy();
+                    }
+                    instance.Workspace = new StagingWorkspace(instance.Properties.Directory);
+                    instance.Cleanup();                    
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning("Error deleting staging environment for task {0}: {1}", instance.Properties.TaskId, ex.ToString());
+                }
+                finally
+                {
+                    this.stagingTaskRegistry.RemoveStagingInstance(instance);
+                    if (instance != null)
+                    {
+                        instance.Dispose();
+                    }
+                }
+            }
+        }
     }
 }

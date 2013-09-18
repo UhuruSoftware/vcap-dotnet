@@ -38,7 +38,7 @@ namespace Uhuru.ProcessPrisonRepl
 
                     var ppci = new ProcessPrisonCreateInfo();
                     ppci.Id = id;
-                    ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                    ppci.TotalPrivateMemoryLimitBytes = 128 * 1024 * 1024;
                     ppci.DiskQuotaBytes = 128 * 1024 * 1024;
                     ppci.DiskQuotaPath = @"C:\Users\Public";
                     // Cannot impersonate the user to create new processes or access the user's env.
@@ -64,7 +64,7 @@ namespace Uhuru.ProcessPrisonRepl
                     case ConsoleKey.C:
                         {
                             var ppci = new ProcessPrisonCreateInfo();
-                            ppci.TotalPrivateMemoryLimit = 128 * 1000 * 1000;
+                            ppci.TotalPrivateMemoryLimitBytes = 128 * 1000 * 1000;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
                             ppci.DiskQuotaPath = @"C:\Users\Public";
                             ppci.NetworkOutboundRateLimitBitsPerSecond = 80 * 1000;
@@ -76,7 +76,7 @@ namespace Uhuru.ProcessPrisonRepl
                             var ri = new ProcessPrisonRunInfo();
                             ri.Interactive = true;
                             ri.FileName = @"C:\Windows\System32\cmd.exe";
-                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimit);
+                            ri.Arguments = String.Format(" /k  title {1} & echo Wedcome to prisson {0}. & echo Running under user {1} & echo Private virtual memory limit: {2} B", pp.Id, pp.WindowsUsername, ppci.TotalPrivateMemoryLimitBytes);
                             ri.Arguments += " & echo. & echo Cmd bomb for memory test: & echo 'set loop=cmd /k ^%loop^%' & echo 'cmd /k %loop%'";
                             ri.Arguments += " & echo. & echo Ruby file server for network test: & echo 'rackup -b 'run Rack::Directory.new(\"\")''";
 
@@ -88,7 +88,7 @@ namespace Uhuru.ProcessPrisonRepl
                     case ConsoleKey.N:
                         {
                             var ppci = new ProcessPrisonCreateInfo();
-                            ppci.TotalPrivateMemoryLimit = 128 * 1024 * 1024;
+                            ppci.TotalPrivateMemoryLimitBytes = 128 * 1024 * 1024;
                             ppci.DiskQuotaBytes = 128 * 1024 * 1024;
                             ppci.DiskQuotaPath = @"C:\Users\Public";
 

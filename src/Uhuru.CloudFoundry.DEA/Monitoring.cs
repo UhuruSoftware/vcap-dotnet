@@ -179,10 +179,70 @@ namespace Uhuru.CloudFoundry.DEA
         }
 
         /// <summary>
+        /// Add the instance memory to the total memory usage and flags the instance as tracked.
+        /// </summary>
+        /// <param name="instance">The instance to be tracked.</param>
+        public void AddInstanceResources(StagingInstance instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
+
+            try
+            {
+                this.Lock.EnterWriteLock();
+                instance.Lock.EnterWriteLock();
+
+                if (!instance.Properties.ResourcesTracked)
+                {
+                    instance.Properties.ResourcesTracked = true;
+                    this.Clients++;
+                    this.MemoryReservedMbytes += instance.Properties.MemoryQuotaBytes / 1024 / 1024;
+                }
+            }
+            finally
+            {
+                instance.Lock.ExitWriteLock();
+                this.Lock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
         /// Untracks the memory used by the instance and flags it/
         /// </summary>
         /// <param name="instance">The instance to be untracked.</param>
         public void RemoveInstanceResources(DropletInstance instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
+
+            try
+            {
+                this.Lock.EnterWriteLock();
+                instance.Lock.EnterWriteLock();
+
+                if (instance.Properties.ResourcesTracked)
+                {
+                    instance.Properties.ResourcesTracked = false;
+                    this.MemoryReservedMbytes -= instance.Properties.MemoryQuotaBytes / 1024 / 1024;
+                    this.Clients--;
+                }
+            }
+            finally
+            {
+                instance.Lock.ExitWriteLock();
+                this.Lock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
+        /// Untracks the memory used by the instance and flags it/
+        /// </summary>
+        /// <param name="instance">The instance to be untracked.</param>
+        public void RemoveInstanceResources(StagingInstance instance)
         {
             if (instance == null)
             {

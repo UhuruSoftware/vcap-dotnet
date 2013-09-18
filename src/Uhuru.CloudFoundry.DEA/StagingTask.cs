@@ -7,18 +7,19 @@
 namespace Uhuru.CloudFoundry.DEA
 {
     using System;
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Security.Cryptography;
-    using System.Text;
-    using System.Threading;
-    using Uhuru.CloudFoundry.DEA.Messages;
-    using Uhuru.Configuration;
-    using Uhuru.Utilities;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using Uhuru.CloudFoundry.DEA.Messages;
+using Uhuru.Configuration;
+using Uhuru.Isolation;
+using Uhuru.Utilities;
 
     class StagingTask
     {
@@ -36,6 +37,8 @@ namespace Uhuru.CloudFoundry.DEA
 
         public StagingStartMessageRequest Message { get; set; }
         public StagingWorkspace workspace { get; set; }
+
+        private ProcessPrison prison;
         private string buildpacksDir;
         private int stagingTimeout;
         private string gitExe;
@@ -50,6 +53,24 @@ namespace Uhuru.CloudFoundry.DEA
             this.buildpacksDir = Path.GetFullPath(uhuruSection.DEA.Staging.BuildpacksDirectory);
             this.stagingTimeout = uhuruSection.DEA.Staging.StagingTimeoutMs;
             this.gitExe = Path.GetFullPath(uhuruSection.DEA.Staging.GitExecutable);
+
+            var prisonInfo = new ProcessPrisonCreateInfo();
+            prisonInfo.Id = this.TaskId;
+            prisonInfo.TotalPrivateMemoryLimit = (long)this.Message.Properties.Resources.MemoryMbytes * 1024 * 1024;
+
+            if (uhuruSection.DEA.UseDiskQuota)
+            {
+                prisonInfo.DiskQuotaBytes = (long)this.Message.Properties.Resources.DiskMbytes * 1024 * 1024;
+                prisonInfo.DiskQuotaPath = this.workspace.BaseDir;
+            }
+
+            if (uhuruSection.DEA.UploadThrottleBitsps > 0)
+            {
+                prisonInfo.NetworkOutboundRateLimitBitsPerSecond = uhuruSection.DEA.UploadThrottleBitsps;
+            }            
+            
+            this.prison = new ProcessPrison();
+            prison.Create(prisonInfo);
         }
 
         public void Start() 
@@ -85,6 +106,19 @@ namespace Uhuru.CloudFoundry.DEA
 
         private void Cleanup()
         {
+            if (this.prison.Created)
+            {
+                try
+                {
+                    Logger.Info("Destroying prison for staging instance {0}", this.TaskId);
+                    this.prison.Destroy();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warning("Unable to cleanup application {0}. Exception: {1}", this.TaskId, ex.ToString());
+                }
+            }
+
             Logger.Debug("Cleaning up directory {0}", this.workspace.BaseDir);
             DEAUtilities.RemoveReadOnlyAttribute(this.workspace.BaseDir);
             Directory.Delete(this.workspace.BaseDir, true);  
@@ -218,7 +252,7 @@ namespace Uhuru.CloudFoundry.DEA
                     throw new Exception("Failed to git clone buildpack");
                 }
                 buildpack = new Buildpack(buildpackPath, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
-                bool detected = buildpack.Detect();
+                bool detected = buildpack.Detect(this.prison);
                 if (!detected)
                 {
                     throw new Exception("Buildpack does not support this application");
@@ -230,7 +264,7 @@ namespace Uhuru.CloudFoundry.DEA
                 foreach (string dir in Directory.EnumerateDirectories(this.buildpacksDir))
                 {
                     Buildpack bp = new Buildpack(dir, appDir, this.workspace.Cache, this.workspace.StagingLogPath);
-                    bool success = bp.Detect();
+                    bool success = bp.Detect(this.prison);
                     if (success)
                     {
                         buildpack = bp;
@@ -247,7 +281,7 @@ namespace Uhuru.CloudFoundry.DEA
             }
 
             Logger.Info("Staging task {0}: Running compilation script", this.TaskId);
-            buildpack.Compile(900); // TODO need to add timeout
+            buildpack.Compile(this.prison, this.stagingTimeout);
 
             Logger.Info("Staging task {0}: Saving buildpackInfo", this.TaskId);
             StagingInfo.SaveBuildpackInfo(Path.Combine(this.workspace.StagedDir, StagingWorkspace.StagingInfo), buildpack.Name, GetStartCommand(buildpack));
@@ -272,7 +306,7 @@ namespace Uhuru.CloudFoundry.DEA
                     return this.Message.Properties.Meta.Command;
                 }
             }
-            ReleaseInfo info = buildpack.GetReleaseInfo();
+            ReleaseInfo info = buildpack.GetReleaseInfo(this.prison);
             if (info.defaultProcessType != null)
             {
                 if (info.defaultProcessType.Web != null)

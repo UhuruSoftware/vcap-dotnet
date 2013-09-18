@@ -380,7 +380,7 @@ namespace Uhuru.Utilities.WindowsJobObjects
         /// <value>
         /// The job memory limit.
         /// </value>
-        public long JobMemoryLimit
+        public long JobMemoryLimitBytes
         {
             get
             {

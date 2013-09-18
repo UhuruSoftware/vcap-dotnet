@@ -30,19 +30,20 @@ namespace Uhuru.CloudFoundry.DEA
 
         public static string GetDetectedBuildpack(string stagingInfoFile)
         {
-            string buildpack;
+            string buildpack = string.Empty;
+            if (File.Exists(stagingInfoFile))
+            {               
+                using (var stream = new StreamReader(stagingInfoFile))
+                {
+                    var yaml = new YamlStream();
+                    yaml.Load(stream);
 
-            using (var stream = new StreamReader(stagingInfoFile))
-            {
-                var yaml = new YamlStream();
-                yaml.Load(stream);
+                    var startCommandScalar = new YamlScalarNode("detected_buildpack");
+                    var elements = ((YamlMappingNode)yaml.Documents[0].RootNode).Children;
 
-                var startCommandScalar = new YamlScalarNode("detected_buildpack");
-                var elements = ((YamlMappingNode)yaml.Documents[0].RootNode).Children;
-
-                buildpack = elements[startCommandScalar].ToString();
+                    buildpack = elements[startCommandScalar].ToString();
+                }
             }
-
             return buildpack;
         }
 

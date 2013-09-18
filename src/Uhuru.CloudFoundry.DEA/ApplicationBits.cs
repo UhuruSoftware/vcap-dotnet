@@ -7,17 +7,18 @@
 namespace Uhuru.CloudFoundry.DEA
 {
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-    using System.Net;
-    using System.Security.AccessControl;
-    using System.Security.Cryptography;
-    using System.Security.Principal;
-    using System.Text.RegularExpressions;
-    using Uhuru.CloudFoundry.DEA.Messages;
-    using Uhuru.Utilities;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
+using System.Security.Principal;
+using System.Text;
+using System.Text.RegularExpressions;
+using Uhuru.CloudFoundry.DEA.Messages;
+using Uhuru.Utilities;
 
     /// <summary>
     /// This class contains all the functionality required to download/unzip application bits and manages runtimes.
@@ -63,6 +64,11 @@ namespace Uhuru.CloudFoundry.DEA
         /// Gets or sets the staged directory.
         /// </summary>
         public string StagedDir { get; set; }
+
+        /// <summary>
+        /// Gets or sets the staged directory.
+        /// </summary>
+        public string StagingDir { get; set; }
 
         /// <summary>
         /// Gets or sets the apps directory.
@@ -160,7 +166,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <param name="hash">The sha1.</param>
         /// <param name="tarZipFile">The TGZ file.</param>
         /// <param name="instance">The instance.</param>
-        public void PrepareAppDirectory(string bitsFile, Uri bitsUri, string hash, string tarZipFile, DropletInstance instance)
+        public void PrepareAppDirectory(string bitsFile, string bitsUri, string hash, string tarZipFile, DropletInstance instance)
         {
             if (instance == null)
             {
@@ -197,9 +203,11 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     else
                     {
-                        Logger.Debug(Strings.Needtodownloadappbitsfrom, bitsUri);
+                        Uri downloadUri = new Uri(bitsUri);
 
-                        this.DownloadAppBits(bitsUri, hash, tarZipFile);
+                        Logger.Debug(Strings.Needtodownloadappbitsfrom, downloadUri);
+
+                        this.DownloadAppBits(downloadUri, hash, tarZipFile);
 
                         Logger.Debug(Strings.TookXSecondsToDownloadAndWrite, DateTime.Now - start);
                     }
@@ -284,6 +292,6 @@ namespace Uhuru.CloudFoundry.DEA
                 Logger.Warning(Strings.DonlodedFileFromIs, bitsUri, fileSha1, sha1);
                 throw new InvalidOperationException(Strings.Downlodedfileiscorrupt);
             }
-        }
+        }                      
     }
 }
