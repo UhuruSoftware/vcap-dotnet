@@ -7,8 +7,10 @@
 namespace Uhuru.Utilities
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.DirectoryServices;
+    using System.DirectoryServices.AccountManagement;
     using System.Globalization;
     using System.Linq;
     using System.Runtime.InteropServices;
@@ -27,14 +29,14 @@ namespace Uhuru.Utilities
         {
             List<string> users = new List<string>();
 
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            using (var context = new PrincipalContext(ContextType.Machine))
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                foreach (DirectoryEntry i in localChildren)
+                using (var searcher = new PrincipalSearcher(new UserPrincipal(context)))
                 {
-                    if (i.SchemaClassName == "User")
+                    foreach (var result in searcher.FindAll())
                     {
-                        users.Add(i.Name);
+                        DirectoryEntry de = result.GetUnderlyingObject() as DirectoryEntry;
+                        users.Add(de.Name);
                     }
                 }
             }
@@ -50,14 +52,14 @@ namespace Uhuru.Utilities
         {
             Dictionary<string, string> users = new Dictionary<string, string>();
 
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            using (var context = new PrincipalContext(ContextType.Machine))
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                foreach (DirectoryEntry i in localChildren)
+                using (var searcher = new PrincipalSearcher(new UserPrincipal(context)))
                 {
-                    if (i.SchemaClassName == "User")
+                    foreach (var result in searcher.FindAll())
                     {
-                        users.Add(i.Name, i.Properties["Description"].Value.ToString());
+                        DirectoryEntry de = result.GetUnderlyingObject() as DirectoryEntry;
+                        users.Add(de.Name, de.Properties["Description"].Value.ToString());
                     }
                 }
             }
@@ -83,20 +85,23 @@ namespace Uhuru.Utilities
         /// <param name="description">The description for the user.</param>
         public static void CreateUser(string userName, string password, string description)
         {
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            using (var context = new PrincipalContext(ContextType.Machine))
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                using (DirectoryEntry newUser = localChildren.Add(userName, "User"))
-                {
-                    if (!string.IsNullOrEmpty(description))
-                    {
-                        newUser.Properties["Description"].Add(description);
-                    }
+                UserPrincipal newUser = new UserPrincipal(context, userName, password, true);
 
-                    newUser.Invoke("Put", new object[] { "UserFlags", 0x10000 });   // 0x10000 is DONT_EXPIRE_PASSWORD 
-                    newUser.Invoke("SetPassword", password);
-                    newUser.CommitChanges();
+                newUser.Save();
+
+                DirectoryEntry de = newUser.GetUnderlyingObject() as DirectoryEntry;
+
+                if (!string.IsNullOrEmpty(description))
+                {
+                    de.Properties["Description"].Add(description);
                 }
+
+                de.Invoke("Put", new object[] { "UserFlags", 0x10000 });   // 0x10000 is DONT_EXPIRE_PASSWORD 
+                de.Invoke("SetPassword", password);
+
+                newUser.Save();
             }
         }
 
@@ -123,22 +128,7 @@ namespace Uhuru.Utilities
         /// <returns>True if the user exists.</returns>
         public static bool ExistsUser(string userName)
         {
-            string userPath = string.Format(CultureInfo.InvariantCulture, "WinNT://./{0},User", userName);
-            try
-            {
-                return DirectoryEntry.Exists(userPath);
-            }
-            catch (COMException ex)
-            {
-                if (ex.Message.Contains("The user name could not be found."))
-                {
-                    return false;
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            return WindowsUsersAndGroups.GetUsers().Contains(userName);
         }
 
         /// <summary>
@@ -148,19 +138,20 @@ namespace Uhuru.Utilities
         public static string[] GetGroups()
         {
             List<string> users = new List<string>();
-
-            using (DirectoryEntry localEntry = new DirectoryEntry("WinNT://.,Computer"))
+            
+            using (var context = new PrincipalContext(ContextType.Machine))
             {
-                DirectoryEntries localChildren = localEntry.Children;
-                foreach (DirectoryEntry i in localChildren)
+                using (var searcher = new PrincipalSearcher(new GroupPrincipal(context)))
                 {
-                    if (i.SchemaClassName == "Group")
+                    foreach (var result in searcher.FindAll())
                     {
-                        users.Add(i.Name);
+                        DirectoryEntry de = result.GetUnderlyingObject() as DirectoryEntry;
+                        Console.WriteLine(de.Name);
+                        users.Add(de.Name);
                     }
                 }
             }
-
+            
             return users.ToArray();
         }
 

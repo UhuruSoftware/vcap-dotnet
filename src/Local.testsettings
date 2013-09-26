@@ -6,6 +6,7 @@
     <DeploymentItem filename="E:\_work\vcap-dotnet-private\bin\3.5\Uhuru.Utilities.v3_5.dll" />
   </Deployment>
   <Execution>
+    <ExecutionThread apartmentState="MTA" />
     <TestTypeSpecific>
       <UnitTestRunConfig testTypeId="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b">
         <AssemblyResolution>
