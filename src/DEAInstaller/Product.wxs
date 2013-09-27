@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  
+  <?define var.BINDIRECTORY = $(var.Uhuru.CloudFoundry.DEA.WindowsService.TargetDir)?>  
+  
+  <?define var.ProductName = "Windows DEA"?>
+  <?define var.Manufacturer = "Uhuru Software"?>   
+  
+	<Product Id="*" Name="$(var.ProductName)" Language="1033" Version="1.0.0.0" Manufacturer="$(var.Manufacturer)" UpgradeCode="efc0d212-71b1-4ef9-b6d2-e1468b7c4a47">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+    <Property Id="INDEX" Value="0"/>
+    <Property Id="BASEDIR" Value="C:\droplets"/>
+    <Property Id="LOCALROUTE" Value="8.8.8.8"/>
+    <Property Id="FILERPORT" Value="12345"/>
+    <Property Id="STATUSPORT" Value="0"/>
+    <Property Id="MESSAGEBUS" Value="nats://nats:nats@10.0.7.122:4222"/>
+    <Property Id="DOMAIN" Value="ccng-dev.net"/>
+    <Property Id="MULTITENANT" Value="true"/>
+    <Property Id="MAXMEMORYMB" Value="4096"/>
+    <Property Id="SECURE" Value="true"/>
+    <Property Id="ENFORCEULIMIT" Value="true"/>
+    <Property Id="HEARTBEATINTERVALMS" Value="10000"/>
+    <Property Id="ADVERTISEINTERVALMS" Value="5000"/>
+    <Property Id="USEDISKQUOTA" Value="true"/>
+    <Property Id="UPLOADTHROTTLEBITSPS" Value="0"/>
+    <Property Id="MAXCONCURRENTSTARTS" Value="3"/>
+    <Property Id="DIRECTORYSERVERPORT" Value="34567"/>
+    <Property Id="STREAMINGTIMEOUTMS" Value="60000"/>
+    <Property Id="STAGINGENABLED" Value="TRUE"/>
+    <Property Id="BUILDPACKSDIRECTORY" Value="buildpacks"/>
+    <Property Id="GIT" Value="E:\Program Files (x86)\Git\bin\git.exe"/>
+    <Property Id="STAGINGTIMEOUTMS" Value="1200000"/>
+    <Property Id="STACKS" Value="iis8"/>
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
+          <Directory Id="INSTALLDIR" Name="$(var.ProductName)" >
+            <Component Id="ProductComponents" Guid="bb38447b-e955-4496-a7ea-dec6b19f0b44">
+              <File Id="AlphaFSDll" Name="AlphaFS.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="AlphaFSPdb" Name="AlphaFS.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="DeaConfig" Name="Dea.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="ServiceExe" Name="DEA.exe" Source="$(var.BINDIRECTORY)" KeyPath="yes"/>
+              <File Id="ServiceConfig" Name="DEA.exe.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="ServicePdb" Name="DEA.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="InteropDiskQuotaTypeLibrary" Name="Interop.DiskQuotaTypeLibrary.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NewtonsoftJson" Name="Newtonsoft.Json.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogDll" Name="NLog.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogPdb" Name="NLog.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogConfig" Name="NLog.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="ProcessPrivileges" Name="ProcessPrivileges.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="SevenZipSharp" Name="SevenZipSharp.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="DirectoryServerDll" Name="Uhuru.CloudFoundry.DEA.DirectoryServer.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="DirectoryServerPdb" Name="Uhuru.CloudFoundry.DEA.DirectoryServer.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryDEADll" Name="Uhuru.CloudFoundry.DEA.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryDEAPdb" Name="Uhuru.CloudFoundry.DEA.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryDEAPluginBaseDll" Name="Uhuru.CloudFoundry.DEA.PluginBase.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryDEAPluginBasePdb" Name="Uhuru.CloudFoundry.DEA.PluginBase.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruConfigurationDll" Name="Uhuru.Configuration.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruConfigurationPdb" Name="Uhuru.Configuration.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruNatsClientDll" Name="Uhuru.NatsClient.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruNatsClientPdb" Name="Uhuru.NatsClient.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruProcessPrisonDll" Name="Uhuru.ProcessPrison.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruProcessPrisonPdb" Name="Uhuru.ProcessPrison.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruUtilitiesDll" Name="Uhuru.Utilities.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruUtilitiesPdb" Name="Uhuru.Utilities.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="YamlDotNetCoreDll" Name="YamlDotNet.Core.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="YamlDotNetCorePdb" Name="YamlDotNet.Core.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="YamlDotNetRepresentationModelDll" Name="YamlDotNet.RepresentationModel.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="YamlDotNetRepresentationModelPdb" Name="YamlDotNet.RepresentationModel.pdb" Source="$(var.BINDIRECTORY)"/>
+
+              <util:XmlFile Id="SetIndex" Action="setValue" ElementPath="/uhuru/dea/@index" File="[INSTALLDIR]\Dea.config" Value="[INDEX]" ></util:XmlFile>
+              <util:XmlFile Id="SetBaseDir" Action="setValue" ElementPath="/uhuru/dea/@baseDir" File="[INSTALLDIR]\Dea.config" Value="[BASEDIR]" ></util:XmlFile>
+              <util:XmlFile Id="SetLocalRoute" Action="setValue" ElementPath="/uhuru/dea/@localRoute" File="[INSTALLDIR]\Dea.config" Value="[LOCALROUTE]" ></util:XmlFile>
+              <util:XmlFile Id="SetFilerPort" Action="setValue" ElementPath="/uhuru/dea/@filerPort" File="[INSTALLDIR]\Dea.config" Value="[FILERPORT]" ></util:XmlFile>
+              <util:XmlFile Id="SetStatusPort" Action="setValue" ElementPath="/uhuru/dea/@statusPort" File="[INSTALLDIR]\Dea.config" Value="[STATUSPORT]" ></util:XmlFile>
+              <util:XmlFile Id="SetMessageBus" Action="setValue" ElementPath="/uhuru/dea/@messageBus" File="[INSTALLDIR]\Dea.config" Value="[MESSAGEBUS]" ></util:XmlFile>
+              <util:XmlFile Id="SetDomain" Action="setValue" ElementPath="/uhuru/dea/@domain" File="[INSTALLDIR]\Dea.config" Value="[DOMAIN]" ></util:XmlFile>
+              <util:XmlFile Id="SetMultitenant" Action="setValue" ElementPath="/uhuru/dea/@multiTenant" File="[INSTALLDIR]\Dea.config" Value="[MULTITENANT]" ></util:XmlFile>
+              <util:XmlFile Id="SetMaxMemoryMb" Action="setValue" ElementPath="/uhuru/dea/@maxMemoryMB" File="[INSTALLDIR]\Dea.config" Value="[MAXMEMORYMB]" ></util:XmlFile>
+              <util:XmlFile Id="SetSecure" Action="setValue" ElementPath="/uhuru/dea/@secure" File="[INSTALLDIR]\Dea.config" Value="[SECURE]" ></util:XmlFile>
+              <util:XmlFile Id="SetEnforceULimit" Action="setValue" ElementPath="/uhuru/dea/@enforceUlimit" File="[INSTALLDIR]\Dea.config" Value="[ENFORCEULIMIT]" ></util:XmlFile>
+              <util:XmlFile Id="SetHeartBeatIntervalMs" Action="setValue" ElementPath="/uhuru/dea/@heartbeatIntervalMs" File="[INSTALLDIR]\Dea.config" Value="[HEARTBEATINTERVALMS]" ></util:XmlFile>
+              <util:XmlFile Id="SetAdvertiseIntervalMs" Action="setValue" ElementPath="/uhuru/dea/@advertiseIntervalMs" File="[INSTALLDIR]\Dea.config" Value="[ADVERTISEINTERVALMS]" ></util:XmlFile>
+              <util:XmlFile Id="SetUseDiskQuota" Action="setValue" ElementPath="/uhuru/dea/@useDiskQuota" File="[INSTALLDIR]\Dea.config" Value="[USEDISKQUOTA]" ></util:XmlFile>
+              <util:XmlFile Id="SetUploadThrottle" Action="setValue" ElementPath="/uhuru/dea/@uploadThrottleBitsps" File="[INSTALLDIR]\Dea.config" Value="[UPLOADTHROTTLEBITSPS]" ></util:XmlFile>
+              <util:XmlFile Id="SetMaxConcurrentStarts" Action="setValue" ElementPath="/uhuru/dea/@maxConcurrentStarts" File="[INSTALLDIR]\Dea.config" Value="[MAXCONCURRENTSTARTS]" ></util:XmlFile>
+              <util:XmlFile Id="SetDirectoryServerPort" Action="setValue" ElementPath="/uhuru/dea/directoryServer/@v2Port" File="[INSTALLDIR]\Dea.config" Value="[DIRECTORYSERVERPORT]" ></util:XmlFile>
+              <util:XmlFile Id="SetStreamingTimeout" Action="setValue" ElementPath="/uhuru/dea/directoryServer/@streamingTimeoutMS" File="[INSTALLDIR]\Dea.config" Value="[STREAMINGTIMEOUTMS]" ></util:XmlFile>
+              <util:XmlFile Id="SetStagingEnabled" Action="setValue" ElementPath="/uhuru/dea/staging/@enabled" File="[INSTALLDIR]\Dea.config" Value="[STAGINGENABLED]" ></util:XmlFile>
+              <util:XmlFile Id="SetBuildpacksDir" Action="setValue" ElementPath="/uhuru/dea/staging/@buildpacksDirectory" File="[INSTALLDIR]\Dea.config" Value="[BUILDPACKSDIRECTORY]" ></util:XmlFile>
+              <util:XmlFile Id="SetGit" Action="setValue" ElementPath="/uhuru/dea/staging/@gitExecutable" File="[INSTALLDIR]\Dea.config" Value="[GIT]" ></util:XmlFile>
+              <util:XmlFile Id="SetStagingTimeout" Action="setValue" ElementPath="/uhuru/dea/staging/@stagingTimeoutMs" File="[INSTALLDIR]\Dea.config" Value="[STAGINGTIMEOUTMS]" ></util:XmlFile>
+              <util:XmlFile Id="SetStacks" Action="setValue" ElementPath="/uhuru/dea/stacks/stack/@name" File="[INSTALLDIR]\Dea.config" Value="[STACKS]" ></util:XmlFile>
+
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+		<Feature Id="ProductFeature" Title="$(var.ProductName)" Level="1">
+			<ComponentRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+</Wix>
