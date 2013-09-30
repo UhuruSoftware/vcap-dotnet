@@ -13,58 +13,11 @@ namespace Uhuru.WindowsIsolation.Cells
 {
     class FilesystemCell : Cell
     {
+        public const string prisonRestrictionsGroup = "prisons_FilesysCell";
+
         public override void Lockdown(Prison prison)
         {
-            // Take ownership of c:\Windows\System32\spool\drivers\color folder
-            FilesystemCell.TakeOwnership(Environment.UserName, @"c:\Windows\System32\spool\drivers\color");
-
-            // Take ownership of c:\windows\tracing folder
-            FilesystemCell.TakeOwnership(Environment.UserName, @"c:\windows\tracing");
-
-            // Remove access to c:\Windows\tracing
-            FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, @"c:\windows\tracing");
-            // Remove file write access to c:\Users\Public
-            FilesystemCell.AddCreateFileDenyRule(prison.User.Username, @"c:\windows\tracing", true);
-
-            // Remove access to c:\ProgramData
-            FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, @"c:\ProgramData");
-            // Remove file write access to c:\Users\Public
-            FilesystemCell.AddCreateFileDenyRule(prison.User.Username, @"c:\ProgramData", true);
-
-
-            // Remove directory create access to c:\Users\All Users
-            FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, @"c:\Users\All Users", true);
-            // Remove file write access to c:\Users\Public\All Users
-            FilesystemCell.AddCreateFileDenyRule(prison.User.Username, @"c:\Users\All Users", true);
-
-
-            // Remove directory create access to c:\Users\Public
-            FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, @"c:\Users\Public", true);
-            // Remove file write access to c:\Users\Public\Public
-            FilesystemCell.AddCreateFileDenyRule(prison.User.Username, @"c:\Users\Public", true);
-
-            // Remove directory create & file create access to profile dir
-            FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, Path.Combine(@"c:\Users", prison.User.Username), true);
-            FilesystemCell.AddCreateFileDenyRule(prison.User.Username, Path.Combine(@"c:\Users", prison.User.Username), true);
-
-            // Remove access to other open directories
-            foreach (string directory in FilesystemCell.OpenDirs)
-            {
-                try
-                {
-                    if (!directory.ToLower().StartsWith(prison.Rules.PrisonHomePath))
-                    {
-                        // Remove directory create access
-                        FilesystemCell.AddCreateSubdirDenyRule(prison.User.Username, directory);
-
-                        // Remove file write access
-                        FilesystemCell.AddCreateFileDenyRule(prison.User.Username, directory);
-                    }
-                }
-                catch
-                {
-                }
-            }
+            WindowsUsersAndGroups.AddUserToGroup(prison.User.Username, prisonRestrictionsGroup);
 
             if (Directory.Exists(prison.Rules.PrisonHomePath))
             {
@@ -123,6 +76,63 @@ namespace Uhuru.WindowsIsolation.Cells
         public override void Init()
         {
             FilesystemCell.InitOpenDirectoriesList();
+
+            if (!WindowsUsersAndGroups.ExistsGroup(prisonRestrictionsGroup))
+            {
+                WindowsUsersAndGroups.CreateGroup(prisonRestrictionsGroup);
+
+                // Take ownership of c:\Windows\System32\spool\drivers\color folder
+                FilesystemCell.TakeOwnership(Environment.UserName, @"c:\Windows\System32\spool\drivers\color");
+
+                // Take ownership of c:\windows\tracing folder
+                FilesystemCell.TakeOwnership(Environment.UserName, @"c:\windows\tracing");
+
+                // Remove access to c:\Windows\tracing
+                FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, @"c:\windows\tracing");
+                // Remove file write access to c:\Users\Public
+                FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, @"c:\windows\tracing", true);
+
+                // Remove access to c:\ProgramData
+                FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, @"c:\ProgramData");
+                // Remove file write access to c:\Users\Public
+                FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, @"c:\ProgramData", true);
+
+
+                // Remove directory create access to c:\Users\All Users
+                FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, @"c:\Users\All Users", true);
+                // Remove file write access to c:\Users\Public\All Users
+                FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, @"c:\Users\All Users", true);
+
+
+                // Remove directory create access to c:\Users\Public
+                FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, @"c:\Users\Public", true);
+                // Remove file write access to c:\Users\Public\Public
+                FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, @"c:\Users\Public", true);
+
+                //// Remove directory create & file create access to profile dir
+                //FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, Path.Combine(@"c:\Users", prisonRestrictionsGroup), true);
+                //FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, Path.Combine(@"c:\Users", prisonRestrictionsGroup), true);
+
+                // Remove access to other open directories
+                foreach (string directory in FilesystemCell.OpenDirs)
+                {
+                    try
+                    {
+                        if (!directory.ToLower().StartsWith(prisonRestrictionsGroup))
+                        {
+                            // Remove directory create access
+                            FilesystemCell.AddCreateSubdirDenyRule(prisonRestrictionsGroup, directory);
+
+                            // Remove file write access
+                            FilesystemCell.AddCreateFileDenyRule(prisonRestrictionsGroup, directory);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
         }
 
         private readonly static object openDirLock = new object();
