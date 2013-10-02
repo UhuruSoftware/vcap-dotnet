@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.CloudFoundry.DEA.Dire
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "DEAInstaller", "DEAInstaller\DEAInstaller.wixproj", "{897E9076-9306-4088-BF01-CE50B1195705}"
 EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MsSqlNodeInstaller", "MsSqlNodeInstaller\MsSqlNodeInstaller.wixproj", "{75A459E6-0643-4974-A73E-1E5A95A413C8}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -294,6 +296,19 @@ Global
 		{897E9076-9306-4088-BF01-CE50B1195705}.Release|x64.Build.0 = Release|x64
 		{897E9076-9306-4088-BF01-CE50B1195705}.Release|x86.ActiveCfg = Release|x86
 		{897E9076-9306-4088-BF01-CE50B1195705}.Release|x86.Build.0 = Release|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|x64.ActiveCfg = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|x86.ActiveCfg = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Debug|x86.Build.0 = Debug|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|Any CPU.ActiveCfg = Release|x64
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|Any CPU.Build.0 = Release|x64
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|Mixed Platforms.ActiveCfg = Release|x64
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|Mixed Platforms.Build.0 = Release|x64
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|x64.ActiveCfg = Release|x64
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|x86.ActiveCfg = Release|x86
+		{75A459E6-0643-4974-A73E-1E5A95A413C8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -314,5 +329,6 @@ Global
 		{3C4BF5C9-294D-497A-BE11-258364199753} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{8DA6AE6F-82FD-4824-BD18-1ED8970FB129} = {CA7CAF28-F122-4AFD-84B8-EF034DE03C40}
 		{897E9076-9306-4088-BF01-CE50B1195705} = {B72DD039-D465-46F9-A85C-EBE4A0D30B93}
+		{75A459E6-0643-4974-A73E-1E5A95A413C8} = {B72DD039-D465-46F9-A85C-EBE4A0D30B93}
 	EndGlobalSection
 EndGlobal

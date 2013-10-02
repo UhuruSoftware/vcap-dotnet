@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  
+  <?define var.BINDIRECTORY = $(var.Uhuru.CloudFoundry.MSSqlService.WindowsService.TargetDir)?>
+
+  <?define var.ProductName = "MsSqlNode"?>
+  <?define var.Manufacturer = "Uhuru Software, Inc."?>
+
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="1.0.0.0" Manufacturer="$(var.Manufacturer)" UpgradeCode="a5c9e4d4-72f9-42ba-98cf-a6b9ed2b2fbc">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+    <Property Id="INDEX" Value="0"/>
+    <Property Id="PLAN" Value="free"/>
+    <Property Id="CAPACITY" Value="200"/>
+    <Property Id="BASEDIR" Value="C:\droplets"/>
+    <Property Id="LOCALROUTE" Value="8.8.8.8"/>
+    <Property Id="MESSAGEBUS" Value="nats://nats:nats@10.0.7.122:4222"/>
+    <Property Id="STATUSPORT" Value="0"/>
+
+    <Property Id="HOST" Value="127.0.0.1"/>
+    <Property Id="USER" Value="administrator"/>
+    <Property Id="PASSWORD" Value="password"/>
+    <Property Id="PORT" Value="1433"/>
+
+    <Property Id="LOGICALSTORAGEUNITS" Value="C:"/>
+    <Property Id="VERSION" Value="2008"/>
+
+    <Property Id="BACKUPBASEDIR" Value="NA" />
+        
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="ManufacturerFolder" Name="$(var.Manufacturer)">
+          <Directory Id="INSTALLDIR" Name="$(var.ProductName)" >
+            <Component Id="ProductComponents" Guid="b9d82b15-b323-4bf4-a235-3a42cfcf83ec">
+              <File Id="MSSqlNode" Name="MSSqlNode.exe" Source="$(var.BINDIRECTORY)"/>
+              <File Id="MSSqlNodeConfig" Name="MSSqlNode.exe.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="MSSqlNodePdb" Name="MSSqlNode.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NewtonsoftJson" Name="Newtonsoft.Json.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogDll" Name="NLog.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogPdb" Name="NLog.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="NLogConfig" Name="NLog.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="SevenZipSharp" Name="SevenZipSharp.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryMSSqlServiceDll" Name="Uhuru.CloudFoundry.MSSqlService.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryMSSqlServicePdb" Name="Uhuru.CloudFoundry.MSSqlService.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryServiceBaseDll" Name="Uhuru.CloudFoundry.ServiceBase.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruCloudFoundryServiceBasePdb" Name="Uhuru.CloudFoundry.ServiceBase.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruConfig" Name="uhuru.config" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruConfigurationDll" Name="Uhuru.Configuration.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruConfigurationPdb" Name="Uhuru.Configuration.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruNatsClientDll" Name="Uhuru.NatsClient.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruNatsClientPdb" Name="Uhuru.NatsClient.pdb" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruUtilitiesDll" Name="Uhuru.Utilities.dll" Source="$(var.BINDIRECTORY)"/>
+              <File Id="UhuruUtilitiesPdb" Name="Uhuru.Utilities.pdb" Source="$(var.BINDIRECTORY)"/>
+
+              <util:XmlFile Id="SetIndex" Action="setValue" ElementPath="/uhuru/service/@index" File="[INSTALLDIR]\uhuru.config" Value="[INDEX]" ></util:XmlFile>
+              <util:XmlFile Id="SetPlan" Action="setValue" ElementPath="/uhuru/service/@plan" File="[INSTALLDIR]\uhuru.config" Value="[PLAN]" ></util:XmlFile>
+              <util:XmlFile Id="SetCapacity" Action="setValue" ElementPath="/uhuru/service/@capacity" File="[INSTALLDIR]\uhuru.config" Value="[CAPACITY]" ></util:XmlFile>
+              <util:XmlFile Id="SetBaseDir" Action="setValue" ElementPath="/uhuru/service/@baseDir" File="[INSTALLDIR]\uhuru.config" Value="[BASEDIR]" ></util:XmlFile>
+              <util:XmlFile Id="SetLocalRoute" Action="setValue" ElementPath="/uhuru/service/@localRoute" File="[INSTALLDIR]\uhuru.config" Value="[LOCALROUTE]" ></util:XmlFile>
+              <util:XmlFile Id="SetNodeId" Action="setValue" ElementPath="/uhuru/service/@nodeId" File="[INSTALLDIR]\uhuru.config" Value="mssql_node_[PLAN]_[INDEX]" ></util:XmlFile>
+              <util:XmlFile Id="SetMessageBus" Action="setValue" ElementPath="/uhuru/service/@mbus" File="[INSTALLDIR]\uhuru.config" Value="[MESSAGEBUS]" ></util:XmlFile>
+              <util:XmlFile Id="SetStatusPort" Action="setValue" ElementPath="/uhuru/service/@statusPort" File="[INSTALLDIR]\uhuru.config" Value="[STATUSPORT]" ></util:XmlFile>
+              
+              <util:XmlFile Id="SetHost" Action="setValue" ElementPath="/uhuru/service/mssql/@host" File="[INSTALLDIR]\uhuru.config" Value="[HOST]" ></util:XmlFile>             
+              <util:XmlFile Id="SetUser" Action="setValue" ElementPath="/uhuru/service/mssql/@user" File="[INSTALLDIR]\uhuru.config" Value="[USER]" ></util:XmlFile>
+              <util:XmlFile Id="SetPassword" Action="setValue" ElementPath="/uhuru/service/mssql/@password" File="[INSTALLDIR]\uhuru.config" Value="[PASSWORD]" ></util:XmlFile>
+              <util:XmlFile Id="SetPort" Action="setValue" ElementPath="/uhuru/service/mssql/@port" File="[INSTALLDIR]\uhuru.config" Value="[PORT]" ></util:XmlFile>
+
+              <util:XmlFile Id="SetStorage" Action="setValue" ElementPath="/uhuru/service/mssql/@logicalStorageUnits" File="[INSTALLDIR]\uhuru.config" Value="[LOGICALSTORAGEUNITS]" ></util:XmlFile>
+              
+              <util:XmlFile Id="SetDefaultVersion" Action="setValue" ElementPath="/uhuru/service/supportedVersions/@defaultVersion" File="[INSTALLDIR]\uhuru.config" Value="[VERSION]" ></util:XmlFile>
+              <util:XmlFile Id="SetVersion" Action="setValue" ElementPath="/uhuru/service/supportedVersions/supportedVersion/@name" File="[INSTALLDIR]\uhuru.config" Value="[VERSION]" ></util:XmlFile>
+
+              <util:XmlFile Id="SetBackupDir" Action="setValue" ElementPath="/uhuru/service/backup/@backupBaseDir" File="[INSTALLDIR]\uhuru.config" Value="[BACKUPBASEDIR]" ></util:XmlFile>
+              
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+    <Feature Id="ProductFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentRef Id="ProductComponents" />
+    </Feature>
+	</Product>
+</Wix>
