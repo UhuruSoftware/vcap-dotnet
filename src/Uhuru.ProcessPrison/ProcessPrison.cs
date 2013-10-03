@@ -15,6 +15,7 @@
     using Microsoft.Win32;
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
+    using System.Runtime.ConstrainedExecution;
 
     public class ProcessPrison
     {
@@ -132,6 +133,138 @@
             LOGON_WITH_PROFILE = 0x00000001,
             LOGON_NETCREDENTIALS_ONLY = 0x00000002
         }
+
+
+
+
+
+
+        [Flags]
+        public enum WINDOWS_STATION_ACCESS_MASK : uint
+        {
+            WINSTA_NONE = 0,
+
+            WINSTA_ENUMDESKTOPS = 0x0001,
+            WINSTA_READATTRIBUTES = 0x0002,
+            WINSTA_ACCESSCLIPBOARD = 0x0004,
+            WINSTA_CREATEDESKTOP = 0x0008,
+            WINSTA_WRITEATTRIBUTES = 0x0010,
+            WINSTA_ACCESSGLOBALATOMS = 0x0020,
+            WINSTA_EXITWINDOWS = 0x0040,
+            WINSTA_ENUMERATE = 0x0100,
+            WINSTA_READSCREEN = 0x0200,
+        }
+
+        [DllImport("user32.dll", EntryPoint = "CreateWindowStation", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr CreateWindowStation(
+                        [MarshalAs(UnmanagedType.LPWStr)] string name,
+                        [MarshalAs(UnmanagedType.U4)] int reserved,      // must be zero.
+                        [MarshalAs(UnmanagedType.U4)] WINDOWS_STATION_ACCESS_MASK desiredAccess,
+                        [MarshalAs(UnmanagedType.LPStruct)] SecurityAttributes attributes);
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class SecurityAttributes
+        {
+            #region Struct members
+            [MarshalAs(UnmanagedType.U4)]
+            private int mStuctLength;
+
+            private IntPtr mSecurityDescriptor;
+
+            [MarshalAs(UnmanagedType.U4)]
+            private bool mInheritHandle;
+            #endregion
+
+            public SecurityAttributes()
+            {
+                mStuctLength = Marshal.SizeOf(typeof(SecurityAttributes));
+                mSecurityDescriptor = IntPtr.Zero;
+            }
+
+            public IntPtr SecurityDescriptor
+            {
+                get { return mSecurityDescriptor; }
+                set { mSecurityDescriptor = value; }
+            }
+
+            public bool Inherit
+            {
+                get { return mInheritHandle; }
+                set { mInheritHandle = value; }
+            }
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SetProcessWindowStation(IntPtr hWinSta);
+
+        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
+        [DllImport("user32", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr GetProcessWindowStation();
+
+
+        // ms-help://MS.VSCC.v80/MS.MSDN.v80/MS.WIN32COM.v10.en/dllproc/base/createdesktop.htm
+        [DllImport("user32.dll", EntryPoint = "CreateDesktop", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr CreateDesktop(
+                        [MarshalAs(UnmanagedType.LPWStr)] string desktopName,
+                        [MarshalAs(UnmanagedType.LPWStr)] string device, // must be null.
+                        [MarshalAs(UnmanagedType.LPWStr)] string deviceMode, // must be null,
+                        [MarshalAs(UnmanagedType.U4)] int flags,  // use 0
+                        [MarshalAs(UnmanagedType.U4)] ACCESS_MASK accessMask,
+                        [MarshalAs(UnmanagedType.LPStruct)] SecurityAttributes attributes);
+
+
+        [Flags]
+        public enum ACCESS_MASK : uint
+        {
+            DELETE = 0x00010000,
+            READ_CONTROL = 0x00020000,
+            WRITE_DAC = 0x00040000,
+            WRITE_OWNER = 0x00080000,
+            SYNCHRONIZE = 0x00100000,
+
+            STANDARD_RIGHTS_REQUIRED = 0x000f0000,
+
+            STANDARD_RIGHTS_READ = 0x00020000,
+            STANDARD_RIGHTS_WRITE = 0x00020000,
+            STANDARD_RIGHTS_EXECUTE = 0x00020000,
+
+            STANDARD_RIGHTS_ALL = 0x001f0000,
+
+            SPECIFIC_RIGHTS_ALL = 0x0000ffff,
+
+            ACCESS_SYSTEM_SECURITY = 0x01000000,
+
+            MAXIMUM_ALLOWED = 0x02000000,
+
+            GENERIC_READ = 0x80000000,
+            GENERIC_WRITE = 0x40000000,
+            GENERIC_EXECUTE = 0x20000000,
+            GENERIC_ALL = 0x10000000,
+
+            DESKTOP_READOBJECTS = 0x00000001,
+            DESKTOP_CREATEWINDOW = 0x00000002,
+            DESKTOP_CREATEMENU = 0x00000004,
+            DESKTOP_HOOKCONTROL = 0x00000008,
+            DESKTOP_JOURNALRECORD = 0x00000010,
+            DESKTOP_JOURNALPLAYBACK = 0x00000020,
+            DESKTOP_ENUMERATE = 0x00000040,
+            DESKTOP_WRITEOBJECTS = 0x00000080,
+            DESKTOP_SWITCHDESKTOP = 0x00000100,
+
+            WINSTA_ENUMDESKTOPS = 0x00000001,
+            WINSTA_READATTRIBUTES = 0x00000002,
+            WINSTA_ACCESSCLIPBOARD = 0x00000004,
+            WINSTA_CREATEDESKTOP = 0x00000008,
+            WINSTA_WRITEATTRIBUTES = 0x00000010,
+            WINSTA_ACCESSGLOBALATOMS = 0x00000020,
+            WINSTA_EXITWINDOWS = 0x00000040,
+            WINSTA_ENUMERATE = 0x00000100,
+            WINSTA_READSCREEN = 0x00000200,
+
+            WINSTA_ALL_ACCESS = 0x0000037f
+        }
+
 
         private ProcessPrisonCreateInfo createInfo;
 
@@ -367,6 +500,8 @@
             this.RunProcess(runInfo);
         }
 
+                private static readonly object windowStationLock = new object();
+
         public Process RunProcess(ProcessPrisonRunInfo runInfo)
         {
             if (!this.Created)
@@ -392,7 +527,7 @@
 
                 ProcessCreationFlags.CREATE_DEFAULT_ERROR_MODE |
                 ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP |
-
+                ProcessCreationFlags.CREATE_NO_WINDOW |
                 ProcessCreationFlags.CREATE_SUSPENDED |
                 ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT;
 
@@ -404,56 +539,73 @@
             else
             {
                 creationFlags |= ProcessCreationFlags.CREATE_NO_WINDOW;
-
                 // http://support.microsoft.com/kb/165194
                 // startupInfo.lpDesktop = this.Id + "\\" + "default";
                 // TODO: isolate the Windows Station and Destop
             }
 
+
+
+
+
             if (string.IsNullOrEmpty(this.WindowsUsername))
             {
-                // Create the process in suspended mode to fence it with a Windows Job Object 
-                // before it executes.
-                bool ret = CreateProcess(
-                    runInfo.FileName,
-                    runInfo.Arguments,
-                    IntPtr.Zero, IntPtr.Zero, false,
-                    creationFlags,
-                    env,
-                    runInfo.WorkingDirectory,
-                    ref startupInfo,
-                    out processInfo
-                    );
-
-                if (!ret)
-                {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
+                throw new InvalidOperationException("This should not be run without a user");
             }
             else
             {
-                // Create the process in suspended mode to fence it with a Windows Job Object 
-                // before it executes.
-                // TODO: Use CreateProcessWithToken to prevent Windows for creating an unamed job object for the
-                // second created process.
-                // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
-                bool ret = CreateProcessWithLogon(
-                    this.WindowsUsername,
-                    this.WindowsDomain,
-                    this.WindowsPassword,
-                    LogonFlags.LOGON_WITH_PROFILE,
-                    runInfo.FileName,
-                    runInfo.Arguments,
-                    creationFlags,
-                    env,
-                    runInfo.WorkingDirectory,
-                    ref startupInfo,
-                    out processInfo
-                    );
 
-                if (!ret)
+                SECURITY_ATTRIBUTES secAttributes = new SECURITY_ATTRIBUTES();
+                secAttributes.nLength = Marshal.SizeOf(secAttributes);
+
+                IntPtr windowStation = CreateWindowStation(this.WindowsUsername, 0, WINDOWS_STATION_ACCESS_MASK.WINSTA_NONE, null);
+                IntPtr desktop = IntPtr.Zero;
+
+                lock (windowStationLock)
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    IntPtr currentWindowStation = GetProcessWindowStation();
+
+                    try
+                    {
+                        bool setOk = SetProcessWindowStation(windowStation);
+
+                        if (!setOk)
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                        }
+
+                        CreateDesktop(this.WindowsUsername, null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
+
+                        startupInfo.lpDesktop = string.Format(@"{0}\{0}", this.WindowsUsername);
+
+                        // Create the process in suspended mode to fence it with a Windows Job Object 
+                        // before it executes.
+                        // TODO: Use CreateProcessWithToken to prevent Windows for creating an unamed job object for the
+                        // second created process.
+                        // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
+                        bool ret = CreateProcessWithLogon(
+                            this.WindowsUsername,
+                            this.WindowsDomain,
+                            this.WindowsPassword,
+                            LogonFlags.LOGON_WITH_PROFILE,
+                            runInfo.FileName,
+                            runInfo.Arguments,
+                            creationFlags,
+                            env,
+                            runInfo.WorkingDirectory,
+                            ref startupInfo,
+                            out processInfo
+                            );
+
+                        if (!ret)
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                        }
+                    }
+                    finally
+                    {
+                        SetProcessWindowStation(currentWindowStation);
+                    }
                 }
             }
 

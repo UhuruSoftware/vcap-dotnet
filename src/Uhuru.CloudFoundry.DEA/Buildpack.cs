@@ -63,14 +63,22 @@ namespace Uhuru.CloudFoundry.DEA
             runInfo.Arguments = script;
             Process process = prison.RunProcess(runInfo);
             process.WaitForExit(5000);
-            this.detectOutput = File.ReadAllText(outputPath);
-            File.Delete(outputPath);
+            if (!process.HasExited)
+            {
+                process.Kill();                
+            }
+            if (File.Exists(outputPath))
+            {
+                this.detectOutput = File.ReadAllText(outputPath);
+                File.Delete(outputPath);
+            }
             if (process.ExitCode == 0)
             {
                 return true;
             }
             else
             {
+                Logger.Warning("Detect process exited with {0}", process.ExitCode);
                 return false;
             }
         }

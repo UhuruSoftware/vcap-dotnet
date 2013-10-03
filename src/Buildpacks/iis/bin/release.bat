@@ -1,2 +1,2 @@
 @echo off
-powershell "& %~dp0\release.ps1 %1"
+powershell -ExecutionPolicy bypass "& %~dp0\release.ps1 %1"

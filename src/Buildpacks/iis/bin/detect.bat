@@ -1,3 +1,3 @@
 @echo off
-powershell "& %~dp0\detect.ps1 %1"
+powershell -ExecutionPolicy bypass "& %~dp0\detect.ps1 %1"
 exit /b %errorlevel%
