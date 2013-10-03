@@ -47,6 +47,8 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MsSqlNodeInstaller", "MsSql
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.Isolation", "Uhuru.ProcessPrison\Uhuru.Isolation.csproj", "{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uhuru.WindowsIsolation", "Uhuru.WindowsIsolation\Uhuru.WindowsIsolation.csproj", "{B9C02CB5-33CE-479A-9A16-78F67A66BF80}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = netps.vsmdi
@@ -312,6 +314,18 @@ Global
 		{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}.Release|x64.ActiveCfg = Release|Any CPU
 		{AF9D3A52-3380-4DF3-81E2-3302FF2349A4}.Release|x86.ActiveCfg = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|x64.ActiveCfg = Release|Any CPU
+		{B9C02CB5-33CE-479A-9A16-78F67A66BF80}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
