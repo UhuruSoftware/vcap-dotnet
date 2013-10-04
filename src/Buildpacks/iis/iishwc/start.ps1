@@ -144,4 +144,6 @@ foreach ($file in $configFiles)
 }
 
 Write-Output("Starting IIS Process")
-exit $script:exitCode
+
+$host.SetShouldExit($script:exitCode)
+exit

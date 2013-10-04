@@ -20,6 +20,8 @@ HRESULT _cdecl wmain(int argc, wchar_t * argv[])
 	WCHAR wszInetPath[MAX_PATH];
 	WCHAR wszDllPath[MAX_PATH];
 	WCHAR wszCfgPath[MAX_PATH];
+	WCHAR wszRootWebCfgPath[MAX_PATH];
+	WCHAR wszInstanceName[30];
 
 	// Retrieve the path of the Inetsrv folder.
 	DWORD nSize = ::ExpandEnvironmentStringsW(L"%windir%\\system32\\inetsrv",wszInetPath,MAX_PATH);
@@ -41,17 +43,21 @@ HRESULT _cdecl wmain(int argc, wchar_t * argv[])
 	wcscat_s(wszDllPath,MAX_PATH-1,L"\\");
 	wcscat_s(wszDllPath,MAX_PATH-1,WEB_CORE_DLL_NAME);
 
-	if (argc > 1)
+	if (argc == 4)
 	{
 		// Use the first argument from the run command as the config file path
 		wcscpy_s(wszCfgPath,MAX_PATH-1,argv[1]);
+
+		// Use the second argument from the run command as the root web config file path
+		wcscpy_s(wszRootWebCfgPath,MAX_PATH-1,argv[2]);
+
+		// Use the third argument as the name of the web core instance
+		wcscpy_s(wszInstanceName,29,argv[3]);
 	}
 	else
 	{
-		// Set the applicationHost.config to default in the current dir.
-		::GetCurrentDirectory(MAX_PATH-1,wszCfgPath);
-		wcscat_s(wszCfgPath,MAX_PATH-1,L"\\");
-		wcscat_s(wszCfgPath,MAX_PATH-1,L"applicationHost.config");
+		printf("Invalid parameters, use the following: iishwc [applicationHost.config] [rootweb.config] [instance-id]");
+		return 1;
 	}
 
 	// Create a pointer to WebCoreActivate.
@@ -111,7 +117,7 @@ HRESULT _cdecl wmain(int argc, wchar_t * argv[])
 				// Return an activation status to the console.
 				printf("Activating the Web core...\n");
 				// Activate the Web core.
-				hr = pfnWebCoreActivate(wszCfgPath,L"",L"TestWebCore");
+				hr = pfnWebCoreActivate(wszCfgPath, wszRootWebCfgPath, wszInstanceName);
 				// Test for an error.
 				if (FAILED(hr))
 				{
