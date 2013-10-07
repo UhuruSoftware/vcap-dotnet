@@ -308,7 +308,6 @@
             private set;
         }
 
-
         public long DiskUsageBytes
         {
             get
@@ -555,7 +554,6 @@
             startupInfo.cb = Marshal.SizeOf(startupInfo.GetType());
             // startupInfo.dwFlags = 0x00000100;            
 
-            string env = BuildEnvironmentVariable(runInfo.EnvironmentVariables);
 
             var creationFlags = ProcessCreationFlags.ZERO_FLAG;
 
@@ -616,15 +614,29 @@
 
                         CreateDesktop(this.WindowsUsername, null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
 
-                        startupInfo.lpDesktop = string.Format(@"{0}\{0}", this.WindowsUsername);
+                        var envMap = new Dictionary<string, string>();
+                        envMap["Method"] = "CreateProcessWithLogonW";
+                        envMap["Username"] = this.WindowsUsername;
+                        envMap["Domain"] = ".";
+                        envMap["Password"] = this.WindowsPassword;
+                        envMap["LogonFlags"] = ((int)LogonFlags.LOGON_WITH_PROFILE).ToString();
+                        envMap["CommandLine"] = '"' + runInfo.FileName + "\" " + runInfo.Arguments;
+                        envMap["CreationFlags"] = ((int)creationFlags).ToString();
+                        envMap["CurrentDirectory"] = runInfo.WorkingDirectory;
+                        envMap["Desktop"] = string.Format(@"{0}\{0}", this.WindowsUsername);
+
+                        string env = BuildEnvironmentVariable(envMap);
+
+                        // startupInfo.lpDesktop = string.Format(@"{0}\{0}", this.WindowsUsername);
 
                         byte[] envBlock = CreateEnvironment(myenvvars);
 
                         // Create the process in suspended mode to fence it with a Windows Job Object 
                         // before it executes.
-                        // TODO: Use CreateProcessWithToken to prevent Windows for creating an unamed job object for the
+                        // TODO: Use CreateProcessWithToken to prevent Windows form creating an unamed job object for the
                         // second created process.
                         // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
+
                         bool ret = CreateProcessWithLogon(
                             this.WindowsUsername,
                             this.WindowsDomain,
@@ -811,12 +823,15 @@
             {
                 foreach (var EnvironmentVariable in EvnironmantVariables)
                 {
-                    if (EnvironmentVariable.Key.Contains('=') || EnvironmentVariable.Key.Contains('\0') || EnvironmentVariable.Value.Contains('\0'))
+                    var value = EnvironmentVariable.Value;
+                    if (value == null) value = "";
+
+                    if (EnvironmentVariable.Key.Contains('=') || EnvironmentVariable.Key.Contains('\0') || value.Contains('\0'))
                     {
                         throw new ArgumentException("Invalid or restricted charachter", "EvnironmantVariables");
                     }
 
-                    ret += EnvironmentVariable.Key + "=" + EnvironmentVariable.Value + '\0';
+                    ret += EnvironmentVariable.Key + "=" + value + '\0';
                 }
 
 
