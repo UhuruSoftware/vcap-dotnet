@@ -136,6 +136,24 @@ namespace Uhuru.Utilities
         /// Starts up a cmd shell and executes a command.
         /// </summary>
         /// <param name="command">The command to be executed.</param>
+        /// <param name="workingDirectory">The working directory.</param>
+        /// <returns>The process' exit code.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]
+        public static int ExecuteCommand(string command, string workingDirectory)
+        {
+            ProcessStartInfo pi = new ProcessStartInfo("cmd", "/c " + command);
+            pi.CreateNoWindow = true;
+            pi.UseShellExecute = false;
+            pi.WorkingDirectory = workingDirectory;
+            Process p = Process.Start(pi);
+            p.WaitForExit();
+            return p.ExitCode;
+        }
+
+        /// <summary>
+        /// Starts up a cmd shell and executes a command.
+        /// </summary>
+        /// <param name="command">The command to be executed.</param>
         /// <param name="timeout">Seconds to wait before killing the process.</param>
         /// <returns>The process' exit code.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands", Justification = "Suitable fur the current context.")]

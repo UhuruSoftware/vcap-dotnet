@@ -1,4 +1,4 @@
-$script:scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$script:scriptPath = Join-Path $env:HOME iishwc
 $script:appPath = (get-item $script:scriptPath).parent.FullName
 
 $applicationHostPath = Join-Path $script:scriptPath 'applicationHost.config'
@@ -37,7 +37,7 @@ $rootWebConfigPath = Join-Path $script:scriptPath $rootWebConfigFileName
 
 $rootWebConfig = New-Object System.Xml.XmlDocument
 $rootWebConfig.Load($rootWebConfigPath)
-$tmpPath = Join-Path $env:HOME "tmp"
+$tmpPath = Join-Path $env:HOMEPATH "tmp"
 $compilationPath = Join-Path $tmpPath "aspnet_compilation"
 
 $element = $rootWebConfig.SelectSingleNode("configuration/system.web/compilation")
@@ -46,4 +46,4 @@ $element.SetAttribute('tempDirectory', $compilationPath)
 $rootWebConfig.Save($rootWebConfigPath)
 
 $host.SetShouldExit($version)
-exit
+exit $version

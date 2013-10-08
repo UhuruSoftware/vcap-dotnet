@@ -16,6 +16,7 @@
     using Uhuru.Utilities;
     using Uhuru.Utilities.WindowsJobObjects;
     using System.Runtime.ConstrainedExecution;
+    using System.IO;
 
     public class ProcessPrison
     {
@@ -351,6 +352,19 @@
             else
                 this.Id = createInfo.Id;
 
+            string[] keys = new string[] { "ALLUSERSPROFILE", "APPDATA", "CommonProgramFiles", "CommonProgramFiles(x86)", "CommonProgramW6432", "COMPUTERNAME",
+                "HOMEDRIVE", "LOCALAPPDATA", "NUMBER_OF_PROCESSORS", "OS", "Path", "PROCESSOR_ARCHITECTURE", "PROCESSOR_IDENTIFIER", "PROCESSOR_LEVEL",
+                "PROCESSOR_REVISION", "ProgramData", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "PROMPT", "PSModulePath", 
+                "SystemDrive", "SystemRoot", "windir"  };
+
+            this.myenvvars["HOMEPATH"] = createInfo.DiskQuotaPath;
+            this.myenvvars["TEMP"] = Path.Combine(createInfo.DiskQuotaPath, "tmp");
+            this.myenvvars["TMP"] = Path.Combine(createInfo.DiskQuotaPath, "tmp");
+
+            foreach (string key in keys)
+            {
+                this.myenvvars[key] = Environment.GetEnvironmentVariable(key);
+            }
 
             this.createInfo = createInfo;
             this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
@@ -501,6 +515,32 @@
         }
 
                 private static readonly object windowStationLock = new object();
+                private Dictionary<string, string> myenvvars = new Dictionary<string,string>();
+
+                [DllImport("userenv.dll", SetLastError = true)]
+                static extern bool CreateEnvironmentBlock(out IntPtr lpEnvironment, IntPtr hToken, bool bInherit);
+              
+        
+        
+        private byte[] CreateEnvironment(Dictionary<string, string> env)
+                {
+                    MemoryStream ms = new MemoryStream();
+                    StreamWriter w = new StreamWriter(ms, Encoding.Unicode);
+                    w.Flush();
+                    ms.Position = 0; //Skip any byte order marks to identify the encoding
+                    Char nullChar = (char)0;
+                    foreach (string k in env.Keys)
+                    {
+                        w.Write("{0}={1}", k, env[k]);
+                        w.Write(nullChar);
+                    }
+                    w.Write(nullChar);
+                    w.Write(nullChar);
+                    w.Flush();
+                    ms.Flush();
+                    byte[] data = ms.ToArray();
+                    return data;
+                }
 
         public Process RunProcess(ProcessPrisonRunInfo runInfo)
         {
@@ -578,6 +618,8 @@
 
                         startupInfo.lpDesktop = string.Format(@"{0}\{0}", this.WindowsUsername);
 
+                        byte[] envBlock = CreateEnvironment(myenvvars);
+
                         // Create the process in suspended mode to fence it with a Windows Job Object 
                         // before it executes.
                         // TODO: Use CreateProcessWithToken to prevent Windows for creating an unamed job object for the
@@ -587,11 +629,11 @@
                             this.WindowsUsername,
                             this.WindowsDomain,
                             this.WindowsPassword,
-                            LogonFlags.LOGON_WITH_PROFILE,
+                            LogonFlags.LOGON_NETCREDENTIALS_ONLY,
                             runInfo.FileName,
                             runInfo.Arguments,
                             creationFlags,
-                            env,
+                            UnicodeEncoding.Unicode.GetString(envBlock),
                             runInfo.WorkingDirectory,
                             ref startupInfo,
                             out processInfo
@@ -647,6 +689,7 @@
                 throw new ArgumentException("Value is null", "value");
             }
 
+            this.myenvvars[name] = value;
 
             using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsPassword, true))
             {
@@ -654,9 +697,10 @@
                 {
                     using (var registry = RegistryKey.FromHandle(registryHandle))
                     {
-                        var envRegKey = registry.OpenSubKey("Environment", true);
-
-                        envRegKey.SetValue(name, value, RegistryValueKind.String);
+                        using (var envRegKey = registry.OpenSubKey("Environment", true))
+                        {
+                            envRegKey.SetValue(name, value, RegistryValueKind.String);
+                        }
                     }
                 }
             }
@@ -689,19 +733,25 @@
             //    throw new ArgumentException("A value of an environment variable is null", "envVariables");
             //}
 
+            foreach (string key in envVariables.Keys)
+            {
+                this.myenvvars[key] = envVariables[key];
+            }
+
             using (var impersonator = new UserImpersonator(this.WindowsUsername, this.WindowsDomain, this.WindowsPassword, true))
             {
                 using (var registryHandle = impersonator.GetRegistryHandle())
                 {
                     using (var registry = RegistryKey.FromHandle(registryHandle))
                     {
-                        var envRegKey = registry.OpenSubKey("Environment", true);
-
-                        foreach (var env in envVariables)
+                        using (var envRegKey = registry.OpenSubKey("Environment", true))
                         {
-                            var value = env.Value == null ? string.Empty : env.Value;
+                            foreach (var env in envVariables)
+                            {
+                                var value = env.Value == null ? string.Empty : env.Value;
 
-                            envRegKey.SetValue(env.Key, value, RegistryValueKind.String);
+                                envRegKey.SetValue(env.Key, value, RegistryValueKind.String);
+                            }
                         }
                     }
                 }
@@ -728,11 +778,12 @@
                 {
                     using (var registry = RegistryKey.FromHandle(registryHandle))
                     {
-                        var envRegKey = registry.OpenSubKey("Environment", true);
-
-                        foreach (var key in envRegKey.GetValueNames())
+                        using (var envRegKey = registry.OpenSubKey("Environment", true))
                         {
-                            ret[key] = (string)envRegKey.GetValue(key);
+                            foreach (var key in envRegKey.GetValueNames())
+                            {
+                                ret[key] = (string)envRegKey.GetValue(key);
+                            }
                         }
                     }
                 }

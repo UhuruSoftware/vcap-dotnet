@@ -1,4 +1,4 @@
-﻿$script:scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+﻿$script:scriptPath = Join-Path $env:HOME iishwc
 $script:appPoolName = [Guid]::NewGuid().ToString()
 $script:appPort = $Env:PORT
 $script:appPath = (get-item $script:scriptPath).parent.FullName
@@ -71,6 +71,12 @@ function AddApplicationPool([ref]$applicationHost)
 	{
 		$script:exitCode = 1
 	}
+
+    $defaults = $applicationHost.Value.SelectSingleNode("/configuration/system.applicationHost/applicationPools/applicationPoolDefaults/processModel")
+    $defaults.SetAttribute("identityType", "SpecificUser")
+    $defaults.SetAttribute("userName", $env:VCAP_WINDOWS_USER)
+    $defaults.SetAttribute("password", $env:VCAP_WINDOWS_USER_PASSWORD)
+
 	$element = $applicationHost.Value.CreateElement("add")
 	$element.SetAttribute('name', $script:appPoolName)
 	$element.SetAttribute('enable32BitAppOnWin64', $enable32bit)
@@ -146,4 +152,4 @@ foreach ($file in $configFiles)
 Write-Output("Starting IIS Process")
 
 $host.SetShouldExit($script:exitCode)
-exit
+exit $script:exitCode

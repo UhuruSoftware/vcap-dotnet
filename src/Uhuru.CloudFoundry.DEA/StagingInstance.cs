@@ -238,18 +238,19 @@ namespace Uhuru.CloudFoundry.DEA
                     Logger.Info("Staging task {0}: Downloading buildpack from {1}", this.Properties.TaskId, message.Properties.Buildpack);
                     Directory.CreateDirectory(Path.Combine(this.Workspace.TempDir, "buildpacks"));
                     string buildpackPath = Path.Combine(this.Workspace.TempDir, "buildpacks", Path.GetFileName(new Uri(message.Properties.Buildpack).LocalPath));
-                    string command = string.Format("\"{0}\" clone --recursive {1} {2}", gitPath, message.Properties.Buildpack, buildpackPath);
-                    int success = Command.ExecuteCommand(command);
+                    string command = string.Format("\"{0}\" clone --quiet --recursive {1} {2}", gitPath, message.Properties.Buildpack, buildpackPath);
+                    Logger.Debug(command);
+                    int success = Command.ExecuteCommand(command, this.Workspace.TempDir);
                     if (success != 0)
                     {
-                        throw new Exception("Failed to git clone buildpack");
+                        throw new Exception(string.Format("Failed to git clone buildpack. Exit code: {0}", success));
                     }
                     this.Buildpack = new Buildpack(buildpackPath, Path.Combine(this.Workspace.StagedDir, "app"), this.Workspace.Cache, this.Workspace.StagingLogPath);
                     
                     bool detected = this.Buildpack.Detect(this.Prison);
                     if (!detected)
                     {
-                        throw new Exception("Buildpack does not support this application");
+                        throw new Exception("Buildpack does not support this application.");
                     }
                 }
                 else

@@ -1837,7 +1837,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             Dictionary<string, string> env = new Dictionary<string, string>();
 
-            env.Add(HomeVariable, instance.Properties.Directory);
+            env.Add(HomeVariable, Path.Combine(instance.Properties.Directory, "app"));
             env.Add(VcapApplicationVariable, this.CreateInstanceVariable(instance));
             env.Add(VcapServicesVariable, CreateServicesApplicationVariable(services));
             env.Add(VcapAppHostVariable, Host);

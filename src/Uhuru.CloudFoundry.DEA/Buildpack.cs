@@ -70,6 +70,7 @@ namespace Uhuru.CloudFoundry.DEA
             if (File.Exists(outputPath))
             {
                 this.detectOutput = File.ReadAllText(outputPath);
+                Logger.Debug("Detect output: {0}", this.detectOutput);
                 File.Delete(outputPath);
             }
             if (process.ExitCode == 0)
