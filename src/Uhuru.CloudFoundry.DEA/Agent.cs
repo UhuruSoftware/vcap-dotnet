@@ -1387,52 +1387,47 @@ namespace Uhuru.CloudFoundry.DEA
                     throw ex;
                 }
 
+                instance.UnpackDroplet();
+                instance.PrepareStagingDirs();
+
+                instance.GetBuildpack(pmessage, this.gitPath, this.buildpacksDir);
+                this.stagingTaskRegistry.ScheduleSnapshotStagingState();                    
+
                 try
                 {
-                    instance.UnpackDroplet();
-                    instance.PrepareStagingDirs();
+                    Logger.Info("Staging task {0}: Running compilation script", pmessage.TaskID);
 
-                    instance.GetBuildpack(pmessage, this.gitPath, this.buildpacksDir);
-                    this.stagingTaskRegistry.ScheduleSnapshotStagingState();                    
+                    instance.CreatePrison();
+                    this.stagingTaskRegistry.ScheduleSnapshotStagingState();
+                    instance.CompileProcess = instance.Buildpack.StartCompile(instance.Prison);
 
-                    try
-                    {
-                        Logger.Info("Staging task {0}: Running compilation script", pmessage.TaskID);
-
-                        instance.CreatePrison();
-                        this.stagingTaskRegistry.ScheduleSnapshotStagingState();
-                        instance.CompileProcess = instance.Buildpack.StartCompile(instance.Prison);
-
-                        instance.Lock.EnterWriteLock();
-                        instance.Properties.Start = DateTime.Now;
-                    }                    
-                    finally
-                    {
-                        if(instance.Lock.IsWriteLockHeld)
-                        {
-                            instance.Lock.ExitWriteLock();
-                        }
-                    }                    
-                }
-                catch (Exception exception)
+                    instance.Lock.EnterWriteLock();
+                    instance.Properties.Start = DateTime.Now;
+                }                    
+                finally
                 {
-                    Logger.Error(exception.ToString());                    
-                }
+                    if(instance.Lock.IsWriteLockHeld)
+                    {
+                        instance.Lock.ExitWriteLock();
+                    }
+                }                    
             }
             catch (Exception ex)
             {
+                instance.StagingException = ex;
+                instance.Properties.Stopped = true;
                 Logger.Error(ex.ToString());
             }           
         }
 
-        private void AfterStagingSetup(StagingInstance instance, Exception exception)
+        private void AfterStagingSetup(StagingInstance instance)
         {
             StagingStartMessageResponse response = new StagingStartMessageResponse();
             response.TaskId = instance.Properties.TaskId;
             response.TaskStreamingLogURL = instance.Properties.StreamingLogUrl;
-            if (exception != null)
+            if (instance.StagingException != null)
             {
-                response.Error = exception.ToString();
+                response.Error = instance.StagingException.ToString();
             }
             this.deaReactor.SendReply(instance.Properties.Reply, response.SerializeToJson());
             Logger.Debug("Staging task {0}: sent reply {1}", instance.Properties.TaskId, response.SerializeToJson());
@@ -1442,12 +1437,12 @@ namespace Uhuru.CloudFoundry.DEA
         {
             try
             {
-                if (instance.Properties.StopProcessed)
+                if (instance.Properties.Stopped)
                 {
                     return;
                 }                
                 instance.Lock.EnterWriteLock();
-                instance.Properties.StopProcessed = true;
+                instance.Properties.Stopped = true;
                 StagingStartMessageResponse response = new StagingStartMessageResponse();
                 response.TaskId = instance.Properties.TaskId;
                 this.deaReactor.SendReply(reply_to, response.SerializeToJson());
@@ -1519,13 +1514,12 @@ namespace Uhuru.CloudFoundry.DEA
             });
         }
 
-        private void AfterStagingFinished(Exception exception, StagingInstance instance)
+        private void AfterStagingFinished(StagingInstance instance)
         {
-            Exception error = exception;
             StagingStartMessageResponse response = new StagingStartMessageResponse();
             try
             {
-                if (error == null)
+                if (instance.StagingException == null)
                 {
                     try
                     {
@@ -1559,7 +1553,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     catch (Exception ex)
                     {
-                        error = ex;
+                        instance.StagingException = ex;
                     }
                     try
                     {
@@ -1574,15 +1568,23 @@ namespace Uhuru.CloudFoundry.DEA
                     catch
                     {
                         Logger.Debug("Staging task {0}: Cannot pack buildpack cache", instance.Properties.TaskId);
-                    }
+                    }                    
                 }
-                
-                response.TaskId = instance.Properties.TaskId;
-                response.TaskLog = File.ReadAllText(instance.Properties.TaskLog);
-                if (error != null)
+
+                if (instance.StagingException != null)
                 {
-                    response.Error = error.ToString();
+                    response.Error = instance.StagingException.ToString();
                 }
+
+                response.TaskId = instance.Properties.TaskId;
+                
+                // try to read log. don't throw exception if it fails
+                try
+                {
+                    response.TaskLog = File.ReadAllText(instance.Properties.TaskLog);
+                }
+                catch { }
+
                 if (instance.Properties.DetectedBuildpack != null)
                 {
                     response.DetectedBuildpack = instance.Properties.DetectedBuildpack;
@@ -1630,7 +1632,7 @@ namespace Uhuru.CloudFoundry.DEA
                         instance.Lock.EnterWriteLock();
                         if (instance.Properties.AppId == request.AppID)
                         {
-                            instance.Properties.StopProcessed = true;
+                            instance.Properties.Stopped = true;
                         }
                     }
                     finally
@@ -2336,8 +2338,7 @@ namespace Uhuru.CloudFoundry.DEA
                 true,
                 delegate(StagingInstance instance)
                 {
-                    bool removeInstance = false;
-                    Exception error = null;
+                    bool removeInstance = false;                    
 
                     if (instance.CompileProcess != null)
                     {                        
@@ -2345,16 +2346,16 @@ namespace Uhuru.CloudFoundry.DEA
                         {
                             if (instance.CompileProcess.ExitCode != 0)
                             {
-                                error = new Exception("Compilation failed");
+                                instance.StagingException = new Exception("Compilation failed");
                             }
                             Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
-                            instance.Properties.StopProcessed = true;
+                            instance.Properties.Stopped = true;
                             instance.Prison.Destroy();
                             removeInstance = true;
                         }
                         else
                         {
-                            if (instance.Properties.StopProcessed)
+                            if (instance.Properties.Stopped)
                             {
                                 instance.CompileProcess.Kill();
                                 Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
@@ -2367,15 +2368,16 @@ namespace Uhuru.CloudFoundry.DEA
                                 instance.CompileProcess.Kill();
                                 Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
                                 instance.Prison.Destroy();
-                                error = new Exception("Compilation timed out");
+                                instance.StagingException = new Exception("Compilation timed out");
                                 removeInstance = true;
                             }
                         }
                     }
 
-                    if (instance.Properties.StopProcessed)
+                    if (instance.Properties.Stopped)
                     {
-                        this.AfterStagingFinished(error, instance);
+                        this.AfterStagingFinished(instance);
+                        removeInstance = true;
                     }                    
 
                     if (removeInstance)

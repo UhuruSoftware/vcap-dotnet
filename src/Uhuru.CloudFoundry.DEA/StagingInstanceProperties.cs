@@ -69,7 +69,7 @@ namespace Uhuru.CloudFoundry.DEA
         /// <summary>
         /// Gets or sets a value indicating whether [stop processed]. Indicated if the StopStaging routine was completely invoked on this instance.
         /// </summary>
-        public bool StopProcessed
+        public bool Stopped
         {
             get
             {

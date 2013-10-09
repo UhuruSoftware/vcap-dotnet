@@ -14,6 +14,6 @@ StyleCop.Cache
 doc/*.xml
 doc/*.XML
 !src/Uhuru.CloudFoundry.Test/TestApps/Umbraco/app/bin
-!src/Buildpacks/iis/bin
-!src/Buildpacks/iis/iishwc/iishwcx64.exe
-!src/Buildpacks/iis/iishwc/iishwcx86.exe
+!src/Buildpacks/iis8/bin
+!src/Buildpacks/iis8/iishwc/iishwcx64.exe
+!src/Buildpacks/iis8/iishwc/iishwcx86.exe

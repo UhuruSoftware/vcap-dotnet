@@ -70,8 +70,9 @@ namespace Uhuru.CloudFoundry.DEA
         public Buildpack Buildpack { get; set; }
         public StagingWorkspace Workspace { get; set; }
         public DeaStartMessageRequest StartMessage { get; set; }
+        public Exception StagingException { get; set; }
         
-        public delegate void StagingTaskEventHandler(StagingInstance instance, Exception exception);
+        public delegate void StagingTaskEventHandler(StagingInstance instance);
 
         public event StagingTaskEventHandler AfterSetup;
         public event StagingTaskEventHandler AfterUpload;
@@ -84,7 +85,7 @@ namespace Uhuru.CloudFoundry.DEA
                 string instanceDir = this.Properties.Directory;
 
                 // check before downloading
-                if (this.Properties.StopProcessed)
+                if (this.Properties.Stopped)
                 {
                     return;
                 }
@@ -134,14 +135,16 @@ namespace Uhuru.CloudFoundry.DEA
                     Logger.Info("Preparing staging log file {0}", this.Workspace.StagingLogPath);
                     using (File.Create(this.Workspace.StagingLogPath)) ;
                 }
-
-                this.AfterSetup(this, null);
             }
             catch (Exception ex)
             {
-                this.AfterSetup(this, ex);
+                this.StagingException = ex;
                 throw ex;
-            }            
+            }
+            finally
+            {
+                this.AfterSetup(this);
+            }
         }
 
         public void UnpackDroplet()
@@ -278,6 +281,7 @@ namespace Uhuru.CloudFoundry.DEA
                     }
                     Logger.Info("Staging task {0}: Detected buildpack {1}", this.Properties.TaskId, this.Buildpack.Name);
                 }
+                this.Properties.DetectedBuildpack = this.Buildpack.Name;
             }
             finally
             {
