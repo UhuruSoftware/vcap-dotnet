@@ -377,14 +377,34 @@ namespace Uhuru.CloudFoundry.DEA
                 // Initialize disk quota
                 Logger.Info("Initializing disk quota.");
 
-                DiskQuotaManager.StartQuotaInitialization();
-
-                // Wait until the volume diskquota is initialized
-                while (!DiskQuotaManager.IsQuotaInitialized())
+                int retryCount = 3;
+                while (retryCount > 0)
                 {
-                    Thread.Sleep(200);
-                }
+                    try
+                    {
+                        DiskQuotaManager.StartQuotaInitialization();
 
+                        // Wait until the volume diskquota is initialized
+                        while (!DiskQuotaManager.IsQuotaInitialized())
+                        {
+                            Thread.Sleep(200);
+                        }
+                        break;
+                    }
+                    catch(Exception ex)
+                    {
+                        retryCount--;
+                        if (retryCount > 0)
+                        {
+                            Logger.Error(ex.ToString());
+                            Thread.Sleep(1000);
+                        }
+                        else
+                        {
+                            throw ex;
+                        }
+                    }
+                }
                 Logger.Info("Disk quota initialization complete");
             }
 

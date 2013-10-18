@@ -7,7 +7,7 @@ $script:exitCode = 0
 function DetectBitness()
 {
     Write-Host("Detecting application bitness...");
-	$assemblies = Get-ChildItem -Path $script:appPath -Filter "*.dll" -Recurse	
+	$assemblies = @(Get-ChildItem -Path $script:appPath -Filter "*.dll" -Recurse)
 	foreach ($assembly in $assemblies)
 	{
 		$kind = new-object Reflection.PortableExecutableKinds
@@ -135,7 +135,7 @@ $applicationHost.Save($applicationHostPath)
 
 Write-Output("Autowiring service connection strings if necessary")
 $vcap_services = $Env:VCAP_SERVICES | ConvertFrom-Json
-$configFiles=get-childitem $script:appPath *.config -rec
+$configFiles= @(get-childitem $script:appPath *.config -rec)
 foreach ($file in $configFiles)
 {
     foreach ($serviceName in $vcap_services | Get-Member -MemberType NoteProperty) {
