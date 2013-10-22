@@ -237,7 +237,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             request.ContentType = "multipart/form-data; boundary=" + boundary;
             request.Method = "POST";
-            request.Headers[HttpRequestHeader.Authorization] = authorization;
+            request.Headers[HttpRequestHeader.Authorization] = "Basic " + System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(authorization));
 
             // diable this to allow streaming big files, without beeing out of memory.
             request.AllowWriteStreamBuffering = false;
