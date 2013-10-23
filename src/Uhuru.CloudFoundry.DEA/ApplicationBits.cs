@@ -270,6 +270,8 @@ using Uhuru.Utilities;
             try
             {
                 string pendingTgzFile = Path.Combine(this.StagedDir, string.Format(CultureInfo.InvariantCulture, Strings.Pending, sha1));
+
+                client.Headers[HttpRequestHeader.Authorization] = "Basic " + System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(bitsUri.UserInfo));
                 client.DownloadFile(bitsUri, pendingTgzFile);
                 File.Move(pendingTgzFile, tgzFile);
             }
