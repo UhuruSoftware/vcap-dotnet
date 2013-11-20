@@ -61,17 +61,22 @@ namespace Uhuru.CloudFoundry.DEA
             runInfo.WorkingDirectory = Path.Combine(this.appDir);
             runInfo.FileName = null;
             runInfo.Arguments = script;
-            Process process = prison.RunProcess(runInfo);
+            prison.RunProcess(runInfo);
+            Process process = prison.GetRunningProcesses().First();
             process.WaitForExit(5000);
             if (!process.HasExited)
             {
                 process.Kill();                
             }
+
             if (File.Exists(outputPath))
             {
                 this.detectOutput = File.ReadAllText(outputPath);
                 Logger.Debug("Detect output: {0}", this.detectOutput);
                 File.Delete(outputPath);
+
+                // TODO: remove this assumption hack
+                return true;
             }
             if (process.ExitCode == 0)
             {
@@ -94,7 +99,10 @@ namespace Uhuru.CloudFoundry.DEA
             runInfo.WorkingDirectory = Path.Combine(this.appDir);
             runInfo.FileName = null;
             runInfo.Arguments = string.Format("{0} {1}", exe, args);
-            return prison.RunProcess(runInfo);
+
+            prison.RunProcess(runInfo);
+
+            return prison.GetRunningProcesses().First();
         }
 
         public ReleaseInfo GetReleaseInfo(ProcessPrison prison) 
@@ -108,7 +116,8 @@ namespace Uhuru.CloudFoundry.DEA
             runInfo.WorkingDirectory = Path.Combine(this.appDir);
             runInfo.FileName = null;
             runInfo.Arguments = script;
-            Process process = prison.RunProcess(runInfo);
+            prison.RunProcess(runInfo);
+            Process process = prison.GetRunningProcesses().First();
             process.WaitForExit(5000);
 
             string output = File.ReadAllText(outputPath);
