@@ -62,15 +62,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	wstring commandLine = envs->at(L"CommandLine");
 	wstring creationFlagsStr = envs->at(L"CreationFlags");
 	int creationFlags = _wtoi(creationFlagsStr.c_str());
+
 	wstring currentDirectoryStr = envs->at(L"CurrentDirectory");
 	const wchar_t * currentDirectory = currentDirectoryStr.c_str();
 	if (currentDirectoryStr == L"") currentDirectory = NULL;
-	wstring desktop = envs->at(L"Desktop");
+
+	wstring desktopStr = envs->at(L"Desktop");
+	const wchar_t * desktop = desktopStr.c_str();
+	if (desktopStr == L"") desktop = NULL;
+
 
 	STARTUPINFOW suInfo;
 	ZeroMemory(&suInfo, sizeof(STARTUPINFOW));
 	suInfo.cb = sizeof(STARTUPINFOW);
-	suInfo.lpDesktop = (wchar_t *) desktop.c_str();
+	suInfo.lpDesktop = (wchar_t *) desktop;
 
 	PROCESS_INFORMATION processInfo;
 	ZeroMemory(&processInfo, sizeof(PROCESS_INFORMATION));
@@ -105,8 +110,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	if (!suc)
 	{
 		int error = GetLastError();
-		wstring tokenStr = envs->at(L"break");
-		throw new runtime_error("Process did not start.");
+		return error;
+		// throw new runtime_error("Process did not start.");
 	}
 
 	return 0;

@@ -53,6 +53,11 @@ namespace Uhuru.CloudFoundry.DEA
         private const string HomeVariable = "HOME";
 
         /// <summary>
+        /// DropletPath varialbe. Windows DEA specific.
+        /// </summary>
+        private const string DropletPathVariable = "DROPLET_PATH";
+
+        /// <summary>
         /// Application variable.
         /// </summary>
         private const string VcapApplicationVariable = "VCAP_APPLICATION";
@@ -1731,7 +1736,6 @@ namespace Uhuru.CloudFoundry.DEA
                     instance.Properties.EnvironmentVariables.Add(VcapWindowsUserPasswordVariable, instance.Properties.WindowsPassword);
 
                     instance.Prison.SetUsersEnvironmentVariables(instance.Properties.EnvironmentVariables);
-
                 }
                 finally
                 {
@@ -1744,7 +1748,7 @@ namespace Uhuru.CloudFoundry.DEA
 
                 var runInfo = new ProcessPrisonRunInfo();
                 runInfo.WorkingDirectory = Path.Combine(instance.Properties.Directory, "app");
-                runInfo.FileName = startSciprtPath;
+                runInfo.Arguments = startSciprtPath;
 
                 instance.Prison.RunProcess(runInfo);
 
@@ -1859,6 +1863,7 @@ namespace Uhuru.CloudFoundry.DEA
         {
             Dictionary<string, string> env = new Dictionary<string, string>();
 
+            env.Add(DropletPathVariable, instance.Properties.Directory);
             env.Add(HomeVariable, Path.Combine(instance.Properties.Directory, "app"));
             env.Add(VcapApplicationVariable, this.CreateInstanceVariable(instance));
             env.Add(VcapServicesVariable, CreateServicesApplicationVariable(services));
@@ -2364,10 +2369,11 @@ namespace Uhuru.CloudFoundry.DEA
                     {                        
                         if (instance.CompileProcess.HasExited)
                         {
-                            if (instance.CompileProcess.ExitCode != 0)
-                            {
-                                instance.StagingException = new Exception("Compilation failed");
-                            }
+                            // TODO: fix this. get the compile exit code
+                            //if (instance.CompileProcess.ExitCode != 0)
+                            //{
+                            //    instance.StagingException = new Exception("Compilation failed");
+                            //}
                             Logger.Info("Destroying prison for staging instance {0}", instance.Properties.TaskId);
                             instance.Properties.Stopped = true;
                             instance.Prison.Destroy();
