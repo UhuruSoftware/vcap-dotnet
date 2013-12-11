@@ -192,7 +192,7 @@ namespace Uhuru.WindowsIsolation.Cells
 
                 using (new UserImpersonator(isolationUser.Username, ".", isolationUser.Password, true))
                 {
-                    result = GetOpenDirectories(new DirectoryInfo(@"c:\dea_security")).ToArray();
+                    result = GetOpenDirectories(new DirectoryInfo(@"c:\")).ToArray();
                 }
 
                 isolationUser.Delete();

@@ -517,29 +517,31 @@
                 private Dictionary<string, string> myenvvars = new Dictionary<string,string>();
 
 
-        public Process RunProcess(ProcessPrisonRunInfo runInfo)
+        public void RunProcess(ProcessPrisonRunInfo runInfo)
         {
             if (!this.Created)
             {
                 throw new InvalidOperationException("ProcessPrison has to be created first.");
             }
 
-            // Todo return the real process id
-            // return process;
-
-
             var startupInfo = new STARTUPINFO();
             var processInfo = new PROCESS_INFORMATION();
 
             startupInfo.cb = Marshal.SizeOf(startupInfo.GetType());
+            // startupInfo.dwFlags = 0x00000100;            
 
-            ProcessCreationFlags creationFlags = ProcessCreationFlags.ZERO_FLAG;
 
-            creationFlags &= ~ProcessCreationFlags.CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
+            var creationFlags = ProcessCreationFlags.ZERO_FLAG;
 
-            creationFlags |= ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM |
+            creationFlags &=
+                ~ProcessCreationFlags.CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
+
+            creationFlags |=
+                ProcessCreationFlags.CREATE_SEPARATE_WOW_VDM |
+
                 ProcessCreationFlags.CREATE_DEFAULT_ERROR_MODE |
                 ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP |
+                ProcessCreationFlags.CREATE_NO_WINDOW |
                 ProcessCreationFlags.CREATE_SUSPENDED |
                 ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT;
 
@@ -562,129 +564,103 @@
 
                     try
                     {
-                        bool setOk = SetProcessWindowStation(this.windowStation);
+                            bool setOk = SetProcessWindowStation(this.windowStation);
 
-                        if (!setOk)
-                        {
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                        }
+                            if (!setOk)
+                            {
+                                throw new Win32Exception(Marshal.GetLastWin32Error());
+                            }
 
-                        desktop = CreateDesktop("default", null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
+                            desktop = CreateDesktop("default", null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
 
-                        if (desktop == IntPtr.Zero)
-                        {
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                        }
-
+                            if (desktop == IntPtr.Zero)
+                            {
+                                throw new Win32Exception(Marshal.GetLastWin32Error());
+                            }
+                                            
                     }
                     finally
                     {
-                        SetProcessWindowStation(currentWindowStation);
+                            SetProcessWindowStation(currentWindowStation);
                     }
                 }
             }
 
-            var delegateStartInfo = new ProcessStartInfo();
-            delegateStartInfo.FileName = GetCreateProcessDeletegatePath();
-            delegateStartInfo.UseShellExecute = false;
 
-            if (runInfo.Interactive)
+            if (string.IsNullOrEmpty(this.WindowsUsername))
             {
-                delegateStartInfo.CreateNoWindow = false;
-                delegateStartInfo.ErrorDialog = true;
+                throw new InvalidOperationException("This should not be run without a user");
             }
             else
             {
-                delegateStartInfo.CreateNoWindow = true;
-                delegateStartInfo.ErrorDialog = false;
+
+                SECURITY_ATTRIBUTES secAttributes = new SECURITY_ATTRIBUTES();
+                secAttributes.nLength = Marshal.SizeOf(secAttributes);
+
+                var envMap = new Dictionary<string, string>();
+                envMap["Method"] = "CreateProcessWithLogonW";
+                envMap["Username"] = this.WindowsUsername;
+                envMap["Domain"] = ".";
+                envMap["Password"] = this.WindowsPassword;
+                envMap["LogonFlags"] = ((int)LogonFlags.LOGON_WITH_PROFILE).ToString();
+                envMap["CommandLine"] = string.IsNullOrWhiteSpace(runInfo.FileName) ? runInfo.Arguments : '"' + runInfo.FileName + "\" " + runInfo.Arguments;
+                envMap["CreationFlags"] = ((int)(creationFlags & (~ProcessCreationFlags.CREATE_SUSPENDED))).ToString();
+                envMap["CurrentDirectory"] = runInfo.WorkingDirectory;
+                envMap["Desktop"] = ""; // Desktop should be inhereted
+                // envMap["Desktop"] = string.Format(@"{0}\default", this.WindowsUsername);
+
+                string env = BuildEnvironmentVariable(envMap);
+
+                // Create the process in suspended mode to fence it with a Windows Job Object 
+                // before it executes.
+                // TODO: Use CreateProcessWithToken to prevent Windows form creating an unamed job object for the
+                // second created process.
+                // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
+
+                        
+                string processPath = Process.GetCurrentProcess().MainModule.FileName;
+                string processDirPath = Directory.GetParent(processPath).FullName;
+
+                bool ret = CreateProcess(
+                    null,
+                    processDirPath + @"\Uhuru.WindowsIsolation.CreateProcessDelegate.exe",
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    true,
+                    creationFlags,
+                    env,
+                    null,
+                    ref startupInfo,
+                    out processInfo
+                    );
+
+                if (!ret)
+                {
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
             }
 
-            delegateStartInfo.RedirectStandardInput = true;
-            delegateStartInfo.RedirectStandardOutput = true;
+            var process = Process.GetProcessById(processInfo.dwProcessId);
 
-            delegateStartInfo.EnvironmentVariables["Method"] = "CreateProcessWithLogonW";
-            delegateStartInfo.EnvironmentVariables["pUsername"] = this.WindowsUsername;
-            delegateStartInfo.EnvironmentVariables["Domain"] = ".";
-            delegateStartInfo.EnvironmentVariables["Password"] = this.WindowsPassword;
-            delegateStartInfo.EnvironmentVariables["LogonFlags"] = ((int)LogonFlags.LOGON_NETCREDENTIALS_ONLY).ToString();
-            delegateStartInfo.EnvironmentVariables["CommandLine"] = string.IsNullOrWhiteSpace(runInfo.FileName) ? runInfo.Arguments : '"' + runInfo.FileName + "\" " + runInfo.Arguments;
-            delegateStartInfo.EnvironmentVariables["CreationFlags"] = ((int)(creationFlags)).ToString();
-            delegateStartInfo.EnvironmentVariables["CurrentDirectory"] = runInfo.WorkingDirectory;
-            delegateStartInfo.EnvironmentVariables["Desktop"] = startupInfo.lpDesktop;
+            this.jobObject.AddProcess(process);
 
-            var delegateProcess = Process.Start(delegateStartInfo);
-
-            // Delegate Process: started in suspended state
-            // Working  Process: not started
-
-            // Take the process with the Job Object before resuming the process.
-            this.jobObject.AddProcess(delegateProcess);
-
-            delegateProcess.StandardInput.WriteLine("CreateProcess");
-
-            // Wait for response
-            var workerProcessPid = int.Parse(delegateProcess.StandardOutput.ReadLine());
-            var workerProcess = Process.GetProcessById(workerProcessPid);
-
-            // This would allow the process to query the ExitCode. ref: http://msdn.microsoft.com/en-us/magazine/cc163900.aspx
-            workerProcess.EnableRaisingEvents = true;
-
-            // Delegate Process: ending
-            // Working  Process: started in suspended state
-
-            delegateProcess.WaitForExit();
-
-            if (delegateProcess.ExitCode != 0)
-            {
-                throw new Win32Exception(delegateProcess.ExitCode);
-            }
-
-            // Delegate Process: finished
-            // Working  Process: started in suspended state
-
-            // Now that the process is is gated with the Job Object so we can resume the thread.
-            IntPtr threadHandler = OpenThread(ThreadAccess.SUSPEND_RESUME, false, workerProcess.Threads[0].Id);
-
-            uint resumeResult = ResumeThread(threadHandler);
-
-            CloseHandle(threadHandler);
-
-            if (resumeResult != 1)
+            uint ret2 = ResumeThread(processInfo.hThread);
+            if (ret2 != 1)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
-            // Delegate Process: finished
-            // Working  Process: running
+            process.WaitForExit();
+            if (process.ExitCode != 0)
+            {
+                throw new Win32Exception(process.ExitCode);
+            }
 
-            return workerProcess;
+            CloseHandle(processInfo.hProcess);
+            CloseHandle(processInfo.hThread);
 
-
-        }
-
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern IntPtr OpenThread(ThreadAccess dwDesiredAccess, bool bInheritHandle, int dwThreadId);
-
-
-        [Flags]
-        public enum ThreadAccess : uint
-        {
-            TERMINATE = (0x0001),
-            SUSPEND_RESUME = (0x0002),
-            GET_CONTEXT = (0x0008),
-            SET_CONTEXT = (0x0010),
-            SET_INFORMATION = (0x0020),
-            QUERY_INFORMATION = (0x0040),
-            SET_THREAD_TOKEN = (0x0080),
-            IMPERSONATE = (0x0100),
-            DIRECT_IMPERSONATION = (0x0200)
-        }
-        private static string GetCreateProcessDeletegatePath()
-        {
-            string assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string assemblyDirPath = Directory.GetParent(assemblyPath).FullName;
-
-            return Path.Combine(assemblyDirPath, "Uhuru.WindowsIsolation.CreateProcessDelegate.exe");
+            // Todo return the real process id
+            // return process;
         }
 
         /// <summary>
