@@ -272,8 +272,6 @@
         [CLSCompliant(false)]
         private DIDiskQuotaUser userQuota;
 
-        private IntPtr windowStation;
-
         public JobObject jobObject
         {
             get;
@@ -353,6 +351,20 @@
             else
                 this.Id = createInfo.Id;
 
+            string[] keys = new string[] { "ALLUSERSPROFILE", "APPDATA", "CommonProgramFiles", "CommonProgramFiles(x86)", "CommonProgramW6432", "COMPUTERNAME",
+                "HOMEDRIVE", "LOCALAPPDATA", "NUMBER_OF_PROCESSORS", "OS", "Path", "PROCESSOR_ARCHITECTURE", "PROCESSOR_IDENTIFIER", "PROCESSOR_LEVEL",
+                "PROCESSOR_REVISION", "ProgramData", "ProgramFiles", "ProgramFiles(x86)", "ProgramW6432", "PROMPT", "PSModulePath", 
+                "SystemDrive", "SystemRoot", "windir"  };
+
+            this.myenvvars["HOMEPATH"] = createInfo.DiskQuotaPath;
+            this.myenvvars["TEMP"] = Path.Combine(createInfo.DiskQuotaPath, "tmp");
+            this.myenvvars["TMP"] = Path.Combine(createInfo.DiskQuotaPath, "tmp");
+
+            foreach (string key in keys)
+            {
+                this.myenvvars[key] = Environment.GetEnvironmentVariable(key);
+            }
+
             this.createInfo = createInfo;
             this.jobObject = new JobObject(JobObjectNamespace() + this.Id);
 
@@ -405,12 +417,6 @@
                 }
             }
 
-            this.windowStation = CreateWindowStation(this.WindowsUsername, 0, WINDOWS_STATION_ACCESS_MASK.WINSTA_NONE, null);
-            if (this.windowStation == IntPtr.Zero)
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
             this.Created = true;
         }
 
@@ -451,12 +457,6 @@
             if (this.createInfo.DiskQuotaBytes > -1)
             {
                 userQuota = DiskQuotaManager.GetDiskQuotaUser(DiskQuotaManager.GetVolumeRootFromPath(this.createInfo.DiskQuotaPath), this.WindowsUsername);
-            }
-
-            this.windowStation = CreateWindowStation(this.WindowsUsername, 0, WINDOWS_STATION_ACCESS_MASK.WINSTA_NONE, null);
-            if (this.windowStation == IntPtr.Zero)
-            {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
             this.Created = true;
@@ -516,8 +516,32 @@
                 private static readonly object windowStationLock = new object();
                 private Dictionary<string, string> myenvvars = new Dictionary<string,string>();
 
+                [DllImport("userenv.dll", SetLastError = true)]
+                static extern bool CreateEnvironmentBlock(out IntPtr lpEnvironment, IntPtr hToken, bool bInherit);
+              
+        
+        
+        private byte[] CreateEnvironment(Dictionary<string, string> env)
+                {
+                    MemoryStream ms = new MemoryStream();
+                    StreamWriter w = new StreamWriter(ms, Encoding.Unicode);
+                    w.Flush();
+                    ms.Position = 0; //Skip any byte order marks to identify the encoding
+                    Char nullChar = (char)0;
+                    foreach (string k in env.Keys)
+                    {
+                        w.Write("{0}={1}", k, env[k]);
+                        w.Write(nullChar);
+                    }
+                    w.Write(nullChar);
+                    w.Write(nullChar);
+                    w.Flush();
+                    ms.Flush();
+                    byte[] data = ms.ToArray();
+                    return data;
+                }
 
-        public void RunProcess(ProcessPrisonRunInfo runInfo)
+        public Process RunProcess(ProcessPrisonRunInfo runInfo)
         {
             if (!this.Created)
             {
@@ -553,38 +577,13 @@
             else
             {
                 creationFlags |= ProcessCreationFlags.CREATE_NO_WINDOW;
-
                 // http://support.microsoft.com/kb/165194
-                startupInfo.lpDesktop = this.WindowsUsername + "\\" + "default";
-
-                lock (windowStationLock)
-                {
-                    IntPtr currentWindowStation = GetProcessWindowStation();
-                    IntPtr desktop = IntPtr.Zero;
-
-                    try
-                    {
-                            bool setOk = SetProcessWindowStation(this.windowStation);
-
-                            if (!setOk)
-                            {
-                                throw new Win32Exception(Marshal.GetLastWin32Error());
-                            }
-
-                            desktop = CreateDesktop("default", null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
-
-                            if (desktop == IntPtr.Zero)
-                            {
-                                throw new Win32Exception(Marshal.GetLastWin32Error());
-                            }
-                                            
-                    }
-                    finally
-                    {
-                            SetProcessWindowStation(currentWindowStation);
-                    }
-                }
+                // startupInfo.lpDesktop = this.Id + "\\" + "default";
+                // TODO: isolate the Windows Station and Destop
             }
+
+
+
 
 
             if (string.IsNullOrEmpty(this.WindowsUsername))
@@ -597,46 +596,70 @@
                 SECURITY_ATTRIBUTES secAttributes = new SECURITY_ATTRIBUTES();
                 secAttributes.nLength = Marshal.SizeOf(secAttributes);
 
-                var envMap = new Dictionary<string, string>();
-                envMap["Method"] = "CreateProcessWithLogonW";
-                envMap["Username"] = this.WindowsUsername;
-                envMap["Domain"] = ".";
-                envMap["Password"] = this.WindowsPassword;
-                envMap["LogonFlags"] = ((int)LogonFlags.LOGON_WITH_PROFILE).ToString();
-                envMap["CommandLine"] = string.IsNullOrWhiteSpace(runInfo.FileName) ? runInfo.Arguments : '"' + runInfo.FileName + "\" " + runInfo.Arguments;
-                envMap["CreationFlags"] = ((int)(creationFlags & (~ProcessCreationFlags.CREATE_SUSPENDED))).ToString();
-                envMap["CurrentDirectory"] = runInfo.WorkingDirectory;
-                envMap["Desktop"] = ""; // Desktop should be inhereted
-                // envMap["Desktop"] = string.Format(@"{0}\default", this.WindowsUsername);
+                IntPtr windowStation = CreateWindowStation(this.WindowsUsername, 0, WINDOWS_STATION_ACCESS_MASK.WINSTA_NONE, null);
+                IntPtr desktop = IntPtr.Zero;
 
-                string env = BuildEnvironmentVariable(envMap);
-
-                // Create the process in suspended mode to fence it with a Windows Job Object 
-                // before it executes.
-                // TODO: Use CreateProcessWithToken to prevent Windows form creating an unamed job object for the
-                // second created process.
-                // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
-
-                        
-                string processPath = Process.GetCurrentProcess().MainModule.FileName;
-                string processDirPath = Directory.GetParent(processPath).FullName;
-
-                bool ret = CreateProcess(
-                    null,
-                    processDirPath + @"\Uhuru.WindowsIsolation.CreateProcessDelegate.exe",
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    true,
-                    creationFlags,
-                    env,
-                    null,
-                    ref startupInfo,
-                    out processInfo
-                    );
-
-                if (!ret)
+                lock (windowStationLock)
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    IntPtr currentWindowStation = GetProcessWindowStation();
+
+                    try
+                    {
+                        bool setOk = SetProcessWindowStation(windowStation);
+
+                        if (!setOk)
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                        }
+
+                        CreateDesktop(this.WindowsUsername, null, null, 0, ACCESS_MASK.DESKTOP_CREATEWINDOW, null);
+
+                        var envMap = new Dictionary<string, string>();
+                        envMap["Method"] = "CreateProcessWithLogonW";
+                        envMap["Username"] = this.WindowsUsername;
+                        envMap["Domain"] = ".";
+                        envMap["Password"] = this.WindowsPassword;
+                        envMap["LogonFlags"] = ((int)LogonFlags.LOGON_WITH_PROFILE).ToString();
+                        envMap["CommandLine"] = '"' + runInfo.FileName + "\" " + runInfo.Arguments;
+                        envMap["CreationFlags"] = ((int)creationFlags).ToString();
+                        envMap["CurrentDirectory"] = runInfo.WorkingDirectory;
+                        envMap["Desktop"] = string.Format(@"{0}\{0}", this.WindowsUsername);
+
+                        string env = BuildEnvironmentVariable(envMap);
+
+                        // startupInfo.lpDesktop = string.Format(@"{0}\{0}", this.WindowsUsername);
+
+                        byte[] envBlock = CreateEnvironment(myenvvars);
+
+                        // Create the process in suspended mode to fence it with a Windows Job Object 
+                        // before it executes.
+                        // TODO: Use CreateProcessWithToken to prevent Windows form creating an unamed job object for the
+                        // second created process.
+                        // http://stackoverflow.com/questions/1287620/createprocesswithlogonw-and-assignprocesstojobobject
+
+                        bool ret = CreateProcessWithLogon(
+                            this.WindowsUsername,
+                            this.WindowsDomain,
+                            this.WindowsPassword,
+                            LogonFlags.LOGON_NETCREDENTIALS_ONLY,
+                            runInfo.FileName,
+                            runInfo.Arguments,
+                            creationFlags,
+                            UnicodeEncoding.Unicode.GetString(envBlock),
+                            runInfo.WorkingDirectory,
+                            ref startupInfo,
+                            out processInfo
+                            );
+
+                        if (!ret)
+                        {
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                        }
+                    }
+                    finally
+                    {
+                        SetProcessWindowStation(currentWindowStation);
+                    }
                 }
             }
 
@@ -650,17 +673,10 @@
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
 
-            process.WaitForExit();
-            if (process.ExitCode != 0)
-            {
-                throw new Win32Exception(process.ExitCode);
-            }
-
             CloseHandle(processInfo.hProcess);
             CloseHandle(processInfo.hThread);
 
-            // Todo return the real process id
-            // return process;
+            return process;
         }
 
         /// <summary>
@@ -790,7 +806,7 @@
 
         public Process[] GetRunningProcesses()
         {
-            return this.jobObject.GetJobProcesses();
+            throw new NotImplementedException();
         }
 
 

@@ -2,7 +2,7 @@ $script:scriptPath = Join-Path $env:HOME iishwc
 $script:appPoolName = [Guid]::NewGuid().ToString()
 $script:appPort = $Env:PORT
 $script:appPath = (get-item $script:scriptPath).parent.FullName
-$script:logsDir = Join-Path $env:DROPLET_PATH logs
+$script:logsDir = Join-Path $env:HOMEPATH logs
 $script:exitCode = 0
 
 function DetectBitness()

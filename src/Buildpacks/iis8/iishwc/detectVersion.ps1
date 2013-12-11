@@ -37,7 +37,7 @@ $rootWebConfigPath = Join-Path $script:scriptPath $rootWebConfigFileName
 
 $rootWebConfig = New-Object System.Xml.XmlDocument
 $rootWebConfig.Load($rootWebConfigPath)
-$tmpPath = Join-Path $env:DROPLET_PATH "tmp"
+$tmpPath = Join-Path $env:HOMEPATH "tmp"
 $compilationPath = Join-Path $tmpPath "aspnet_compilation"
 
 $element = $rootWebConfig.SelectSingleNode("configuration/system.web/compilation")
