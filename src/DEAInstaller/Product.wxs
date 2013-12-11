@@ -74,9 +74,6 @@
               <File Id="YamlDotNetRepresentationModelDll" Name="YamlDotNet.RepresentationModel.dll" Source="$(var.BINDIRECTORY)"/>
               <File Id="YamlDotNetRepresentationModelPdb" Name="YamlDotNet.RepresentationModel.pdb" Source="$(var.BINDIRECTORY)"/>
 
-              <File Id="UhuruWindowsIsolationCreateProcessDelegateexe" Name="Uhuru.WindowsIsolation.CreateProcessDelegate.exe" Source="$(var.BINDIRECTORY)"></File>
-              <File Id="UhuruWindowsIsolationCreateProcessDelegatepdb" Name="Uhuru.WindowsIsolation.CreateProcessDelegate.pdb" Source="$(var.BINDIRECTORY)"></File>
-              
               <util:XmlFile Id="SetIndex" Action="setValue" ElementPath="/uhuru/dea/@index" File="[INSTALLDIR]\Dea.config" Value="[INDEX]" ></util:XmlFile>
               <util:XmlFile Id="SetBaseDir" Action="setValue" ElementPath="/uhuru/dea/@baseDir" File="[INSTALLDIR]\Dea.config" Value="[BASEDIR]" ></util:XmlFile>
               <util:XmlFile Id="SetLocalRoute" Action="setValue" ElementPath="/uhuru/dea/@localRoute" File="[INSTALLDIR]\Dea.config" Value="[LOCALROUTE]" ></util:XmlFile>
