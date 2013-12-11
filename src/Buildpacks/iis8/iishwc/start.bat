@@ -1,7 +1,7 @@
 @echo off
-powershell -ExecutionPolicy bypass "& %~dp0\start.ps1"
+powershell -version 2.0 -ExecutionPolicy bypass "& %~dp0\start.ps1"
 set bitness=%ERRORLEVEL%
-powershell -ExecutionPolicy bypass "& %~dp0\detectVersion.ps1"
+powershell -version 2.0 -ExecutionPolicy bypass "& %~dp0\detectVersion.ps1"
 set version=%ERRORLEVEL%
 IF %bitness% EQU 0 (
     IF %version% EQU 40 (

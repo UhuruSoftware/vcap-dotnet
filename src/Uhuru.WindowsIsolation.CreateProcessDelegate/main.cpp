@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <map>
 #include <string>
+#include <iostream>
+#include <cstdio>
 
 using namespace std;
 
@@ -11,7 +13,7 @@ map<wstring, wstring> * GetEnvs()
 	wchar_t *envs = GetEnvironmentStringsW();
 
 	wchar_t *curLine = envs;
-	while(1)
+	while (1)
 	{
 		if (curLine[0] == 0)
 		{
@@ -30,7 +32,7 @@ map<wstring, wstring> * GetEnvs()
 				envName.assign(curLine, curChar - curLine);
 				envValue = curChar + 1;
 
-				break; 
+				break;
 			}
 
 			curChar++;
@@ -52,8 +54,23 @@ map<wstring, wstring> * GetEnvs()
 	return envsMap;
 }
 
+// Input will be recited with by stdin plus environment variables and output will be provided to stdout.
+// If successful the return code is 0. If there was an error the return code is the error message.
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
+	wstring inputCommand;
+
+	// This will block the current process and allow the Prison Manager to tag it with the Job Object.
+	getline(std::wcin, inputCommand);
+
+	// If the input command is not CreateProcess then return the error message 1.
+	if (inputCommand != L"CreateProcess")
+	{
+		return 1;
+	}
+
+	// Parse the environment variables.
+
 	map<wstring, wstring> *envs = GetEnvs();
 	wstring method = envs->at(L"Method");
 
@@ -75,24 +92,27 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	STARTUPINFOW suInfo;
 	ZeroMemory(&suInfo, sizeof(STARTUPINFOW));
 	suInfo.cb = sizeof(STARTUPINFOW);
-	suInfo.lpDesktop = (wchar_t *) desktop;
+	suInfo.lpDesktop = (wchar_t *)desktop;
 
 	PROCESS_INFORMATION processInfo;
 	ZeroMemory(&processInfo, sizeof(PROCESS_INFORMATION));
 
-	BOOL suc = false;
-
 	if (method == L"CreateProcessWithLogonW")
 	{
-		wstring username = envs->at(L"Username");
+		wstring username = envs->at(L"pUsername");
 		wstring domain = envs->at(L"Domain");
 		wstring password = envs->at(L"Password");
 
-		suc = CreateProcessWithLogonW(
+		BOOL createProcessSuccess = CreateProcessWithLogonW(
 			username.c_str(), domain.c_str(), password.c_str(), logonFlags,
 			NULL, (wchar_t  *)commandLine.c_str(), creationFlags, NULL, currentDirectory, &suInfo, &processInfo
 			);
 
+		if (!createProcessSuccess)
+		{
+			int error = GetLastError();
+			return error;
+		}
 	}
 
 	if (method == L"CreateProcessWithTokenW")
@@ -100,19 +120,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		wstring tokenStr = envs->at(L"Token");
 		HANDLE token = (HANDLE)_wtoi(tokenStr.c_str());
 
-		suc = CreateProcessWithTokenW(
+		BOOL createProcessSuccess = CreateProcessWithTokenW(
 			token, logonFlags,
 			NULL, (wchar_t  *)commandLine.c_str(), creationFlags, NULL, currentDirectory, &suInfo, &processInfo
 			);
 
+		if (!createProcessSuccess)
+		{
+			int error = GetLastError();
+			return error;
+		}
 	}
 
-	if (!suc)
-	{
-		int error = GetLastError();
-		return error;
-		// throw new runtime_error("Process did not start.");
-	}
+	CloseHandle(processInfo.hProcess);
+	CloseHandle(processInfo.hThread);
+
+	// Return the worker process PID to stdout
+	wstring workerPid = to_wstring(processInfo.dwProcessId);
+	wcout << workerPid << endl;
 
 	return 0;
 }
