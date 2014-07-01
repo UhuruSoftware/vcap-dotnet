@@ -148,17 +148,23 @@ namespace Uhuru.CloudFoundry.DEA.Plugins.AspDotNetLogging
                     extraInfo = webBasedErrorEvent.ErrorException.ToString();
                 }
 
-                this.customInfo.AppendLine(
-                    string.Format(
+                string line = string.Format(
                     CultureInfo.InvariantCulture,
                     "Event Time (UTC):[{0}] Event Code:[{1}] Event Id:[{2}] Event Message:[{3}]",
                     eventRaised.EventTimeUtc, 
                     eventRaised.EventCode, 
                     eventRaised.EventID,
-                    eventRaised.Message + " " + extraInfo));
-            }
-
-            this.StoreToFile(FileMode.Append);
+                    eventRaised.Message + " " + extraInfo);
+                
+                if (this.Name == "ErrorEventProvider")
+                {
+                    Console.Error.WriteLine(line);                    
+                }
+                else
+                {
+                    Console.Out.WriteLine(line);
+                }
+            }            
         }
 
         /// <summary>
