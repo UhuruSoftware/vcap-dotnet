@@ -167,18 +167,7 @@ namespace Uhuru.CloudFoundry.DEA
 
             DateTime start = DateTime.Now;
 
-            string tmpFilename = Path.Combine(
-                Path.GetDirectoryName(this.StagingStateFile),
-                string.Format(CultureInfo.InvariantCulture, Strings.SnapshotTemplate, Guid.NewGuid().ToString()));
-
-            File.WriteAllText(tmpFilename, appState);
-
-            if (File.Exists(this.StagingStateFile))
-            {
-                File.Delete(this.StagingStateFile);
-            }
-
-            File.Move(tmpFilename, this.StagingStateFile);
+            File.WriteAllText(this.StagingStateFile, appState);
 
             Logger.Debug(Strings.TookXSecondsToSnapshotApplication, DateTime.Now - start);
 
